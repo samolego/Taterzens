@@ -1,13 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.fabricmc.example.mixin",
+  "package": "org.samo_lego.taterzens.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
   ],
-  "client": [
-    "ExampleMixin"
-  ],
+  "client": [ ],
   "injectors": {
     "defaultRequire": 1
   }
