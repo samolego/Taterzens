@@ -4,8 +4,13 @@
   "package": "org.samo_lego.taterzens.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ServerPlayerEntityMixinCast_TaterzenEditor",
+    "ServerPlayNetworkHandlerMixin",
+    "accessors.MobSpawnS2CPacketAccessor",
+    "accessors.PlayerListS2CPacketAccessor",
+    "accessors.PlayerSpawnS2CPacketAccessor"
   ],
-  "client": [ ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
