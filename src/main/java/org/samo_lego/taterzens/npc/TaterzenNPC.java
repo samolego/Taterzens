@@ -47,7 +47,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     private final NPCData npcData = new NPCData();
     private PlayerManager playerManager;
-    private RegistryKey<World> dimension;
     private MinecraftServer server;
     private GameProfile gameProfile;
 
@@ -60,7 +59,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public TaterzenNPC(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
-        this.dimension = world.getRegistryKey();
         this.stepHeight = 0.6F;
         this.setCanPickUpLoot(false);
         this.setCustomNameVisible(true);
@@ -113,7 +111,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(gameProfile.getName()))));
-            this.playerManager.sendToDimension(playerListS2CPacket, dimension);
+            this.playerManager.sendToDimension(playerListS2CPacket, this.world.getRegistryKey());
         }
     }
 
@@ -129,9 +127,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void changeType(Entity entity) {
         this.npcData.entityType = entity.getType();
         this.npcData.fakeTypeAlive = entity instanceof LivingEntity;
-        playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), dimension);
-        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.dimension); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
-        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.dimension);
+        playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
+        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
+        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
     }
 
     /**
@@ -178,6 +176,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public ActionResult interactMob(PlayerEntity player, Hand hand) {
         if(!this.npcData.command.isEmpty()) {
+            System.out.println("INteract");
             this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
             return ActionResult.PASS;
         }
@@ -197,6 +196,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         Identifier identifier = new Identifier(npcTag.getString("entityType"));
         this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
+        this.npcData.command = npcTag.getString("command");
         this.gameProfile = new GameProfile(this.uuid, this.getCustomName().asString());
         this.server = this.world.getServer();
         this.playerManager = server.getPlayerManager();
@@ -217,9 +217,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putBoolean("freeWill", this.npcData.freeWill);
         npcTag.putBoolean("stationary", this.npcData.stationary);
         npcTag.putBoolean("leashable", this.npcData.leashable);
+        npcTag.putString("command", this.npcData.command);
 
         npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
-
         tag.put("TaterzenNPCTag", npcTag);
     }
 

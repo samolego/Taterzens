@@ -8,8 +8,6 @@ import java.util.UUID;
 
 @Mixin(MobSpawnS2CPacket.class)
 public interface MobSpawnS2CPacketAccessor {
-    @Accessor("uuid")
-    UUID getUuid();
 
     @Accessor("id")
     int getId();
