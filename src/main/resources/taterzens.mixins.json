@@ -4,8 +4,12 @@
   "package": "org.samo_lego.taterzens.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "AbstractSkeletonEntityMixin_TaterzenLoader",
+    "EntityTypeMixin",
     "ServerPlayerEntityMixinCast_TaterzenEditor",
     "ServerPlayNetworkHandlerMixin",
+    "accessors.EntitySpawnS2CPacketAccessor",
+    "accessors.EntityTrackerUpdateS2CPacketAccessor",
     "accessors.MobSpawnS2CPacketAccessor",
     "accessors.PlayerListS2CPacketAccessor",
     "accessors.PlayerSpawnS2CPacketAccessor"

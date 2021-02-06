@@ -7,9 +7,8 @@ import net.minecraft.entity.EntityType;
  */
 public class NPCData {
     public EntityType<?> entityType = EntityType.PLAYER;
+    public boolean fakeTypeAlive = true;
     public boolean freeWill = false;
-    public boolean gravity = false;
     public boolean stationary = true;
-    public boolean invulnerable = true;
-    public boolean leashable;
+    public boolean leashable = true;
 }

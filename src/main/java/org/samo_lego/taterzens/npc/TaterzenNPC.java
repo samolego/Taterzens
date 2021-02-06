@@ -2,15 +2,19 @@ package org.samo_lego.taterzens.npc;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.CrossbowUser;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.SkeletonEntity;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -21,8 +25,10 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -33,7 +39,7 @@ import java.util.Collections;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
-public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
+public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAttackMob {
 
     private final NPCData npcData = new NPCData();
     private PlayerManager playerManager;
@@ -43,28 +49,33 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
 
     /**
      * Creates a TaterzenNPC.
-     * @deprecated Internal use only. Use {@link TaterzenNPC#TaterzenNPC(MinecraftServer, ServerWorld, String, Vec3d, Vec2f)} or {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)}
+     * Internal use only. Use {@link TaterzenNPC#TaterzenNPC(MinecraftServer, ServerWorld, String, Vec3d, Vec2f)} or {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)}
+     *
+     * @param entityType
      * @param world
      */
-    @Deprecated
-    protected TaterzenNPC(World world) {
-        super(EntityType.SKELETON, world);
+    public TaterzenNPC(EntityType<? extends HostileEntity> entityType, World world) {
+        super(entityType, world);
+        this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
+        this.removed = false;
+        this.dimension = world.getRegistryKey();
+        this.stepHeight = 0.6F;
+        this.setCanPickUpLoot(false);
+        this.setCustomNameVisible(true);
+        this.setInvulnerable(true);
+        this.setPersistent();
     }
 
     public TaterzenNPC(MinecraftServer server, ServerWorld world, String displayName, Vec3d pos, Vec2f rotation) {
-        this(world);
+        this(Taterzens.TATERZEN, world);
         this.gameProfile = new GameProfile(this.getUuid(), displayName);
         this.server = server;
         this.playerManager = server.getPlayerManager();
-        this.removed = false;
-        this.stepHeight = 0.6F;
-        this.setCanPickUpLoot(true);
-        this.dimension = world.getRegistryKey();
 
         this.teleport(pos.getX(), pos.getY(), pos.getZ());
         this.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
+
         this.setCustomName(new LiteralText(displayName));
-        this.setCustomNameVisible(true);
         world.spawnEntity(this);
     }
 
@@ -72,9 +83,6 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
         this(owner.getServer(), owner.getServerWorld(), displayName, owner.getPos(), new Vec2f(owner.yaw, owner.pitch));
     }
 
-    public NPCData getNpcData() {
-        return npcData;
-    }
 
     @Override
     public void setCharging(boolean charging) {
@@ -83,7 +91,7 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
 
     @Override
     public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
-        super.attack(target, 4.0F);
+        //this.attack(target, 4.0F);
     }
 
     @Override
@@ -98,7 +106,6 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
 
     @Override
     public void onDeath(DamageSource source) {
-        Taterzens.TATERZENS.remove(this);
         if(this.npcData.entityType == EntityType.PLAYER) {
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
@@ -116,10 +123,32 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
         return this.gameProfile;
     }
 
-    public void changeType(EntityType<?> entityType) {
-        this.npcData.entityType = entityType;
+    public void changeType(Entity entity) {
+        this.npcData.entityType = entity.getType();
+        this.npcData.fakeTypeAlive = entity instanceof LivingEntity;
         playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), dimension);
-        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.dimension);
+        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.dimension); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
+        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.dimension);
+    }
+
+    /**
+     * Gets the entity type of the NPC used on client.
+     * @return EntityType of the NPC.
+     */
+    public EntityType<?> getFakeType() {
+        return this.npcData.entityType;
+    }
+    /**
+     * If fake type is an instance of {@link LivingEntity}.
+     * @return true if so, otherwise false.
+     */
+    public boolean isFakeTypeAlive() {
+        return this.npcData.fakeTypeAlive;
+    }
+
+    @Override
+    public Text getName() {
+        return new LiteralText(this.gameProfile.getName());
     }
 
     @Override
@@ -139,12 +168,73 @@ public class TaterzenNPC extends SkeletonEntity implements CrossbowUser {
 
     @Override
     public void tickMovement() {
-        if(this.npcData.freeWill)
+        if(this.npcData.freeWill && !this.npcData.stationary)
             super.tickMovement();
+    }
+
+    @Override
+    public void readCustomDataFromTag(CompoundTag tag) {
+        System.out.println("From tag!" + tag);
+
+        super.readCustomDataFromTag(tag);
+
+        CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
+
+        this.npcData.fakeTypeAlive = npcTag.getBoolean("fakeTypeAlive");
+        this.npcData.freeWill = npcTag.getBoolean("freeWill");
+        this.npcData.stationary = npcTag.getBoolean("stationary");
+        this.npcData.leashable = npcTag.getBoolean("leashable");
+
+        Identifier identifier = new Identifier(npcTag.getString("entityType"));
+        this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
+
+        npcTag.putString("entityType", this.npcData.entityType.toString());
+    }
+
+    /**
+     * Saves Taterzen to {@link CompoundTag tag}.
+     * Id is changed to "taterzens:npc". Explanation can be foundS {@link org.samo_lego.taterzens.mixin.EntityTypeMixin here}.
+     *
+     * @param tag
+     */
+    @Override
+    public void writeCustomDataToTag(CompoundTag tag) {
+        super.writeCustomDataToTag(tag);
+
+        CompoundTag npcTag = new CompoundTag();
+
+        npcTag.putBoolean("fakeTypeAlive", this.npcData.fakeTypeAlive);
+        npcTag.putBoolean("freeWill", this.npcData.freeWill);
+        npcTag.putBoolean("stationary", this.npcData.stationary);
+        npcTag.putBoolean("leashable", this.npcData.leashable);
+
+        npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
+
+
+        tag.put("TaterzenNPCTag", npcTag);
+        System.out.println(tag);
+    }
+
+    @Override
+    protected void updateDespawnCounter() {
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.ENTITY_PLAYER_BREATH;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_PLAYER_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
         return SoundEvents.ENTITY_PLAYER_DEATH;
+    }
+
+    public void setCommand() {
+
     }
 }
