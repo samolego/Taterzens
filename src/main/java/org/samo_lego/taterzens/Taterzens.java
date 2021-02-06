@@ -21,7 +21,7 @@ public class Taterzens implements ModInitializer {
             Registry.ENTITY_TYPE,
             new Identifier(MODID, "npc"),
             FabricEntityTypeBuilder
-                    .create(SpawnGroup.MONSTER, TaterzenNPC::new)
+                    .<TaterzenNPC>create(SpawnGroup.MONSTER, TaterzenNPC::new)
                     .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
                     .build()
     );

@@ -30,7 +30,7 @@ import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.A
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
 /**
- * Used to "fake" the bot entity
+ * Used to "fake" the TaterzenNPC entity type
  */
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {

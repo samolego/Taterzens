@@ -1,6 +1,7 @@
 package org.samo_lego.taterzens.npc;
 
 import com.mojang.authlib.GameProfile;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.CrossbowUser;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -25,6 +26,8 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -36,6 +39,7 @@ import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
@@ -56,14 +60,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public TaterzenNPC(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
-        this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
-        this.removed = false;
         this.dimension = world.getRegistryKey();
         this.stepHeight = 0.6F;
         this.setCanPickUpLoot(false);
         this.setCustomNameVisible(true);
         this.setInvulnerable(true);
         this.setPersistent();
+        this.experiencePoints = 0;
     }
 
     public TaterzenNPC(MinecraftServer server, ServerWorld world, String displayName, Vec3d pos, Vec2f rotation) {
@@ -173,11 +176,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
+    public ActionResult interactMob(PlayerEntity player, Hand hand) {
+        if(!this.npcData.command.isEmpty()) {
+            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+            return ActionResult.PASS;
+        }
+        return ActionResult.FAIL;
+    }
+
+    @Override
     public void readCustomDataFromTag(CompoundTag tag) {
-        System.out.println("From tag!" + tag);
-
         super.readCustomDataFromTag(tag);
-
+        System.out.println("From tag "+ tag);
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
         this.npcData.fakeTypeAlive = npcTag.getBoolean("fakeTypeAlive");
@@ -187,13 +197,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         Identifier identifier = new Identifier(npcTag.getString("entityType"));
         this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
-
-        npcTag.putString("entityType", this.npcData.entityType.toString());
+        this.gameProfile = new GameProfile(this.uuid, this.getCustomName().asString());
+        this.server = this.world.getServer();
+        this.playerManager = server.getPlayerManager();
     }
 
     /**
      * Saves Taterzen to {@link CompoundTag tag}.
-     * Id is changed to "taterzens:npc". Explanation can be foundS {@link org.samo_lego.taterzens.mixin.EntityTypeMixin here}.
      *
      * @param tag
      */
@@ -210,9 +220,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
 
-
         tag.put("TaterzenNPCTag", npcTag);
-        System.out.println(tag);
     }
 
     @Override
@@ -234,7 +242,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return SoundEvents.ENTITY_PLAYER_DEATH;
     }
 
-    public void setCommand() {
-
+    public void setCommand(String command) {
+        this.npcData.command = command;
     }
 }

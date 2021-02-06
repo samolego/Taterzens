@@ -69,10 +69,9 @@ public class NpcCommand {
 
     private static void setCommand(RootCommandNode<ServerCommandSource> root, CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
+        String command = context.getInput().substring(21);
 
-        System.out.println(context.getRootNode());
-        //System.out.println(StringArgumentType.getString(context, "setCommand"));
-        taterzen.setCommand();
+        taterzen.setCommand(command);
     }
 
     private static int removeTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

@@ -11,4 +11,5 @@ public class NPCData {
     public boolean freeWill = false;
     public boolean stationary = true;
     public boolean leashable = true;
+    public String command = "";
 }
