@@ -8,9 +8,11 @@
     "ServerPlayNetworkHandlerMixin",
     "accessors.EntitySetHeadYawS2CPacketAccessor",
     "accessors.EntitySpawnS2CPacketAccessor",
+    "accessors.EntityTrackerEntryAccessor",
     "accessors.MobSpawnS2CPacketAccessor",
     "accessors.PlayerListS2CPacketAccessor",
-    "accessors.PlayerSpawnS2CPacketAccessor"
+    "accessors.PlayerSpawnS2CPacketAccessor",
+    "accessors.ThreadedAnvilChunkStorageAccessor"
   ],
   "client": [],
   "injectors": {

@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.npc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.fabricmc.fabric.mixin.networking.accessor.EntityTrackerAccessor;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.CrossbowUser;
@@ -11,6 +12,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -24,7 +26,9 @@ import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
@@ -38,9 +42,12 @@ import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.Taterzens;
 
+import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
@@ -54,7 +61,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     /**
      * Creates a TaterzenNPC.
-     * Internal use only. Use {@link TaterzenNPC#TaterzenNPC(MinecraftServer, ServerWorld, String, Vec3d, Vec2f)} or {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)}
+     * Internal use only. Use {@link TaterzenNPC#TaterzenNPC(MinecraftServer, ServerWorld, String, Vec3d, float[])} or {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)}
      *
      * @param entityType
      * @param world
@@ -69,7 +76,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.experiencePoints = 0;
     }
 
-    public TaterzenNPC(MinecraftServer server, ServerWorld world, String displayName, Vec3d pos, Vec2f rotation, float headYaw) {
+    public TaterzenNPC(MinecraftServer server, ServerWorld world, String displayName, Vec3d pos, float[] rotations) {
         this(Taterzens.TATERZEN, world);
         this.gameProfile = new GameProfile(this.getUuid(), displayName);
         this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile), false);
@@ -77,8 +84,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.playerManager = server.getPlayerManager();
 
         //this.teleport(pos.getX(), pos.getY(), pos.getZ());
-        this.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
-        this.setHeadYaw(headYaw);
+        this.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotations[1], rotations[2]);
+        this.setHeadYaw(rotations[0]);
 
 
         this.setCustomName(new LiteralText(displayName));
@@ -86,7 +93,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     public TaterzenNPC(ServerPlayerEntity owner, String displayName) {
-        this(owner.getServer(), owner.getServerWorld(), displayName, owner.getPos(), new Vec2f(owner.yaw, owner.pitch), owner.headYaw);
+        this(owner.getServer(), owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
     }
 
 
@@ -116,7 +123,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(gameProfile.getName()))));
-            this.playerManager.sendToDimension(playerListS2CPacket, this.world.getRegistryKey());
+            this.playerManager.sendToAll(playerListS2CPacket);
         }
     }
 
@@ -137,25 +144,49 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
     }
 
+    /**
+     * Applies skin from {@link GameProfile}.
+     *
+     * @param texturesProfile GameProfile containing textures.
+     * @param sendUpdate whether to send the texture update.
+     */
     public void applySkin(GameProfile texturesProfile, boolean sendUpdate) {
         if(this.npcData.entityType != EntityType.PLAYER)
             return;
+
+        // Clearing current skin
+        try {
+            PropertyMap map = this.gameProfile.getProperties();
+            Property skin = map.get("textures").iterator().next();
+            map.remove("textures", skin);
+        } catch (NoSuchElementException ignored) { }
+
+        // Setting new skin
         try {
             PropertyMap map = texturesProfile.getProperties();
-            Property property = map.get("textures").iterator().next();
+            Property skin = map.get("textures").iterator().next();
             PropertyMap propertyMap = this.gameProfile.getProperties();
-            propertyMap.put("textures", property);
-        } catch (Error e) {
-            e.printStackTrace();
-        }
+            propertyMap.removeAll("textures");
+            propertyMap.put("textures", skin);
+        } catch (NoSuchElementException ignored) { }
+
+        // Sending updates
         if(sendUpdate) {
             PlayerListS2CPacket packet = new PlayerListS2CPacket();
+            //noinspection ConstantConditions
             PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
-            accessor.setEntries(Collections.singletonList(packet.new Entry(this.getGameProfile(), 0, GameMode.SURVIVAL, this.getName())));
+            accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getName())));
+
             accessor.setAction(REMOVE_PLAYER);
             playerManager.sendToAll(packet);
             accessor.setAction(ADD_PLAYER);
             playerManager.sendToAll(packet);
+
+            ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
+            ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
+            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+
+            trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
         }
     }
 

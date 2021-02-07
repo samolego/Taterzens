@@ -65,7 +65,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 return;
 
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
-            //noinspection ConstantConditions - Accessor
+            //noinspection ConstantConditions
             PlayerListS2CPacketAccessor listS2CPacketAccessor = (PlayerListS2CPacketAccessor) playerListS2CPacket;
 
             TaterzenNPC npc = (TaterzenNPC) entity;
@@ -100,15 +100,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
                 else {
                     EntitySpawnS2CPacket entitySpawnPacket = new EntitySpawnS2CPacket(npc);
+                    //noinspection ConstantConditions
                     ((EntitySpawnS2CPacketAccessor) entitySpawnPacket).setEntityId(npc.getFakeType());
-                    System.out.println("Sending packet non alive");
                     this.sendPacket(entitySpawnPacket); //todo
                     //this.sendPacket(new EntityVelocityUpdateS2CPacket(npc));
                     ci.cancel();
                 }
             }
-            EntitySetHeadYawS2CPacket headPacket = new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F));
-            this.sendPacket(headPacket);
+            this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
+            this.sendPacket(new EntityPositionS2CPacket(npc));
         }
     }
 }

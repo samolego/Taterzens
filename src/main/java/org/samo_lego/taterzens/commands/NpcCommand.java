@@ -26,6 +26,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
@@ -82,6 +83,7 @@ public class NpcCommand {
         if(taterzen != null) {
             GameProfile skinProfile = new GameProfile(null, StringArgumentType.getString(context, "player name"));
             skinProfile = SkullBlockEntity.loadProperties(skinProfile);
+            System.out.println(skinProfile);
             taterzen.applySkin(skinProfile, true);
         }
         else
@@ -159,7 +161,7 @@ public class NpcCommand {
             ServerPlayerEntity player = context.getSource().getPlayer();
             TaterzenNPC taterzen = new TaterzenNPC(player, MessageArgumentType.getMessage(context, "name").asString());
             ((TaterzenEditor) player).selectNpc(taterzen);
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | NoSuchElementException e) {
             e.printStackTrace();
         }
         return 0;
