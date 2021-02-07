@@ -6,8 +6,8 @@
   "mixins": [
     "ServerPlayerEntityMixinCast_TaterzenEditor",
     "ServerPlayNetworkHandlerMixin",
+    "accessors.EntitySetHeadYawS2CPacketAccessor",
     "accessors.EntitySpawnS2CPacketAccessor",
-    "accessors.EntityTrackerUpdateS2CPacketAccessor",
     "accessors.MobSpawnS2CPacketAccessor",
     "accessors.PlayerListS2CPacketAccessor",
     "accessors.PlayerSpawnS2CPacketAccessor"

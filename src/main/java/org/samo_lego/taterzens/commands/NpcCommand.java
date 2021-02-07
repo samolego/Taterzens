@@ -1,11 +1,13 @@
 package org.samo_lego.taterzens.commands;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.RootCommandNode;
+import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.EntitySummonArgumentType;
@@ -19,7 +21,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -35,7 +36,7 @@ public class NpcCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // Ignore this for now, we will explain it next.
         dispatcher.register(CommandManager.literal("npc")
-                .then(CommandManager.literal("spawn")
+                .then(CommandManager.literal("create")
                     .then(CommandManager.argument("name", message())
                         .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
                         .executes(NpcCommand::spawnTaterzen)
@@ -53,8 +54,11 @@ public class NpcCommand {
                     .then(CommandManager.literal("setCommand")
                             .redirect(dispatcher.getRoot(), context -> {
                                 // Really ugly, but ... works :P
-                                setCommand(dispatcher.getRoot(), context);
-                                throw new SimpleCommandExceptionType(new LiteralText("Success!").formatted(Formatting.GREEN)).create();
+                                setCommand(context);
+                                throw new SimpleCommandExceptionType(
+                                        new LiteralText("Success!")
+                                                .formatted(Formatting.GREEN)
+                                ).create();
                             })
                     )
                     .then(CommandManager.literal("changeType")
@@ -63,11 +67,29 @@ public class NpcCommand {
                                     .executes(NpcCommand::changeType)
                             )
                     )
+                    .then(CommandManager.literal("setSkin")
+                            .then(CommandManager.argument("player name", word())
+                                    .executes(NpcCommand::setSkin)
+                            )
+                    )
                 )
         );
     }
 
-    private static void setCommand(RootCommandNode<ServerCommandSource> root, CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int setSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            GameProfile skinProfile = new GameProfile(null, StringArgumentType.getString(context, "player name"));
+            skinProfile = SkullBlockEntity.loadProperties(skinProfile);
+            taterzen.applySkin(skinProfile, true);
+        }
+        else
+            context.getSource().sendError(new LiteralText("You have to select Taterzen first."));
+        return 0;
+    }
+
+    private static void setCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
         String command = context.getInput().substring(21);
 
@@ -133,9 +155,13 @@ public class NpcCommand {
     }*/
 
     private static int spawnTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayer();
-        TaterzenNPC taterzen = new TaterzenNPC(player, MessageArgumentType.getMessage(context, "name").asString());
-        ((TaterzenEditor) player).selectNpc(taterzen);
+        try {
+            ServerPlayerEntity player = context.getSource().getPlayer();
+            TaterzenNPC taterzen = new TaterzenNPC(player, MessageArgumentType.getMessage(context, "name").asString());
+            ((TaterzenEditor) player).selectNpc(taterzen);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 }

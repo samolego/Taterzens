@@ -43,6 +43,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
+     *
      * @param packet
      * @param listener
      * @param ci
@@ -64,20 +65,24 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 return;
 
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
+            //noinspection ConstantConditions - Accessor
+            PlayerListS2CPacketAccessor listS2CPacketAccessor = (PlayerListS2CPacketAccessor) playerListS2CPacket;
+
             TaterzenNPC npc = (TaterzenNPC) entity;
             if(npc.getFakeType() == EntityType.PLAYER) {
-                ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(ADD_PLAYER);
-                ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
-
+                listS2CPacketAccessor.setAction(ADD_PLAYER);
+                listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
 
                 PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setId(npc.getEntityId());
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setUuid(npc.getUuid());
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setX(npc.getX());
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setY(npc.getY());
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setZ(npc.getZ());
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setYaw((byte)((int)(npc.headYaw * 256.0F / 360.0F)));
-                ((PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket).setPitch((byte)((int)(npc.pitch * 256.0F / 360.0F)));
+                //noinspection ConstantConditions - Accessor
+                PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
+                spawnS2CPacketAccessor.setId(npc.getEntityId());
+                spawnS2CPacketAccessor.setUuid(npc.getUuid());
+                spawnS2CPacketAccessor.setX(npc.getX());
+                spawnS2CPacketAccessor.setY(npc.getY());
+                spawnS2CPacketAccessor.setZ(npc.getZ());
+                spawnS2CPacketAccessor.setYaw((byte)((int)(npc.yaw * 256.0F / 360.0F)));
+                spawnS2CPacketAccessor.setPitch((byte)((int)(npc.pitch * 256.0F / 360.0F)));
 
                 this.sendPacket(playerListS2CPacket);
                 this.sendPacket(playerSpawnS2CPacket);
@@ -85,8 +90,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
             else {
                 // Removing player from client tab
-                ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
-                ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
+                listS2CPacketAccessor.setAction(REMOVE_PLAYER);
+                listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
                 this.sendPacket(playerListS2CPacket);
 
                 int id = Registry.ENTITY_TYPE.getRawId(npc.getFakeType());
@@ -95,13 +100,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
                 else {
                     EntitySpawnS2CPacket entitySpawnPacket = new EntitySpawnS2CPacket(npc);
-                    ((EntitySpawnS2CPacketAccessor) entitySpawnPacket).setId(id);
+                    ((EntitySpawnS2CPacketAccessor) entitySpawnPacket).setEntityId(npc.getFakeType());
                     System.out.println("Sending packet non alive");
                     this.sendPacket(entitySpawnPacket); //todo
-                    this.sendPacket(new EntityVelocityUpdateS2CPacket(npc));
+                    //this.sendPacket(new EntityVelocityUpdateS2CPacket(npc));
                     ci.cancel();
                 }
             }
+            EntitySetHeadYawS2CPacket headPacket = new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F));
+            this.sendPacket(headPacket);
         }
     }
 }
