@@ -37,8 +37,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
     @Shadow public ServerPlayerEntity player;
 
-    @Shadow @Final private MinecraftServer server;
-
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
     /**
@@ -108,7 +106,17 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 }
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
-            this.sendPacket(new EntityPositionS2CPacket(npc));
         }
+        /*else if(packet instanceof EntityTrackerUpdateS2CPacket) {
+            World world = player.getEntityWorld();
+            EntityTrackerUpdateS2CPacketAccessor accessor = (EntityTrackerUpdateS2CPacketAccessor) packet;
+            Entity entity = world.getEntityById(accessor.getId());
+
+            if(!(entity instanceof TaterzenNPC))
+                return;
+
+            accessor.getTrackedValues().set(8, );
+
+        }*/
     }
 }

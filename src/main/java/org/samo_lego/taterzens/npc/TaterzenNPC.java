@@ -3,16 +3,13 @@ package org.samo_lego.taterzens.npc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import net.fabricmc.fabric.mixin.networking.accessor.EntityTrackerAccessor;
 import net.minecraft.block.entity.SkullBlockEntity;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.CrossbowUser;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -35,13 +32,11 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.Taterzens;
-
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
@@ -49,6 +44,7 @@ import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
+import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
@@ -166,7 +162,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             PropertyMap map = texturesProfile.getProperties();
             Property skin = map.get("textures").iterator().next();
             PropertyMap propertyMap = this.gameProfile.getProperties();
-            propertyMap.removeAll("textures");
             propertyMap.put("textures", skin);
         } catch (NoSuchElementException ignored) { }
 
@@ -211,6 +206,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public Text getName() {
         return new LiteralText(this.gameProfile.getName());
     }*/
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f);
+    }
 
     @Override
     protected boolean isAffectedByDaylight() {
