@@ -4,10 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.block.entity.SkullBlockEntity;
-import net.minecraft.entity.CrossbowUser;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
@@ -138,6 +135,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
         playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
         playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
+        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey());
     }
 
     /**
@@ -234,10 +232,33 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             super.tickMovement();
     }
 
+    public void setEquipmentEditor(PlayerEntity player) {
+        this.npcData.equipmentEditor = player;
+    }
+    public boolean isEquipmentEditor(PlayerEntity player) {
+        return player.equals(this.npcData.equipmentEditor);
+    }
+
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        if(!this.npcData.command.isEmpty()) {
-            System.out.println("INteract");
+    public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
+        if(this.isEquipmentEditor(player)) {
+            ItemStack stack = player.getStackInHand(hand);
+            System.out.println(stack);
+            if (stack.isEmpty() && player.isSneaking()) {
+                // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
+                // then with "air"
+                // todo
+                this.dropEquipment(DamageSource.player(player), 1, true);
+            }
+            else if(player.isSneaking()) {
+                this.equipStack(EquipmentSlot.MAINHAND, stack);
+            }
+            else
+                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+
+            return ActionResult.FAIL;
+        }
+        else if(!this.npcData.command.isEmpty()) {
             this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
             return ActionResult.PASS;
         }
@@ -308,4 +329,5 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void setCommand(String command) {
         this.npcData.command = command;
     }
+
 }

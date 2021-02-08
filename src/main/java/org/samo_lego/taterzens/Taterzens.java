@@ -4,18 +4,29 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.samo_lego.taterzens.storage.TaterConfig;
+import org.samo_lego.taterzens.storage.TaterLang;
+
+import java.io.File;
 
 public class Taterzens implements ModInitializer {
 
     public static final String MODID = "taterzens";
+
+    public static TaterConfig config;
+    public static TaterLang lang;
+    private static final Logger LOGGER = (Logger) LogManager.getLogger();
 
     public static final EntityType<TaterzenNPC> TATERZEN = Registry.register(
             Registry.ENTITY_TYPE,
@@ -33,5 +44,16 @@ public class Taterzens implements ModInitializer {
         CommandRegistrationCallback.EVENT.register(NpcCommand::register);
 
         FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createMobAttributes());
+
+        File taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens");
+        if (!taterDir.exists() && !taterDir.mkdirs())
+            throw new RuntimeException("[SimpleAuth] Error creating directory!");
+
+        config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
+        lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
+    }
+
+    public static Logger getLogger() {
+        return LOGGER;
     }
 }

@@ -1,6 +1,7 @@
 package org.samo_lego.taterzens.npc;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 
 /**
  * Deafult NPC data.
@@ -12,4 +13,5 @@ public class NPCData {
     public boolean stationary = true;
     public boolean leashable = true;
     public String command = "";
+    public PlayerEntity equipmentEditor = null;
 }
