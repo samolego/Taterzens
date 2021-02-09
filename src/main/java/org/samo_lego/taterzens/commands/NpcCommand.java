@@ -2,21 +2,26 @@ package org.samo_lego.taterzens.commands;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.MessageArgumentType;
+import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -32,6 +37,7 @@ import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.lang;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
@@ -47,19 +53,37 @@ public class NpcCommand {
                     )
                 )
                 .then(literal("select")
-                        .then(literal("name")
-                                .executes(NpcCommand::selectTaterzen)
+                        .then(literal("id")
+                                .then(argument("id", IntegerArgumentType.integer(1))
+                                    .executes(NpcCommand::selectTaterzenById)
+                                )
                         )
+                        .executes(NpcCommand::selectTaterzen)
                 )
                 .then(literal("remove")
                         .executes(NpcCommand::removeTaterzen)
                 )
+                .then(literal("tp")
+                        .then(argument("destination", EntityArgumentType.entity())
+                            .executes(context -> teleportTaterzen(context,  EntityArgumentType.getEntity(context, "destination").getPos()))
+                        )
+                        .then(argument("position", Vec3ArgumentType.vec3())
+                            .executes(context -> teleportTaterzen(context, Vec3ArgumentType.getPosArgument(context, "position").toAbsolutePos(context.getSource())))
+                        )
+                )
                 .then(literal("edit")
+                    .then(literal("name")
+                            .then(argument("new name", message())
+                                    .executes(NpcCommand::renameTaterzen)
+                            )
+                    )
                     .then(literal("command")
                             .redirect(dispatcher.getRoot(), context -> {
                                 // Really ugly, but ... works :P
                                 String cmd = setCommand(context);
                                 throw new SimpleCommandExceptionType(
+                                        cmd == null ?
+                                        new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED) :
                                         joinString(lang.success.setCommandAction, Formatting.GOLD, "/" + cmd, Formatting.GRAY)
                                 ).create();
                             })
@@ -96,6 +120,59 @@ public class NpcCommand {
         );
     }
 
+    private static int selectTaterzenById(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        int id = IntegerArgumentType.getInteger(context, "id");
+        if(id > TATERZEN_NPCS.size()) {
+            context.getSource().sendError(
+                    errorText(lang.error.noTaterzenFound, new LiteralText(String.valueOf(id)))
+            );
+        }
+        else {
+            TaterzenNPC taterzen = TATERZEN_NPCS.get(id - 1);
+            ((TaterzenEditor) player).selectNpc(taterzen);
+            context.getSource().sendFeedback(
+                    successText(lang.success.selectedTaterzen, taterzen.getCustomName()),
+                    false
+            );
+        }
+        return 0;
+    }
+
+    private static int renameTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            Text newName = MessageArgumentType.getMessage(context, "new name");
+            taterzen.setCustomName(newName);
+            // Updating name on the client
+            taterzen.changeType(taterzen.getFakeType(), taterzen.isFakeTypeAlive());
+            context.getSource().sendFeedback(
+                    successText(lang.success.renameTaterzen, newName),
+                    false
+            );
+        }
+        else
+            context.getSource().sendError(
+                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
+            );
+
+        return 0;
+    }
+
+    private static int teleportTaterzen(CommandContext<ServerCommandSource> context, Vec3d destination) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            taterzen.teleport(destination.getX(), destination.getY(), destination.getZ());
+        }
+        else
+            context.getSource().sendError(
+                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
+            );
+        return 0;
+    }
+
     private static int changeMovement(CommandContext<ServerCommandSource> context, NPCData.Movement movement) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
@@ -128,7 +205,7 @@ public class NpcCommand {
             }
             else {
                 context.getSource().sendFeedback(
-                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getName(), Formatting.AQUA).formatted(Formatting.BOLD),
+                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA).formatted(Formatting.BOLD),
                         false
                 );
                 context.getSource().sendFeedback(
@@ -175,9 +252,12 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
         // Extremely :concern:
         // I know it
-        String command = context.getInput().substring(18); // 18 being the length of `/npc edit command `
-        taterzen.setCommand(command);
+        String command = null;
+        if(taterzen != null) {
+            command = context.getInput().substring(18); // 18 being the length of `/npc edit command `
+            taterzen.setCommand(command);
 
+        }
         return command;
     }
 
@@ -186,7 +266,7 @@ public class NpcCommand {
         if(taterzen != null) {
             taterzen.kill();
             context.getSource().sendFeedback(
-                    successText(lang.success.killedTaterzen, taterzen.getName()),
+                    successText(lang.success.killedTaterzen, taterzen.getCustomName()),
                     false
             );
         }
@@ -206,7 +286,7 @@ public class NpcCommand {
             if(entity instanceof TaterzenNPC) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
                 context.getSource().sendFeedback(
-                        successText(lang.success.selectedTaterzen, entity.getName()),
+                        successText(lang.success.selectedTaterzen, entity.getCustomName()),
                         false
                 );
                 return true;
@@ -274,7 +354,7 @@ public class NpcCommand {
             e.printStackTrace();
         }
         context.getSource().getMinecraftServer().getPlayerManager().getPlayerList().forEach(
-                player -> names.add( player.getGameProfile().getName() )
+                player -> names.add( player.getGameProfile().getCustomName() )
         );
 
         return names;
@@ -287,7 +367,7 @@ public class NpcCommand {
             TaterzenNPC taterzen = new TaterzenNPC(player, taterzenName);
             ((TaterzenEditor) player).selectNpc(taterzen);
             context.getSource().sendFeedback(
-                    successText(lang.success.spawnedTaterzen, taterzen.getName()),
+                    successText(lang.success.spawnedTaterzen, taterzen.getCustomName()),
                     false
             );
         } catch (ClassCastException | NoSuchElementException e) {

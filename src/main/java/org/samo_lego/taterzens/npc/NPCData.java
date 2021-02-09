@@ -15,6 +15,7 @@ public class NPCData {
     public PlayerEntity equipmentEditor = null;
     public long lastActionTime;
     public Movement movement = Movement.NONE;
+    public boolean pushable = false;
 
     public enum Movement {
         NONE,

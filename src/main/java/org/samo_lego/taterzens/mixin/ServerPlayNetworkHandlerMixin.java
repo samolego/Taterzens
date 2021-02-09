@@ -87,7 +87,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             else {
                 // Removing player from client tab
                 listS2CPacketAccessor.setAction(REMOVE_PLAYER);
-                listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
+                listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getCustomName())));
                 this.sendPacket(playerListS2CPacket);
 
                 int id = Registry.ENTITY_TYPE.getRawId(npc.getFakeType());

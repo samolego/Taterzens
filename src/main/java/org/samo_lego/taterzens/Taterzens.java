@@ -19,6 +19,7 @@ import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class Taterzens implements ModInitializer {
 
@@ -27,6 +28,7 @@ public class Taterzens implements ModInitializer {
     public static TaterConfig config;
     public static TaterLang lang;
     private static final Logger LOGGER = (Logger) LogManager.getLogger();
+    public static final ArrayList<TaterzenNPC> TATERZEN_NPCS = new ArrayList<>();
 
     public static final EntityType<TaterzenNPC> TATERZEN = Registry.register(
             Registry.ENTITY_TYPE,

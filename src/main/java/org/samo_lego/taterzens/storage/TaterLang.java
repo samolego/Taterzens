@@ -15,6 +15,9 @@ public class TaterLang {
             .serializeNulls()
             .create();
 
+
+    public String availableTaterzens = "Available taterzens:";
+
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
         public String changedEntityType = "Taterzen type was set to %s.";
@@ -23,18 +26,19 @@ public class TaterLang {
         public String selectedTaterzen = "You have selected %s.";
         public String equipmentEditorEnter = "You've entered equipment editor for %s. Enter same command to exit.";
         public String equipmentEditorDescLine1 = "Right click the Taterzen to equip it.";
-        public String equipmentEditorDescLine2 = "To put armor in hand, use shift right click. ";
+        public String equipmentEditorDescLine2 = "To put armor in hand, use shift right click.";
         public String equipmentEditorDescLine3 = "Punch to swap hands.";
         public String equipmentEditorDescLine4 = "Shift right click with empty hand to drop all equipment.";
         public String editorExit = "You've exited the editor.";
         public String taterzenSkinChange = "Skin of Taterzen was fetched from %s.";
         public String configReloaded = "Config was reloaded successfully.";
         public String changedMovementType = "Movement type was set to %s.";
+        public String renameTaterzen = "Taterzen has been renamed to %s.";
     }
 
     public static class Error {
         public String selectTaterzen = "You have to select Taterzen first.";
-        public String noTaterzenFound = "No Taterzens were found.";
+        public String noTaterzenFound = "No Taterzens with id %s were found.";
     }
 
 
