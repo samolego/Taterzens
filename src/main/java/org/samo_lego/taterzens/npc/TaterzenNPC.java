@@ -287,7 +287,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player
-        if(this.npcData.entityType == EntityType.PLAYER && lastAction - this.npcData.lastActionTime < 50)
+        if(lastAction - this.npcData.lastActionTime < 50)
             return result;
 
         if(this.isEquipmentEditor(player)) {
