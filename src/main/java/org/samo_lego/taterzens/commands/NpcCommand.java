@@ -17,8 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -59,6 +58,9 @@ public class NpcCommand {
                                 )
                         )
                         .executes(NpcCommand::selectTaterzen)
+                )
+                .then(literal("list")
+                    .executes(NpcCommand::listTaterzens)
                 )
                 .then(literal("remove")
                         .executes(NpcCommand::removeTaterzen)
@@ -118,6 +120,26 @@ public class NpcCommand {
                     )
                 )
         );
+    }
+
+    private static int listTaterzens(CommandContext<ServerCommandSource> context) {
+        MutableText response = new LiteralText(lang.availableTaterzens).formatted(Formatting.AQUA);
+        for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
+            int index = i + 1;
+            Text name = TATERZEN_NPCS.get(i).getCustomName();
+            response.append(
+                    new LiteralText("\n" + index + "-> ")
+                    .append(name)
+                    .formatted(i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD)
+                    .styled(style -> style
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select id " + index))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Select ").append(name)))
+                    )
+            );
+        }
+
+        context.getSource().sendFeedback(response, false);
+        return 0;
     }
 
     private static int selectTaterzenById(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

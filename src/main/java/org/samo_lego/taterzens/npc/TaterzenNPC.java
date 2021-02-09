@@ -6,7 +6,6 @@ import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
-import net.minecraft.entity.ai.TargetFinder;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
@@ -54,7 +53,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private PlayerManager playerManager;
     private MinecraftServer server;
     private GameProfile gameProfile;
-    private final LookAtEntityGoal lookAtPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 40.0F);
+    private final LookAtEntityGoal lookAtPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
     private final FollowTargetGoal<PlayerEntity> followTargetGoal = new FollowTargetGoal<>(this, PlayerEntity.class, false, true);
     private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 0.4F, 30);
 
