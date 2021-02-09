@@ -241,28 +241,34 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
-        if(this.isEquipmentEditor(player)) {
-            ItemStack stack = player.getStackInHand(hand);
-            System.out.println(stack);
-            if (stack.isEmpty() && player.isSneaking()) {
-                // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
-                // then with "air"
-                // todo
-                this.dropEquipment(DamageSource.player(player), 1, true);
-            }
-            else if(player.isSneaking()) {
-                this.equipStack(EquipmentSlot.MAINHAND, stack);
-            }
-            else
-                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+        long lastAction = ((ServerPlayerEntity) player).getLastActionTime();
+        ActionResult result = ActionResult.FAIL;
 
-            return ActionResult.FAIL;
+        // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
+        // then with "air" if fake type is player
+        if((lastAction != this.npcData.lastActionTime) == (this.npcData.entityType == EntityType.PLAYER)) {
+            if(this.isEquipmentEditor(player)) {
+                ItemStack stack = player.getStackInHand(hand);
+
+                if (stack.isEmpty() && player.isSneaking()) {
+                    this.dropEquipment(DamageSource.player(player), 1, true);
+                }
+                else if(player.isSneaking()) {
+                    this.equipStack(EquipmentSlot.MAINHAND, stack);
+                }
+                else {
+                    this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+                }
+                result = ActionResult.PASS;
+            }
+            else if(!this.npcData.command.isEmpty()) {
+                this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+                result = ActionResult.PASS;
+            }
         }
-        else if(!this.npcData.command.isEmpty()) {
-            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
-            return ActionResult.PASS;
-        }
-        return ActionResult.FAIL;
+
+        this.npcData.lastActionTime = lastAction;
+        return result;
     }
 
     @Override

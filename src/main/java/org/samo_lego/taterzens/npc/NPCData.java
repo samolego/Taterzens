@@ -14,4 +14,5 @@ public class NPCData {
     public boolean leashable = true;
     public String command = "";
     public PlayerEntity equipmentEditor = null;
+    public long lastActionTime;
 }
