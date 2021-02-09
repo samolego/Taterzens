@@ -19,11 +19,16 @@ public class TaterLang {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
         public String changedType = "Taterzen type was is now set to %s.";
         public String killedTaterzen = "Taterzen %s has been removed.";
-        public String setCommandAction = "Command action was set successfully.";
+        public String setCommandAction = "Command is now set to %s.";
         public String selectedTaterzen = "You have selected %s.";
         public String equipmentEditorEnter = "You've entered equipment editor for %s. Enter same command to exit.";
-        public String equipmentEditorDesc = "Right click the Taterzen to equip it. \nTo put armor in hand, use shift right click. \nPunch to swap hands. \nShift right click with empty hand to drop all equipment.";
+        public String equipmentEditorDescLine1 = "Right click the Taterzen to equip it.";
+        public String equipmentEditorDescLine2 = "To put armor in hand, use shift right click. ";
+        public String equipmentEditorDescLine3 = "Punch to swap hands.";
+        public String equipmentEditorDescLine4 = "Shift right click with empty hand to drop all equipment.";
         public String editorExit = "You've exited the editor.";
+        public String taterzenSkinChange = "Skin of Taterzen was fetched from %s.";
+        public String configReloaded = "Config was reloaded successfully.";
     }
 
     public static class Error {

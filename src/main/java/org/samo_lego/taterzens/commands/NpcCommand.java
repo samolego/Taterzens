@@ -32,6 +32,7 @@ import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.lang;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -55,9 +56,9 @@ public class NpcCommand {
                     .then(literal("command")
                             .redirect(dispatcher.getRoot(), context -> {
                                 // Really ugly, but ... works :P
-                                setCommand(context);
+                                String cmd = setCommand(context);
                                 throw new SimpleCommandExceptionType(
-                                        new LiteralText(lang.success.setCommandAction).formatted(Formatting.GREEN)
+                                        joinString(lang.success.setCommandAction, Formatting.GOLD, "/" + cmd, Formatting.GRAY)
                                 ).create();
                             })
                     )
@@ -84,6 +85,7 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
             if(taterzen.isEquipmentEditor(player)) {
+                taterzen.setEquipmentEditor(null);
                 context.getSource().sendFeedback(
                         new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
                         false
@@ -93,11 +95,14 @@ public class NpcCommand {
             }
             else {
                 context.getSource().sendFeedback(
-                        new LiteralText(String.format(lang.success.equipmentEditorEnter, taterzen.getName().asString())).formatted(Formatting.GOLD),
+                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getName(), Formatting.AQUA).formatted(Formatting.BOLD),
                         false
                 );
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.equipmentEditorDesc).formatted(Formatting.YELLOW),
+                        new LiteralText(lang.success.equipmentEditorDescLine1).formatted(Formatting.YELLOW).append("\n")
+                            .append(new LiteralText(lang.success.equipmentEditorDescLine2).formatted(Formatting.GOLD)).append("\n")
+                            .append(lang.success.equipmentEditorDescLine3).formatted(Formatting.YELLOW).append("\n")
+                            .append(new LiteralText(lang.success.equipmentEditorDescLine4).formatted(Formatting.RED)),
                         false
                 );
 
@@ -117,10 +122,14 @@ public class NpcCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
-            GameProfile skinProfile = new GameProfile(null, StringArgumentType.getString(context, "player name"));
+            String skinPlayerName = StringArgumentType.getString(context, "player name");
+            GameProfile skinProfile = new GameProfile(null, skinPlayerName);
             skinProfile = SkullBlockEntity.loadProperties(skinProfile);
-            System.out.println(skinProfile);
             taterzen.applySkin(skinProfile, true);
+            context.getSource().sendFeedback(
+                    successText(lang.success.taterzenSkinChange, new LiteralText(skinPlayerName)),
+                    false
+            );
         }
         else
             context.getSource().sendError(
@@ -129,13 +138,14 @@ public class NpcCommand {
         return 0;
     }
 
-    private static void setCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static String setCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
         // Extremely :concern:
-        // I know itd
+        // I know it
         String command = context.getInput().substring(18); // 18 being the length of `/npc edit command `
-
         taterzen.setCommand(command);
+
+        return command;
     }
 
     private static int removeTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -143,7 +153,7 @@ public class NpcCommand {
         if(taterzen != null) {
             taterzen.kill();
             context.getSource().sendFeedback(
-                    new LiteralText(lang.success.killedTaterzen).formatted(Formatting.RED).append(taterzen.getName()).formatted(Formatting.YELLOW),
+                    successText(lang.success.killedTaterzen, taterzen.getName()),
                     false
             );
         }
@@ -163,7 +173,7 @@ public class NpcCommand {
             if(entity instanceof TaterzenNPC) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.selectedTaterzen).formatted(Formatting.GREEN).append(entity.getName()).formatted(Formatting.YELLOW),
+                        successText(lang.success.selectedTaterzen, entity.getName()),
                         false
                 );
                 return true;
@@ -198,7 +208,7 @@ public class NpcCommand {
                 }
 
                 context.getSource().sendFeedback(
-                        new LiteralText(String.format(lang.success.changedType, entityId)).formatted(Formatting.GREEN),
+                        joinString(lang.success.changedType, Formatting.GREEN,  entityId, Formatting.YELLOW),
                         false
                 );
             }
@@ -244,7 +254,7 @@ public class NpcCommand {
             TaterzenNPC taterzen = new TaterzenNPC(player, taterzenName);
             ((TaterzenEditor) player).selectNpc(taterzen);
             context.getSource().sendFeedback(
-                    new LiteralText(String.format(lang.success.spawnedTaterzen, taterzenName)).formatted(Formatting.GREEN),
+                    successText(lang.success.spawnedTaterzen, taterzen.getName()),
                     false
             );
         } catch (ClassCastException | NoSuchElementException e) {

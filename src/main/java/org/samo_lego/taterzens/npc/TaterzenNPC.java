@@ -246,26 +246,28 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player
-        if((lastAction - this.npcData.lastActionTime > 10) == (this.npcData.entityType == EntityType.PLAYER)) {
-            if(this.isEquipmentEditor(player)) {
-                ItemStack stack = player.getStackInHand(hand);
+        if(this.npcData.entityType == EntityType.PLAYER && lastAction - this.npcData.lastActionTime < 10)
+            return result;
 
-                if (stack.isEmpty() && player.isSneaking()) {
-                    this.dropEquipment(DamageSource.player(player), 1, true);
-                }
-                else if(player.isSneaking()) {
-                    this.equipStack(EquipmentSlot.MAINHAND, stack);
-                }
-                else {
-                    this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
-                }
-                result = ActionResult.PASS;
+        if(this.isEquipmentEditor(player)) {
+            ItemStack stack = player.getStackInHand(hand);
+
+            if (stack.isEmpty() && player.isSneaking()) {
+                this.dropEquipment(DamageSource.player(player), 1, true);
             }
-            else if(!this.npcData.command.isEmpty()) {
-                this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
-                result = ActionResult.PASS;
+            else if(player.isSneaking()) {
+                this.equipStack(EquipmentSlot.MAINHAND, stack);
             }
+            else {
+                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+            }
+            result = ActionResult.PASS;
         }
+        else if(!this.npcData.command.isEmpty()) {
+            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+            result = ActionResult.PASS;
+        }
+
 
         this.npcData.lastActionTime = lastAction;
         return result;
@@ -280,7 +282,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.setStackInHand(Hand.OFF_HAND, main);
         }
         else
-            super.damage(source, amount);
+            super.applyDamage(source, amount);
     }
 
     @Override
