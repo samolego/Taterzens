@@ -246,7 +246,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player
-        if((lastAction != this.npcData.lastActionTime) == (this.npcData.entityType == EntityType.PLAYER)) {
+        if((lastAction - this.npcData.lastActionTime > 10) == (this.npcData.entityType == EntityType.PLAYER)) {
             if(this.isEquipmentEditor(player)) {
                 ItemStack stack = player.getStackInHand(hand);
 
@@ -272,9 +272,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
+    protected void applyDamage(DamageSource source, float amount) {
+        Entity attacker = source.getAttacker();
+        if(attacker instanceof PlayerEntity && this.isEquipmentEditor((PlayerEntity) attacker)) {
+            ItemStack main = this.getMainHandStack();
+            this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
+            this.setStackInHand(Hand.OFF_HAND, main);
+        }
+        else
+            super.damage(source, amount);
+    }
+
+    @Override
     public void readCustomDataFromTag(CompoundTag tag) {
         super.readCustomDataFromTag(tag);
-        System.out.println("From tag "+ tag);
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
         this.npcData.fakeTypeAlive = npcTag.getBoolean("fakeTypeAlive");
@@ -310,7 +321,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
         tag.put("TaterzenNPCTag", npcTag);
-        System.out.println("To tag!");
     }
 
     @Override

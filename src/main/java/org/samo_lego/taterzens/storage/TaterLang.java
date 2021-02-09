@@ -22,7 +22,7 @@ public class TaterLang {
         public String setCommandAction = "Command action was set successfully.";
         public String selectedTaterzen = "You have selected %s.";
         public String equipmentEditorEnter = "You've entered equipment editor for %s. Enter same command to exit.";
-        public String equipmentEditorDesc = "Right click the Taterzen to equip it. \nTo put armor in hand, use shift right click. \nShift right click with empty hand to drop all equipment.";
+        public String equipmentEditorDesc = "Right click the Taterzen to equip it. \nTo put armor in hand, use shift right click. \nPunch to swap hands. \nShift right click with empty hand to drop all equipment.";
         public String editorExit = "You've exited the editor.";
     }
 
