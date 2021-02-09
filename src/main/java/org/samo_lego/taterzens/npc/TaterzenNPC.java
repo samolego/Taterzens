@@ -6,6 +6,7 @@ import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,6 +52,37 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private PlayerManager playerManager;
     private MinecraftServer server;
     private GameProfile gameProfile;
+    private final LookAtEntityGoal lookAtPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 40.0F);
+    private final FollowTargetGoal<PlayerEntity> followTargetGoal = new FollowTargetGoal<>(this, PlayerEntity.class, false, true);
+    private final WanderAroundFarGoal wanderAroundFarGoal = new WanderAroundFarGoal(this, this.getMovementSpeed(), 0.0F);
+
+    private final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
+    private final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.0D, 20, 40.0F);
+    private final MeleeAttackGoal meleeAttackGoal = new MeleeAttackGoal(this, 1.2D, false) {
+        public void stop() {
+            super.stop();
+            TaterzenNPC.this.setAttacking(false);
+        }
+
+        public void start() {
+            super.start();
+            TaterzenNPC.this.setAttacking(true);
+        }
+
+        @Override
+        public boolean shouldContinue() {
+            LivingEntity livingEntity = this.mob.getTarget();
+            if(livingEntity == null || !livingEntity.isAlive()) {
+                return false;
+            }
+            return !(livingEntity instanceof PlayerEntity) || (!livingEntity.isSpectator() && !((PlayerEntity) livingEntity).isCreative());
+        }
+
+        @Override
+        protected double getSquaredMaxAttackDistance(LivingEntity entity) {
+            return 12.25D;
+        }
+    };
 
     /**
      * Creates a TaterzenNPC.
@@ -67,6 +99,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setInvulnerable(true);
         this.setPersistent();
         this.experiencePoints = 0;
+        this.setMovementSpeed(0.4F);
     }
 
     public TaterzenNPC(MinecraftServer server, ServerWorld world, String displayName, Vec3d pos, float[] rotations) {
@@ -87,6 +120,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     public TaterzenNPC(ServerPlayerEntity owner, String displayName) {
         this(owner.getServer(), owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
+        System.out.println(owner.getMovementSpeed());
     }
 
 
@@ -135,7 +169,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
         playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
         playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
-        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey());
+        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey()); // Reload equipment
     }
 
     /**
@@ -228,7 +262,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void tickMovement() {
-        if(this.npcData.freeWill && !this.npcData.stationary)
+        if(this.npcData.movement != NPCData.Movement.NONE)
             super.tickMovement();
     }
 
@@ -292,14 +326,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         this.npcData.fakeTypeAlive = npcTag.getBoolean("fakeTypeAlive");
         this.npcData.freeWill = npcTag.getBoolean("freeWill");
-        this.npcData.stationary = npcTag.getBoolean("stationary");
+        if(npcTag.contains("movement"))
+            this.npcData.movement = NPCData.Movement.valueOf(npcTag.getString("movement"));
         this.npcData.leashable = npcTag.getBoolean("leashable");
 
         Identifier identifier = new Identifier(npcTag.getString("entityType"));
         this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
+
         this.npcData.command = npcTag.getString("command");
+
         this.gameProfile = new GameProfile(this.getUuid(), this.getCustomName().asString());
         this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile), false);
+
         this.server = this.world.getServer();
         this.playerManager = server.getPlayerManager();
     }
@@ -317,7 +355,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putBoolean("fakeTypeAlive", this.npcData.fakeTypeAlive);
         npcTag.putBoolean("freeWill", this.npcData.freeWill);
-        npcTag.putBoolean("stationary", this.npcData.stationary);
+
+        npcTag.putString("movement", this.npcData.movement.toString());
+
         npcTag.putBoolean("leashable", this.npcData.leashable);
         npcTag.putString("command", this.npcData.command);
 
@@ -344,8 +384,26 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return SoundEvents.ENTITY_PLAYER_DEATH;
     }
 
+    /**
+     * Sets the command to be executed on right - click
+     * @param command command to execute
+     */
     public void setCommand(String command) {
         this.npcData.command = command;
     }
 
+    /**
+     * Sets {@link org.samo_lego.taterzens.npc.NPCData.Movement movement type}
+     * @param movement movement type
+     */
+    public void setMovement(NPCData.Movement movement) {
+        this.npcData.movement = movement;
+        this.goalSelector.remove(this.wanderAroundFarGoal);
+        this.goalSelector.remove(this.lookAtPlayerGoal);
+        if(movement != NPCData.Movement.NONE) {
+            this.goalSelector.add(6, lookAtPlayerGoal);
+            if(movement == NPCData.Movement.FREE)
+                this.goalSelector.add(3, wanderAroundFarGoal);
+        }
+    }
 }

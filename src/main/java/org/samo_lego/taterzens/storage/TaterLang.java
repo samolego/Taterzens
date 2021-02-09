@@ -17,7 +17,7 @@ public class TaterLang {
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
-        public String changedType = "Taterzen type was is now set to %s.";
+        public String changedEntityType = "Taterzen type was set to %s.";
         public String killedTaterzen = "Taterzen %s has been removed.";
         public String setCommandAction = "Command is now set to %s.";
         public String selectedTaterzen = "You have selected %s.";
@@ -29,6 +29,7 @@ public class TaterLang {
         public String editorExit = "You've exited the editor.";
         public String taterzenSkinChange = "Skin of Taterzen was fetched from %s.";
         public String configReloaded = "Config was reloaded successfully.";
+        public String changedMovementType = "Movement type was set to %s.";
     }
 
     public static class Error {

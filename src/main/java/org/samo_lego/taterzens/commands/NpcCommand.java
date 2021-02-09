@@ -18,6 +18,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class NpcCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // Ignore this for now, we will explain it next.
         dispatcher.register(literal("npc")
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .then(literal("create")
                     .then(argument("name", message())
                         .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
@@ -76,8 +78,39 @@ public class NpcCommand {
                     .then(literal("equipment")
                         .executes(NpcCommand::setEquipment)
                     )
+                    .then(literal("look")
+                        .executes(context -> changeMovement(context, NPCData.Movement.LOOK))
+                    )
+                    .then(literal("movement")
+                            .then(literal("free")
+                                    .executes(context -> changeMovement(context, NPCData.Movement.FREE))
+                            )
+                            .then(literal("path")
+                                    .executes(context -> changeMovement(context, NPCData.Movement.LOOK))
+                            )
+                            .then(literal("none")
+                                    .executes(context -> changeMovement(context, NPCData.Movement.NONE))
+                            )
+                    )
                 )
         );
+    }
+
+    private static int changeMovement(CommandContext<ServerCommandSource> context, NPCData.Movement movement) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            taterzen.setMovement(movement);
+            context.getSource().sendFeedback(
+                    successText(lang.success.changedMovementType, new LiteralText(movement.toString())),
+                    false
+            );
+        }
+        else
+            context.getSource().sendError(
+                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
+            );
+        return 0;
     }
 
     private static int setEquipment(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -208,7 +241,7 @@ public class NpcCommand {
                 }
 
                 context.getSource().sendFeedback(
-                        joinString(lang.success.changedType, Formatting.GREEN,  entityId, Formatting.YELLOW),
+                        joinString(lang.success.changedEntityType, Formatting.GREEN,  entityId, Formatting.YELLOW),
                         false
                 );
             }

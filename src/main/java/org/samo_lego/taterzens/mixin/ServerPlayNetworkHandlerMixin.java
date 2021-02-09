@@ -98,23 +98,11 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     EntitySpawnS2CPacket entitySpawnPacket = new EntitySpawnS2CPacket(npc);
                     //noinspection ConstantConditions
                     ((EntitySpawnS2CPacketAccessor) entitySpawnPacket).setEntityId(npc.getFakeType());
-                    this.sendPacket(entitySpawnPacket); //todo
-                    //this.sendPacket(new EntityVelocityUpdateS2CPacket(npc));
+                    this.sendPacket(entitySpawnPacket);
                     ci.cancel();
                 }
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
         }
-        /*else if(packet instanceof EntityTrackerUpdateS2CPacket) {
-            World world = player.getEntityWorld();
-            EntityTrackerUpdateS2CPacketAccessor accessor = (EntityTrackerUpdateS2CPacketAccessor) packet;
-            Entity entity = world.getEntityById(accessor.getId());
-
-            if(!(entity instanceof TaterzenNPC))
-                return;
-
-            accessor.getTrackedValues().set(8, );
-
-        }*/
     }
 }
