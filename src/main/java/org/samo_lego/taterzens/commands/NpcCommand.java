@@ -28,17 +28,13 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
@@ -53,6 +49,7 @@ public class NpcCommand {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final JsonParser parser = new JsonParser();
+    private static final File PRESETS_DIR = new File(getTaterDir() + "/presets/");
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // Ignore this for now, we will explain it next.
@@ -81,11 +78,13 @@ public class NpcCommand {
                 .then(literal("preset")
                         .then(literal("save")
                                 .then(argument("preset name", word())
+                                        .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                     .executes(NpcCommand::saveTaterzenToPreset)
                                 )
                         )
                         .then(literal("load")
                                 .then(argument("preset name", word())
+                                        .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                     .executes(NpcCommand::loadTaterzenFromPrreset)
                                 )
                         )
@@ -132,7 +131,7 @@ public class NpcCommand {
                     .then(literal("look")
                         .executes(context -> changeMovement(context, NPCData.Movement.LOOK))
                     )
-                    .then(literal("movement")
+                    .then(literal("movement") //todo create from enum
                             .then(literal("free")
                                     .executes(context -> changeMovement(context, NPCData.Movement.FREE))
                             )
@@ -147,11 +146,20 @@ public class NpcCommand {
         );
     }
 
+    private static List<String> getPresets() {
+        List<String> files = new ArrayList<>();
+        Arrays.stream(PRESETS_DIR.listFiles()).forEach(file -> {
+            if(file.isFile() && file.getName().endsWith(".json"))
+                files.add(file.getName());
+        });
+
+        return files;
+    }
+
     private static int loadTaterzenFromPrreset(CommandContext<ServerCommandSource> context) {
-        World world = context.getSource().getWorld();
 
         String filename = StringArgumentType.getString(context, "preset name") + ".json";
-        File preset = new File(getTaterDir() + "/presets/" + filename);
+        File preset = new File(PRESETS_DIR + "/" + filename);
 
         if(preset.exists()) {
             JsonElement element;
@@ -220,7 +228,7 @@ public class NpcCommand {
 
             JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 
-            File preset = new File(getTaterDir() + "/presets/" + filename);
+            File preset = new File(PRESETS_DIR + "/" + filename);
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
                 writer.write(gson.toJson(element));
             } catch (IOException e) {
