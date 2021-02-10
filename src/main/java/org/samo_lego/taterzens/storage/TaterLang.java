@@ -16,7 +16,8 @@ public class TaterLang {
             .create();
 
 
-    public String availableTaterzens = "Available taterzens:";
+    public String availableTaterzens = "Available Taterzens:";
+    public String showLoadedTaterzens = "Show loaded Taterzens";
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
@@ -34,11 +35,15 @@ public class TaterLang {
         public String configReloaded = "Config was reloaded successfully.";
         public String changedMovementType = "Movement type was set to %s.";
         public String renameTaterzen = "Taterzen has been renamed to %s.";
+        public String exportedTaterzen = "Taterzen has been exported to %s.";
+        public String importedTaterzenPreset = "Taterzen was successfully loaded from %s.";
     }
 
     public static class Error {
         public String selectTaterzen = "You have to select Taterzen first.";
         public String noTaterzenFound = "No Taterzens with id %s were found.";
+        public String noPresetFound = "No Taterzen preset with name %s was found.";
+        public String cannotReadPreset = "Preset %s cannot be read.";
     }
 
 
@@ -54,7 +59,7 @@ public class TaterLang {
      */
     public static TaterLang loadLanguageFile(File file) {
         TaterLang language;
-        if (file.exists()) {
+        if(file.exists()) {
             try (BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
             )) {

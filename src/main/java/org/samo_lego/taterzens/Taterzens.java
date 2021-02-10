@@ -29,6 +29,7 @@ public class Taterzens implements ModInitializer {
     public static TaterLang lang;
     private static final Logger LOGGER = (Logger) LogManager.getLogger();
     public static final ArrayList<TaterzenNPC> TATERZEN_NPCS = new ArrayList<>();
+    private static File taterDir;
 
     public static final EntityType<TaterzenNPC> TATERZEN = Registry.register(
             Registry.ENTITY_TYPE,
@@ -47,9 +48,10 @@ public class Taterzens implements ModInitializer {
 
         FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createMobAttributes());
 
-        File taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens");
+        taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens/presets");
         if (!taterDir.exists() && !taterDir.mkdirs())
-            throw new RuntimeException("[SimpleAuth] Error creating directory!");
+            throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
+        taterDir = taterDir.getParentFile();
 
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
         lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
@@ -57,5 +59,8 @@ public class Taterzens implements ModInitializer {
 
     public static Logger getLogger() {
         return LOGGER;
+    }
+    public static File getTaterDir() {
+        return taterDir;
     }
 }

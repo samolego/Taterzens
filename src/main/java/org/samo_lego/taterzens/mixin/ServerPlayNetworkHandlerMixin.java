@@ -104,5 +104,17 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
         }
+        /*else if(packet instanceof EntitySetHeadYawS2CPacket) { //todo - player body rotation
+            World world = player.getEntityWorld();
+            Entity entity = world.getEntityById(((EntitySetHeadYawS2CPacketAccessor) packet).getEntityId());
+
+            if(!(entity instanceof TaterzenNPC))
+                return;
+
+            TaterzenNPC npc = (TaterzenNPC) entity;
+            if(npc.getFakeType() == EntityType.PLAYER) {
+                this.sendPacket(new EntityPositionS2CPacket(npc));
+            }
+        }*/
     }
 }

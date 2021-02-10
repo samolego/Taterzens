@@ -1,5 +1,9 @@
 package org.samo_lego.taterzens.commands;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -7,6 +11,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -15,16 +20,21 @@ import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -36,11 +46,14 @@ import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
-import static org.samo_lego.taterzens.Taterzens.lang;
+import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
+
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final JsonParser parser = new JsonParser();
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         // Ignore this for now, we will explain it next.
         dispatcher.register(literal("npc")
@@ -65,6 +78,18 @@ public class NpcCommand {
                 .then(literal("remove")
                         .executes(NpcCommand::removeTaterzen)
                 )
+                .then(literal("preset")
+                        .then(literal("save")
+                                .then(argument("preset name", word())
+                                    .executes(NpcCommand::saveTaterzenToPreset)
+                                )
+                        )
+                        .then(literal("load")
+                                .then(argument("preset name", word())
+                                    .executes(NpcCommand::loadTaterzenFromPrreset)
+                                )
+                        )
+                )
                 .then(literal("tp")
                         .then(argument("destination", EntityArgumentType.entity())
                             .executes(context -> teleportTaterzen(context,  EntityArgumentType.getEntity(context, "destination").getPos()))
@@ -85,7 +110,7 @@ public class NpcCommand {
                                 String cmd = setCommand(context);
                                 throw new SimpleCommandExceptionType(
                                         cmd == null ?
-                                        new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED) :
+                                        noSelectedTaterzenError() :
                                         joinString(lang.success.setCommandAction, Formatting.GOLD, "/" + cmd, Formatting.GRAY)
                                 ).create();
                             })
@@ -120,6 +145,97 @@ public class NpcCommand {
                     )
                 )
         );
+    }
+
+    private static int loadTaterzenFromPrreset(CommandContext<ServerCommandSource> context) {
+        World world = context.getSource().getWorld();
+
+        String filename = StringArgumentType.getString(context, "preset name") + ".json";
+        File preset = new File(getTaterDir() + "/presets/" + filename);
+
+        if(preset.exists()) {
+            JsonElement element;
+            try (BufferedReader fileReader = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(preset), StandardCharsets.UTF_8)
+                )
+            ) {
+                element = parser.parse(fileReader).getAsJsonObject();
+            } catch (IOException e) {
+                throw new RuntimeException(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
+            }
+            if(element != null) {
+                try {
+                    Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
+                    if(tag instanceof CompoundTag) {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+
+                        TaterzenNPC taterzenNPC = new TaterzenNPC(player, filename);
+                        taterzenNPC.readCustomDataFromTag((CompoundTag) tag);
+                        taterzenNPC.sendProfileUpdates();
+
+                        ((TaterzenEditor) player).selectNpc(taterzenNPC);
+
+                        context.getSource().sendFeedback(
+                                successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
+                                false
+                        );
+                    }
+                    else {
+                        context.getSource().sendError(
+                                errorText(lang.error.cannotReadPreset, new LiteralText(filename))
+                        );
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+
+            }
+            else {
+                context.getSource().sendError(
+                        errorText(lang.error.cannotReadPreset, new LiteralText(filename))
+                );
+            }
+
+        }
+        else {
+            context.getSource().sendError(
+                    errorText(lang.error.noPresetFound, new LiteralText(filename))
+            );
+        }
+        return 0;
+    }
+
+    private static int saveTaterzenToPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            String filename = StringArgumentType.getString(context, "preset name") + ".json";
+            CompoundTag saveTag = new CompoundTag();
+            taterzen.writeCustomDataToTag(saveTag);
+            //todo Weird as it is, those cannot be read back :(
+            saveTag.remove("ArmorDropChances");
+            saveTag.remove("HandDropChances");
+
+            TATERZEN_NPCS.add(taterzen); // When writing to tag, it was removed so we add it back
+
+            JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
+
+            File preset = new File(getTaterDir() + "/presets/" + filename);
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
+                writer.write(gson.toJson(element));
+            } catch (IOException e) {
+                getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
+            }
+
+            context.getSource().sendFeedback(
+                    successText(lang.success.exportedTaterzen, new LiteralText(filename)),
+                    false
+            );
+        }
+        else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
     }
 
     private static int listTaterzens(CommandContext<ServerCommandSource> context) {
@@ -167,17 +283,13 @@ public class NpcCommand {
         if(taterzen != null) {
             Text newName = MessageArgumentType.getMessage(context, "new name");
             taterzen.setCustomName(newName);
-            // Updating name on the client
-            taterzen.changeType(taterzen.getFakeType(), taterzen.isFakeTypeAlive());
             context.getSource().sendFeedback(
                     successText(lang.success.renameTaterzen, newName),
                     false
             );
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
 
         return 0;
     }
@@ -189,9 +301,7 @@ public class NpcCommand {
             taterzen.teleport(destination.getX(), destination.getY(), destination.getZ());
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
         return 0;
     }
 
@@ -206,9 +316,7 @@ public class NpcCommand {
             );
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
         return 0;
     }
 
@@ -227,12 +335,17 @@ public class NpcCommand {
             }
             else {
                 context.getSource().sendFeedback(
-                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA).formatted(Formatting.BOLD),
+                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                                .formatted(Formatting.BOLD)
+                                .styled(style -> style
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit equipment"))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                ),
                         false
                 );
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.equipmentEditorDescLine1).formatted(Formatting.YELLOW).append("\n")
-                            .append(new LiteralText(lang.success.equipmentEditorDescLine2).formatted(Formatting.GOLD)).append("\n")
+                        new LiteralText(lang.success.equipmentEditorDescLine1).append("\n")
+                            .append(lang.success.equipmentEditorDescLine2).append("\n")
                             .append(lang.success.equipmentEditorDescLine3).formatted(Formatting.YELLOW).append("\n")
                             .append(new LiteralText(lang.success.equipmentEditorDescLine4).formatted(Formatting.RED)),
                         false
@@ -243,9 +356,7 @@ public class NpcCommand {
 
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
 
         return 0;
     }
@@ -264,9 +375,7 @@ public class NpcCommand {
             );
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
         return 0;
     }
 
@@ -280,6 +389,8 @@ public class NpcCommand {
             taterzen.setCommand(command);
 
         }
+        else
+            context.getSource().sendError(noSelectedTaterzenError());
         return command;
     }
 
@@ -293,9 +404,7 @@ public class NpcCommand {
             );
         }
         else
-            context.getSource().sendError(
-                    new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
-            );
+            context.getSource().sendError(noSelectedTaterzenError());
         ((TaterzenEditor) context.getSource().getPlayer()).selectNpc(null);
         return 0;
     }
@@ -349,7 +458,7 @@ public class NpcCommand {
             }
             else
                 context.getSource().sendError(
-                        new LiteralText(lang.error.selectTaterzen).formatted(Formatting.RED)
+                        noSelectedTaterzenError()
                 );
         } catch (Error e) {
             e.printStackTrace();
@@ -396,5 +505,14 @@ public class NpcCommand {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    private static MutableText noSelectedTaterzenError() {
+        return new LiteralText(lang.error.selectTaterzen)
+                .formatted(Formatting.RED)
+                .styled(style -> style
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
+                );
     }
 }

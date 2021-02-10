@@ -27,6 +27,7 @@ import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -116,7 +117,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setHeadYaw(rotations[0]);
 
 
-        this.setCustomName(new LiteralText(displayName));
+        super.setCustomName(new LiteralText(displayName));
         world.spawnEntity(this);
     }
 
@@ -161,6 +162,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return this.npcData.freeWill;
     }
 
+    @Override
+    public void setCustomName(Text name) {
+        super.setCustomName(name);
+        CompoundTag skin = null;
+        if(this.gameProfile != null)
+            skin = this.writeSkinToTag(this.gameProfile);
+        this.gameProfile = new GameProfile(this.getUuid(), name.asString());
+        if(this.getFakeType() == EntityType.PLAYER && skin != null) {
+            this.setSkinFromTag(skin);
+            this.sendProfileUpdates();
+            //todo equipment
+        }
+    }
+
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }
@@ -196,35 +211,73 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         } catch (NoSuchElementException ignored) { }
 
         // Setting new skin
-        try {
-            PropertyMap map = texturesProfile.getProperties();
-            Property skin = map.get("textures").iterator().next();
-            PropertyMap propertyMap = this.gameProfile.getProperties();
-            propertyMap.put("textures", skin);
-        } catch (NoSuchElementException ignored) { }
+        setSkinFromTag(writeSkinToTag(texturesProfile));
 
         // Sending updates
-        if(sendUpdate) {
-            PlayerListS2CPacket packet = new PlayerListS2CPacket();
-            //noinspection ConstantConditions
-            PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
-            accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getCustomName())));
+        if(sendUpdate && this.getFakeType() == EntityType.PLAYER)
+            this.sendProfileUpdates();
+    }
 
-            accessor.setAction(REMOVE_PLAYER);
-            playerManager.sendToAll(packet);
-            accessor.setAction(ADD_PLAYER);
-            playerManager.sendToAll(packet);
+    /**
+     * Updates Taterzen's {@link GameProfile} for others.
+     */
+    public void sendProfileUpdates() {
+        PlayerListS2CPacket packet = new PlayerListS2CPacket();
+        //noinspection ConstantConditions
+        PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
+        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getCustomName())));
 
-            ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
-            ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
-            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+        accessor.setAction(REMOVE_PLAYER);
+        playerManager.sendToAll(packet);
+        accessor.setAction(ADD_PLAYER);
+        playerManager.sendToAll(packet);
 
-            trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
-        }
+        ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
+        ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
+        EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+
+        trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+    }
+
+    /**
+     * Sets the Taterzen skin from tag
+     * @param tag compound tag containing the skin
+     */
+    public void setSkinFromTag(CompoundTag tag) {
+        try {
+            String value = tag.getString("value");
+            String signature = tag.getString("signature");
+
+            if(!value.isEmpty() && !signature.isEmpty()) {
+                PropertyMap propertyMap = this.gameProfile.getProperties();
+                propertyMap.put("textures", new Property("textures", value, signature));
+            }
+
+        } catch (Error ignored) { }
+    }
+
+    /**
+     * Writes skin to tag
+     * @param profile game profile containing skin
+     *
+     * @return compound tag with skin values
+     */
+    public CompoundTag writeSkinToTag(GameProfile profile) {
+        CompoundTag skinTag = new CompoundTag();
+        try {
+            PropertyMap propertyMap = profile.getProperties();
+            Property skin = propertyMap.get("textures").iterator().next();
+
+            skinTag.putString("value", skin.getValue());
+            skinTag.putString("signature", skin.getSignature());
+        } catch (NoSuchElementException ignored) { }
+
+        return skinTag;
     }
 
     /**
      * Gets the entity type of the NPC used on client.
+     *
      * @return EntityType of the NPC.
      */
     public EntityType<?> getFakeType() {
@@ -263,11 +316,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void tickMovement() {
-        if(this.npcData.movement == NPCData.Movement.LOOK) {
+        if(this.npcData.equipmentEditor != null)
+            return;
+        /*if(this.npcData.movement == NPCData.Movement.LOOK) {
             Vec3d direction = TargetFinder.findTarget(this, 4, 4);
             //this.lookAt(direction);
         }
-        else if(this.npcData.movement != NPCData.Movement.NONE) {
+        else*/ if(this.npcData.movement != NPCData.Movement.NONE) {
             super.tickMovement();
         }
     }
@@ -314,15 +369,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
-    protected void applyDamage(DamageSource source, float amount) {
-        Entity attacker = source.getAttacker();
+    public boolean handleAttack(Entity attacker) {
         if(attacker instanceof PlayerEntity && this.isEquipmentEditor((PlayerEntity) attacker)) {
             ItemStack main = this.getMainHandStack();
             this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
             this.setStackInHand(Hand.OFF_HAND, main);
+            return true;
         }
-        else
-            super.applyDamage(source, amount);
+        return this.npcData.movement == NPCData.Movement.LOOK || this.npcData.movement == NPCData.Movement.NONE || super.handleAttack(attacker);
     }
 
     @Override
@@ -343,7 +397,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.command = npcTag.getString("command");
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getCustomName().asString());
-        this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile), false);
+
+        // Skin is cached
+        CompoundTag skinTag = npcTag.getCompound("skin");
+        this.setSkinFromTag(skinTag);
 
         this.server = this.world.getServer();
         this.playerManager = server.getPlayerManager();
@@ -373,6 +430,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putString("command", this.npcData.command);
 
         npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
+
+        npcTag.put("skin", writeSkinToTag(this.gameProfile));
+
         tag.put("TaterzenNPCTag", npcTag);
 
         TATERZEN_NPCS.remove(this);
