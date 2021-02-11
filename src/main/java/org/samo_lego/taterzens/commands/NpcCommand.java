@@ -24,6 +24,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
@@ -33,6 +34,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -118,7 +120,9 @@ public class NpcCommand {
                                         .executes(NpcCommand::changeType)
                                 )
                         )
-                        .then(literal("path").executes(NpcCommand::editTaterzenPath))
+                        .then(literal("path").executes(NpcCommand::editTaterzenPath)
+                            .then(literal("clear").executes(NpcCommand::clearTaterzenPath))
+                        )
                         .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
                         .then(literal("equipment").executes(NpcCommand::setEquipment))
                         .then(literal("look").executes(context -> changeMovement(context, "LOOK")))
@@ -132,6 +136,25 @@ public class NpcCommand {
         );
     }
 
+    private static int clearTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            World world = player.getEntityWorld();
+            taterzen.getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
+                    new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos))
+            ));
+            taterzen.clearPathTargets();
+            context.getSource().sendFeedback(
+                    successText(lang.success.clearPath, taterzen.getCustomName()),
+                    false
+            );
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
     private static int editTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
@@ -143,8 +166,8 @@ public class NpcCommand {
                         false
                 );
 
-                taterzen.setEquipmentEditor(null);
             } else {
+
                 context.getSource().sendFeedback(
                         joinText(lang.success.pathEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
                                 .formatted(Formatting.BOLD)
@@ -250,7 +273,7 @@ public class NpcCommand {
 
             File preset = new File(PRESETS_DIR + "/" + filename);
             try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
-                writer.write(gson.toJson(element));
+                writer.write(element.toString());
             } catch(IOException e) {
                 getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
             }
@@ -469,9 +492,7 @@ public class NpcCommand {
                         false
                 );
             } else
-                context.getSource().sendError(
-                        noSelectedTaterzenError()
-                );
+                context.getSource().sendError(noSelectedTaterzenError());
         } catch(Error e) {
             e.printStackTrace();
         }

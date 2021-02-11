@@ -17,6 +17,18 @@ public class TaterConfig {
 
 
     public String language = "en_us";
+    public Path path = new Path();
+
+
+    public static class Path {
+        public Path.Color color = new Path.Color();
+        public static class Color {
+
+            public float red = 0;
+            public float green = 255 ;
+            public float blue = 255;
+        }
+    }
 
 
     /**

@@ -40,6 +40,7 @@ public class TaterLang {
         public String pathEditorEnter = "You've entered path editor for %s. Enter same command to exit.";
         public String pathEditorDescLine1 = "Left click the blocks to add them to the path.";
         public String pathEditorDescLine2 = "Right click the blocks to remove them to the path.";
+        public String clearPath = "Path for %s was cleared successfully.";
     }
 
     public static class Error {

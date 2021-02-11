@@ -18,14 +18,16 @@ public class NPCData {
     public PlayerEntity equipmentEditor = null;
     public long lastActionTime;
     public Movement movement = Movement.NONE;
-    public ArrayList<BlockPos> movementTargets = new ArrayList<>();
+    public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     public int currentMoveTarget = 0;
     public boolean pushable = false;
 
     public enum Movement {
         NONE,
         LOOK,
+        FORCED_LOOK,
         PATH,
+        FORCED_PATH,
         FREE
     }
 }
