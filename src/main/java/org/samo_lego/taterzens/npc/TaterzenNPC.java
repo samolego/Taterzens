@@ -31,14 +31,17 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
+import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 
 import java.util.Collections;
 import java.util.NoSuchElementException;
@@ -57,6 +60,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private final LookAtEntityGoal lookAtPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
     private final FollowTargetGoal<PlayerEntity> followTargetGoal = new FollowTargetGoal<>(this, PlayerEntity.class, false, true);
     private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 0.4F, 30);
+    private final GoToWalkTargetGoal walkToPosGoal = new GoToWalkTargetGoal(this, 0.4F);
+    private final DirectPathGoal directPathGoal = new DirectPathGoal(this, 0.4F);
 
     private final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
     private final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.0D, 20, 40.0F);
@@ -323,6 +328,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             //this.lookAt(direction);
         }
         else*/ if(this.npcData.movement != NPCData.Movement.NONE) {
+            if(this.npcData.movement == NPCData.Movement.PATH && !this.npcData.movementTargets.isEmpty()) {
+                if(/*!this.walkToPosGoal.shouldContinue() && */this.getPositionTarget().getSquaredDistance(this.getPos(), false) < 5.0D) {
+                    if(++this.npcData.currentMoveTarget == this.npcData.movementTargets.size())
+                        this.npcData.currentMoveTarget = 0;
+                    // New target
+                    this.setPositionTarget(this.npcData.movementTargets.get(this.npcData.currentMoveTarget), 1);
+                }
+            }
             super.tickMovement();
         }
     }
@@ -457,6 +470,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return SoundEvents.ENTITY_PLAYER_DEATH;
     }
 
+    @Override
+    public float getPathfindingFavor(BlockPos pos, WorldView world) {
+        return 0.0F;
+    }
+
     /**
      * Sets the command to be executed on right - click
      * @param command command to execute
@@ -472,11 +490,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void setMovement(NPCData.Movement movement) {
         this.npcData.movement = movement;
         this.goalSelector.remove(this.wanderAroundFarGoal);
+        this.goalSelector.remove(this.directPathGoal);
         this.goalSelector.remove(this.lookAtPlayerGoal);
+
         if(movement != NPCData.Movement.NONE) {
-            this.goalSelector.add(6, lookAtPlayerGoal);
-            if(movement == NPCData.Movement.FREE)
-                this.goalSelector.add(3, wanderAroundFarGoal);
+            if(movement == NPCData.Movement.PATH)
+                this.goalSelector.add(3, directPathGoal);
+            else {
+                this.goalSelector.add(6, lookAtPlayerGoal);
+                if(movement == NPCData.Movement.FREE)
+                    this.goalSelector.add(3, wanderAroundFarGoal);
+            }
         }
     }
 
@@ -490,5 +514,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public boolean collidesWith(Entity other) {
         return this.npcData.pushable && super.collidesWith(other);
+    }
+
+    public void addPathTarget(BlockPos blockPos) {
+        this.npcData.movementTargets.add(blockPos);
+        this.setPositionTarget(this.npcData.movementTargets.get(0), 1);
     }
 }

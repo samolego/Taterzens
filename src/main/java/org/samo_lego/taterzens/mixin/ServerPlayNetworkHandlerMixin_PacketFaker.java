@@ -31,7 +31,7 @@ import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.R
  * Used to "fake" the TaterzenNPC entity type
  */
 @Mixin(ServerPlayNetworkHandler.class)
-public abstract class ServerPlayNetworkHandlerMixin {
+public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public ServerPlayerEntity player;
 
@@ -104,6 +104,8 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
         }
+        /*else
+            System.out.println(packet.getClass());
         /*else if(packet instanceof EntitySetHeadYawS2CPacket) { //todo - player body rotation
             World world = player.getEntityWorld();
             Entity entity = world.getEntityById(((EntitySetHeadYawS2CPacketAccessor) packet).getEntityId());

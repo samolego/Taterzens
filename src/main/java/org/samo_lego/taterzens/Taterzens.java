@@ -2,6 +2,7 @@ package org.samo_lego.taterzens;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.event.BlockBreakEvent;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
@@ -42,9 +44,10 @@ public class Taterzens implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // Hooray
+        // Events
         CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
         CommandRegistrationCallback.EVENT.register(NpcCommand::register);
+        PlayerBlockBreakEvents.BEFORE.register(new BlockBreakEvent());
 
         FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createMobAttributes());
 

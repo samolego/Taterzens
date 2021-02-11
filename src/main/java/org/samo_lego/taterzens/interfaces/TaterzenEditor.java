@@ -5,4 +5,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 public interface TaterzenEditor {
     TaterzenNPC getNpc();
     void selectNpc(TaterzenNPC npc);
+
+    boolean inPathEditMode();
+    void setPathEditMode(boolean editMode);
 }

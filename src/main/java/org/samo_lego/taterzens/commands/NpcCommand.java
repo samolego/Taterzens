@@ -63,7 +63,6 @@ public class NpcCommand {
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
-        // Ignore this for now, we will explain it next.
         dispatcher.register(literal("npc")
                 .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
                 .then(literal("create")
@@ -73,20 +72,11 @@ public class NpcCommand {
                         )
                 )
                 .then(literal("select")
-                        .then(literal("id")
-                                .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
-                        )
-                        .then(literal("id")
-                                .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
-                        )
+                        .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
                         .executes(NpcCommand::selectTaterzen)
                 )
-                .then(literal("list")
-                        .executes(NpcCommand::listTaterzens)
-                )
-                .then(literal("remove")
-                        .executes(NpcCommand::removeTaterzen)
-                )
+                .then(literal("list").executes(NpcCommand::listTaterzens))
+                .then(literal("remove").executes(NpcCommand::removeTaterzen))
                 .then(literal("preset")
                         .then(literal("save")
                                 .then(argument("preset name", word())
@@ -110,11 +100,7 @@ public class NpcCommand {
                         )
                 )
                 .then(literal("edit")
-                        .then(literal("name")
-                                .then(argument("new name", message())
-                                        .executes(NpcCommand::renameTaterzen)
-                                )
-                        )
+                        .then(literal("name").then(argument("new name", message()).executes(NpcCommand::renameTaterzen)))
                         .then(literal("command")
                                 .redirect(dispatcher.getRoot(), context -> {
                                     // Really ugly, but ... works :P
@@ -132,17 +118,10 @@ public class NpcCommand {
                                         .executes(NpcCommand::changeType)
                                 )
                         )
-                        .then(literal("skin")
-                                .then(argument("player name", word())
-                                        .executes(NpcCommand::setSkin)
-                                )
-                        )
-                        .then(literal("equipment")
-                                .executes(NpcCommand::setEquipment)
-                        )
-                        .then(literal("look")
-                                .executes(context -> changeMovement(context, "LOOK"))
-                        )
+                        .then(literal("path").executes(NpcCommand::editTaterzenPath))
+                        .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
+                        .then(literal("equipment").executes(NpcCommand::setEquipment))
+                        .then(literal("look").executes(context -> changeMovement(context, "LOOK")))
                         .then(literal("movement") //todo create from enum
                                 .then(argument("movement type", word())
                                         .suggests(MOVEMENT_TYPES)
@@ -151,6 +130,43 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int editTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            if(((TaterzenEditor) player).inPathEditMode()) {
+                ((TaterzenEditor) player).setPathEditMode(false);
+                context.getSource().sendFeedback(
+                        new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
+                        false
+                );
+
+                taterzen.setEquipmentEditor(null);
+            } else {
+                context.getSource().sendFeedback(
+                        joinText(lang.success.pathEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                                .formatted(Formatting.BOLD)
+                                .styled(style -> style
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                ),
+                        false
+                );
+                context.getSource().sendFeedback(
+                        new LiteralText(lang.success.pathEditorDescLine1).append("\n").formatted(Formatting.BLUE)
+                                .append(new LiteralText(lang.success.pathEditorDescLine2).formatted(Formatting.RED)),
+                        false
+                );
+
+                ((TaterzenEditor) player).setPathEditMode(true);
+            }
+
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
     }
 
     private static List<String> getPresets() {
@@ -259,7 +275,7 @@ public class NpcCommand {
                             .append(name)
                             .formatted(i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD)
                             .styled(style -> style
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select id " + index))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Select ").append(name)))
                             )
             );
