@@ -21,7 +21,6 @@ public class NPCData {
     public boolean leashable = config.defaults.leashable;
     public String command = "";
     public PlayerEntity equipmentEditor = null;
-    public long lastActionTime;
     public Movement movement = Movement.NONE;
     public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     public int currentMoveTarget = 0;

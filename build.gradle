@@ -3,11 +3,14 @@ plugins {
 	id 'maven-publish'
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
-	id("org.jetbrains.dokka") version "1.4.20"
+	id "org.jetbrains.dokka" version "1.4.20"
 }
 repositories {
 	maven {
-		url="https://dl.bintray.com/kotlin/dokka"
+		url "https://dl.bintray.com/kotlin/dokka"
+	}
+	maven {
+		url 'https://jitpack.io'
 	}
 }
 
@@ -30,6 +33,8 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation 'com.github.Slexom:earth2java:1.6.1'
 
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")

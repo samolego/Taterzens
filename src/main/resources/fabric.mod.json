@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "org.samo_lego.taterzens.Taterzens"
+    ],
+    "client": [
+      "org.samo_lego.taterzens.client_fix.ClientInit"
     ]
   },
   "mixins": [
