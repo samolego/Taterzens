@@ -19,6 +19,17 @@ public class ServerPlayInteractionManagerMixin {
 
     @Shadow public ServerPlayerEntity player;
 
+    /**
+     * Used for detecting block breaking. Broken blocks count as new nodes
+     * for the path of player's {@link org.samo_lego.taterzens.npc.TaterzenNPC}.
+     * Activated only if player is in path edit mode and has a selected Taterzen.
+     *
+     * @param blockPos position of the broken block
+     * @param playerAction action the player is trying to do
+     * @param direction
+     * @param i
+     * @param ci
+     */
     @Inject(
             method = "processBlockBreakingAction(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/network/packet/c2s/play/PlayerActionC2SPacket$Action;Lnet/minecraft/util/math/Direction;I)V",
             at = @At("HEAD"),

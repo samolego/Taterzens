@@ -13,17 +13,35 @@ public class TaterConfig {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .serializeNulls()
+            .disableHtmlEscaping()
             .create();
 
 
+    /**
+     * Language file used by Taterzens.
+     *
+     * Located at $minecraftFolder/config/Taterzens/$lang.json
+     */
     public String language = "en_us";
+    public Defaults defaults = new Defaults();
     public Path path = new Path();
+
+
+    /**
+     * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
+     */
+    public static class Defaults {
+        public boolean leashable = false;
+    }
 
 
     public static class Path {
         public Path.Color color = new Path.Color();
+        /**
+         * Color of particles used in path editor.
+         */
         public static class Color {
-
+            public String _comment = "// Which color of particles to use in path editor. RGB values ( 0 - 255 )";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;
@@ -57,7 +75,7 @@ public class TaterConfig {
     }
 
     /**
-     * Saves the language to the given file.
+     * Saves the config to the given file.
      *
      * @param file file to save config to
      */

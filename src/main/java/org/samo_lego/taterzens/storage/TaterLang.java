@@ -13,6 +13,7 @@ public class TaterLang {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .serializeNulls()
+            .disableHtmlEscaping()
             .create();
 
 

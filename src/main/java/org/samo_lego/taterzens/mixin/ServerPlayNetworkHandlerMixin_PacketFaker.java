@@ -28,7 +28,7 @@ import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.A
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
 /**
- * Used to "fake" the TaterzenNPC entity type
+ * Used to "fake" the TaterzenNPC entity type.
  */
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
@@ -70,7 +70,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                 listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
 
                 PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
-                //noinspection ConstantConditions - Accessor
+                //noinspection ConstantConditions
                 PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
                 spawnS2CPacketAccessor.setId(npc.getEntityId());
                 spawnS2CPacketAccessor.setUuid(npc.getUuid());
@@ -104,19 +104,5 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
         }
-        /*else
-            System.out.println(packet.getClass());
-        /*else if(packet instanceof EntitySetHeadYawS2CPacket) { //todo - player body rotation
-            World world = player.getEntityWorld();
-            Entity entity = world.getEntityById(((EntitySetHeadYawS2CPacketAccessor) packet).getEntityId());
-
-            if(!(entity instanceof TaterzenNPC))
-                return;
-
-            TaterzenNPC npc = (TaterzenNPC) entity;
-            if(npc.getFakeType() == EntityType.PLAYER) {
-                this.sendPacket(new EntityPositionS2CPacket(npc));
-            }
-        }*/
     }
 }
