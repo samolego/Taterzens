@@ -38,11 +38,11 @@ public class NPCData {
          */
         NONE,
         /**
-         * Rotation of the body & head, free at Taterzen's will.
+         * Rotation of the body and head, free at Taterzen's will.
          */
         LOOK,
         /**
-         * Rotation of the body & head when a player is in radius of 4 blocks.
+         * Rotation of the body and head when a player is in radius of 4 blocks.
          */
         FORCED_LOOK,
         /**

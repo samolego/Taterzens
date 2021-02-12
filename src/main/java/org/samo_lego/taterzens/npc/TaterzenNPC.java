@@ -67,12 +67,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     private final NPCData npcData = new NPCData();
 
-    private PlayerManager playerManager;
-    private MinecraftServer server;
+    private final PlayerManager playerManager;
+    private final MinecraftServer server;
     private GameProfile gameProfile;
 
     // Goals
-    private final LookAtEntityGoal lookGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
+    private final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
+    private final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
+
     private final FollowTargetGoal<PlayerEntity> followTargetGoal = new FollowTargetGoal<>(this, PlayerEntity.class, false, true);
     private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 0.4F, 30);
     private final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 0.4F);
@@ -107,7 +109,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
         this.server = world.getServer();
         this.playerManager = server.getPlayerManager();
-        this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile));
 
         TATERZEN_NPCS.add(this);
     }
@@ -118,6 +119,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotations[1], rotations[2]);
         this.setHeadYaw(rotations[0]);
         this.setCustomName(new LiteralText(displayName));
+        this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile));
     }
 
     public TaterzenNPC(ServerPlayerEntity owner, String displayName) {
@@ -143,13 +145,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.wanderAroundFarGoal);
         this.goalSelector.remove(this.directPathGoal);
         this.goalSelector.remove(this.pathGoal);
-        this.goalSelector.remove(this.lookGoal);
+        this.goalSelector.remove(this.lookPlayerGoal);
+        this.goalSelector.remove(this.lookAroundGoal);
 
         if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.add(3, directPathGoal);
             } else {
-                this.goalSelector.add(6, lookGoal);
+                this.goalSelector.add(6, lookPlayerGoal);
+                this.goalSelector.add(6, lookAroundGoal);
                 if(movement == NPCData.Movement.PATH)
                     this.goalSelector.add(3, pathGoal);
                 else if(movement == NPCData.Movement.FREE)
@@ -316,10 +320,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public void setCustomName(Text name) {
         super.setCustomName(name);
+        if(name != null && name.getString().length() > 16) {
+            // Minecraft kicks you if player has
+            name = new LiteralText(name.getString().substring(0, 16)).setStyle(name.getStyle());
+        }
         CompoundTag skin = null;
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
-        this.gameProfile = new GameProfile(this.getUuid(), name.asString());
+        this.gameProfile = new GameProfile(this.getUuid(), this.getName().getString());
         if(this.getFakeType() == EntityType.PLAYER && skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
@@ -504,6 +512,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Sets player as equipment editor.
      * @param player player to check.
+     * @return true if player is equipment editor of the NPC, otherwise false.
      */
     public boolean isEquipmentEditor(@NotNull PlayerEntity player) {
         return player.equals(this.npcData.equipmentEditor);

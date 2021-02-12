@@ -1,6 +1,14 @@
 plugins {
 	id 'fabric-loom' version '0.5-SNAPSHOT'
 	id 'maven-publish'
+	// Dokka docs
+	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
+	id("org.jetbrains.dokka") version "1.4.20"
+}
+repositories {
+	maven {
+		url="https://dl.bintray.com/kotlin/dokka"
+	}
 }
 
 loom {
@@ -23,6 +31,8 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
+	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 }
 
 processResources {
