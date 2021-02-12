@@ -25,7 +25,7 @@ public class NPCData {
     public Movement movement = Movement.NONE;
     public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     public int currentMoveTarget = 0;
-    public boolean pushable = false;
+    public boolean pushable = config.defaults.pushable;
 
     /**
      * Types of movement a Taterzen can perform.

@@ -152,7 +152,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.add(3, directPathGoal);
             } else {
-                this.goalSelector.add(6, lookPlayerGoal);
+                this.goalSelector.add(5, lookPlayerGoal);
                 this.goalSelector.add(6, lookAroundGoal);
                 if(movement == NPCData.Movement.PATH)
                     this.goalSelector.add(3, pathGoal);
@@ -160,18 +160,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     this.goalSelector.add(3, wanderAroundFarGoal);
             }
         }
-    }
-
-    @Override
-    public void pushAwayFrom(Entity entity) {
-        if(this.npcData.pushable) {
-            super.pushAwayFrom(entity);
-        }
-    }
-
-    @Override
-    public boolean collidesWith(Entity other) {
-        return this.npcData.pushable && super.collidesWith(other);
     }
 
     /**
@@ -237,7 +225,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 2);
                 }
-            } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue()) {
+            } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue() && !this.npcData.pathTargets.isEmpty()) {
                 if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), false) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
@@ -331,7 +319,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.getFakeType() == EntityType.PLAYER && skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
-            //todo equipment
         }
     }
 
@@ -556,6 +543,28 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         ((TaterzenPlayer) player).setLastInteraction(lastAction);
         return result;
+    }
+
+    /**
+     * Used for disabling pushing
+     * @param entity colliding entity
+     */
+    @Override
+    public void pushAwayFrom(Entity entity) {
+        if(this.npcData.pushable) {
+            super.pushAwayFrom(entity);
+        }
+    }
+
+    /**
+     * Used for disabling pushing
+     * @param entity colliding entity
+     */
+    @Override
+    protected void pushAway(Entity entity) {
+        if(this.npcData.pushable) {
+            super.pushAway(entity);
+        }
     }
 
     /**

@@ -31,8 +31,10 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public boolean leashable = false;
+        public String _comment = "// Defautl settings for new Taterzens.";
         public String name = "Taterzen";
+        public boolean leashable = false;
+        public boolean pushable = false;
     }
 
 
@@ -42,7 +44,7 @@ public class TaterConfig {
          * Color of particles used in path editor.
          */
         public static class Color {
-            public String _comment = "// Which color of particles to use in path editor. RGB values ( 0 - 255 )";
+            public String _comment = "// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;
