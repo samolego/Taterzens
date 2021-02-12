@@ -52,7 +52,9 @@ import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
+import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
@@ -123,201 +125,83 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
     }
 
-
-    @Override
-    public void setCharging(boolean charging) {
-
-    }
-
-    @Override
-    public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
-        //this.attack(target, 4.0F);
-    }
-
-    @Override
-    public void postShoot() {
-
-    }
-
-    @Override
-    public void attack(LivingEntity target, float pullProgress) {
-
-    }
-
-    @Override
-    public void onDeath(DamageSource source) {
-        if(this.npcData.entityType == EntityType.PLAYER) {
-            PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
-            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
-            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getCustomName().asString()))));
-            this.playerManager.sendToAll(playerListS2CPacket);
-        }
-        TATERZEN_NPCS.remove(this);
-    }
-
-    @Override
-    public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
-        return this.npcData.hostile;
+    /**
+     * Sets the command to be executed on right - click
+     * @param command command to execute
+     */
+    public void setCommand(String command) {
+        this.npcData.command = command;
     }
 
     /**
-     * Sets the custom name
-     * @param name
+     * Sets {@link org.samo_lego.taterzens.npc.NPCData.Movement movement type}
+     * and initialises the goals.
+     *
+     * @param movement movement type
      */
-    @Override
-    public void setCustomName(Text name) {
-        super.setCustomName(name);
-        CompoundTag skin = null;
-        if(this.gameProfile != null)
-            skin = this.writeSkinToTag(this.gameProfile);
-        this.gameProfile = new GameProfile(this.getUuid(), name.asString());
-        if(this.getFakeType() == EntityType.PLAYER && skin != null) {
-            this.setSkinFromTag(skin);
-            this.sendProfileUpdates();
-            //todo equipment
-        }
-    }
+    public void setMovement(NPCData.Movement movement) {
+        this.npcData.movement = movement;
+        this.goalSelector.remove(this.wanderAroundFarGoal);
+        this.goalSelector.remove(this.directPathGoal);
+        this.goalSelector.remove(this.pathGoal);
+        this.goalSelector.remove(this.lookGoal);
 
-    public GameProfile getGameProfile() {
-        return this.gameProfile;
-    }
-
-    public void changeType(Entity entity) {
-       this.changeType(entity.getType(), entity instanceof LivingEntity);
-    }
-
-    public void changeType(EntityType<?> fakeType, boolean fakeTypeAlive) {
-        this.npcData.entityType = fakeType;
-        this.npcData.fakeTypeAlive = fakeTypeAlive;
-        playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
-        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
-        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
-        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey()); // Reload equipment
-    }
-
-    /**
-     * Updates Taterzen's {@link GameProfile} for others.
-     */
-    public void sendProfileUpdates() {
-        PlayerListS2CPacket packet = new PlayerListS2CPacket();
-        //noinspection ConstantConditions
-        PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
-        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getCustomName())));
-
-        accessor.setAction(REMOVE_PLAYER);
-        playerManager.sendToAll(packet);
-        accessor.setAction(ADD_PLAYER);
-        playerManager.sendToAll(packet);
-
-        ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
-        ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
-        EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
-        if(trackerEntry != null)
-            trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
-    }
-
-    /**
-     * Sets the Taterzen skin from tag
-     * @param tag compound tag containing the skin
-     */
-    public void setSkinFromTag(CompoundTag tag) {
-        try {
-            String value = tag.getString("value");
-            String signature = tag.getString("signature");
-
-            if(!value.isEmpty() && !signature.isEmpty()) {
-                PropertyMap propertyMap = this.gameProfile.getProperties();
-                propertyMap.put("textures", new Property("textures", value, signature));
+        if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
+            if(movement == NPCData.Movement.FORCED_PATH) {
+                this.goalSelector.add(3, directPathGoal);
+            } else {
+                this.goalSelector.add(6, lookGoal);
+                if(movement == NPCData.Movement.PATH)
+                    this.goalSelector.add(3, pathGoal);
+                else if(movement == NPCData.Movement.FREE)
+                    this.goalSelector.add(3, wanderAroundFarGoal);
             }
+        }
+    }
 
-        } catch (Error ignored) { }
+    @Override
+    public void pushAwayFrom(Entity entity) {
+        if(this.npcData.pushable) {
+            super.pushAwayFrom(entity);
+        }
+    }
+
+    @Override
+    public boolean collidesWith(Entity other) {
+        return this.npcData.pushable && super.collidesWith(other);
     }
 
     /**
-     * Writes skin to tag
-     * @param profile game profile containing skin
-     *
-     * @return compound tag with skin values
+     * Adds block position as a node in path of Taterzen.
+     * @param blockPos position to add.
      */
-    public CompoundTag writeSkinToTag(GameProfile profile) {
-        CompoundTag skinTag = new CompoundTag();
-        try {
-            PropertyMap propertyMap = profile.getProperties();
-            Property skin = propertyMap.get("textures").iterator().next();
-
-            skinTag.putString("value", skin.getValue());
-            skinTag.putString("signature", skin.getSignature());
-        } catch (NoSuchElementException ignored) { }
-
-        return skinTag;
+    public void addPathTarget(BlockPos blockPos) {
+        this.npcData.pathTargets.add(blockPos);
+        this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
     }
 
     /**
-     * Applies skin from {@link GameProfile}.
-     *
-     * @param texturesProfile GameProfile containing textures.
+     * Removes node from path targets.
+     * @param blockPos position from path to remove
      */
-    public void applySkin(GameProfile texturesProfile) {
-        if(this.npcData.entityType != EntityType.PLAYER)
-            return;
-
-        // Clearing current skin
-        try {
-            PropertyMap map = this.gameProfile.getProperties();
-            Property skin = map.get("textures").iterator().next();
-            map.remove("textures", skin);
-        } catch (NoSuchElementException ignored) { }
-
-        // Setting new skin
-        setSkinFromTag(writeSkinToTag(texturesProfile));
-
-        // Sending updates
-        if(this.getFakeType() == EntityType.PLAYER)
-            this.sendProfileUpdates();
+    public void removePathTarget(BlockPos blockPos) {
+        this.npcData.pathTargets.remove(blockPos);
     }
 
     /**
-     * Gets the entity type of the NPC used on client.
-     *
-     * @return EntityType of the NPC.
+     * Gets the path nodes / targets.
+     * @return array list of block positions.
      */
-    public EntityType<?> getFakeType() {
-        return this.npcData.entityType;
+    public ArrayList<BlockPos> getPathTargets() {
+        return this.npcData.pathTargets;
     }
+
     /**
-     * If fake type is an instance of {@link LivingEntity}.
-     * Used for packet sending, as living entities use different ones.
-     *
-     * @return true if so, otherwise false.
+     * Clears all the path nodes / targets.
      */
-    public boolean isFakeTypeAlive() {
-        return this.npcData.fakeTypeAlive;
-    }
-
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f);
-    }
-
-    @Override
-    protected boolean isAffectedByDaylight() {
-        return false;
-    }
-
-    @Override
-    protected boolean isDisallowedInPeaceful() {
-        return false;
-    }
-
-    @Override
-    public boolean canBeLeashedBy(PlayerEntity player) {
-        return !this.isLeashed() && this.npcData.leashable;
-    }
-
-    @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
+    public void clearPathTargets() {
+        this.npcData.pathTargets = new ArrayList<>();
+        this.npcData.currentMoveTarget = 0;
     }
 
     /**
@@ -363,78 +247,158 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
-     * Sets player as equipment editor.
-     * @param player player that will be marked as equipment editor.
-     */
-    public void setEquipmentEditor(@Nullable PlayerEntity player) {
-        this.npcData.equipmentEditor = player;
-    }
-
-    /**
-     * Sets player as equipment editor.
-     * @param player player to check.
-     */
-    public boolean isEquipmentEditor(@NotNull PlayerEntity player) {
-        return player.equals(this.npcData.equipmentEditor);
-    }
-
-    /**
-     * Handles intecaction (right clicking on the NPC).
-     * @param player
-     * @param pos
-     * @param hand
-     * @return
-     */
-    @Override
-    public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
-        long lastAction = ((ServerPlayerEntity) player).getLastActionTime();
-        ActionResult result = ActionResult.FAIL;
-
-        // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
-        // then with "air" if fake type is player / armor stand
-        if(lastAction - ((TaterzenPlayer) player).getLastInteractionTime() < 50)
-            return result;
-
-        if(this.isEquipmentEditor(player)) {
-            ItemStack stack = player.getStackInHand(hand);
-
-            if (stack.isEmpty() && player.isSneaking()) {
-                this.dropEquipment(DamageSource.player(player), 1, true);
-            }
-            else if(player.isSneaking()) {
-                this.equipStack(EquipmentSlot.MAINHAND, stack);
-            }
-            else {
-                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
-            }
-            result = ActionResult.PASS;
-        }
-        else if(!this.npcData.command.isEmpty()) {
-            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
-            result = ActionResult.PASS;
-        }
-
-        ((TaterzenPlayer) player).setLastInteraction(lastAction);
-        return result;
-    }
-
-    /**
-     * Handles received hits.
+     * Gets the entity type of the NPC used on client.
      *
-     * @param attacker entity that attacked NPC.
-     * @return true if attack should be cancelled.
+     * @return EntityType of the NPC.
      */
-    @Override
-    public boolean handleAttack(Entity attacker) {
-        if(attacker instanceof PlayerEntity && this.isEquipmentEditor((PlayerEntity) attacker)) {
-            ItemStack main = this.getMainHandStack();
-            this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
-            this.setStackInHand(Hand.OFF_HAND, main);
-            return true;
-        }
-        return this.npcData.movement == NPCData.Movement.LOOK || this.npcData.movement == NPCData.Movement.NONE || super.handleAttack(attacker);
+    public EntityType<?> getFakeType() {
+        return this.npcData.entityType;
+    }
+    /**
+     * If fake type is an instance of {@link LivingEntity}.
+     * Used for packet sending, as living entities use different ones.
+     *
+     * @return true if so, otherwise false.
+     */
+    public boolean isFakeTypeAlive() {
+        return this.npcData.fakeTypeAlive;
     }
 
+    /**
+     * Changes type of NPC, shown on client
+     * @param entityId identifier of the entity
+     */
+    public void changeType(Identifier entityId) {
+        if(entityId.getPath().equals("player")) {
+            //Minecraft has built-in protection against creating players :(
+            this.changeType(EntityType.PLAYER, true);
+        } else {
+            CompoundTag tag = new CompoundTag();
+            tag.putString("id", entityId.toString());
+            Optional<Entity> optionalEntity = Optional.ofNullable(loadEntityWithPassengers(tag, this.world, (entity) -> entity));
+            optionalEntity.ifPresent(entity -> this.changeType(entity.getType(), entity instanceof LivingEntity));
+        }
+    }
+
+    /**
+     * Changes type of NPC, shown on client.
+     * fakeTypeAlive is required because LivingEntities use different packets.
+     *
+     * @param fakeType fake entity type
+     * @param fakeTypeAlive whether fake type is an instance of living entity
+     */
+    public void changeType(EntityType<?> fakeType, boolean fakeTypeAlive) {
+        this.npcData.entityType = fakeType;
+        this.npcData.fakeTypeAlive = fakeTypeAlive;
+        playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
+        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
+        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
+        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey()); // Reload equipment
+    }
+
+    public GameProfile getGameProfile() {
+        return this.gameProfile;
+    }
+
+    /**
+     * Sets the custom name
+     * @param name new name to be set.
+     */
+    @Override
+    public void setCustomName(Text name) {
+        super.setCustomName(name);
+        CompoundTag skin = null;
+        if(this.gameProfile != null)
+            skin = this.writeSkinToTag(this.gameProfile);
+        this.gameProfile = new GameProfile(this.getUuid(), name.asString());
+        if(this.getFakeType() == EntityType.PLAYER && skin != null) {
+            this.setSkinFromTag(skin);
+            this.sendProfileUpdates();
+            //todo equipment
+        }
+    }
+
+    /**
+     * Updates Taterzen's {@link GameProfile} for others.
+     */
+    public void sendProfileUpdates() {
+        PlayerListS2CPacket packet = new PlayerListS2CPacket();
+        //noinspection ConstantConditions
+        PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
+        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getCustomName())));
+
+        accessor.setAction(REMOVE_PLAYER);
+        playerManager.sendToAll(packet);
+        accessor.setAction(ADD_PLAYER);
+        playerManager.sendToAll(packet);
+
+        ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
+        ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
+        EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+        if(trackerEntry != null)
+            trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+    }
+
+
+    /**
+     * Applies skin from {@link GameProfile}.
+     *
+     * @param texturesProfile GameProfile containing textures.
+     */
+    public void applySkin(GameProfile texturesProfile) {
+        if(this.npcData.entityType != EntityType.PLAYER)
+            return;
+
+        // Clearing current skin
+        try {
+            PropertyMap map = this.gameProfile.getProperties();
+            Property skin = map.get("textures").iterator().next();
+            map.remove("textures", skin);
+        } catch (NoSuchElementException ignored) { }
+
+        // Setting new skin
+        setSkinFromTag(writeSkinToTag(texturesProfile));
+
+        // Sending updates
+        if(this.getFakeType() == EntityType.PLAYER)
+            this.sendProfileUpdates();
+    }
+
+    /**
+     * Sets the Taterzen skin from tag
+     * @param tag compound tag containing the skin
+     */
+    public void setSkinFromTag(CompoundTag tag) {
+        try {
+            String value = tag.getString("value");
+            String signature = tag.getString("signature");
+
+            if(!value.isEmpty() && !signature.isEmpty()) {
+                PropertyMap propertyMap = this.gameProfile.getProperties();
+                propertyMap.put("textures", new Property("textures", value, signature));
+            }
+
+        } catch (Error ignored) { }
+    }
+
+    /**
+     * Writes skin to tag
+     * @param profile game profile containing skin
+     *
+     * @return compound tag with skin values
+     */
+    public CompoundTag writeSkinToTag(GameProfile profile) {
+        CompoundTag skinTag = new CompoundTag();
+        try {
+            PropertyMap propertyMap = profile.getProperties();
+            Property skin = propertyMap.get("textures").iterator().next();
+
+            skinTag.putString("value", skin.getValue());
+            skinTag.putString("signature", skin.getSignature());
+        } catch (NoSuchElementException ignored) { }
+
+        return skinTag;
+    }
     /**
      * Loads Taterzen from {@link CompoundTag}.
      * @param tag tag to load Taterzen from.
@@ -520,8 +484,145 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         TATERZEN_NPCS.remove(this);
     }
 
+    /**
+     * Sets player as equipment editor.
+     * @param player player that will be marked as equipment editor.
+     */
+    public void setEquipmentEditor(@Nullable PlayerEntity player) {
+        this.npcData.equipmentEditor = player;
+    }
+
+    /**
+     * Sets player as equipment editor.
+     * @param player player to check.
+     */
+    public boolean isEquipmentEditor(@NotNull PlayerEntity player) {
+        return player.equals(this.npcData.equipmentEditor);
+    }
+
+    /**
+     * Handles intecaction (right clicking on the NPC).
+     * @param player
+     * @param pos
+     * @param hand
+     * @return
+     */
+    @Override
+    public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
+        long lastAction = ((ServerPlayerEntity) player).getLastActionTime();
+        ActionResult result = ActionResult.FAIL;
+
+        // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
+        // then with "air" if fake type is player / armor stand
+        if(lastAction - ((TaterzenPlayer) player).getLastInteractionTime() < 50)
+            return result;
+
+        if(this.isEquipmentEditor(player)) {
+            ItemStack stack = player.getStackInHand(hand);
+
+            if (stack.isEmpty() && player.isSneaking()) {
+                this.dropEquipment(DamageSource.player(player), 1, true);
+            }
+            else if(player.isSneaking()) {
+                this.equipStack(EquipmentSlot.MAINHAND, stack);
+            }
+            else {
+                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+            }
+            result = ActionResult.PASS;
+        }
+        else if(!this.npcData.command.isEmpty()) {
+            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+            result = ActionResult.PASS;
+        }
+
+        ((TaterzenPlayer) player).setLastInteraction(lastAction);
+        return result;
+    }
+
+    /**
+     * Handles received hits.
+     *
+     * @param attacker entity that attacked NPC.
+     * @return true if attack should be cancelled.
+     */
+    @Override
+    public boolean handleAttack(Entity attacker) {
+        if(attacker instanceof PlayerEntity && this.isEquipmentEditor((PlayerEntity) attacker)) {
+            ItemStack main = this.getMainHandStack();
+            this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
+            this.setStackInHand(Hand.OFF_HAND, main);
+            return true;
+        }
+        return this.npcData.movement == NPCData.Movement.LOOK || this.npcData.movement == NPCData.Movement.NONE || super.handleAttack(attacker);
+    }
+
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f);
+    }
+
+    @Override
+    protected boolean isAffectedByDaylight() {
+        return false;
+    }
+
+    @Override
+    protected boolean isDisallowedInPeaceful() {
+        return false;
+    }
+
+    @Override
+    public boolean canBeLeashedBy(PlayerEntity player) {
+        return !this.isLeashed() && this.npcData.leashable;
+    }
+
+    @Override
+    protected void initGoals() {
+        this.goalSelector.add(0, new SwimGoal(this));
+    }
+
+    /**
+     * Handles death of NPC.
+     * @param source damage source responsible for death.
+     */
+    @Override
+    public void onDeath(DamageSource source) {
+        if(this.npcData.entityType == EntityType.PLAYER) {
+            PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
+            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
+            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getCustomName().asString()))));
+            this.playerManager.sendToAll(playerListS2CPacket);
+        }
+        TATERZEN_NPCS.remove(this);
+    }
+
+    @Override
+    public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
+        return this.npcData.hostile;
+    }
+
     @Override
     protected void updateDespawnCounter() {
+    }
+    @Override
+    public void setCharging(boolean charging) {
+
+    }
+
+    @Override
+    public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
+        //this.attack(target, 4.0F);
+    }
+
+    @Override
+    public void postShoot() {
+    }
+
+    @Override
+    public void attack(LivingEntity target, float pullProgress) {
     }
 
     @Override
@@ -542,84 +643,5 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public float getPathfindingFavor(BlockPos pos, WorldView world) {
         return 0.0F;
-    }
-
-    /**
-     * Sets the command to be executed on right - click
-     * @param command command to execute
-     */
-    public void setCommand(String command) {
-        this.npcData.command = command;
-    }
-
-    /**
-     * Sets {@link org.samo_lego.taterzens.npc.NPCData.Movement movement type}
-     * and initialises the goals.
-     *
-     * @param movement movement type
-     */
-    public void setMovement(NPCData.Movement movement) {
-        this.npcData.movement = movement;
-        this.goalSelector.remove(this.wanderAroundFarGoal);
-        this.goalSelector.remove(this.directPathGoal);
-        this.goalSelector.remove(this.pathGoal);
-        this.goalSelector.remove(this.lookGoal);
-
-        if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
-            if(movement == NPCData.Movement.FORCED_PATH) {
-                this.goalSelector.add(3, directPathGoal);
-            } else {
-                this.goalSelector.add(6, lookGoal);
-                if(movement == NPCData.Movement.PATH)
-                    this.goalSelector.add(3, pathGoal);
-                else if(movement == NPCData.Movement.FREE)
-                    this.goalSelector.add(3, wanderAroundFarGoal);
-            }
-        }
-    }
-
-    @Override
-    public void pushAwayFrom(Entity entity) {
-        if(this.npcData.pushable) {
-            super.pushAwayFrom(entity);
-        }
-    }
-
-    @Override
-    public boolean collidesWith(Entity other) {
-        return this.npcData.pushable && super.collidesWith(other);
-    }
-
-    /**
-     * Adds block position as a node in path of Taterzen.
-     * @param blockPos position to add.
-     */
-    public void addPathTarget(BlockPos blockPos) {
-        this.npcData.pathTargets.add(blockPos);
-        this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
-    }
-
-    /**
-     * Removes node from path targets.
-     * @param blockPos position from path to remove
-     */
-    public void removePathTarget(BlockPos blockPos) {
-        this.npcData.pathTargets.remove(blockPos);
-    }
-
-    /**
-     * Gets the path nodes / targets.
-     * @return array list of block positions.
-     */
-    public ArrayList<BlockPos> getPathTargets() {
-        return this.npcData.pathTargets;
-    }
-
-    /**
-     * Clears all the path nodes / targets.
-     */
-    public void clearPathTargets() {
-        this.npcData.pathTargets = new ArrayList<>();
-        this.npcData.currentMoveTarget = 0;
     }
 }

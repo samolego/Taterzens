@@ -1,8 +1,5 @@
 package org.samo_lego.taterzens.commands;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
@@ -12,18 +9,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.MessageArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.command.suggestion.SuggestionProviders;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -35,13 +27,12 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +41,6 @@ import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.entity.EntityType.FISHING_BOBBER;
-import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -58,7 +48,6 @@ import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
 
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final JsonParser parser = new JsonParser();
     private static final File PRESETS_DIR = new File(getTaterDir() + "/presets/");
     private static final SuggestionProvider<ServerCommandSource> ENTITIES;
@@ -203,48 +192,21 @@ public class NpcCommand {
         return files;
     }
 
-    private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) {
+    private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 
         String filename = StringArgumentType.getString(context, "preset name") + ".json";
         File preset = new File(PRESETS_DIR + "/" + filename);
 
         if(preset.exists()) {
-            JsonElement element = null;
-            try(BufferedReader fileReader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(preset), StandardCharsets.UTF_8)
-            )
-            ) {
-                element = parser.parse(fileReader).getAsJsonObject();
-            } catch(IOException e) {
-                Taterzens.getLogger().error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
-            }
-            if(element != null) {
-                try {
-                    Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
-                    if(tag instanceof CompoundTag) {
-                        ServerPlayerEntity player = context.getSource().getPlayer();
+            ServerPlayerEntity player = context.getSource().getPlayer();
+            TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, player.getEntityWorld());
+            player.getEntityWorld().spawnEntity(taterzenNPC);
+            ((TaterzenEditor) player).selectNpc(taterzenNPC);
 
-                        TaterzenNPC taterzenNPC = new TaterzenNPC(player, filename);
-                        taterzenNPC.readCustomDataFromTag((CompoundTag) tag);
-                        player.getEntityWorld().spawnEntity(taterzenNPC);
-
-                        ((TaterzenEditor) player).selectNpc(taterzenNPC);
-
-                        context.getSource().sendFeedback(
-                                successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
-                                false
-                        );
-                    } else {
-                        context.getSource().sendError(errorText(lang.error.cannotReadPreset, new LiteralText(filename)));
-                    }
-                } catch(Throwable e) {
-                    e.printStackTrace();
-                }
-            } else {
-                context.getSource().sendError(
-                        errorText(lang.error.cannotReadPreset, new LiteralText(filename))
-                );
-            }
+            context.getSource().sendFeedback(
+                    successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
+                    false
+            );
         } else {
             context.getSource().sendError(
                     errorText(lang.error.noPresetFound, new LiteralText(filename))
@@ -258,22 +220,8 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
             String filename = StringArgumentType.getString(context, "preset name") + ".json";
-            CompoundTag saveTag = new CompoundTag();
-            taterzen.writeCustomDataToTag(saveTag);
-            //todo Weird as it is, those cannot be read back :(
-            saveTag.remove("ArmorDropChances");
-            saveTag.remove("HandDropChances");
-
-            TATERZEN_NPCS.add(taterzen); // When writing to tag, it was removed so we add it back
-
-            JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
-
             File preset = new File(PRESETS_DIR + "/" + filename);
-            try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
-                writer.write(element.toString());
-            } catch(IOException e) {
-                getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
-            }
+            TaterzensAPI.saveTaterzenToPreset(taterzen, preset);
 
             context.getSource().sendFeedback(
                     successText(lang.success.exportedTaterzen, new LiteralText(filename)),
@@ -472,17 +420,7 @@ public class NpcCommand {
             TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
             if(taterzen != null) {
                 String entityId = StringArgumentType.getString(context, "entity type");
-                if(entityId.equals("player") || entityId.equals("minecraft:player")) {
-                    //Minecraft has built-in protection against creating players :(
-                    taterzen.changeType(player);
-                } else {
-                    CompoundTag tag = new CompoundTag();
-
-                    tag.putString("id", entityId);
-                    Optional<Entity> optionalEntity = Optional.ofNullable(loadEntityWithPassengers(tag, context.getSource().getWorld(), (entity) -> entity));
-                    optionalEntity.ifPresent(taterzen::changeType);
-
-                }
+                taterzen.changeType(new Identifier(entityId));
 
                 context.getSource().sendFeedback(
                         joinString(lang.success.changedEntityType, Formatting.GREEN, entityId, Formatting.YELLOW),
