@@ -35,6 +35,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -196,7 +197,7 @@ public class NpcCommand {
         List<String> files = new ArrayList<>();
         Arrays.stream(PRESETS_DIR.listFiles()).forEach(file -> {
             if(file.isFile() && file.getName().endsWith(".json"))
-                files.add(file.getName());
+                files.add(file.getName().substring(0, file.getName().length() - 1));
         });
 
         return files;
@@ -208,14 +209,14 @@ public class NpcCommand {
         File preset = new File(PRESETS_DIR + "/" + filename);
 
         if(preset.exists()) {
-            JsonElement element;
+            JsonElement element = null;
             try(BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(preset), StandardCharsets.UTF_8)
             )
             ) {
                 element = parser.parse(fileReader).getAsJsonObject();
             } catch(IOException e) {
-                throw new RuntimeException(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
+                Taterzens.getLogger().error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
             }
             if(element != null) {
                 try {
@@ -225,7 +226,7 @@ public class NpcCommand {
 
                         TaterzenNPC taterzenNPC = new TaterzenNPC(player, filename);
                         taterzenNPC.readCustomDataFromTag((CompoundTag) tag);
-                        taterzenNPC.sendProfileUpdates();
+                        player.getEntityWorld().spawnEntity(taterzenNPC);
 
                         ((TaterzenEditor) player).selectNpc(taterzenNPC);
 
@@ -234,20 +235,16 @@ public class NpcCommand {
                                 false
                         );
                     } else {
-                        context.getSource().sendError(
-                                errorText(lang.error.cannotReadPreset, new LiteralText(filename))
-                        );
+                        context.getSource().sendError(errorText(lang.error.cannotReadPreset, new LiteralText(filename)));
                     }
                 } catch(Throwable e) {
                     e.printStackTrace();
                 }
-
             } else {
                 context.getSource().sendError(
                         errorText(lang.error.cannotReadPreset, new LiteralText(filename))
                 );
             }
-
         } else {
             context.getSource().sendError(
                     errorText(lang.error.noPresetFound, new LiteralText(filename))
@@ -412,7 +409,7 @@ public class NpcCommand {
             String skinPlayerName = StringArgumentType.getString(context, "player name");
             GameProfile skinProfile = new GameProfile(null, skinPlayerName);
             skinProfile = SkullBlockEntity.loadProperties(skinProfile);
-            taterzen.applySkin(skinProfile, true);
+            taterzen.applySkin(skinProfile);
             context.getSource().sendFeedback(
                     successText(lang.success.taterzenSkinChange, new LiteralText(skinPlayerName)),
                     false
@@ -514,6 +511,7 @@ public class NpcCommand {
             ServerPlayerEntity player = context.getSource().getPlayer();
             String taterzenName = MessageArgumentType.getMessage(context, "name").asString();
             TaterzenNPC taterzen = new TaterzenNPC(player, taterzenName);
+            player.getEntityWorld().spawnEntity(taterzen);
             ((TaterzenEditor) player).selectNpc(taterzen);
             context.getSource().sendFeedback(
                     successText(lang.success.spawnedTaterzen, taterzen.getCustomName()),

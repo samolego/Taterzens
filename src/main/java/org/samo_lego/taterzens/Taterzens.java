@@ -27,12 +27,25 @@ public class Taterzens implements ModInitializer {
 
     public static final String MODID = "taterzens";
 
+    /**
+     * Configuration file.
+     */
     public static TaterConfig config;
+    /**
+     * Language file.
+     */
     public static TaterLang lang;
     private static final Logger LOGGER = (Logger) LogManager.getLogger();
+    /**
+     * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
+     */
     public static final ArrayList<TaterzenNPC> TATERZEN_NPCS = new ArrayList<>();
     private static File taterDir;
 
+    /**
+     * Taterzen entity type. Used server - only, as it is replaced with vanilla type
+     * when packets are sent.
+     */
     public static final EntityType<TaterzenNPC> TATERZEN = Registry.register(
             Registry.ENTITY_TYPE,
             new Identifier(MODID, "npc"),
