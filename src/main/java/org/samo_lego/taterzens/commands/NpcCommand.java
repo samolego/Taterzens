@@ -115,8 +115,8 @@ public class NpcCommand {
                         )
                         .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
                         .then(literal("equipment").executes(NpcCommand::setEquipment))
-                        .then(literal("look").executes(context -> changeMovement(context, "LOOK")))
-                        .then(literal("movement") //todo create from enum
+                        .then(literal("look").executes(context -> changeMovement(context, "FORCED_LOOK")))
+                        .then(literal("movement")
                                 .then(argument("movement type", word())
                                         .suggests(MOVEMENT_TYPES)
                                         .executes(context -> changeMovement(context, StringArgumentType.getString(context, "movement type")))
@@ -186,7 +186,7 @@ public class NpcCommand {
         List<String> files = new ArrayList<>();
         Arrays.stream(PRESETS_DIR.listFiles()).forEach(file -> {
             if(file.isFile() && file.getName().endsWith(".json"))
-                files.add(file.getName().substring(0, file.getName().length() - 1));
+                files.add(file.getName().substring(0, file.getName().length() - 5));
         });
 
         return files;
@@ -200,6 +200,8 @@ public class NpcCommand {
         if(preset.exists()) {
             ServerPlayerEntity player = context.getSource().getPlayer();
             TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, player.getEntityWorld());
+            assert taterzenNPC != null;
+            taterzenNPC.refreshPositionAndAngles(player.getX(), player.getY(), player.getZ(), player.yaw, player.pitch);
             player.getEntityWorld().spawnEntity(taterzenNPC);
             ((TaterzenEditor) player).selectNpc(taterzenNPC);
 

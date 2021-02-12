@@ -3,10 +3,12 @@ package org.samo_lego.taterzens.npc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.ai.pathing.MobNavigation;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,10 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.MobSpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -49,16 +48,14 @@ import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
+import static org.samo_lego.taterzens.Taterzens.config;
 
 /**
  * The NPC itself.
@@ -100,12 +97,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.stepHeight = 0.6F;
         this.setCanPickUpLoot(false);
         this.setCustomNameVisible(true);
+        this.setCustomName(this.getName());
         this.setInvulnerable(true);
         this.setPersistent();
         this.experiencePoints = 0;
         this.setMovementSpeed(0.4F);
+        ((MobNavigation) this.getNavigation()).setCanPathThroughDoors(true);
 
-        this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
+        this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
         this.server = world.getServer();
         this.playerManager = server.getPlayerManager();
         this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile));
@@ -292,8 +291,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.fakeTypeAlive = fakeTypeAlive;
         playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
         playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
-        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey());
-        //todo playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(), this.world.getRegistryKey()); // Reload equipment
+        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey()); // todo -> skin
+        playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(this.getEntityId(), this.getEquipment()), this.world.getRegistryKey()); // Reload equipment
+    }
+
+    /**
+     * Gets equipment as list of {@link Pair Pairs}.
+     * @return equipment list of pairs.
+     */
+    private List<Pair<EquipmentSlot, ItemStack>> getEquipment() {
+        List<Pair<EquipmentSlot, ItemStack>> equipment = new ArrayList<>();
+        Arrays.stream(EquipmentSlot.values()).forEach(slot -> equipment.add(new Pair<>(slot, this.getEquippedStack(slot))));
+        return equipment;
     }
 
     public GameProfile getGameProfile() {
@@ -325,7 +334,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         PlayerListS2CPacket packet = new PlayerListS2CPacket();
         //noinspection ConstantConditions
         PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
-        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getCustomName())));
+        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getName())));
 
         accessor.setAction(REMOVE_PLAYER);
         playerManager.sendToAll(packet);
@@ -501,11 +510,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
-     * Handles intecaction (right clicking on the NPC).
-     * @param player
-     * @param pos
-     * @param hand
-     * @return
+     * Handles interaction (right clicking on the NPC).
+     * @param player player interacting with NPC
+     * @param pos interaction pos
+     * @param hand player's interacting hand
+     * @return {@link ActionResult#PASS} if NPC has a right click action, otherwise {@link ActionResult#FAIL}
      */
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
@@ -582,6 +591,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     protected void initGoals() {
         this.goalSelector.add(0, new SwimGoal(this));
+        this.goalSelector.add(2, new LongDoorInteractGoal(this, true));
     }
 
     /**
@@ -593,7 +603,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.npcData.entityType == EntityType.PLAYER) {
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
-            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getCustomName().asString()))));
+            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));
             this.playerManager.sendToAll(playerListS2CPacket);
         }
         TATERZEN_NPCS.remove(this);
@@ -643,5 +653,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public float getPathfindingFavor(BlockPos pos, WorldView world) {
         return 0.0F;
+    }
+
+    @Override
+    protected Text getDefaultName() {
+        return new LiteralText(config.defaults.name);
     }
 }

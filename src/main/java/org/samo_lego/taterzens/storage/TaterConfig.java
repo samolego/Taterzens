@@ -32,6 +32,7 @@ public class TaterConfig {
      */
     public static class Defaults {
         public boolean leashable = false;
+        public String name = "Taterzen";
     }
 
 
