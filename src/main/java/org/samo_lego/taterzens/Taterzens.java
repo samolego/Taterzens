@@ -52,6 +52,7 @@ public class Taterzens implements ModInitializer {
             FabricEntityTypeBuilder
                     .<TaterzenNPC>create(SpawnGroup.MONSTER, TaterzenNPC::new)
                     .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+                    .disableSummon()
                     .build()
     );
 

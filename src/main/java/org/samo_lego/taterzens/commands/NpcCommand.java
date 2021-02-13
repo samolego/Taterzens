@@ -482,7 +482,7 @@ public class NpcCommand {
         );
 
         MOVEMENT_TYPES = SuggestionProviders.register(
-                new Identifier("taterzens", "movement_types"),
+                new Identifier(MODID, "movement_types"),
                 (context, builder) ->
                         CommandSource.suggestMatching(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );

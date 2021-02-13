@@ -31,7 +31,7 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public String _comment = "// Defautl settings for new Taterzens.";
+        public String _comment = "// Default settings for new Taterzens.";
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
@@ -72,7 +72,7 @@ public class TaterConfig {
         else {
             config = new TaterConfig();
         }
-        config.saveLanguageFile(file);
+        config.saveConfigFile(file);
 
         return config;
     }
@@ -82,7 +82,7 @@ public class TaterConfig {
      *
      * @param file file to save config to
      */
-    public void saveLanguageFile(File file) {
+    public void saveConfigFile(File file) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             gson.toJson(this, writer);
         } catch (IOException e) {
