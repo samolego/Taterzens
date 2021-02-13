@@ -8,13 +8,12 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.tag.Tag;
-import net.minecraft.tag.TagGroup;
-import net.minecraft.tag.TagManager;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import org.samo_lego.taterzens.mixin.accessors.*;
+import org.samo_lego.taterzens.mixin.accessors.EntitySpawnS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.MobSpawnS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,13 +22,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static net.minecraft.util.registry.Registry.ENTITY_TYPE;
-import static org.samo_lego.taterzens.Taterzens.MODID;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -107,16 +103,6 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                 }
             }
             this.sendPacket(new EntitySetHeadYawS2CPacket(npc, (byte) ((int)npc.headYaw * 256.0F / 360.0F)));
-        } else if(packet instanceof SynchronizeTagsS2CPacket) {
-            // Used to trick the registry packet
-            TagManager tagManager = ((SynchronizeTagsS2CPacketAccessor) packet).getTagManager();
-
-            TagGroup<EntityType<?>> entityTypes = tagManager.getEntityTypes();
-            Map<Identifier, Tag<EntityType<?>>> map = new HashMap<>(entityTypes.getTags());
-            map.remove(new Identifier(MODID, "npc"));
-
-            tagManager= TagManager.create(tagManager.getBlocks(), tagManager.getItems(), tagManager.getFluids(), TagGroup.create(map));
-            ((SynchronizeTagsS2CPacketAccessor) packet).setTagManager(tagManager);
         }
     }
 }
