@@ -4,13 +4,13 @@
   "version": "${version}",
 
   "name": "Taterzens",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A citizens like mod.",
   "authors": [
     "samo_lego"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://samolego.github.io/Taterzens/",
+    "sources": "https://github.com/samolego/Taterzens"
   },
 
   "license": "MIT",
@@ -32,5 +32,6 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*"
-  }
+  },
+  "accessWidener": "taterzens.aw"
 }
