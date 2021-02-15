@@ -41,6 +41,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.entity.EntityType.FISHING_BOBBER;
+import static net.minecraft.entity.EntityType.ITEM;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -476,7 +477,7 @@ public class NpcCommand {
         ENTITIES = SuggestionProviders.register(
                 new Identifier("taterzens", "entites"),
                 (context, builder) ->
-                        CommandSource.suggestFromIdentifier(Registry.ENTITY_TYPE.stream().filter(entityType -> entityType != FISHING_BOBBER), builder, EntityType::getId,
+                        CommandSource.suggestFromIdentifier(Registry.ENTITY_TYPE.stream().filter(type -> type != FISHING_BOBBER || type != ITEM), builder, EntityType::getId,
                                 (entityType) -> new TranslatableText(Util.createTranslationKey("entity", EntityType.getId(entityType)))
                         )
         );

@@ -49,6 +49,7 @@ import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
@@ -292,9 +293,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @return equipment list of pairs.
      */
     private List<Pair<EquipmentSlot, ItemStack>> getEquipment() {
-        List<Pair<EquipmentSlot, ItemStack>> equipment = new ArrayList<>();
-        Arrays.stream(EquipmentSlot.values()).forEach(slot -> equipment.add(new Pair<>(slot, this.getEquippedStack(slot))));
-        return equipment;
+        return Arrays.stream(EquipmentSlot.values()).map(slot -> new Pair<>(slot, this.getEquippedStack(slot))).collect(Collectors.toList());
     }
 
     public GameProfile getGameProfile() {

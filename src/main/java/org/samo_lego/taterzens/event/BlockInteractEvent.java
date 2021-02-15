@@ -29,15 +29,16 @@ public class BlockInteractEvent implements UseBlockCallback {
      */
     @Override
     public ActionResult interact(PlayerEntity playerEntity, World world, Hand hand, BlockHitResult blockHitResult) {
-        TaterzenEditor player = (TaterzenEditor) playerEntity;
-        if(player.getNpc() != null && player.inPathEditMode()) {
-            BlockPos blockPos = blockHitResult.getBlockPos();
-            player.getNpc().removePathTarget(blockPos);
-            if(player instanceof ServerPlayerEntity) {
+        if(playerEntity instanceof ServerPlayerEntity) { // Prevents crash on client
+            TaterzenEditor player = (TaterzenEditor) playerEntity;
+            if(player.getNpc() != null && player.inPathEditMode()) {
+                BlockPos blockPos = blockHitResult.getBlockPos();
+                player.getNpc().removePathTarget(blockPos);
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos)));
+                return ActionResult.FAIL;
             }
-            return ActionResult.FAIL;
         }
+
         return ActionResult.PASS;
     }
 }
