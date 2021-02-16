@@ -49,6 +49,7 @@ public class TaterLang {
         public String noTaterzenFound = "No Taterzens with id %s were found.";
         public String noPresetFound = "No Taterzen preset with name %s was found.";
         public String cannotReadPreset = "Preset %s cannot be read.";
+        public String invalidEntityId = "Entity id %s is invalid.";
     }
 
 

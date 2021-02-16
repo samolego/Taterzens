@@ -12,6 +12,9 @@ repositories {
 	maven {
 		url 'https://jitpack.io'
 	}
+	maven {
+		url 'https://jitpack.io'
+	}
 }
 
 loom {
@@ -36,6 +39,8 @@ dependencies {
 
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
+
+	modImplementation 'com.github.samolego:DisguiseLib:f0483da67c'
 }
 
 processResources {

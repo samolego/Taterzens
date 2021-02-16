@@ -17,7 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,7 +34,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -47,11 +46,11 @@ import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
+import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.minecraft.entity.EntityType.loadEntityWithPassengers;
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
@@ -238,54 +237,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
-    /**
-     * Gets the entity type of the NPC used on client.
-     *
-     * @return EntityType of the NPC.
-     */
+
     public EntityType<?> getFakeType() {
-        return this.npcData.entityType;
+        return ((EntityDisguise) this).getDisguiseType();
     }
-    /**
-     * If fake type is an instance of {@link LivingEntity}.
-     * Used for packet sending, as living entities use different ones.
-     *
-     * @return true if so, otherwise false.
-     */
-    public boolean isFakeTypeAlive() {
-        return this.npcData.fakeTypeAlive;
-    }
-
-    /**
-     * Changes type of NPC, shown on client
-     * @param entityId identifier of the entity
-     */
-    public void changeType(Identifier entityId) {
-        if(entityId.getPath().equals("player")) {
-            //Minecraft has built-in protection against creating players :(
-            this.changeType(EntityType.PLAYER, true);
-        } else {
-            CompoundTag tag = new CompoundTag();
-            tag.putString("id", entityId.toString());
-            Optional<Entity> optionalEntity = Optional.ofNullable(loadEntityWithPassengers(tag, this.world, (entity) -> entity));
-            optionalEntity.ifPresent(entity -> this.changeType(entity.getType(), entity instanceof LivingEntity));
-        }
-    }
-
     /**
      * Changes type of NPC, shown on client.
      * fakeTypeAlive is required because LivingEntities use different packets.
      *
      * @param fakeType fake entity type
-     * @param fakeTypeAlive whether fake type is an instance of living entity
      */
-    public void changeType(EntityType<?> fakeType, boolean fakeTypeAlive) {
-        this.npcData.entityType = fakeType;
-        this.npcData.fakeTypeAlive = fakeTypeAlive;
-        playerManager.sendToDimension(new EntitiesDestroyS2CPacket(this.getEntityId()), this.world.getRegistryKey());
-        playerManager.sendToDimension(new MobSpawnS2CPacket(this), this.world.getRegistryKey()); // We'll send player packet in ServerPlayNetworkHandlerMixin if needed
-        playerManager.sendToDimension(new EntityTrackerUpdateS2CPacket(this.getEntityId(), this.getDataTracker(), true), this.world.getRegistryKey()); // todo -> skin
-        playerManager.sendToDimension(new EntityEquipmentUpdateS2CPacket(this.getEntityId(), this.getEquipment()), this.world.getRegistryKey()); // Reload equipment
+    public void changeType(EntityType<?> fakeType) {
+        ((EntityDisguise) this).disguiseAs(fakeType);
     }
 
     /**
@@ -349,7 +312,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param texturesProfile GameProfile containing textures.
      */
     public void applySkin(GameProfile texturesProfile) {
-        if(this.npcData.entityType != EntityType.PLAYER)
+        if(this.getFakeType() != EntityType.PLAYER)
             return;
 
         // Clearing current skin
@@ -411,7 +374,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         super.readCustomDataFromTag(tag);
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
-        this.npcData.fakeTypeAlive = npcTag.getBoolean("fakeTypeAlive");
         this.npcData.hostile = npcTag.getBoolean("hostile");
         this.npcData.movement = NPCData.Movement.valueOf(npcTag.getString("movement"));
 
@@ -419,7 +381,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.pushable = npcTag.getBoolean("pushable");
 
         Identifier identifier = new Identifier(npcTag.getString("entityType"));
-        this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
 
         this.npcData.command = npcTag.getString("command");
 
@@ -459,7 +420,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         CompoundTag npcTag = new CompoundTag();
 
-        npcTag.putBoolean("fakeTypeAlive", this.npcData.fakeTypeAlive);
         npcTag.putBoolean("hostile", this.npcData.hostile);
 
         npcTag.putString("movement", this.npcData.movement.toString());
@@ -467,8 +427,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putBoolean("leashable", this.npcData.leashable);
         npcTag.putBoolean("pushable", this.npcData.pushable);
         npcTag.putString("command", this.npcData.command);
-
-        npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
@@ -617,7 +575,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     @Override
     public void onDeath(DamageSource source) {
-        if(this.npcData.entityType == EntityType.PLAYER) {
+        if(this.getFakeType() == EntityType.PLAYER) {
             PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));

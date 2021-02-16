@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.npc;
 
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -12,10 +11,8 @@ import static org.samo_lego.taterzens.Taterzens.config;
  * Deafult NPC data.
  */
 public class NPCData {
-    public EntityType<?> entityType = EntityType.PLAYER;
-    public boolean fakeTypeAlive = true;
     /**
-     * Used for att
+     * Used for attributes
      */
     public boolean hostile = false;
     public boolean leashable = config.defaults.leashable;

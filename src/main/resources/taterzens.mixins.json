@@ -8,13 +8,8 @@
     "ServerPlayerEntityMixinCast_TaterzenEditor",
     "ServerPlayerEntityMixinCast_TaterzenPlayer",
     "ServerPlayInteractionManagerMixin",
-    "ServerPlayNetworkHandlerMixin_PacketFaker",
-    "accessors.EntitySpawnS2CPacketAccessor",
     "accessors.EntityTrackerEntryAccessor",
-    "accessors.MobSpawnS2CPacketAccessor",
     "accessors.PlayerListS2CPacketAccessor",
-    "accessors.PlayerSpawnS2CPacketAccessor",
-    "accessors.SynchronizeTagsS2CPacketAccessor",
     "accessors.ThreadedAnvilChunkStorageAccessor"
   ],
   "client": [],

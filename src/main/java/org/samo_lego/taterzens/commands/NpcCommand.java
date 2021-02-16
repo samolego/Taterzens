@@ -31,6 +31,7 @@ import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.io.File;
 import java.util.*;
@@ -423,12 +424,17 @@ public class NpcCommand {
             TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
             if(taterzen != null) {
                 String entityId = StringArgumentType.getString(context, "entity type");
-                taterzen.changeType(new Identifier(entityId));
+                Optional<EntityType<?>> optionalType = EntityType.get(entityId);
+                if(optionalType.isPresent()) {
+                    ((EntityDisguise) taterzen).disguiseAs(optionalType.get());
+                    context.getSource().sendFeedback(
+                            joinString(lang.success.changedEntityType, Formatting.GREEN, entityId, Formatting.YELLOW),
+                            false
+                    );
+                } else {
+                    context.getSource().sendError(errorText(lang.error.invalidEntityId, new LiteralText(entityId)));
+                }
 
-                context.getSource().sendFeedback(
-                        joinString(lang.success.changedEntityType, Formatting.GREEN, entityId, Formatting.YELLOW),
-                        false
-                );
             } else
                 context.getSource().sendError(noSelectedTaterzenError());
         } catch(Error e) {
