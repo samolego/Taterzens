@@ -34,6 +34,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -380,7 +381,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.leashable = npcTag.getBoolean("leashable");
         this.npcData.pushable = npcTag.getBoolean("pushable");
 
-        Identifier identifier = new Identifier(npcTag.getString("entityType"));
+        if(npcTag.contains("entityType")) {
+            Identifier identifier = new Identifier(npcTag.getString("entityType")); // compatibility
+            ((EntityDisguise) this).disguiseAs(Registry.ENTITY_TYPE.get(identifier)); //todo remove after migration
+        }
 
         this.npcData.command = npcTag.getString("command");
 
