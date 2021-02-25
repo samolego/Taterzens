@@ -6,10 +6,12 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -64,6 +66,7 @@ public class TaterzensAPI {
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         CompoundTag saveTag = new CompoundTag();
         taterzen.writeCustomDataToTag(saveTag);
+        saveTag.putString("entityType", Registry.ENTITY_TYPE.getId(((EntityDisguise) taterzen).getDisguiseType()).toString());
         //todo Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");

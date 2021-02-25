@@ -13,7 +13,7 @@ repositories {
 		url 'https://jitpack.io'
 	}
 	maven {
-		url 'https://jitpack.io'
+		url 'https://maven.nucleoid.xyz'
 	}
 }
 
@@ -40,7 +40,8 @@ dependencies {
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 
-	modImplementation 'com.github.samolego:DisguiseLib:f0483da67c'
+	//modImplementation 'com.github.samolego:DisguiseLib:f0483da67c'
+	modImplementation "xyz.nucleoid:DisguiseLib:${project.disguiselib_version}"
 }
 
 processResources {

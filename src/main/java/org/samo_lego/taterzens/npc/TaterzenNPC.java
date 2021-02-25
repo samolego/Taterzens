@@ -3,7 +3,6 @@ package org.samo_lego.taterzens.npc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
@@ -49,8 +48,9 @@ import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import xyz.nucleoid.disguiselib.EntityDisguise;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
@@ -242,23 +242,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public EntityType<?> getFakeType() {
         return ((EntityDisguise) this).getDisguiseType();
     }
-    /**
-     * Changes type of NPC, shown on client.
-     * fakeTypeAlive is required because LivingEntities use different packets.
-     *
-     * @param fakeType fake entity type
-     */
-    public void changeType(EntityType<?> fakeType) {
-        ((EntityDisguise) this).disguiseAs(fakeType);
-    }
-
-    /**
-     * Gets equipment as list of {@link Pair Pairs}.
-     * @return equipment list of pairs.
-     */
-    private List<Pair<EquipmentSlot, ItemStack>> getEquipment() {
-        return Arrays.stream(EquipmentSlot.values()).map(slot -> new Pair<>(slot, this.getEquippedStack(slot))).collect(Collectors.toList());
-    }
 
     public GameProfile getGameProfile() {
         return this.gameProfile;
@@ -272,7 +255,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void setCustomName(Text name) {
         super.setCustomName(name);
         if(name != null && name.getString().length() > 16) {
-            // Minecraft kicks you if player has
+            // Minecraft kicks you if player has name longer than 16 chars
             name = new LiteralText(name.getString().substring(0, 16)).setStyle(name.getStyle());
         }
         CompoundTag skin = null;
@@ -383,7 +366,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         if(npcTag.contains("entityType")) {
             Identifier identifier = new Identifier(npcTag.getString("entityType")); // compatibility
-            ((EntityDisguise) this).disguiseAs(Registry.ENTITY_TYPE.get(identifier)); //todo remove after migration
+            ((EntityDisguise) this).disguiseAs(Registry.ENTITY_TYPE.get(identifier));
         }
 
         this.npcData.command = npcTag.getString("command");
