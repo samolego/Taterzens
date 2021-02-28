@@ -6,6 +6,11 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
@@ -77,5 +82,18 @@ public class TaterzensAPI {
         } catch(IOException e) {
             getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Error text for no selected taterzen
+     * @return formatted error text.
+     */
+    public static MutableText noSelectedTaterzenError() {
+        return new LiteralText(lang.error.selectTaterzen)
+                .formatted(Formatting.RED)
+                .styled(style -> style
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
+                );
     }
 }

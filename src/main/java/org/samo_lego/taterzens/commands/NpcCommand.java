@@ -45,6 +45,7 @@ import static net.minecraft.entity.EntityType.ITEM;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.api.TaterzensAPI.noSelectedTaterzenError;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
@@ -462,15 +463,6 @@ public class NpcCommand {
             e.printStackTrace();
         }
         return 0;
-    }
-
-    private static MutableText noSelectedTaterzenError() {
-        return new LiteralText(lang.error.selectTaterzen)
-                .formatted(Formatting.RED)
-                .styled(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
-                );
     }
 
     static {
