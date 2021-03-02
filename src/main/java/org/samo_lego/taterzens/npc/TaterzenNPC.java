@@ -356,19 +356,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.npcData.entityType != EntityType.PLAYER)
             return;
 
-        // Clearing current skin
-        try {
-            PropertyMap map = this.gameProfile.getProperties();
-            Property skin = map.get("textures").iterator().next();
-            map.remove("textures", skin);
-        } catch (NoSuchElementException ignored) { }
-
         // Setting new skin
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
         // Sending updates
-        if(this.getFakeType() == EntityType.PLAYER)
-            this.sendProfileUpdates();
+        this.sendProfileUpdates();
     }
 
     /**
@@ -376,6 +368,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param tag compound tag containing the skin
      */
     public void setSkinFromTag(CompoundTag tag) {
+        // Clearing current skin
+        try {
+            PropertyMap map = this.gameProfile.getProperties();
+            Property skin = map.get("textures").iterator().next();
+            map.remove("textures", skin);
+        } catch (NoSuchElementException ignored) { }
+        // Setting the skin
         try {
             String value = tag.getString("value");
             String signature = tag.getString("signature");
