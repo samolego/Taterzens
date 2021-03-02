@@ -66,6 +66,11 @@ public class TaterzensAPI {
         return null;
     }
 
+    /**
+     * Saves {@link TaterzenNPC} to preset file.
+     * @param taterzen taterzen to save.
+     * @param preset file to save taterzen to.
+     */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         CompoundTag saveTag = new CompoundTag();
         taterzen.writeCustomDataToTag(saveTag);

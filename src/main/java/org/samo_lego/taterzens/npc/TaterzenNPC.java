@@ -307,14 +307,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public void setCustomName(Text name) {
         super.setCustomName(name);
-        if(name != null && name.getString().length() > 16) {
-            // Minecraft kicks you if player has
-            name = new LiteralText(name.getString().substring(0, 16)).setStyle(name.getStyle());
+        String profileName = "Taterzen";
+        if(name != null) {
+            profileName = name.getString();
+            if(name.getString().length() > 16) {
+                // Minecraft kicks you if player has name longer than 16 chars in GameProfile
+                profileName = name.getString().substring(0, 16);
+            }
         }
         CompoundTag skin = null;
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
-        this.gameProfile = new GameProfile(this.getUuid(), this.getName().getString());
+        this.gameProfile = new GameProfile(this.getUuid(), profileName);
         if(this.getFakeType() == EntityType.PLAYER && skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
