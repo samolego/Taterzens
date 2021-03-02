@@ -19,6 +19,8 @@ public class TaterLang {
 
     public String availableTaterzens = "Available Taterzens:";
     public String showLoadedTaterzens = "Show loaded Taterzens";
+    public String fabricTailorAdvert = "If you want more skin options for Taterzens, install FabricTailor mod.";
+    public String skinCommandUsage = "To customize the skin even more, use FabricTailor's built in /skin command.";
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";

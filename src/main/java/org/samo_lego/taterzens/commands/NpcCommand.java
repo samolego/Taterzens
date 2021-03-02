@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.commands;
 
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -9,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -50,10 +50,10 @@ import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
 
-    private static final JsonParser parser = new JsonParser();
     private static final File PRESETS_DIR = new File(getTaterDir() + "/presets/");
     private static final SuggestionProvider<ServerCommandSource> ENTITIES;
     private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
+    private static final boolean FABRICTAILOR_LOADED;
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -69,6 +69,7 @@ public class NpcCommand {
                         .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
                         .executes(NpcCommand::selectTaterzen)
                 )
+                .then(literal("deselect").executes(NpcCommand::selectTaterzen))
                 .then(literal("list").executes(NpcCommand::listTaterzens))
                 .then(literal("remove").executes(NpcCommand::removeTaterzen))
                 .then(literal("preset")
@@ -357,6 +358,31 @@ public class NpcCommand {
     private static int setSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+
+        // Shameless self-promotion
+        if(config.fabricTailorAdvert) {
+            if(FABRICTAILOR_LOADED) {
+                player.sendMessage(new LiteralText(lang.skinCommandUsage)
+                        .formatted(Formatting.GOLD)
+                        .styled(style ->
+                            style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
+                        ),
+                    false
+                );
+            } else {
+                player.sendMessage(new LiteralText(lang.fabricTailorAdvert)
+                                .formatted(Formatting.ITALIC)
+                                .formatted(Formatting.GOLD)
+                                .styled(style -> style
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/FabricTailor"))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install FabricTailor")))
+                                ),
+                        false
+                );
+            }
+
+        }
+
         if(taterzen != null) {
             String skinPlayerName = StringArgumentType.getString(context, "player name");
             GameProfile skinProfile = new GameProfile(null, skinPlayerName);
@@ -479,5 +505,7 @@ public class NpcCommand {
                 (context, builder) ->
                         CommandSource.suggestMatching(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
+
+        FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
     }
 }

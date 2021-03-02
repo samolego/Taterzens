@@ -26,6 +26,13 @@ public class TaterConfig {
     public Defaults defaults = new Defaults();
     public Path path = new Path();
 
+    /**
+     * Whether to remind you that if FabricTailor
+     * mod is installed, it has some more skin functionality
+     * (source: https://github.com/samolego/FabricTailor)
+     */
+    public boolean fabricTailorAdvert = true;
+
 
     /**
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
