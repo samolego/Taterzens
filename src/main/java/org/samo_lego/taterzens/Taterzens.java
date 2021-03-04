@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class Taterzens implements ModInitializer {
 
     public static final String MODID = "taterzens";
+    public static boolean DISGUISELIB_LOADED;
 
     /**
      * Configuration file.
@@ -72,6 +73,8 @@ public class Taterzens implements ModInitializer {
 
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
         lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
+
+        DISGUISELIB_LOADED = FabricLoader.getInstance().isModLoaded("disguiselib");
     }
 
     public static Logger getLogger() {

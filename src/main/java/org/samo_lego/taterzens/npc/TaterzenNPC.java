@@ -40,13 +40,13 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
-import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,8 +55,7 @@ import java.util.NoSuchElementException;
 import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
-import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.Taterzens.*;
 
 /**
  * The NPC itself.
@@ -70,6 +69,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     private final PlayerManager playerManager;
     private final MinecraftServer server;
+    private PlayerEntity fakePlayer;
     private GameProfile gameProfile;
 
     // Goals
@@ -108,8 +108,24 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         ((MobNavigation) this.getNavigation()).setCanPathThroughDoors(true);
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
+        if(DISGUISELIB_LOADED) {
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
+        }
         this.server = world.getServer();
         this.playerManager = server.getPlayerManager();
+
+        this.fakePlayer = new PlayerEntity(world, this.getBlockPos(), this.headYaw, new GameProfile(this.uuid, null)) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+        };
+        this.fakePlayer.getDataTracker().set(PLAYER_MODEL_PARTS, (byte) 0x7f);
 
         TATERZEN_NPCS.add(this);
     }
@@ -206,17 +222,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.npcData.equipmentEditor != null)
             return;
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-            if(this.ticks % 5 == 0) {
-                Box box = this.getBoundingBox().expand(4.0D);
-                this.world.getEntityCollisions(this, box, entity -> {
-                    if(entity instanceof ServerPlayerEntity) {
-                        this.lookAtEntity(entity, 60.0F, 60.0F);
-                        this.setHeadYaw(this.yaw);
-                        return true;
-                    }
-                    return false;
-                });
-            }
+            Box box = this.getBoundingBox().expand(4.0D);
+            this.world.getEntityCollisions(this, box, entity -> {
+                if(entity instanceof ServerPlayerEntity) {
+                    this.lookAtEntity(entity, 60.0F, 60.0F);
+                    this.setHeadYaw(this.yaw);
+                    return true;
+                }
+                return false;
+            });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
             this.yaw = this.headYaw; // Rotates body as well
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty())) {
@@ -238,11 +252,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
-
-    public EntityType<?> getFakeType() {
-        return ((EntityDisguise) this).getDisguiseType();
-    }
-
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }
@@ -262,7 +271,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
         this.gameProfile = new GameProfile(this.getUuid(), this.getName().getString());
-        if(this.getFakeType() == EntityType.PLAYER && skin != null) {
+        if(DISGUISELIB_LOADED) {
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
+        }
+
+        if(skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
         }
@@ -296,7 +309,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param texturesProfile GameProfile containing textures.
      */
     public void applySkin(GameProfile texturesProfile) {
-        if(this.getFakeType() != EntityType.PLAYER)
+        if(this.gameProfile == null)
             return;
 
         // Clearing current skin
@@ -309,9 +322,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         // Setting new skin
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
+        if(DISGUISELIB_LOADED) {
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
+        }
+
         // Sending updates
-        if(this.getFakeType() == EntityType.PLAYER)
-            this.sendProfileUpdates();
+        this.sendProfileUpdates();
     }
 
     /**
@@ -364,9 +380,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.leashable = npcTag.getBoolean("leashable");
         this.npcData.pushable = npcTag.getBoolean("pushable");
 
-        if(npcTag.contains("entityType")) {
-            Identifier identifier = new Identifier(npcTag.getString("entityType")); // compatibility
-            ((EntityDisguise) this).disguiseAs(Registry.ENTITY_TYPE.get(identifier));
+        // Compatibility (transition to disguiselib) & presets
+        if(DISGUISELIB_LOADED && npcTag.contains("entityType")) {
+            Identifier identifier = new Identifier(npcTag.getString("entityType"));
+            DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
         }
 
         this.npcData.command = npcTag.getString("command");
@@ -387,6 +404,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
+        if(DISGUISELIB_LOADED) {
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
+        }
 
         // Skin is cached
         CompoundTag skinTag = npcTag.getCompound("skin");
@@ -532,7 +552,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f);
+        //this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f); //todo
     }
 
     @Override
@@ -562,12 +582,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     @Override
     public void onDeath(DamageSource source) {
-        if(this.getFakeType() == EntityType.PLAYER) {
-            PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
-            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
-            ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));
-            this.playerManager.sendToAll(playerListS2CPacket);
-        }
+        PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
+        ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
+        ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));
+        this.playerManager.sendToAll(playerListS2CPacket);
+
         TATERZEN_NPCS.remove(this);
     }
 
@@ -620,5 +639,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     protected Text getDefaultName() {
         return new LiteralText(config.defaults.name);
+    }
+
+    @Nullable
+    public PlayerEntity getFakePlayer() {
+        return this.fakePlayer;
     }
 }

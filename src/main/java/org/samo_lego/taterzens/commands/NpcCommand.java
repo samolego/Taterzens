@@ -402,7 +402,7 @@ public class NpcCommand {
     private static int selectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
 
-        Box box = player.getBoundingBox().offset(player.getRotationVector()).expand(0.3D);
+        Box box = player.getBoundingBox().offset(player.getRotationVector()).expand(4.0D);
         player.getEntityWorld().getEntityCollisions(player, box, entity -> {
             if(entity instanceof TaterzenNPC) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
