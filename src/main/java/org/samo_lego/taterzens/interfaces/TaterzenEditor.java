@@ -11,4 +11,7 @@ public interface TaterzenEditor {
 
     boolean inPathEditMode();
     void setPathEditMode(boolean editMode);
+
+    boolean inMsgEditMode();
+    void setMsgEditMode(boolean editMode);
 }

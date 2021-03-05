@@ -1,5 +1,7 @@
 package org.samo_lego.taterzens.api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
@@ -30,6 +32,11 @@ import static org.samo_lego.taterzens.Taterzens.*;
 public class TaterzensAPI {
 
     private static final JsonParser parser = new JsonParser();
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .disableHtmlEscaping()
+            .create();
 
     /**
      * Loads {@link TaterzenNPC} from preset.
@@ -83,7 +90,7 @@ public class TaterzensAPI {
         JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 
         try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
-            writer.write(element.toString());
+            gson.toJson(element, writer);
         } catch(IOException e) {
             getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
         }

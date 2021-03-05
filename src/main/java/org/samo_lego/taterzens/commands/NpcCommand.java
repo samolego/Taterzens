@@ -116,6 +116,9 @@ public class NpcCommand {
                         .then(literal("path").executes(NpcCommand::editTaterzenPath)
                             .then(literal("clear").executes(NpcCommand::clearTaterzenPath))
                         )
+                        .then(literal("messages").executes(NpcCommand::editTaterzenMessages)
+                                .then(literal("clear").executes(NpcCommand::clearTaterzenMessages))
+                        )
                         .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
                         .then(literal("equipment").executes(NpcCommand::setEquipment))
                         .then(literal("look").executes(context -> changeMovement(context, "FORCED_LOOK")))
@@ -127,6 +130,53 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            taterzen.clearMessages();
+            player.sendMessage(successText(lang.success.messagesCleared, taterzen.getName()), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
+    private static int editTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            if(((TaterzenEditor) player).inMsgEditMode()) {
+                ((TaterzenEditor) player).setMsgEditMode(false);
+                context.getSource().sendFeedback(
+                        new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
+                        false
+                );
+            } else {
+                ((TaterzenEditor) player).setMsgEditMode(true);
+                context.getSource().sendFeedback(
+                        joinText(lang.success.msgEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                                .formatted(Formatting.BOLD)
+                                .styled(style -> style
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages"))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                ),
+                        false
+                );
+                context.getSource().sendFeedback(
+                        joinText(lang.success.msgEditorDescLine1, Formatting.GREEN, taterzen.getCustomName(), Formatting.YELLOW)
+                                .append("\n")
+                                .append(new LiteralText(lang.success.msgEditorDescLine2))
+                                .formatted(Formatting.GREEN),
+                        false
+                );
+            }
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
     }
 
     private static int clearTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -428,17 +478,19 @@ public class NpcCommand {
     private static int selectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayer();
 
-        Box box = player.getBoundingBox().offset(player.getRotationVector()).expand(0.3D);
+        Box box = player.getBoundingBox().offset(player.getRotationVector().multiply(2.0D)).expand(0.3D);
+        ((TaterzenEditor) player).selectNpc(null);
+
         player.getEntityWorld().getEntityCollisions(player, box, entity -> {
-            if(entity instanceof TaterzenNPC) {
+            if(entity instanceof TaterzenNPC && ((TaterzenEditor) player).getNpc() == null) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
                 context.getSource().sendFeedback(
                         successText(lang.success.selectedTaterzen, entity.getCustomName()),
                         false
                 );
-                return true;
+                return false;
             }
-            return false;
+            return true;
         });
 
         return 0;

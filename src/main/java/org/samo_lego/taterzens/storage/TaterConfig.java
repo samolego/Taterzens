@@ -42,6 +42,8 @@ public class TaterConfig {
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
+        public String _commment = "// Default delay between each message, in ticks.";
+        public int messageDelay = 100;
     }
 
 

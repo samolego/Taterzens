@@ -1,10 +1,17 @@
 package org.samo_lego.taterzens.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class TextUtil {
+    private static final JsonParser parser = new JsonParser();
 
     /**
      * Inserts colored name of Taterzen in string message.
@@ -22,9 +29,7 @@ public class TextUtil {
         String[] split = message.split("%s");
         return (LiteralText) new LiteralText(split[0])
                 .formatted(messageColor)
-                .append(
-                        taterzenName.copy().formatted(taterzenNameColor)
-                )
+                .append(taterzenName.copy().formatted(taterzenNameColor))
                 .append(split[1])
                 .formatted(messageColor);
 
@@ -41,5 +46,15 @@ public class TextUtil {
 
     public static LiteralText errorText(String message, Text taterzenName) {
         return joinText(message, Formatting.RED, taterzenName, Formatting.LIGHT_PURPLE);
+    }
+
+    public static CompoundTag toTag(Text text) {
+        JsonElement json = parser.parse(Text.Serializer.toJson(text));
+        return (CompoundTag) JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
+    }
+
+    public static Text fromTag(Tag textTag) {
+        JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textTag);
+        return Text.Serializer.fromJson(json);
     }
 }

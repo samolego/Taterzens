@@ -8,6 +8,7 @@
     "ServerPlayerEntityMixinCast_TaterzenEditor",
     "ServerPlayerEntityMixinCast_TaterzenPlayer",
     "ServerPlayInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin_MsgEditor",
     "ServerPlayNetworkHandlerMixin_PacketFaker",
     "accessors.EntitySpawnS2CPacketAccessor",
     "accessors.EntityTrackerEntryAccessor",

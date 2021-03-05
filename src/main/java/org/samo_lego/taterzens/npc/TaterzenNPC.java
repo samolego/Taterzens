@@ -47,6 +47,7 @@ import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
+import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -238,6 +239,29 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+        if(!this.npcData.messages.isEmpty()) {
+            Box box = this.getBoundingBox().offset(2.0D, 1.0D, 2.0D);
+            this.world.getEntityCollisions(this, box, entity -> {
+                if(entity instanceof ServerPlayerEntity) {
+                    if(this.npcData.messages.get(this.npcData.currentMessage).getSecond() < ((TaterzenPlayer) entity).ticksSinceLastMessage()) {
+                        if(++this.npcData.currentMessage >= this.npcData.messages.size())
+                            this.npcData.currentMessage = 0;
+                        entity.sendSystemMessage(
+                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(this.npcData.currentMessage).getFirst()),
+                                this.uuid
+                        );
+                        // Resetting message counter
+                        ((TaterzenPlayer) entity).resetMessageTicks();
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
     /**
      * Gets the entity type of the NPC used on client.
      *
@@ -440,6 +464,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             }
         }
 
+        ListTag messages = (ListTag) npcTag.get("Messages");
+        if(messages != null) {
+            if(messages.size() > 0) {
+                messages.forEach(msgTag -> {
+                    CompoundTag msgCompound = (CompoundTag) msgTag;
+                    this.npcData.messages.add(new Pair<>(TextUtil.fromTag(msgCompound.get("Message")), msgCompound.getInt("Delay")));
+                });
+            }
+        }
+
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
 
@@ -484,6 +518,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             pathTargets.add(pos);
         });
         npcTag.put("PathTargets", pathTargets);
+
+        // Messages
+        ListTag messages = new ListTag();
+        this.npcData.messages.forEach(pair -> {
+            CompoundTag msg = new CompoundTag();
+            msg.put("Message", TextUtil.toTag(pair.getFirst()));
+            msg.putInt("Delay", pair.getSecond());
+            messages.add(msg);
+        });
+        npcTag.put("Messages", messages);
 
         tag.put("TaterzenNPCTag", npcTag);
 
@@ -545,6 +589,21 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         ((TaterzenPlayer) player).setLastInteraction(lastAction);
         return result;
+    }
+
+    public void addMessage(Text text) {
+        this.npcData.messages.add(new Pair<>(text, config.defaults.messageDelay));
+    }
+
+    public void setMessageDelay(int delay) {
+        if(!this.npcData.messages.isEmpty()) {
+            this.npcData.messages.get(this.npcData.currentMessage).mapSecond(previous -> delay);
+        }
+    }
+
+    public void clearMessages() {
+        this.npcData.messages = new ArrayList<>();
+        this.npcData.currentMessage = 0;
     }
 
     /**

@@ -1,7 +1,9 @@
 package org.samo_lego.taterzens.npc;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ public class NPCData {
     public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     public int currentMoveTarget = 0;
     public boolean pushable = config.defaults.pushable;
+    public ArrayList<Pair<Text, Integer>> messages = new ArrayList<>();
+    public int currentMessage = 0;
+
 
     /**
      * Types of movement a Taterzen can perform.

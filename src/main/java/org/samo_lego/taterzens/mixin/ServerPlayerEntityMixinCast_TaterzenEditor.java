@@ -28,7 +28,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     @Unique
     private TaterzenNPC selectedNpc;
     @Unique
-    private boolean inEditMode;
+    private boolean taterzens$inPathEditMode, taterzens$inMsgEditMode;
     @Unique
     private final ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
     @Unique
@@ -51,7 +51,12 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
 
     @Override
     public boolean inPathEditMode() {
-        return this.inEditMode;
+        return this.taterzens$inPathEditMode;
+    }
+
+    @Override
+    public boolean inMsgEditMode() {
+        return this.taterzens$inMsgEditMode;
     }
 
     /**
@@ -64,13 +69,18 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
      */
     @Override
     public void setPathEditMode(boolean editMode) {
-        this.inEditMode = editMode;
+        this.taterzens$inPathEditMode = editMode;
         if(selectedNpc != null) {
             World world = player.getEntityWorld();
             selectedNpc.getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
                     new BlockUpdateS2CPacket(blockPos, editMode ? Blocks.REDSTONE_BLOCK.getDefaultState() : world.getBlockState(blockPos))
             ));
         }
+    }
+
+    @Override
+    public void setMsgEditMode(boolean editMode) {
+        this.taterzens$inMsgEditMode = editMode;
     }
 
 
@@ -80,7 +90,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
      */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
-        if(this.inEditMode && selectedNpc != null && lastRenderTick++ > 4) {
+        if(this.taterzens$inPathEditMode && selectedNpc != null && lastRenderTick++ > 4) {
             ArrayList<BlockPos> pathTargets = this.selectedNpc.getPathTargets();
             DustParticleEffect effect = new DustParticleEffect(
                     config.path.color.red / 255.0F,

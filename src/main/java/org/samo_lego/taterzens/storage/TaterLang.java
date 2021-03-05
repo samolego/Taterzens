@@ -44,6 +44,12 @@ public class TaterLang {
         public String pathEditorDescLine1 = "Left click the blocks to add them to the path.";
         public String pathEditorDescLine2 = "Right click the blocks to remove them to the path.";
         public String clearPath = "Path for %s was cleared successfully.";
+        public String msgEditorEnter = "You've entered message editor for %s. Enter same command to exit.";
+        public String msgEditorDescLine1 = "Send messages in chat and %s will repeat them.";
+        public String msgEditorDescLine2 = "You can use normal text or tellraw structure (for colors).";
+        public String messageAdded = "Message %s was added successfully.";
+        public String messagesCleared = "Taterzen %s has been muted.";
+        public String messageDelaySet = "Message delay for the last message is now %s.";
     }
 
     public static class Error {
@@ -51,6 +57,7 @@ public class TaterLang {
         public String noTaterzenFound = "No Taterzens with id %s were found.";
         public String noPresetFound = "No Taterzen preset with name %s was found.";
         public String cannotReadPreset = "Preset %s cannot be read.";
+        public String invalidText = "The text nbt you entered is invalid.";
     }
 
 
