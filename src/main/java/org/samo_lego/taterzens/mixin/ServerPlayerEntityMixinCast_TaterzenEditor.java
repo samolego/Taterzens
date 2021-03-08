@@ -33,6 +33,8 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     private final ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
     @Unique
     private byte lastRenderTick = 0;
+    @Unique
+    private int taterzens$selectedMsgId = -1; // -1 as no selected msg to edit
 
     /**
      * Gets the selected {@link TaterzenNPC} if player has it.
@@ -81,6 +83,16 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     @Override
     public void setMsgEditMode(boolean editMode) {
         this.taterzens$inMsgEditMode = editMode;
+    }
+
+    @Override
+    public void setMessageEditing(int selected) {
+        this.taterzens$selectedMsgId = selected;
+    }
+
+    @Override
+    public int getMessageEditing() {
+        return this.taterzens$selectedMsgId;
     }
 
 

@@ -41,6 +41,7 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
@@ -243,18 +244,22 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void tick() {
         super.tick();
         if(!this.npcData.messages.isEmpty()) {
-            Box box = this.getBoundingBox().offset(2.0D, 1.0D, 2.0D);
+            Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
             this.world.getEntityCollisions(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity) {
-                    if(this.npcData.messages.get(this.npcData.currentMessage).getSecond() < ((TaterzenPlayer) entity).ticksSinceLastMessage()) {
-                        if(++this.npcData.currentMessage >= this.npcData.messages.size())
-                            this.npcData.currentMessage = 0;
+                if(entity instanceof ServerPlayerEntity && !((TaterzenEditor) entity).inMsgEditMode()) {
+                    TaterzenPlayer pl = (TaterzenPlayer) entity;
+                    int msgPos = pl.getCurrentMsgPos();
+                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage()) {
+                        if(++msgPos >= this.npcData.messages.size())
+                            msgPos = 0;
                         entity.sendSystemMessage(
-                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(this.npcData.currentMessage).getFirst()),
+                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getCurrentMsgPos()).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
                         ((TaterzenPlayer) entity).resetMessageTicks();
+                        // Setting new message position
+                        pl.setCurrentMsgPos(msgPos);
                     }
                     return true;
                 }
@@ -592,18 +597,29 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     public void addMessage(Text text) {
-        this.npcData.messages.add(new Pair<>(text, config.defaults.messageDelay));
+        this.npcData.messages.add(new Pair<>(text, config.messages.messageDelay));
     }
 
-    public void setMessageDelay(int delay) {
+    public void setMessage(int messageEditing, Text text) {
+        this.npcData.messages.set(messageEditing, new Pair<>(text, config.messages.messageDelay));
+    }
+
+    public void removeMessage(int selected) {
+        this.npcData.messages.remove(selected);
+    }
+
+    /*public void setMessageDelay(int delay) {
         if(!this.npcData.messages.isEmpty()) {
             this.npcData.messages.get(this.npcData.currentMessage).mapSecond(previous -> delay);
         }
-    }
+    }*/
 
     public void clearMessages() {
         this.npcData.messages = new ArrayList<>();
-        this.npcData.currentMessage = 0;
+    }
+
+    public ArrayList<Pair<Text, Integer>> getMessages() {
+        return this.npcData.messages;
     }
 
     /**

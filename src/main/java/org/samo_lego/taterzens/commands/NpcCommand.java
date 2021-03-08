@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
@@ -34,6 +35,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,6 +120,11 @@ public class NpcCommand {
                         )
                         .then(literal("messages").executes(NpcCommand::editTaterzenMessages)
                                 .then(literal("clear").executes(NpcCommand::clearTaterzenMessages))
+                                .then(literal("list").executes(NpcCommand::listTaterzenMessages))
+                                .then(argument("message id", IntegerArgumentType.integer(0))
+                                        .then(literal("delete").executes(NpcCommand::deleteTaterzenMessage))
+                                        .executes(NpcCommand::editMessage)
+                                )
                         )
                         .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
                         .then(literal("equipment").executes(NpcCommand::setEquipment))
@@ -130,6 +137,100 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
+            if(selected >= taterzen.getMessages().size()) {
+                player.sendMessage(
+                        successText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                        false
+                );
+            } else {
+                player.sendMessage(successText(lang.success.messageDeleted, taterzen.getMessages().get(selected).getFirst()), false);
+                taterzen.removeMessage(selected);
+            }
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
+    private static int editMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            if(((TaterzenEditor) player).inMsgEditMode()) {
+                int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
+                if(selected >= taterzen.getMessages().size()) {
+                    player.sendMessage(
+                            successText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                            false
+                    );
+                } else {
+                    ((TaterzenEditor) player).setMessageEditing(selected);
+                    player.sendMessage(successText(lang.editMessageMode, taterzen.getMessages().get(selected).getFirst()), false);
+                }
+            } else {
+                player.sendMessage(new LiteralText(lang.error.enterMessageEditorMode)
+                        .formatted(Formatting.RED)
+                        .styled(style -> style
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.enterMessageEditor)))
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages"))
+                        ),
+                        false
+                );
+            }
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
+    private static int listTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            ((TaterzenEditor) player).setMsgEditMode(true);
+            ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
+
+            MutableText response = joinText(lang.taterzenMessages, Formatting.AQUA, taterzen.getCustomName(), Formatting.YELLOW);
+            AtomicInteger i = new AtomicInteger();
+
+            messages.forEach(pair -> {
+                int index = i.get() + 1;
+                response.append(
+                        new LiteralText("\n" + index + "-> ")
+                                .formatted(index % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD)
+                                .append(pair.getFirst())
+                                .styled(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, pair.getFirst().getString())))
+                                .styled(style -> style
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages " + index))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Edit message ")
+                                                .append(String.valueOf(index))
+                                        ))
+                                )
+                        .append("   ")
+                        .append(
+                                new LiteralText("X")
+                                    .formatted(Formatting.RED)
+                                    .formatted(Formatting.BOLD)
+                                    .styled(style -> style
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Delete " + index)))
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages " + index + " delete"))
+                                    )
+                        )
+                );
+                i.incrementAndGet();
+            });
+            player.sendMessage(response, false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
     }
 
     private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -149,12 +250,15 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
             if(((TaterzenEditor) player).inMsgEditMode()) {
+                // Exiting the message edit mode
                 ((TaterzenEditor) player).setMsgEditMode(false);
+                ((TaterzenEditor) player).setMessageEditing(-1);
                 context.getSource().sendFeedback(
                         new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
                         false
                 );
             } else {
+                // Entering the edit mode
                 ((TaterzenEditor) player).setMsgEditMode(true);
                 context.getSource().sendFeedback(
                         joinText(lang.success.msgEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)

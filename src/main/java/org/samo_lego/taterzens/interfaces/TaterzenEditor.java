@@ -14,4 +14,8 @@ public interface TaterzenEditor {
 
     boolean inMsgEditMode();
     void setMsgEditMode(boolean editMode);
+
+    void setMessageEditing(int selected);
+
+    int getMessageEditing();
 }

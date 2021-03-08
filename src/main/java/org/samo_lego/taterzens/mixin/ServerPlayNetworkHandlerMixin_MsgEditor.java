@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.Taterzens.lang;
 
 @Mixin(ServerPlayNetworkHandler.class)
@@ -39,7 +40,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                 if(split.length > 1) {
                     try {
                         int delay = Integer.parseInt(split[1]);
-                        taterzen.setMessageDelay(delay);
+                        //taterzen.setMessageDelay(delay);
                         player.sendMessage(TextUtil.successText(lang.success.messageDelaySet, new LiteralText(String.valueOf(delay))), false);
                     } catch(NumberFormatException ignored) {
 
@@ -57,8 +58,21 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                     }
                 } else
                     text = new LiteralText(msg);
-                taterzen.addMessage(text);
-                player.sendMessage(TextUtil.successText(lang.success.messageAdded, text), false);
+                if(((TaterzenEditor) player).getMessageEditing() != -1) {
+                    taterzen.setMessage(((TaterzenEditor) player).getMessageEditing(), text); // Editing message
+                    player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
+
+                    // Exiting the editor
+                    if(config.messages.exitEditorAfterMsgEdit) {
+                        ((TaterzenEditor) player).setMsgEditMode(false);
+                        ((TaterzenEditor) player).setMessageEditing(-1);
+                        player.sendMessage(new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE), false);
+                    }
+                } else {
+                    taterzen.addMessage(text); // Adding message
+                    player.sendMessage(TextUtil.successText(lang.success.messageAdded, text), false);
+                }
+
             }
             ci.cancel();
         }

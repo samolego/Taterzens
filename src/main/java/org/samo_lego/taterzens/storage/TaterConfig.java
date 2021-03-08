@@ -25,6 +25,7 @@ public class TaterConfig {
     public String language = "en_us";
     public Defaults defaults = new Defaults();
     public Path path = new Path();
+    public Messages messages = new Messages();
 
     /**
      * Whether to remind you that if FabricTailor
@@ -42,8 +43,13 @@ public class TaterConfig {
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
+    }
+
+    public static class Messages {
         public String _commment = "// Default delay between each message, in ticks.";
         public int messageDelay = 100;
+        public String _comment = "// Whether to exit message editor mode after editing a message";
+        public boolean exitEditorAfterMsgEdit = true;
     }
 
 

@@ -28,7 +28,6 @@ public class NPCData {
     public int currentMoveTarget = 0;
     public boolean pushable = config.defaults.pushable;
     public ArrayList<Pair<Text, Integer>> messages = new ArrayList<>();
-    public int currentMessage = 0;
 
 
     /**

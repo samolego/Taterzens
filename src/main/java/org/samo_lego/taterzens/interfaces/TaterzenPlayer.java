@@ -6,4 +6,7 @@ public interface TaterzenPlayer {
 
     int ticksSinceLastMessage();
     void resetMessageTicks();
+
+    int getCurrentMsgPos();
+    void setCurrentMsgPos(int newPos);
 }

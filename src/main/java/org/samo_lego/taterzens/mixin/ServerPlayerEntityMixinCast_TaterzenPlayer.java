@@ -25,6 +25,8 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
     private long taterzens$lastNPCInteraction = 0;
     @Unique
     private int taterzens$lastMessageTicks = 0;
+    @Unique
+    private int taterzens$currentMsg = 0;
 
     @Override
     public long getLastInteractionTime() {
@@ -44,6 +46,16 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
     @Override
     public void resetMessageTicks() {
         this.taterzens$lastMessageTicks = 0;
+    }
+
+    @Override
+    public int getCurrentMsgPos() {
+        return this.taterzens$currentMsg;
+    }
+
+    @Override
+    public void setCurrentMsgPos(int newPos) {
+        this.taterzens$currentMsg = newPos;
     }
 
     @Inject(method = "tick()V", at = @At("TAIL"))
