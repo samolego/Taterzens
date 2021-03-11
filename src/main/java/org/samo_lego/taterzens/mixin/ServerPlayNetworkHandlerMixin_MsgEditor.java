@@ -23,6 +23,14 @@ import static org.samo_lego.taterzens.Taterzens.lang;
 public class ServerPlayNetworkHandlerMixin_MsgEditor {
     @Shadow public ServerPlayerEntity player;
 
+    /**
+     * Catches messages; if player is in
+     * message edit mode, messages sent to chat
+     * will be saved to taterzen instead.
+     *
+     * @param msg
+     * @param ci
+     */
     @Inject(
             method = "method_31286(Ljava/lang/String;)V",
             at = @At(
@@ -49,6 +57,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
             } else {
                 Text text;
                 if(msg.startsWith("{") && msg.endsWith("}")) {
+                    // NBT tellraw message structure, try parse it
                     try {
                         text = Text.Serializer.fromJson(new StringReader(msg));
                     } catch(JsonParseException ignored) {
@@ -59,6 +68,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                 } else
                     text = new LiteralText(msg);
                 if(((TaterzenEditor) player).getMessageEditing() != -1) {
+                    // Editing selected message
                     taterzen.setMessage(((TaterzenEditor) player).getMessageEditing(), text); // Editing message
                     player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
 

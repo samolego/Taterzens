@@ -77,6 +77,11 @@ public class Taterzens implements ModInitializer {
     public static Logger getLogger() {
         return LOGGER;
     }
+
+    /**
+     * Gets the minecraft Taterzens config directory.
+     * @return config directory folder.
+     */
     public static File getTaterDir() {
         return taterDir;
     }

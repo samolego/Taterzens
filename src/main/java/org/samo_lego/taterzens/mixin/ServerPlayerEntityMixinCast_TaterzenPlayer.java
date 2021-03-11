@@ -23,8 +23,15 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
      */
     @Unique
     private long taterzens$lastNPCInteraction = 0;
+    /**
+     * Ticks since this player got last message from taterzen.
+     */
     @Unique
     private int taterzens$lastMessageTicks = 0;
+    /**
+     * The last message index of the message that was sent
+     * to player.
+     */
     @Unique
     private int taterzens$currentMsg = 0;
 
@@ -58,6 +65,10 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
         this.taterzens$currentMsg = newPos;
     }
 
+    /**
+     * Increases the ticks since last message counter.
+     * @param ci
+     */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void postTick(CallbackInfo ci) {
         ++this.taterzens$lastMessageTicks;

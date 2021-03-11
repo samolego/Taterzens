@@ -55,6 +55,7 @@ public class TaterLang {
         public String messageDelaySet = "Message delay for the last message is now %s.";
         public String messageChanged = "Message has been changed to %s.";
         public String messageDeleted = "Message %s has been deleted successfully.";
+        public String deselectedTaterzen = "Your Taterzen selection has been cleared.";
     }
 
     public static class Error {

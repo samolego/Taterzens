@@ -22,33 +22,35 @@ public class TaterConfig {
      *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
+    public String _comment_language = "// Language file to use.";
     public String language = "en_us";
+
+    /**
+     * Whether to remind you that if FabricTailor
+     * mod is installed, it has some more skin functionality.
+     *
+     * @see <a href="https://github.com/samolego/FabricTailor">FabricTailor</a>
+     */
+    public boolean fabricTailorAdvert = true;
+
     public Defaults defaults = new Defaults();
     public Path path = new Path();
     public Messages messages = new Messages();
 
     /**
-     * Whether to remind you that if FabricTailor
-     * mod is installed, it has some more skin functionality
-     * (source: https://github.com/samolego/FabricTailor)
-     */
-    public boolean fabricTailorAdvert = true;
-
-
-    /**
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public String _comment = "// Default settings for new Taterzens.";
+        public String _comment_name = "// Default settings for new Taterzens.";
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
     }
 
     public static class Messages {
-        public String _commment = "// Default delay between each message, in ticks.";
+        public String _comment_messageDelay = "// Default delay between each message, in ticks.";
         public int messageDelay = 100;
-        public String _comment = "// Whether to exit message editor mode after editing a message";
+        public String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
         public boolean exitEditorAfterMsgEdit = true;
     }
 

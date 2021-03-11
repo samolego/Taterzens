@@ -596,28 +596,53 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return result;
     }
 
+    /**
+     * Adds the message to taterzen's message list.
+     * @param text message to add
+     */
     public void addMessage(Text text) {
         this.npcData.messages.add(new Pair<>(text, config.messages.messageDelay));
     }
 
-    public void setMessage(int messageEditing, Text text) {
-        this.npcData.messages.set(messageEditing, new Pair<>(text, config.messages.messageDelay));
+    /**
+     * Edits the message from taterzen's message list at index.
+     * @param index index of the message to edit
+     * @param text
+     */
+    public void setMessage(int index, Text text) {
+        if(index < this.npcData.messages.size())
+            this.npcData.messages.set(index, new Pair<>(text, config.messages.messageDelay));
     }
 
-    public void removeMessage(int selected) {
-        this.npcData.messages.remove(selected);
+    /**
+     * Removes message at index.
+     * @param index index of message to be removed.
+     */
+    public void removeMessage(int index) {
+        if(index < this.npcData.messages.size())
+            this.npcData.messages.remove(index);
     }
 
-    /*public void setMessageDelay(int delay) {
-        if(!this.npcData.messages.isEmpty()) {
-            this.npcData.messages.get(this.npcData.currentMessage).mapSecond(previous -> delay);
+    /**
+     * Sets message delay.
+     *
+     * @param index index of the message to change delay for.
+     * @param delay new delay.
+     */
+    public void setMessageDelay(int index, int delay) {
+        if(index < this.npcData.messages.size()) {
+            this.npcData.messages.get(index).mapSecond(previous -> delay);
         }
-    }*/
+    }
 
     public void clearMessages() {
         this.npcData.messages = new ArrayList<>();
     }
 
+    /**
+     * Gets {@link ArrayList} of {@link Pair}s of messages and their delays.
+     * @return arraylist of pairs with texts and delays.
+     */
     public ArrayList<Pair<Text, Integer>> getMessages() {
         return this.npcData.messages;
     }

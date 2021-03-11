@@ -17,7 +17,7 @@ public class NPCData {
     public EntityType<?> entityType = EntityType.PLAYER;
     public boolean fakeTypeAlive = true;
     /**
-     * Used for att
+     * Used for taterzen attributes.
      */
     public boolean hostile = false;
     public boolean leashable = config.defaults.leashable;

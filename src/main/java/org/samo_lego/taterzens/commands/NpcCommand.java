@@ -71,7 +71,7 @@ public class NpcCommand {
                         .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
                         .executes(NpcCommand::selectTaterzen)
                 )
-                .then(literal("deselect").executes(NpcCommand::selectTaterzen))
+                .then(literal("deselect").executes(NpcCommand::deselectTaterzen))
                 .then(literal("list").executes(NpcCommand::listTaterzens))
                 .then(literal("remove").executes(NpcCommand::removeTaterzen))
                 .then(literal("preset")
@@ -137,6 +137,12 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int deselectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ((TaterzenEditor) context.getSource().getPlayer()).selectNpc(null);
+        context.getSource().sendFeedback(new LiteralText(lang.success.deselectedTaterzen).formatted(Formatting.GREEN), false);
+        return 0;
     }
 
     private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
