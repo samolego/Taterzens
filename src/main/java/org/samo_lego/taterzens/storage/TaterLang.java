@@ -24,6 +24,7 @@ public class TaterLang {
     public String taterzenMessages = "Taterzen %s has the following messages. Click on one to edit it.";
     public String editMessageMode = "You are now editing message: %s. Click enter after editing to save it.";
     public String enterMessageEditor = "Click to enter message editing mode.";
+    public String taterzenCommands = "Taterzen %s will execute the following commands on right-click.";
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
@@ -56,6 +57,9 @@ public class TaterLang {
         public String messageChanged = "Message has been changed to %s.";
         public String messageDeleted = "Message %s has been deleted successfully.";
         public String deselectedTaterzen = "Your Taterzen selection has been cleared.";
+        public String updatedPermissionLevel = "Permission level for command execution is now set to %s.";
+        public String commandsCleared = "Commands for %s have been cleared.";
+        public String commandRemoved = "Command %s has been removed successfully.";
     }
 
     public static class Error {
@@ -66,6 +70,7 @@ public class TaterLang {
         public String invalidText = "The text nbt you entered is invalid.";
         public String noMessageFound = "No messages with id %s were found.";
         public String enterMessageEditorMode = "You need to enter message editor mode to use this feature.";
+        public String noCommandFound = "No commands with id %s were found.";
     }
 
 

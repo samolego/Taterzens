@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -25,12 +26,19 @@ public class TaterConfig {
     public String _comment_language = "// Language file to use.";
     public String language = "en_us";
 
+    public String _comment_disableRegistrySync = "// Whether to disable Fabric's registry sync. Leave this to true if you'd like to keep the mod server-sided.";
+    @SerializedName("disable_registry_sync")
+    public boolean disableRegistrySync = true;
+
+
+    public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality.";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
      *
      * @see <a href="https://github.com/samolego/FabricTailor">FabricTailor</a>
      */
+    @SerializedName("post_fabrictailor_advert")
     public boolean fabricTailorAdvert = true;
 
     public Defaults defaults = new Defaults();
@@ -45,12 +53,17 @@ public class TaterConfig {
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
+
+        public String _comment_commandPermissionLevel = "// Default command permission level of Taterzen";
+        @SerializedName("command_permission_level")
+        public int commandPermissionLevel = 0;
     }
 
     public static class Messages {
         public String _comment_messageDelay = "// Default delay between each message, in ticks.";
         public int messageDelay = 100;
         public String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
+        @SerializedName("exit_editor_after_msg_edit")
         public boolean exitEditorAfterMsgEdit = true;
     }
 

@@ -69,7 +69,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                     text = new LiteralText(msg);
                 if(((TaterzenEditor) player).getMessageEditing() != -1) {
                     // Editing selected message
-                    taterzen.setMessage(((TaterzenEditor) player).getMessageEditing(), text); // Editing message
+                    taterzen.editMessage(((TaterzenEditor) player).getMessageEditing(), text); // Editing message
                     player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
 
                     // Exiting the editor

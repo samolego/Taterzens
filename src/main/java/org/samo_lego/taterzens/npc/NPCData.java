@@ -21,13 +21,14 @@ public class NPCData {
      */
     public boolean hostile = false;
     public boolean leashable = config.defaults.leashable;
-    public String command = "";
     public PlayerEntity equipmentEditor = null;
     public Movement movement = Movement.NONE;
     public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     public int currentMoveTarget = 0;
     public boolean pushable = config.defaults.pushable;
     public ArrayList<Pair<Text, Integer>> messages = new ArrayList<>();
+    public int permissionLevel = config.defaults.commandPermissionLevel;
+    public ArrayList<String> commands = new ArrayList<>();
 
 
     /**

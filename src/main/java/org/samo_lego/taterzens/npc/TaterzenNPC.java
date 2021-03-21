@@ -17,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
@@ -130,11 +131,58 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
-     * Sets the command to be executed on right - click
+     * Sets the *ONLY* command to be executed on right - click
      * @param command command to execute
+     * @deprecated please use {@link TaterzenNPC#addCommand(String)}
      */
+    @Deprecated
     public void setCommand(String command) {
-        this.npcData.command = command;
+        this.clearCommands();
+        this.npcData.commands.add(command);
+    }
+
+    /**
+     * Adds command to the list
+     * of commands that will be executed on
+     * right-clicking the Taterzen.
+     * @param command command to add
+     */
+    public void addCommand(String command) {
+        this.npcData.commands.add(command);
+    }
+
+    /**
+     * Gets all available commands
+     * @return array list of commands that will be executed on right click
+     */
+    public ArrayList<String> getCommands() {
+        return this.npcData.commands;
+    }
+
+    /**
+     * Removes certain command from command list.
+     * @param index index of where to remove command
+     */
+    public void removeCommand(int index) {
+        if(index >= 0 && index < this.npcData.commands.size())
+            this.npcData.commands.remove(index);
+    }
+
+    /**
+     * Clears all the commands Taterzen
+     * executes on right-click
+     */
+    public void clearCommands() {
+        this.npcData.commands = new ArrayList<>();
+    }
+
+    @Override
+    protected int getPermissionLevel() {
+        return this.npcData.permissionLevel;
+    }
+
+    public void setPermissionLevel(int newPermissionLevel) {
+        this.npcData.permissionLevel = newPermissionLevel;
     }
 
     /**
@@ -453,7 +501,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         Identifier identifier = new Identifier(npcTag.getString("entityType"));
         this.npcData.entityType = Registry.ENTITY_TYPE.get(identifier);
 
-        this.npcData.command = npcTag.getString("command");
+        // todo @deprecated (migration to more commands)
+        if(npcTag.contains("command"))
+            this.npcData.commands.add(npcTag.getString("command"));
+
+        // Multiple commands
+        ListTag commands = (ListTag) npcTag.get("Commands");
+        if(commands != null) {
+            commands.forEach(cmdTag -> {
+                this.npcData.commands.add(cmdTag.asString());
+            });
+        }
 
         ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
         if(pathTargets != null) {
@@ -470,14 +528,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         ListTag messages = (ListTag) npcTag.get("Messages");
-        if(messages != null) {
-            if(messages.size() > 0) {
-                messages.forEach(msgTag -> {
-                    CompoundTag msgCompound = (CompoundTag) msgTag;
-                    this.npcData.messages.add(new Pair<>(TextUtil.fromTag(msgCompound.get("Message")), msgCompound.getInt("Delay")));
-                });
-            }
+        if(messages != null && messages.size() > 0) {
+            messages.forEach(msgTag -> {
+                CompoundTag msgCompound = (CompoundTag) msgTag;
+                this.npcData.messages.add(new Pair<>(TextUtil.fromTag(msgCompound.get("Message")), msgCompound.getInt("Delay")));
+            });
         }
+
+        this.npcData.permissionLevel = npcTag.getInt("PermissionLevel");
 
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
@@ -508,7 +566,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putBoolean("leashable", this.npcData.leashable);
         npcTag.putBoolean("pushable", this.npcData.pushable);
-        npcTag.putString("command", this.npcData.command);
+
+        // Commands
+        ListTag commands = new ListTag();
+        this.npcData.commands.forEach(cmd -> {
+            commands.add(StringTag.of(cmd));
+        });
+        npcTag.put("Commands", commands);
 
         npcTag.putString("entityType", Registry.ENTITY_TYPE.getId(this.npcData.entityType).toString());
 
@@ -533,6 +597,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             messages.add(msg);
         });
         npcTag.put("Messages", messages);
+
+        npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
 
         tag.put("TaterzenNPCTag", npcTag);
 
@@ -587,8 +653,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             }
             result = ActionResult.PASS;
         }
-        else if(!this.npcData.command.isEmpty()) {
-            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+        else if(!this.npcData.commands.isEmpty()) {
+            this.npcData.commands.forEach(cmd -> {
+                if(cmd.contains("--clicker--")) {
+                    cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
+                }
+                System.out.println("Executing " + cmd);
+                this.server.getCommandManager().execute(this.getCommandSource(), cmd);
+            });
             result = ActionResult.PASS;
         }
 
@@ -607,10 +679,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Edits the message from taterzen's message list at index.
      * @param index index of the message to edit
-     * @param text
+     * @param text new text message
      */
-    public void setMessage(int index, Text text) {
-        if(index < this.npcData.messages.size())
+    public void editMessage(int index, Text text) {
+        if(index >= 0 && index < this.npcData.messages.size())
             this.npcData.messages.set(index, new Pair<>(text, config.messages.messageDelay));
     }
 

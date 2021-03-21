@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Collections;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
-import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static net.minecraft.util.registry.Registry.ENTITY_TYPE;
 
 /**
@@ -60,13 +59,13 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             if(!(entity instanceof TaterzenNPC))
                 return;
 
-            PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
-            //noinspection ConstantConditions
-            PlayerListS2CPacketAccessor listS2CPacketAccessor = (PlayerListS2CPacketAccessor) playerListS2CPacket;
+
 
             TaterzenNPC npc = (TaterzenNPC) entity;
             if(npc.getFakeType() == EntityType.PLAYER) {
-                listS2CPacketAccessor.setAction(ADD_PLAYER);
+                PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
+                //noinspection ConstantConditions
+                PlayerListS2CPacketAccessor listS2CPacketAccessor = (PlayerListS2CPacketAccessor) playerListS2CPacket;
                 listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
 
                 PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
@@ -80,16 +79,20 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                 spawnS2CPacketAccessor.setYaw((byte)((int)(npc.yaw * 256.0F / 360.0F)));
                 spawnS2CPacketAccessor.setPitch((byte)((int)(npc.pitch * 256.0F / 360.0F)));
 
+                // Player needs to be added to list and then spawned
+                // :mojank:
+                listS2CPacketAccessor.setAction(ADD_PLAYER);
                 this.sendPacket(playerListS2CPacket);
+
+                // Spawning player
                 this.sendPacket(playerSpawnS2CPacket);
+
+                // And removing player from tablist
+                //listS2CPacketAccessor.setAction(REMOVE_PLAYER);
+                //this.sendPacket(playerListS2CPacket);
                 ci.cancel();
             }
             else {
-                // Removing player from client tab
-                listS2CPacketAccessor.setAction(REMOVE_PLAYER);
-                listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
-                this.sendPacket(playerListS2CPacket);
-
                 int id = ENTITY_TYPE.getRawId(npc.getFakeType());
                 if(npc.isFakeTypeAlive()) {
                     ((MobSpawnS2CPacketAccessor) packet).setEntityTypeId(id);

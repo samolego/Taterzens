@@ -16,6 +16,9 @@ repositories {
 	maven {
 		url 'https://jitpack.io'
 	}
+	maven {
+		url 'https://dl.bintray.com/bymartrixx/maven'
+	}
 }
 
 loom {
@@ -37,6 +40,8 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
 	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
