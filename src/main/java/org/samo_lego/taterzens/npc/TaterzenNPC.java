@@ -256,17 +256,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.npcData.equipmentEditor != null)
             return;
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-            if(this.ticks % 5 == 0) {
-                Box box = this.getBoundingBox().expand(4.0D);
-                this.world.getEntityCollisions(this, box, entity -> {
-                    if(entity instanceof ServerPlayerEntity) {
-                        this.lookAtEntity(entity, 60.0F, 60.0F);
-                        this.setHeadYaw(this.yaw);
-                        return true;
-                    }
-                    return false;
-                });
-            }
+            Box box = this.getBoundingBox().expand(4.0D);
+            this.world.getEntityCollisions(this, box, entity -> {
+                if(entity instanceof ServerPlayerEntity) {
+                    this.lookAtEntity(entity, 60.0F, 60.0F);
+                    this.setHeadYaw(this.yaw);
+                    return true;
+                }
+                return false;
+            });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
             this.yaw = this.headYaw; // Rotates body as well
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty())) {
@@ -288,6 +286,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
+    /**
+     * Ticks the Taterzen and sends appropriate messages
+     * to players in radius of 2 blocks.
+     */
     @Override
     public void tick() {
         super.tick();
@@ -298,14 +300,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     TaterzenPlayer pl = (TaterzenPlayer) entity;
                     int msgPos = pl.getCurrentMsgPos();
                     if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage()) {
-                        if(++msgPos >= this.npcData.messages.size())
-                            msgPos = 0;
                         entity.sendSystemMessage(
                                 this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getCurrentMsgPos()).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
                         ((TaterzenPlayer) entity).resetMessageTicks();
+
+                        if(++msgPos >= this.npcData.messages.size())
+                            msgPos = 0;
                         // Setting new message position
                         pl.setCurrentMsgPos(msgPos);
                     }
@@ -658,7 +661,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 if(cmd.contains("--clicker--")) {
                     cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
                 }
-                System.out.println("Executing " + cmd);
                 this.server.getCommandManager().execute(this.getCommandSource(), cmd);
             });
             result = ActionResult.PASS;

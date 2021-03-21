@@ -14,6 +14,7 @@ import java.io.File;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class TaterzensCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -30,9 +31,11 @@ public class TaterzensCommand {
 
     private static int wikiInfo(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(
-                new LiteralText("Visit https://samolego.github.io/Taterzens/ for documentation.").styled(style ->
-                    style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://samolego.github.io/Taterzens/"))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Click to see documentation.")))
+                successText("Visit %s for documentation.", new LiteralText("https://samolego.github.io/Taterzens/"))
+                    .formatted(Formatting.GREEN)
+                    .styled(style -> style
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://samolego.github.io/Taterzens/"))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Click to see documentation.")))
                 ),
                 false
         );
