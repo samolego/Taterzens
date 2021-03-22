@@ -26,7 +26,6 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -305,7 +304,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                                 this.uuid
                         );
                         // Resetting message counter
-                        ((TaterzenPlayer) entity).resetMessageTicks();
+                        pl.resetMessageTicks();
 
                         if(++msgPos >= this.npcData.messages.size())
                             msgPos = 0;
@@ -831,17 +830,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_PLAYER_BREATH;
+        if(config.defaults.ambientSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.ambientSound));
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_PLAYER_HURT;
+        if(config.defaults.hurtSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.hurtSound));
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_PLAYER_DEATH;
+        if(config.defaults.deathSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.deathSound));
     }
 
     @Override

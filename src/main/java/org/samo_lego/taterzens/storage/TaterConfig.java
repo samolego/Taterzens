@@ -31,7 +31,7 @@ public class TaterConfig {
     public boolean disableRegistrySync = true;
 
 
-    public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality.";
+    public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -56,7 +56,15 @@ public class TaterConfig {
 
         public String _comment_commandPermissionLevel = "// Default command permission level of Taterzen";
         @SerializedName("command_permission_level")
-        public int commandPermissionLevel = 0;
+        public int commandPermissionLevel = 4;
+
+        public String _comment_sounds = "// Default sounds for Taterzens. Set to null to mute them.";
+        @SerializedName("death_sound")
+        public String deathSound = "entity.player.death";
+        @SerializedName("hurt_sound")
+        public String hurtSound = "entity.player.hurt";
+        @SerializedName("ambient_sound")
+        public String ambientSound = "entity.player.breath";
     }
 
     public static class Messages {
