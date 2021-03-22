@@ -85,8 +85,6 @@ public class TaterzensAPI {
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");
 
-        TATERZEN_NPCS.add(taterzen); // When writing to tag, it was removed so we add it back
-
         JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 
         try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {

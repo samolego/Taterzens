@@ -10,6 +10,7 @@
     "ServerPlayInteractionManagerMixin",
     "ServerPlayNetworkHandlerMixin_MsgEditor",
     "ServerPlayNetworkHandlerMixin_PacketFaker",
+    "ThreadedAnvilChunkStorageMixin_TaterzenList",
     "accessors.EntitySpawnS2CPacketAccessor",
     "accessors.EntityTrackerEntryAccessor",
     "accessors.MobSpawnS2CPacketAccessor",

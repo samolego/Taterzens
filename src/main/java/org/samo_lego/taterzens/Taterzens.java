@@ -21,7 +21,7 @@ import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class Taterzens implements ModInitializer {
 
@@ -39,7 +39,7 @@ public class Taterzens implements ModInitializer {
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
-    public static final ArrayList<TaterzenNPC> TATERZEN_NPCS = new ArrayList<>();
+    public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
     private static File taterDir;
 
     /**

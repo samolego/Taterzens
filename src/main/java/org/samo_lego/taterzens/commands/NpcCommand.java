@@ -497,7 +497,7 @@ public class NpcCommand {
         MutableText response = new LiteralText(lang.availableTaterzens).formatted(Formatting.AQUA);
         for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
             int index = i + 1;
-            Text name = TATERZEN_NPCS.get(i).getCustomName();
+            Text name = ((TaterzenNPC) TATERZEN_NPCS.toArray()[i]).getCustomName();
             response.append(
                     new LiteralText("\n" + index + "-> ")
                             .append(name)
@@ -521,7 +521,7 @@ public class NpcCommand {
                     errorText(lang.error.noTaterzenFound, new LiteralText(String.valueOf(id)))
             );
         } else {
-            TaterzenNPC taterzen = TATERZEN_NPCS.get(id - 1);
+            TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.toArray()[id - 1];
             ((TaterzenEditor) player).selectNpc(taterzen);
             context.getSource().sendFeedback(
                     successText(lang.success.selectedTaterzen, taterzen.getCustomName()),

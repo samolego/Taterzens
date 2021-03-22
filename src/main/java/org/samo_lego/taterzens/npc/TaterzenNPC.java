@@ -112,8 +112,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
         this.server = world.getServer();
         this.playerManager = server.getPlayerManager();
-
-        TATERZEN_NPCS.add(this);
     }
 
     public TaterzenNPC(ServerWorld world, String displayName, Vec3d pos, float[] rotations) {
@@ -603,8 +601,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
 
         tag.put("TaterzenNPCTag", npcTag);
-
-        TATERZEN_NPCS.remove(this);
     }
 
     /**
@@ -799,6 +795,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));
             this.playerManager.sendToAll(playerListS2CPacket);
         }
+        super.onDeath(source);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
         TATERZEN_NPCS.remove(this);
     }
 
