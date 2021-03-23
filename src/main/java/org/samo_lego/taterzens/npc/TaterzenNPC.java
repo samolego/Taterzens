@@ -295,10 +295,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.world.getEntityCollisions(this, box, entity -> {
                 if(entity instanceof ServerPlayerEntity && !((TaterzenEditor) entity).inMsgEditMode()) {
                     TaterzenPlayer pl = (TaterzenPlayer) entity;
-                    int msgPos = pl.getCurrentMsgPos();
+                    int msgPos = pl.getLastMsgPos();
                     if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage()) {
                         entity.sendSystemMessage(
-                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getCurrentMsgPos()).getFirst()),
+                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getLastMsgPos()).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
@@ -307,7 +307,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                         if(++msgPos >= this.npcData.messages.size())
                             msgPos = 0;
                         // Setting new message position
-                        pl.setCurrentMsgPos(msgPos);
+                        pl.setLastMsgPos(msgPos);
                     }
                     return true;
                 }

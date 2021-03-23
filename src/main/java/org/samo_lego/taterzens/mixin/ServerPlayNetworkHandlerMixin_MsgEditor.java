@@ -67,15 +67,15 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                     }
                 } else
                     text = new LiteralText(msg);
-                if(((TaterzenEditor) player).getMessageEditing() != -1) {
+                if(((TaterzenEditor) player).getEditingMessageIndex() != -1) {
                     // Editing selected message
-                    taterzen.editMessage(((TaterzenEditor) player).getMessageEditing(), text); // Editing message
+                    taterzen.editMessage(((TaterzenEditor) player).getEditingMessageIndex(), text); // Editing message
                     player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
                         ((TaterzenEditor) player).setMsgEditMode(false);
-                        ((TaterzenEditor) player).setMessageEditing(-1);
+                        ((TaterzenEditor) player).setEditingMessageIndex(-1);
                         player.sendMessage(new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE), false);
                     }
                 } else {

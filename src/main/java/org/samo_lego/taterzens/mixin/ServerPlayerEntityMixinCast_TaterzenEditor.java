@@ -86,12 +86,12 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     }
 
     @Override
-    public void setMessageEditing(int selected) {
+    public void setEditingMessageIndex(int selected) {
         this.taterzens$selectedMsgId = selected;
     }
 
     @Override
-    public int getMessageEditing() {
+    public int getEditingMessageIndex() {
         return this.taterzens$selectedMsgId;
     }
 

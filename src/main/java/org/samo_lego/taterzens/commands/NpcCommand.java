@@ -272,7 +272,7 @@ public class NpcCommand {
                             false
                     );
                 } else {
-                    ((TaterzenEditor) player).setMessageEditing(selected);
+                    ((TaterzenEditor) player).setEditingMessageIndex(selected);
                     player.sendMessage(successText(lang.editMessageMode, taterzen.getMessages().get(selected).getFirst()), false);
                 }
             } else {
@@ -353,7 +353,7 @@ public class NpcCommand {
             if(((TaterzenEditor) player).inMsgEditMode()) {
                 // Exiting the message edit mode
                 ((TaterzenEditor) player).setMsgEditMode(false);
-                ((TaterzenEditor) player).setMessageEditing(-1);
+                ((TaterzenEditor) player).setEditingMessageIndex(-1);
                 context.getSource().sendFeedback(
                         new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
                         false

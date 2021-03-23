@@ -35,7 +35,7 @@ public class ServerPlayInteractionManagerMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    public void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int i, CallbackInfo ci) {
+    private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int i, CallbackInfo ci) {
         if (playerAction == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
             TaterzenEditor player = (TaterzenEditor) this.player;
             if(player.getNpc() != null && player.inPathEditMode()) {

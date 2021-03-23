@@ -56,12 +56,12 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
     }
 
     @Override
-    public int getCurrentMsgPos() {
+    public int getLastMsgPos() {
         return this.taterzens$currentMsg;
     }
 
     @Override
-    public void setCurrentMsgPos(int newPos) {
+    public void setLastMsgPos(int newPos) {
         this.taterzens$currentMsg = newPos;
     }
 
