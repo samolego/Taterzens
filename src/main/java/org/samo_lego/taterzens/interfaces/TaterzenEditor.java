@@ -7,6 +7,10 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
  * Interface for players who work with TaterzenNPCs.
  */
 public interface TaterzenEditor {
+    /**
+     * Gets the selected Taterzen of player.
+     * @return selected Taterzen
+     */
     @Nullable
     TaterzenNPC getNpc();
 
