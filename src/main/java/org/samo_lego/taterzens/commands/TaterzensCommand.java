@@ -6,6 +6,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
@@ -14,6 +15,7 @@ import java.io.File;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.permissions.PermissionHelper.checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class TaterzensCommand {
@@ -30,6 +32,10 @@ public class TaterzensCommand {
     }
 
     private static int wikiInfo(CommandContext<ServerCommandSource> context) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), MODID + ".wiki_info")) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
         context.getSource().sendFeedback(
                 successText("Visit %s for documentation.", new LiteralText("https://samolego.github.io/Taterzens/"))
                     .formatted(Formatting.GREEN)
@@ -43,6 +49,11 @@ public class TaterzensCommand {
     }
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), MODID + ".config.reload")) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
         File taterDir = getTaterDir();
 
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));

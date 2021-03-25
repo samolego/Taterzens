@@ -20,6 +20,9 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 
@@ -105,5 +108,16 @@ public class TaterzensAPI {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
                 );
+    }
+
+
+    public static List<String> getPresets() {
+        List<String> files = new ArrayList<>();
+        Arrays.stream(getPresetDir().listFiles()).forEach(file -> {
+            if(file.isFile() && file.getName().endsWith(".json"))
+                files.add(file.getName().substring(0, file.getName().length() - 5));
+        });
+
+        return files;
     }
 }

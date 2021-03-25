@@ -19,6 +19,9 @@ repositories {
 	maven {
 		url 'https://dl.bintray.com/bymartrixx/maven'
 	}
+	maven {
+		url 'https://oss.sonatype.org/content/repositories/snapshots'
+	}
 }
 
 loom {
@@ -40,6 +43,9 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	// LuckPerms
+	modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
 
 	// Why did my command fail
 	modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
