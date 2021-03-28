@@ -17,13 +17,12 @@ public class TaterConfig {
             .disableHtmlEscaping()
             .create();
 
-
+    public String _comment_language = "// Language file to use.";
     /**
      * Language file used by Taterzens.
      *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
-    public String _comment_language = "// Language file to use.";
     public String language = "en_us";
 
     public String _comment_disableRegistrySync = "// Whether to disable Fabric's registry sync. Leave this to true if you'd like to keep the mod server-sided.";

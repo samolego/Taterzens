@@ -371,7 +371,7 @@ public class NpcCommand {
                         false
                 );
                 context.getSource().sendFeedback(
-                        joinText(lang.success.msgEditorDescLine1, Formatting.GREEN, taterzen.getCustomName(), Formatting.YELLOW)
+                        successText(lang.success.msgEditorDescLine1, taterzen.getCustomName())
                                 .append("\n")
                                 .append(new LiteralText(lang.success.msgEditorDescLine2))
                                 .formatted(Formatting.GREEN),
