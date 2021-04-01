@@ -17,6 +17,7 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.event.BlockInteractEvent;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
 
@@ -35,12 +36,28 @@ public class Taterzens implements ModInitializer {
      * Language file.
      */
     public static TaterLang lang;
-    private static final Logger LOGGER = (Logger) LogManager.getLogger();
+    private static final Logger LOGGER = (Logger) LogManager.getLogger("Taterzens");
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
+
+    /**
+     * Permissions for players.
+     * Used only if LuckPerms mod is loaded.
+     * @see Taterzens#LUCKPERMS_ENABLED
+     */
+    public static final PermissionList PERMISSIONS = new PermissionList();
+
     private static File taterDir;
+    private static File presetsDir;
+
+
+    /**
+     * Whether LuckPerms mod is loaded.
+     * @see <a href="https://luckperms.net/">LuckPerms website</a>.
+     */
+    public static boolean LUCKPERMS_ENABLED;
 
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
@@ -68,10 +85,17 @@ public class Taterzens implements ModInitializer {
         taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens/presets");
         if (!taterDir.exists() && !taterDir.mkdirs())
             throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
+        presetsDir = taterDir;
         taterDir = taterDir.getParentFile();
 
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
         lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
+
+        // Permissions
+        LUCKPERMS_ENABLED = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+        if(LUCKPERMS_ENABLED) {
+            PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
+        }
     }
 
     public static Logger getLogger() {
@@ -80,9 +104,17 @@ public class Taterzens implements ModInitializer {
 
     /**
      * Gets the minecraft Taterzens config directory.
-     * @return config directory folder.
+     * @return config directory.
      */
     public static File getTaterDir() {
         return taterDir;
+    }
+
+    /**
+     * Gets the minecraft Taterzens presets directory.
+     * @return presets directory.
+     */
+    public static File getPresetDir() {
+        return presetsDir;
     }
 }
