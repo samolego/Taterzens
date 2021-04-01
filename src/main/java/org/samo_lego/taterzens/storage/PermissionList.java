@@ -17,7 +17,7 @@ public class PermissionList {
             .serializeNulls()
             .disableHtmlEscaping()
             .create();
-    public final String _comment1 = "// All permissions for Taterzen mod commands.";
+    public final String _comment1 = "// All permissions for Taterzens mod commands.";
     public final String _comment2 = "// Will be active only if LuckPerms is installed.";
     public final String _comment3 = "// These values are not editable, they're here to inform you.";
 
@@ -32,13 +32,13 @@ public class PermissionList {
     public final String npc_create = "taterzens.npc.create";
 
     public final String _comment_select = "/* Selecting Taterzens */";
-    public final String _comment_npcSelect = "// Selectts Taterzen (in front of the executor).";
+    public final String _comment_npcSelect = "// Selects Taterzen (in front of the executor).";
     public final String npc_select = "taterzens.npc.select";
     public final String _comment_npcSelectId = "// Selects Taterzens by ID.";
     public final String npc_select_id = "taterzens.npc.select.id";
 
     public final String _comment_npcDeselect = "// Deselects Taterzen.";
-    public final String npc_deselect = "taterzens.npc.deselect";
+    public final String npc_deselect = "taterzens.npc.select.deselect";
 
     public final String _comment_npcList = "// Lists Taterzens.";
     public final String npc_list = "taterzens.npc.list";
@@ -53,11 +53,11 @@ public class PermissionList {
     public final String npc_preset_load = "taterzens.npc.preset.load";
 
     public final String _comment_npcTp = "// Teleport Taterzen to a given location.";
-    public final String npcTp = "taterzens.npc.tp";
+    public final String npc_tp = "taterzens.npc.tp";
 
     public final String _comment_edit = "/* Editing Taterzens */";
-    public final String _comment_npcEdit = "// Edit Taterzen's name.";
-    public final String npcEditName = "taterzens.npc.edit.name";
+    public final String _comment_npcEditName = "// Edit Taterzen's name.";
+    public final String npc_edit_name = "taterzens.npc.edit.name";
 
     public final String _comment_commands = "/* Editing Taterzen's commands */";
     public final String _comment_npcEditCommandsSetPermissionLevel = "// Manages permission level of Taterzen.";
@@ -98,7 +98,7 @@ public class PermissionList {
     public final String npc_edit_equipment = "taterzens.npc.edit.equipment";
 
     public final String _comment_npcEditMovement = "// Enables editing Taterzen's movement.";
-    public final String npc_edit_movement = "taterzens.npc.edit.equipment";
+    public final String npc_edit_movement = "taterzens.npc.edit.movement";
 
 
     /**

@@ -59,7 +59,6 @@ public class NpcCommand {
     private static final SuggestionProvider<ServerCommandSource> ENTITIES;
     private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
     private static final boolean FABRICTAILOR_LOADED;
-    private static final String NPC_PERMISSION_NODE = MODID + ".npc";
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -154,7 +153,7 @@ public class NpcCommand {
     }
 
     private static int removeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.commands.remove")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_remove)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -179,7 +178,7 @@ public class NpcCommand {
     }
 
     private static int clearCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.commands.clear")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_clear)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -197,7 +196,7 @@ public class NpcCommand {
     }
 
     private static int listTaterzenCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.commands.list")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_clear)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -240,7 +239,7 @@ public class NpcCommand {
     }
 
     private static int setPermissionLevel(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.commands.set_permission_level")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_setPermissionLevel)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -259,7 +258,7 @@ public class NpcCommand {
     }
 
     private static int deselectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".deselect")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_deselect)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -270,7 +269,7 @@ public class NpcCommand {
     }
 
     private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.messages.change.delete")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delete)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -295,7 +294,7 @@ public class NpcCommand {
     }
 
     private static int editMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.messages.change")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delete)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -331,7 +330,7 @@ public class NpcCommand {
     }
 
     private static int listTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.messages.list")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_list)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -379,7 +378,7 @@ public class NpcCommand {
     }
 
     private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.messages.clear")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_clear)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -396,7 +395,7 @@ public class NpcCommand {
     }
 
     private static int editTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.messages")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_edit)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -439,7 +438,7 @@ public class NpcCommand {
     }
 
     private static int clearTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.path.clear")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_path_clear)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -463,7 +462,7 @@ public class NpcCommand {
     }
 
     private static int editTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.path")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_path)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -505,7 +504,7 @@ public class NpcCommand {
     }
 
     private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".preset.load")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_preset_load)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -534,7 +533,7 @@ public class NpcCommand {
     }
 
     private static int saveTaterzenToPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".preset.save")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_preset_save)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -557,7 +556,7 @@ public class NpcCommand {
     }
 
     private static int listTaterzens(CommandContext<ServerCommandSource> context) {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".list")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_list)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -582,7 +581,7 @@ public class NpcCommand {
     }
 
     private static int selectTaterzenById(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".select.id")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_select_id)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -605,7 +604,7 @@ public class NpcCommand {
     }
 
     private static int renameTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.name")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_name)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -626,7 +625,7 @@ public class NpcCommand {
     }
 
     private static int teleportTaterzen(CommandContext<ServerCommandSource> context, Vec3d destination) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".tp")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_tp)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -641,7 +640,7 @@ public class NpcCommand {
     }
 
     private static int changeMovement(CommandContext<ServerCommandSource> context, String movement) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.movement")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_movement)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -660,7 +659,7 @@ public class NpcCommand {
     }
 
     private static int setEquipment(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.equipment")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_equipment)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -704,7 +703,7 @@ public class NpcCommand {
     }
 
     private static int setSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.skin")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_skin)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -751,7 +750,7 @@ public class NpcCommand {
     }
 
     private static String addCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.commands.add")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_add)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return null;
         }
@@ -771,7 +770,7 @@ public class NpcCommand {
     }
 
     private static int removeTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".remove")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_remove)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -790,7 +789,7 @@ public class NpcCommand {
     }
 
     private static int selectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".select")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_select)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -817,7 +816,7 @@ public class NpcCommand {
     }
 
     private static int changeType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".edit.type")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_entityType)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -852,7 +851,7 @@ public class NpcCommand {
     }
 
     private static int spawnTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), NPC_PERMISSION_NODE + ".create")) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_create)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }

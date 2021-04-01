@@ -17,6 +17,7 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.event.BlockInteractEvent;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
 
@@ -35,11 +36,19 @@ public class Taterzens implements ModInitializer {
      * Language file.
      */
     public static TaterLang lang;
-    private static final Logger LOGGER = (Logger) LogManager.getLogger();
+    private static final Logger LOGGER = (Logger) LogManager.getLogger("Taterzens");
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
+
+    /**
+     * Permissions for players.
+     * Used only if LuckPerms mod is loaded.
+     * @see Taterzens#LUCKPERMS_ENABLED
+     */
+    public static final PermissionList PERMISSIONS = new PermissionList();
+
     private static File taterDir;
     private static File presetsDir;
 
@@ -83,7 +92,10 @@ public class Taterzens implements ModInitializer {
         lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
 
         // Permissions
-        LUCKPERMS_ENABLED = FabricLoader.getInstance().isModLoaded("luckperms");
+        LUCKPERMS_ENABLED = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+        if(LUCKPERMS_ENABLED) {
+            PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
+        }
     }
 
     public static Logger getLogger() {
