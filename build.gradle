@@ -7,9 +7,11 @@ plugins {
 	id "com.modrinth.minotaur" version "1.1.0"
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
-	id "org.jetbrains.dokka" version "1.4.20"
+	id("org.jetbrains.dokka") version "1.4.30"
 }
+
 repositories {
+	jcenter()
 	maven {
 		url "https://dl.bintray.com/kotlin/dokka"
 	}
@@ -50,9 +52,11 @@ dependencies {
 	// Why did my command fail
 	modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
+	// FabricTailor
+	modImplementation 'com.github.samolego:FabricTailor:1.4.0'
+
 	// Nicer documentation
-	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
-	dokkaJekyllPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.20")
+	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
 }
 
 processResources {
