@@ -90,7 +90,7 @@ public class TaterConfig {
 
 
     /**
-     * Loads language file.
+     * Loads config file.
      *
      * @param file file to load the language file from.
      * @return TaterzenLanguage object

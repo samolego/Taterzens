@@ -37,6 +37,8 @@ archivesBaseName = project.archives_base_name
 version = "${project.mod_version}-${project.minecraft_version}"
 group = project.maven_group
 
+def ENV = System.getenv()
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -153,25 +155,22 @@ if (System.getenv("CURSE_API_KEY") != null) {
 	afterEvaluate {
 		tasks.curseforge428981.dependsOn remapJar
 	}
+
 }
-
-if (System.getenv("GITHUB_TOKEN") != null) {
-	task publishModrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
-		group('Upload')
-		description('Publish this mod to Modrinth')
-
-		token = System.getenv("GITHUB_TOKEN")
-		// found using https://api.modrinth.com/api/v1/mod/dimension-update-fixer
-		projectId = 'g8w1NapE'
-		versionNumber = project.mod_version
-		uploadFile = remapJar
-		releaseType = project.mod_release_type
-		/*changelog = file("changelogs/changelog-${project.mod_version}.md").text
-		project.publish_minecraft_versions.split(",").toList().forEach {
-			addGameVersion it.trim()
-		}*/
-		addGameVersion project.minecraft_version
-		addLoader 'fabric'
+// from fabric's repo https://github.com/FabricMC/fabric
+task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
+	onlyIf {
+		ENV.MODRINTH_TOKEN
 	}
-}
 
+	token = ENV.GITHUB_TOKEN
+	projectId = "vE972Kux"
+	versionNumber = version
+	versionName = "${project.minecraft_version} Taterzens ${project.mod_version}"
+	releaseType = "release"
+
+	uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")
+
+	addGameVersion(project.minecraft_version)
+	addLoader('fabric')
+}
