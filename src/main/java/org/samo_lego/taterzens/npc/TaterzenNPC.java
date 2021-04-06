@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.npc;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
@@ -40,8 +41,8 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
+import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
@@ -50,14 +51,13 @@ import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static net.minecraft.entity.player.PlayerEntity.PLAYER_MODEL_PARTS;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
 
 /**
  * The NPC itself.
@@ -127,7 +127,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 return false;
             }
         };
-        this.fakePlayer.getDataTracker().set(PLAYER_MODEL_PARTS, (byte) 0x7f);
+        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), (byte) 0x7f);
 
         TATERZEN_NPCS.add(this);
     }

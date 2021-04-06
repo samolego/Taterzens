@@ -76,11 +76,6 @@ public class Taterzens implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        // Events
-        CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
-        CommandRegistrationCallback.EVENT.register(NpcCommand::register);
-        UseBlockCallback.EVENT.register(new BlockInteractEvent());
-
         FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createMobAttributes());
 
         taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens/presets");
@@ -99,6 +94,11 @@ public class Taterzens implements ModInitializer {
         if(LUCKPERMS_ENABLED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
         }
+
+        // Events
+        CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
+        CommandRegistrationCallback.EVENT.register(NpcCommand::register);
+        UseBlockCallback.EVENT.register(new BlockInteractEvent());
     }
 
     public static Logger getLogger() {

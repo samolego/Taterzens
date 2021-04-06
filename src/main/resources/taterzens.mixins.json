@@ -15,6 +15,7 @@
     "accessors.EntityTrackerEntryAccessor",
     "accessors.EntityTrackerUpdateS2CPacketAccessor",
     "accessors.MobSpawnS2CPacketAccessor",
+    "accessors.PlayerEntityAccessor",
     "accessors.PlayerListS2CPacketAccessor",
     "accessors.PlayerSpawnS2CPacketAccessor",
     "accessors.ThreadedAnvilChunkStorageAccessor"
