@@ -1,5 +1,7 @@
 package org.samo_lego.taterzens.api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
@@ -7,6 +9,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
@@ -15,6 +22,9 @@ import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 
@@ -27,6 +37,11 @@ import static org.samo_lego.taterzens.Taterzens.*;
 public class TaterzensAPI {
 
     private static final JsonParser parser = new JsonParser();
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .disableHtmlEscaping()
+            .create();
 
     /**
      * Loads {@link TaterzenNPC} from preset.
@@ -63,6 +78,11 @@ public class TaterzensAPI {
         return null;
     }
 
+    /**
+     * Saves {@link TaterzenNPC} to preset file.
+     * @param taterzen taterzen to save.
+     * @param preset file to save taterzen to.
+     */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         CompoundTag saveTag = new CompoundTag();
         taterzen.writeCustomDataToTag(saveTag);
@@ -71,14 +91,36 @@ public class TaterzensAPI {
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");
 
-        TATERZEN_NPCS.add(taterzen); // When writing to tag, it was removed so we add it back
-
         JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 
         try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
-            writer.write(element.toString());
+            gson.toJson(element, writer);
         } catch(IOException e) {
             getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Error text for no selected taterzen
+     * @return formatted error text.
+     */
+    public static MutableText noSelectedTaterzenError() {
+        return new LiteralText(lang.error.selectTaterzen)
+                .formatted(Formatting.RED)
+                .styled(style -> style
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
+                );
+    }
+
+
+    public static List<String> getPresets() {
+        List<String> files = new ArrayList<>();
+        Arrays.stream(getPresetDir().listFiles()).forEach(file -> {
+            if(file.isFile() && file.getName().endsWith(".json"))
+                files.add(file.getName().substring(0, file.getName().length() - 5));
+        });
+
+        return files;
     }
 }

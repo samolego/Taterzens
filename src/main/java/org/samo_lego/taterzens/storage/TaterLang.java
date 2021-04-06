@@ -19,6 +19,12 @@ public class TaterLang {
 
     public String availableTaterzens = "Available Taterzens:";
     public String showLoadedTaterzens = "Show loaded Taterzens";
+    public String fabricTailorAdvert = "If you want more skin options for Taterzens, install FabricTailor mod.";
+    public String skinCommandUsage = "To customize the skin even more, use FabricTailor's built in /skin command.";
+    public String taterzenMessages = "Taterzen %s has the following messages. Click on one to edit it.";
+    public String editMessageMode = "You are now editing message: %s. Click enter after editing to save it.";
+    public String enterMessageEditor = "Click to enter message editing mode.";
+    public String taterzenCommands = "Taterzen %s will execute the following commands on right-click.";
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
@@ -42,6 +48,18 @@ public class TaterLang {
         public String pathEditorDescLine1 = "Left click the blocks to add them to the path.";
         public String pathEditorDescLine2 = "Right click the blocks to remove them to the path.";
         public String clearPath = "Path for %s was cleared successfully.";
+        public String msgEditorEnter = "You've entered message editor for %s. Enter same command to exit.";
+        public String msgEditorDescLine1 = "Send messages in chat and %s will repeat them.";
+        public String msgEditorDescLine2 = "You can use normal text or tellraw structure (for colors).";
+        public String messageAdded = "Message %s was added successfully.";
+        public String messagesCleared = "Taterzen %s has been muted.";
+        public String messageDelaySet = "Message delay for the last message is now %s.";
+        public String messageChanged = "Message has been changed to %s.";
+        public String messageDeleted = "Message %s has been deleted successfully.";
+        public String deselectedTaterzen = "Your Taterzen selection has been cleared.";
+        public String updatedPermissionLevel = "Permission level for command execution is now set to %s.";
+        public String commandsCleared = "Commands for %s have been cleared.";
+        public String commandRemoved = "Command %s has been removed successfully.";
     }
 
     public static class Error {
@@ -50,6 +68,10 @@ public class TaterLang {
         public String noPresetFound = "No Taterzen preset with name %s was found.";
         public String cannotReadPreset = "Preset %s cannot be read.";
         public String invalidEntityId = "Entity id %s is invalid.";
+        public String invalidText = "The text nbt you entered is invalid.";
+        public String noMessageFound = "No messages with id %s were found.";
+        public String enterMessageEditorMode = "You need to enter message editor mode to use this feature.";
+        public String noCommandFound = "No commands with id %s were found.";
     }
 
 

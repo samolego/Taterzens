@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -16,25 +17,61 @@ public class TaterConfig {
             .disableHtmlEscaping()
             .create();
 
-
+    public String _comment_language = "// Language file to use.";
     /**
      * Language file used by Taterzens.
      *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
     public String language = "en_us";
+
+    public String _comment_disableRegistrySync = "// Whether to disable Fabric's registry sync. Leave this to true if you'd like to keep the mod server-sided.";
+    @SerializedName("disable_registry_sync")
+    public boolean disableRegistrySync = true;
+
+
+    public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
+    /**
+     * Whether to remind you that if FabricTailor
+     * mod is installed, it has some more skin functionality.
+     *
+     * @see <a href="https://github.com/samolego/FabricTailor">FabricTailor</a>
+     */
+    @SerializedName("post_fabrictailor_advert")
+    public boolean fabricTailorAdvert = true;
+
     public Defaults defaults = new Defaults();
     public Path path = new Path();
-
+    public Messages messages = new Messages();
 
     /**
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public String _comment = "// Default settings for new Taterzens.";
+        public String _comment_name = "// Default settings for new Taterzens.";
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
+
+        public String _comment_commandPermissionLevel = "// Default command permission level of Taterzen";
+        @SerializedName("command_permission_level")
+        public int commandPermissionLevel = 4;
+
+        public String _comment_sounds = "// Default sounds for Taterzens. Set to null to mute them.";
+        @SerializedName("death_sound")
+        public String deathSound = "entity.player.death";
+        @SerializedName("hurt_sound")
+        public String hurtSound = "entity.player.hurt";
+        @SerializedName("ambient_sound")
+        public String ambientSound = "entity.player.breath";
+    }
+
+    public static class Messages {
+        public String _comment_messageDelay = "// Default delay between each message, in ticks.";
+        public int messageDelay = 100;
+        public String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
+        @SerializedName("exit_editor_after_msg_edit")
+        public boolean exitEditorAfterMsgEdit = true;
     }
 
 
@@ -53,7 +90,7 @@ public class TaterConfig {
 
 
     /**
-     * Loads language file.
+     * Loads config file.
      *
      * @param file file to load the language file from.
      * @return TaterzenLanguage object

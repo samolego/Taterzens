@@ -28,11 +28,13 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     @Unique
     private TaterzenNPC selectedNpc;
     @Unique
-    private boolean inEditMode;
+    private boolean taterzens$inPathEditMode, taterzens$inMsgEditMode;
     @Unique
     private final ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
     @Unique
     private byte lastRenderTick = 0;
+    @Unique
+    private int taterzens$selectedMsgId = -1; // -1 as no selected msg to edit
 
     /**
      * Gets the selected {@link TaterzenNPC} if player has it.
@@ -51,7 +53,12 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
 
     @Override
     public boolean inPathEditMode() {
-        return this.inEditMode;
+        return this.taterzens$inPathEditMode;
+    }
+
+    @Override
+    public boolean inMsgEditMode() {
+        return this.taterzens$inMsgEditMode;
     }
 
     /**
@@ -64,13 +71,28 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
      */
     @Override
     public void setPathEditMode(boolean editMode) {
-        this.inEditMode = editMode;
+        this.taterzens$inPathEditMode = editMode;
         if(selectedNpc != null) {
             World world = player.getEntityWorld();
             selectedNpc.getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
                     new BlockUpdateS2CPacket(blockPos, editMode ? Blocks.REDSTONE_BLOCK.getDefaultState() : world.getBlockState(blockPos))
             ));
         }
+    }
+
+    @Override
+    public void setMsgEditMode(boolean editMode) {
+        this.taterzens$inMsgEditMode = editMode;
+    }
+
+    @Override
+    public void setEditingMessageIndex(int selected) {
+        this.taterzens$selectedMsgId = selected;
+    }
+
+    @Override
+    public int getEditingMessageIndex() {
+        return this.taterzens$selectedMsgId;
     }
 
 
@@ -80,7 +102,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
      */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
-        if(this.inEditMode && selectedNpc != null && lastRenderTick++ > 4) {
+        if(this.taterzens$inPathEditMode && selectedNpc != null && lastRenderTick++ > 4) {
             ArrayList<BlockPos> pathTargets = this.selectedNpc.getPathTargets();
             DustParticleEffect effect = new DustParticleEffect(
                     config.path.color.red / 255.0F,

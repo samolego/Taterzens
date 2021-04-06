@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
@@ -24,7 +25,6 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -40,6 +40,7 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
@@ -47,6 +48,7 @@ import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
+import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,11 +146,58 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
-     * Sets the command to be executed on right - click
+     * Sets the *ONLY* command to be executed on right - click
      * @param command command to execute
+     * @deprecated please use {@link TaterzenNPC#addCommand(String)}
      */
+    @Deprecated
     public void setCommand(String command) {
-        this.npcData.command = command;
+        this.clearCommands();
+        this.npcData.commands.add(command);
+    }
+
+    /**
+     * Adds command to the list
+     * of commands that will be executed on
+     * right-clicking the Taterzen.
+     * @param command command to add
+     */
+    public void addCommand(String command) {
+        this.npcData.commands.add(command);
+    }
+
+    /**
+     * Gets all available commands
+     * @return array list of commands that will be executed on right click
+     */
+    public ArrayList<String> getCommands() {
+        return this.npcData.commands;
+    }
+
+    /**
+     * Removes certain command from command list.
+     * @param index index of where to remove command
+     */
+    public void removeCommand(int index) {
+        if(index >= 0 && index < this.npcData.commands.size())
+            this.npcData.commands.remove(index);
+    }
+
+    /**
+     * Clears all the commands Taterzen
+     * executes on right-click
+     */
+    public void clearCommands() {
+        this.npcData.commands = new ArrayList<>();
+    }
+
+    @Override
+    protected int getPermissionLevel() {
+        return this.npcData.permissionLevel;
+    }
+
+    public void setPermissionLevel(int newPermissionLevel) {
+        this.npcData.permissionLevel = newPermissionLevel;
     }
 
     /**
@@ -252,6 +301,46 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
+    /**
+     * Ticks the Taterzen and sends appropriate messages
+     * to players in radius of 2 blocks.
+     */
+    @Override
+    public void tick() {
+        super.tick();
+        if(!this.npcData.messages.isEmpty()) {
+            Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
+            this.world.getEntityCollisions(this, box, entity -> {
+                if(entity instanceof ServerPlayerEntity && !((TaterzenEditor) entity).inMsgEditMode()) {
+                    TaterzenPlayer pl = (TaterzenPlayer) entity;
+                    int msgPos = pl.getLastMsgPos();
+                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage()) {
+                        entity.sendSystemMessage(
+                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getLastMsgPos()).getFirst()),
+                                this.uuid
+                        );
+                        // Resetting message counter
+                        pl.resetMessageTicks();
+
+                        if(++msgPos >= this.npcData.messages.size())
+                            msgPos = 0;
+                        // Setting new message position
+                        pl.setLastMsgPos(msgPos);
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+    /**
+     * Gets equipment as list of {@link Pair Pairs}.
+     * @return equipment list of pairs.
+     */
+    private List<Pair<EquipmentSlot, ItemStack>> getEquipment() {
+        return Arrays.stream(EquipmentSlot.values()).map(slot -> new Pair<>(slot, this.getEquippedStack(slot))).collect(Collectors.toList());
+    }
+
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }
@@ -263,21 +352,24 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public void setCustomName(Text name) {
         super.setCustomName(name);
-        if(name != null && name.getString().length() > 16) {
-            // Minecraft kicks you if player has name longer than 16 chars
-            name = new LiteralText(name.getString().substring(0, 16)).setStyle(name.getStyle());
+        String profileName = "Taterzen";
+        if(name != null) {
+            profileName = name.getString();
+            if(name.getString().length() > 16) {
+                // Minecraft kicks you if player has name longer than 16 chars in GameProfile
+                profileName = name.getString().substring(0, 16);
+            }
         }
         CompoundTag skin = null;
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
-        this.gameProfile = new GameProfile(this.getUuid(), this.getName().getString());
-        if(DISGUISELIB_LOADED) {
-            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
-        }
-
+        this.gameProfile = new GameProfile(this.getUuid(), profileName);
         if(skin != null) {
             this.setSkinFromTag(skin);
-            this.sendProfileUpdates();
+            if(DISGUISELIB_LOADED) {
+                DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
+            } else
+                this.sendProfileUpdates();
         }
     }
 
@@ -312,13 +404,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(this.gameProfile == null)
             return;
 
-        // Clearing current skin
-        try {
-            PropertyMap map = this.gameProfile.getProperties();
-            Property skin = map.get("textures").iterator().next();
-            map.remove("textures", skin);
-        } catch (NoSuchElementException ignored) { }
-
         // Setting new skin
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
@@ -335,6 +420,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param tag compound tag containing the skin
      */
     public void setSkinFromTag(CompoundTag tag) {
+        // Clearing current skin
+        try {
+            PropertyMap map = this.gameProfile.getProperties();
+            Property skin = map.get("textures").iterator().next();
+            map.remove("textures", skin);
+        } catch (NoSuchElementException ignored) { }
+        // Setting the skin
         try {
             String value = tag.getString("value");
             String signature = tag.getString("signature");
@@ -386,7 +478,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
         }
 
-        this.npcData.command = npcTag.getString("command");
+        // todo @deprecated (migration to more commands)
+        if(npcTag.contains("command"))
+            this.npcData.commands.add(npcTag.getString("command"));
+
+        // Multiple commands
+        ListTag commands = (ListTag) npcTag.get("Commands");
+        if(commands != null) {
+            commands.forEach(cmdTag -> {
+                this.npcData.commands.add(cmdTag.asString());
+            });
+        }
 
         ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
         if(pathTargets != null) {
@@ -401,6 +503,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
             }
         }
+
+        ListTag messages = (ListTag) npcTag.get("Messages");
+        if(messages != null && messages.size() > 0) {
+            messages.forEach(msgTag -> {
+                CompoundTag msgCompound = (CompoundTag) msgTag;
+                this.npcData.messages.add(new Pair<>(TextUtil.fromTag(msgCompound.get("Message")), msgCompound.getInt("Delay")));
+            });
+        }
+
+        this.npcData.permissionLevel = npcTag.getInt("PermissionLevel");
 
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
@@ -433,7 +545,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putBoolean("leashable", this.npcData.leashable);
         npcTag.putBoolean("pushable", this.npcData.pushable);
-        npcTag.putString("command", this.npcData.command);
+
+        // Commands
+        ListTag commands = new ListTag();
+        this.npcData.commands.forEach(cmd -> {
+            commands.add(StringTag.of(cmd));
+        });
+        npcTag.put("Commands", commands);
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
@@ -447,9 +565,19 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         });
         npcTag.put("PathTargets", pathTargets);
 
-        tag.put("TaterzenNPCTag", npcTag);
+        // Messages
+        ListTag messages = new ListTag();
+        this.npcData.messages.forEach(pair -> {
+            CompoundTag msg = new CompoundTag();
+            msg.put("Message", TextUtil.toTag(pair.getFirst()));
+            msg.putInt("Delay", pair.getSecond());
+            messages.add(msg);
+        });
+        npcTag.put("Messages", messages);
 
-        TATERZEN_NPCS.remove(this);
+        npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
+
+        tag.put("TaterzenNPCTag", npcTag);
     }
 
     /**
@@ -500,13 +628,69 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             }
             result = ActionResult.PASS;
         }
-        else if(!this.npcData.command.isEmpty()) {
-            this.server.getCommandManager().execute(player.getCommandSource(), this.npcData.command);
+        else if(!this.npcData.commands.isEmpty()) {
+            this.npcData.commands.forEach(cmd -> {
+                if(cmd.contains("--clicker--")) {
+                    cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
+                }
+                this.server.getCommandManager().execute(this.getCommandSource(), cmd);
+            });
             result = ActionResult.PASS;
         }
 
         ((TaterzenPlayer) player).setLastInteraction(lastAction);
         return result;
+    }
+
+    /**
+     * Adds the message to taterzen's message list.
+     * @param text message to add
+     */
+    public void addMessage(Text text) {
+        this.npcData.messages.add(new Pair<>(text, config.messages.messageDelay));
+    }
+
+    /**
+     * Edits the message from taterzen's message list at index.
+     * @param index index of the message to edit
+     * @param text new text message
+     */
+    public void editMessage(int index, Text text) {
+        if(index >= 0 && index < this.npcData.messages.size())
+            this.npcData.messages.set(index, new Pair<>(text, config.messages.messageDelay));
+    }
+
+    /**
+     * Removes message at index.
+     * @param index index of message to be removed.
+     */
+    public void removeMessage(int index) {
+        if(index < this.npcData.messages.size())
+            this.npcData.messages.remove(index);
+    }
+
+    /**
+     * Sets message delay.
+     *
+     * @param index index of the message to change delay for.
+     * @param delay new delay.
+     */
+    public void setMessageDelay(int index, int delay) {
+        if(index < this.npcData.messages.size()) {
+            this.npcData.messages.get(index).mapSecond(previous -> delay);
+        }
+    }
+
+    public void clearMessages() {
+        this.npcData.messages = new ArrayList<>();
+    }
+
+    /**
+     * Gets {@link ArrayList} of {@link Pair}s of messages and their delays.
+     * @return arraylist of pairs with texts and delays.
+     */
+    public ArrayList<Pair<Text, Integer>> getMessages() {
+        return this.npcData.messages;
     }
 
     /**
@@ -586,7 +770,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         ((PlayerListS2CPacketAccessor) playerListS2CPacket).setAction(REMOVE_PLAYER);
         ((PlayerListS2CPacketAccessor) playerListS2CPacket).setEntries(Collections.singletonList(playerListS2CPacket.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, new LiteralText(this.getName().asString()))));
         this.playerManager.sendToAll(playerListS2CPacket);
+        super.onDeath(source);
+    }
 
+    @Override
+    public void remove() {
+        super.remove();
         TATERZEN_NPCS.remove(this);
     }
 
@@ -618,17 +807,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_PLAYER_BREATH;
+        if(config.defaults.ambientSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.ambientSound));
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_PLAYER_HURT;
+        if(config.defaults.hurtSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.hurtSound));
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_PLAYER_DEATH;
+        if(config.defaults.deathSound == null)
+            return null;
+        return new SoundEvent(new Identifier(config.defaults.deathSound));
     }
 
     @Override
