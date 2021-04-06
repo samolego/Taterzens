@@ -1,33 +1,41 @@
 package org.samo_lego.taterzens.mixin;
 
+import com.mojang.authlib.GameProfile;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerUpdateS2CPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.MobSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
-import static net.minecraft.util.registry.Registry.ENTITY_TYPE;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN;
+import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -36,8 +44,19 @@ import static org.samo_lego.taterzens.Taterzens.TATERZEN;
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public ServerPlayerEntity player;
+    @Unique
+    private boolean taterzens$skipCheck;
+    @Unique
+    private final HashSet<PlayerListS2CPacket> taterzens$tablistQueue = new HashSet<>();
+    private int taterzens$queueTimer;
 
     @Shadow public abstract void sendPacket(Packet<?> packet);
+
+    @Shadow @Final private MinecraftServer server;
+
+    @Shadow @Final public ClientConnection connection;
+
+    @Shadow public abstract ClientConnection getConnection();
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
@@ -56,47 +75,68 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     )
     private void changeEntityType(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
         World world = player.getEntityWorld();
-        if(packet instanceof MobSpawnS2CPacket) {
+        if(packet instanceof PlayerSpawnS2CPacket && !taterzens$skipCheck) {
+            Entity entity = world.getEntityById(((PlayerSpawnS2CPacketAccessor) packet).getId());
 
-            Entity entity = world.getEntityById(((MobSpawnS2CPacketAccessor) packet).getId());
-
-            if(!(entity instanceof TaterzenNPC) || ((MobSpawnS2CPacketAccessor) packet).getEntityTypeId() != ENTITY_TYPE.getRawId(TATERZEN))
+            if(!(entity instanceof TaterzenNPC))
                 return;
 
-            PlayerListS2CPacket playerListS2CPacket = new PlayerListS2CPacket();
-            //noinspection ConstantConditions
-            PlayerListS2CPacketAccessor listS2CPacketAccessor = (PlayerListS2CPacketAccessor) playerListS2CPacket;
-
             TaterzenNPC npc = (TaterzenNPC) entity;
-            listS2CPacketAccessor.setAction(ADD_PLAYER);
-            listS2CPacketAccessor.setEntries(Collections.singletonList(playerListS2CPacket.new Entry(npc.getGameProfile(), 0, GameMode.SURVIVAL, npc.getName())));
+            GameProfile profile = npc.getGameProfile();
 
-            PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
+            PlayerListS2CPacket playerAddPacket = new PlayerListS2CPacket(ADD_PLAYER);
             //noinspection ConstantConditions
-            PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
-            spawnS2CPacketAccessor.setId(npc.getEntityId());
-            spawnS2CPacketAccessor.setUuid(npc.getUuid());
-            spawnS2CPacketAccessor.setX(npc.getX());
-            spawnS2CPacketAccessor.setY(npc.getY());
-            spawnS2CPacketAccessor.setZ(npc.getZ());
-            spawnS2CPacketAccessor.setYaw((byte)((int)(npc.yaw * 256.0F / 360.0F)));
-            spawnS2CPacketAccessor.setPitch((byte)((int)(npc.pitch * 256.0F / 360.0F)));
+            ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
+                    Collections.singletonList(
+                            playerAddPacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName())
+                    )
+            );
+            taterzens$skipCheck = true;
+            this.sendPacket(playerAddPacket);
 
-            this.sendPacket(playerListS2CPacket);
-            this.sendPacket(playerSpawnS2CPacket);
+            // Before we send this packet, we have
+            // added player to tablist, otherwise client doesn't
+            // show it ... :mojank:
+            this.sendPacket(packet);
+
+            PlayerListS2CPacket playerRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
+            //noinspection ConstantConditions
+            ((PlayerListS2CPacketAccessor) playerRemovePacket).setEntries(
+                    Collections.singletonList(
+                            playerRemovePacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName())
+                    )
+            );
+            // And now we can remove it from tablist
+            // we must delay the queue so as to allow
+            // the client to fetch skin.
+            // If player is immediately removed from tablist,
+            // client doesn't care about the skin.
+            this.taterzens$tablistQueue.add(playerRemovePacket);
+            this.taterzens$queueTimer = 60;
+
+            this.taterzens$skipCheck = false;
             this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
             ci.cancel();
+            this.connection.isOpen();
         } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
             Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
 
             if(!(entity instanceof TaterzenNPC))
                 return;
-            // Only change the content if entity is disguised
+            System.out.println("Tracker update");
             PlayerEntity fakePlayer = ((TaterzenNPC) entity).getFakePlayer();
-            if(fakePlayer != null) {
-                List<DataTracker.Entry<?>> trackedValues = fakePlayer.getDataTracker().getAllEntries();
-                ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
-            }
+            List<DataTracker.Entry<?>> trackedValues = fakePlayer.getDataTracker().getAllEntries();
+            ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
+        }
+    }
+
+    @Inject(method = "onPlayerMove", at = @At("RETURN"))
+    private void removeTaterzenFromTablist(PlayerMoveC2SPacket packet, CallbackInfo ci) {
+        if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer == 0) {
+            this.taterzens$skipCheck = true;
+            this.taterzens$tablistQueue.forEach(this::sendPacket);
+            this.taterzens$tablistQueue.clear();
+            this.taterzens$skipCheck = false;
         }
     }
 }

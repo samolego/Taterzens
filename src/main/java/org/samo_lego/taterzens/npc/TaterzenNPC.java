@@ -18,7 +18,9 @@ import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -46,6 +48,7 @@ import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
@@ -54,7 +57,6 @@ import org.samo_lego.taterzens.util.TextUtil;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
@@ -333,6 +335,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             });
         }
     }
+
+    @Override
+    public Packet<?> createSpawnPacket() {
+        PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
+        //noinspection ConstantConditions
+        PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
+        spawnS2CPacketAccessor.setId(this.getEntityId());
+        spawnS2CPacketAccessor.setUuid(this.getUuid());
+        spawnS2CPacketAccessor.setX(this.getX());
+        spawnS2CPacketAccessor.setY(this.getY());
+        spawnS2CPacketAccessor.setZ(this.getZ());
+        spawnS2CPacketAccessor.setYaw((byte)((int)(this.yaw * 256.0F / 360.0F)));
+        spawnS2CPacketAccessor.setPitch((byte)((int)(this.pitch * 256.0F / 360.0F)));
+
+        return playerSpawnS2CPacket;
+    }
+
     /**
      * Gets equipment as list of {@link Pair Pairs}.
      * @return equipment list of pairs.
@@ -377,15 +396,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * Updates Taterzen's {@link GameProfile} for others.
      */
     public void sendProfileUpdates() {
-        PlayerListS2CPacket packet = new PlayerListS2CPacket();
-        //noinspection ConstantConditions
-        PlayerListS2CPacketAccessor accessor = (PlayerListS2CPacketAccessor) packet;
-        accessor.setEntries(Collections.singletonList(packet.new Entry(this.gameProfile, 0, GameMode.SURVIVAL, this.getName())));
-
-        accessor.setAction(REMOVE_PLAYER);
-        playerManager.sendToAll(packet);
-        accessor.setAction(ADD_PLAYER);
-        playerManager.sendToAll(packet);
+        System.out.println("PROFILE UPDATE");
 
         ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
         ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
@@ -727,9 +738,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ItemStack main = this.getMainHandStack();
             this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
             this.setStackInHand(Hand.OFF_HAND, main);
-            return true;
         }
-        return this.npcData.movement == NPCData.Movement.LOOK || this.npcData.movement == NPCData.Movement.NONE || super.handleAttack(attacker);
+        return true;
     }
 
 
@@ -836,7 +846,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return new LiteralText(config.defaults.name);
     }
 
-    @Nullable
     public PlayerEntity getFakePlayer() {
         return this.fakePlayer;
     }

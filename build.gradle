@@ -54,7 +54,7 @@ dependencies {
 	modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
 	// FabricTailor
-	modImplementation 'com.github.samolego:FabricTailor:1.4.0'
+	//modImplementation 'com.github.samolego:FabricTailor:1.4.0'
 
 	// Nicer documentation
 	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")

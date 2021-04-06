@@ -10,6 +10,8 @@ import java.util.UUID;
 public interface PlayerSpawnS2CPacketAccessor {
     @Accessor("id")
     void setId(int id);
+    @Accessor("id")
+    int getId();
 
     @Accessor("uuid")
     void setUuid(UUID uuid);
