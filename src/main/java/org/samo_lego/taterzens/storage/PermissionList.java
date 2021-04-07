@@ -93,13 +93,14 @@ public class PermissionList {
 
     public final String _comment_npcEditSkin = "// Enables changing Taterzen's skin.";
     public final String npc_edit_skin = "taterzens.npc.edit.skin";
+    public final String _comment_npcEditSkinLayers = "// Enables changing Taterzen's skin layers.";
+    public String npc_edit_skin_layers = "taterzens.npc.edit.skin.layers";
 
     public final String _comment_npcEditEquipment = "// Enables changing Taterzen's equipment.";
     public final String npc_edit_equipment = "taterzens.npc.edit.equipment";
 
     public final String _comment_npcEditMovement = "// Enables editing Taterzen's movement.";
     public final String npc_edit_movement = "taterzens.npc.edit.movement";
-
 
     /**
      * Saves the permission list to the given file.

@@ -36,6 +36,7 @@ import java.util.List;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
+import static org.samo_lego.taterzens.Taterzens.config;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -107,17 +108,17 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                     )
             );
             // And now we can remove it from tablist
-            // we must delay the queue so as to allow
+            // we must delay the tablist packet so as to allow
             // the client to fetch skin.
-            // If player is immediately removed from tablist,
+            // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             this.taterzens$tablistQueue.add(playerRemovePacket);
-            this.taterzens$queueTimer = 60;
+            this.taterzens$queueTimer = config.taterzenTablistTimeout;
 
             this.taterzens$skipCheck = false;
             this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
             ci.cancel();
-            this.connection.isOpen();
+            System.out.println("Taterzen spawn");
         } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
             Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
 

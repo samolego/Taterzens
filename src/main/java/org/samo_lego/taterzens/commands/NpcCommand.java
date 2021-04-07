@@ -12,11 +12,10 @@ import com.mojang.datafixers.util.Pair;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.MessageArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
+import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -29,23 +28,22 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.api.TaterzensAPI;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
-import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.command.argument.MessageArgumentType.message;
+import static net.minecraft.command.suggestion.SuggestionProviders.SUMMONABLE_ENTITIES;
 import static net.minecraft.entity.EntityType.FISHING_BOBBER;
 import static net.minecraft.entity.EntityType.ITEM;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -53,6 +51,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.api.TaterzensAPI.getPresets;
 import static org.samo_lego.taterzens.api.TaterzensAPI.noSelectedTaterzenError;
+import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
 import static org.samo_lego.taterzens.permissions.PermissionHelper.checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
@@ -125,10 +124,16 @@ public class NpcCommand {
                                 .then(literal("list").executes(NpcCommand::listTaterzenCommands))
                         )
                         .then(literal("type")
-                                .then(argument("entity type", greedyString())
-                                        .suggests(ENTITIES)
+                                .then(argument("entity type", EntitySummonArgumentType.entitySummon())
+                                        .suggests(SUMMONABLE_ENTITIES)
                                         .executes(NpcCommand::changeType)
+                                        .then(argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                                                .executes(NpcCommand::changeType)
+                                        )
                                 )
+                                .then(literal("minecraft:player").executes(NpcCommand::resetType))
+                                .then(literal("player").executes(NpcCommand::resetType))
+                                .then(literal("reset").executes(NpcCommand::resetType))
                         )
                         .then(literal("path").executes(NpcCommand::editTaterzenPath)
                             .then(literal("clear").executes(NpcCommand::clearTaterzenPath))
@@ -141,7 +146,10 @@ public class NpcCommand {
                                         .executes(NpcCommand::editMessage)
                                 )
                         )
-                        .then(literal("skin").then(argument("player name", word()).executes(NpcCommand::setSkin)))
+                        .then(literal("skin")
+                                .executes(NpcCommand::copySkinLayers)
+                                .then(argument("player name", word()).executes(NpcCommand::setSkin))
+                        )
                         .then(literal("equipment").executes(NpcCommand::setEquipment))
                         .then(literal("look").executes(context -> changeMovement(context, "FORCED_LOOK")))
                         .then(literal("movement")
@@ -751,6 +759,30 @@ public class NpcCommand {
         return 0;
     }
 
+
+    private static int copySkinLayers(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_skin_layers)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            Byte skinLayers = player.getDataTracker().get(getPLAYER_MODEL_PARTS());
+            taterzen.getFakePlayer().getDataTracker().set(getPLAYER_MODEL_PARTS(), skinLayers);
+            System.out.println("Skin data: " + skinLayers);
+
+            taterzen.sendProfileUpdates();
+            context.getSource().sendFeedback(
+                    successText(lang.success.skinLayersMirrored, taterzen.getCustomName()),
+                    false
+            );
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
     private static String addCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_add)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
@@ -818,6 +850,16 @@ public class NpcCommand {
     }
 
     private static int changeType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(!DISGUISELIB_LOADED) {
+            context.getSource().sendError(new LiteralText(lang.error.disguiseLibRequired)
+                    .formatted(Formatting.RED)
+                    .styled(style -> style
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                    )
+            );
+            return -1;
+        }
         if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_entityType)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
@@ -827,18 +869,59 @@ public class NpcCommand {
             ServerPlayerEntity player = context.getSource().getPlayer();
             TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
             if(taterzen != null) {
-                String entityId = StringArgumentType.getString(context, "entity type");
-                Optional<EntityType<?>> optionalType = EntityType.get(entityId);
-                if(optionalType.isPresent()) {
-                    ((EntityDisguise) taterzen).disguiseAs(optionalType.get());
+
+                Identifier disguise = EntitySummonArgumentType.getEntitySummon(context, "entity type");
+
+                CompoundTag nbt;
+                try {
+                    nbt = NbtCompoundTagArgumentType.getCompoundTag(context, "nbt").copy();
+                } catch(IllegalArgumentException ignored) {
+                    nbt = new CompoundTag();
+                }
+                nbt.putString("id", disguise.toString());
+
+                EntityType.loadEntityWithPassengers(nbt, context.getSource().getWorld(), (entityx) -> {
+                    DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
                     context.getSource().sendFeedback(
-                            joinString(lang.success.changedEntityType, Formatting.GREEN, entityId, Formatting.YELLOW),
+                            successText(lang.success.changedEntityType, new TranslatableText(entityx.getType().getTranslationKey())),
                             false
                     );
-                } else {
-                    context.getSource().sendError(errorText(lang.error.invalidEntityId, new LiteralText(entityId)));
-                }
+                    return entityx;
+                });
+            } else
+                context.getSource().sendError(noSelectedTaterzenError());
+        } catch(Error e) {
+            e.printStackTrace();
+        }
 
+        return 0;
+    }
+
+    private static int resetType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(!DISGUISELIB_LOADED) {
+            context.getSource().sendError(new LiteralText(lang.error.disguiseLibRequired)
+                    .formatted(Formatting.RED)
+                    .styled(style -> style
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                    )
+            );
+            return -1;
+        }
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_entityType)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
+        try {
+            ServerPlayerEntity player = context.getSource().getPlayer();
+            TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+            if(taterzen != null) {
+                DisguiseLibCompatibility.clearDisguise(taterzen);
+                context.getSource().sendFeedback(
+                        successText(lang.success.resetEntityType, taterzen.getCustomName()),
+                        false
+                );
             } else
                 context.getSource().sendError(noSelectedTaterzenError());
         } catch(Error e) {
@@ -866,7 +949,7 @@ public class NpcCommand {
         try {
             ServerPlayerEntity player = context.getSource().getPlayer();
             String taterzenName = MessageArgumentType.getMessage(context, "name").asString();
-            TaterzenNPC taterzen = new TaterzenNPC(player, taterzenName);
+            TaterzenNPC taterzen = TaterzensAPI.createTaterzen(player, taterzenName);
             player.getEntityWorld().spawnEntity(taterzen);
             ((TaterzenEditor) player).selectNpc(taterzen);
             context.getSource().sendFeedback(

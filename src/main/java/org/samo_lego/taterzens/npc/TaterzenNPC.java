@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -42,7 +41,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
@@ -54,8 +52,9 @@ import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -93,11 +92,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Creates a TaterzenNPC.
      * You'd probably want to use
-     * {@link TaterzenNPC#TaterzenNPC(ServerWorld, String, Vec3d, float[])} or {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)} or
-     * {@link TaterzenNPC#TaterzenNPC(ServerPlayerEntity, String)} instead, as this one doesn't set the position and custom name.
+     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerWorld, String, Vec3d, float[])} or
+     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerPlayerEntity, String)}
+     * instead, as this one doesn't set the position and custom name.
      *
-     * @param entityType
-     * @param world
+     * @param entityType Taterzen entity type
+     * @param world Taterzen's world
      */
     public TaterzenNPC(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
@@ -105,7 +105,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setCanPickUpLoot(false);
         this.setCustomNameVisible(true);
         this.setCustomName(this.getName());
-        this.setInvulnerable(true);
+        this.setInvulnerable(config.defaults.invulnerable);
         this.setPersistent();
         this.experiencePoints = 0;
         this.setMovementSpeed(0.4F);
@@ -132,19 +132,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), (byte) 0x7f);
 
         TATERZEN_NPCS.add(this);
-    }
-
-    public TaterzenNPC(ServerWorld world, String displayName, Vec3d pos, float[] rotations) {
-        this(Taterzens.TATERZEN, world);
-
-        this.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotations[1], rotations[2]);
-        this.setHeadYaw(rotations[0]);
-        this.setCustomName(new LiteralText(displayName));
-        this.applySkin(SkullBlockEntity.loadProperties(this.gameProfile));
-    }
-
-    public TaterzenNPC(ServerPlayerEntity owner, String displayName) {
-        this(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
     }
 
     /**
@@ -352,14 +339,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return playerSpawnS2CPacket;
     }
 
-    /**
-     * Gets equipment as list of {@link Pair Pairs}.
-     * @return equipment list of pairs.
-     */
-    private List<Pair<EquipmentSlot, ItemStack>> getEquipment() {
-        return Arrays.stream(EquipmentSlot.values()).map(slot -> new Pair<>(slot, this.getEquippedStack(slot))).collect(Collectors.toList());
-    }
-
     public GameProfile getGameProfile() {
         return this.gameProfile;
     }
@@ -483,6 +462,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.leashable = npcTag.getBoolean("leashable");
         this.npcData.pushable = npcTag.getBoolean("pushable");
 
+        // Skin layers
+        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
+
+        //todo @Deprecated (migration to disguiselib)
         // Compatibility (transition to disguiselib) & presets
         if(DISGUISELIB_LOADED && npcTag.contains("entityType")) {
             Identifier identifier = new Identifier(npcTag.getString("entityType"));
@@ -556,6 +539,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putBoolean("leashable", this.npcData.leashable);
         npcTag.putBoolean("pushable", this.npcData.pushable);
+
+        npcTag.putByte("SkinLayers", this.fakePlayer.getDataTracker().get(getPLAYER_MODEL_PARTS()));
 
         // Commands
         ListTag commands = new ListTag();
@@ -738,8 +723,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ItemStack main = this.getMainHandStack();
             this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
             this.setStackInHand(Hand.OFF_HAND, main);
+            return true;
         }
-        return true;
+        return this.isInvulnerable();
     }
 
 

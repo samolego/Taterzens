@@ -29,6 +29,7 @@ public class TaterLang {
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
         public String changedEntityType = "Taterzen type was set to %s.";
+        public String resetEntityType = "Entity type for %s was reset to default.";
         public String killedTaterzen = "Taterzen %s has been removed.";
         public String setCommandAction = "Command is now set to %s.";
         public String selectedTaterzen = "You have selected %s.";
@@ -60,6 +61,7 @@ public class TaterLang {
         public String updatedPermissionLevel = "Permission level for command execution is now set to %s.";
         public String commandsCleared = "Commands for %s have been cleared.";
         public String commandRemoved = "Command %s has been removed successfully.";
+        public String skinLayersMirrored = "Skin layers for %s were mirrored from you successfully.";
     }
 
     public static class Error {
@@ -72,6 +74,7 @@ public class TaterLang {
         public String noMessageFound = "No messages with id %s were found.";
         public String enterMessageEditorMode = "You need to enter message editor mode to use this feature.";
         public String noCommandFound = "No commands with id %s were found.";
+        public String disguiseLibRequired = "DisguiseLib mod is required for this action.";
     }
 
 

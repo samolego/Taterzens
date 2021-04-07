@@ -5,20 +5,25 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.block.entity.SkullBlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
-import xyz.nucleoid.disguiselib.EntityDisguise;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -66,8 +71,14 @@ public class TaterzensAPI {
                 try {
                     Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
                     if(tag instanceof CompoundTag) {
+                        CompoundTag compoundTag = (CompoundTag) tag;
                         TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN, world);
-                        taterzenNPC.readCustomDataFromTag((CompoundTag) tag);
+                        taterzenNPC.readCustomDataFromTag(compoundTag);
+                        if(DISGUISELIB_LOADED && compoundTag.contains("CustomType")) {
+                            CompoundTag customTypeTag = compoundTag.getCompound("CustomType");
+                            Entity customEntity = EntityType.loadEntityWithPassengers(customTypeTag, taterzenNPC.world, (entityx) -> entityx);
+                            DisguiseLibCompatibility.disguiseAs(taterzenNPC, customEntity);
+                        }
                         return taterzenNPC;
                     }
                 } catch(Throwable e) {
@@ -86,7 +97,15 @@ public class TaterzensAPI {
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         CompoundTag saveTag = new CompoundTag();
         taterzen.writeCustomDataToTag(saveTag);
-        saveTag.putString("entityType", Registry.ENTITY_TYPE.getId(((EntityDisguise) taterzen).getDisguiseType()).toString());
+        if(DISGUISELIB_LOADED && DisguiseLibCompatibility.isDisguised(taterzen)) {
+            CompoundTag customTypeTag = new CompoundTag();
+            taterzen.toTag(customTypeTag);
+            if(customTypeTag.contains("DisguiseLib")) {
+                // Saves DisguiseEntity to preset
+                saveTag.put("CustomType", customTypeTag.getCompound("DisguiseLib").getCompound("DisguiseEntity"));
+            }
+        }
+
         //todo Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");
@@ -98,6 +117,39 @@ public class TaterzensAPI {
         } catch(IOException e) {
             getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
         }
+    }
+
+    /**
+     * Creates a Taterzen NPC with rotations and custom name.
+     * You'll still have to spawn it in (use {@link World#spawnEntity(Entity)}
+     * to achieve that).
+     * @param world Taterzen's world
+     * @param displayName Taterzen's name.
+     * @param pos Taterzen's position
+     * @param rotations Taterzen's rotations (0 - head yaw, 1 - body yaw, 2 - pitch)
+     * @return TaterzenNPC
+     */
+    public static TaterzenNPC createTaterzen(ServerWorld world, String displayName, Vec3d pos, float[] rotations) {
+        TaterzenNPC taterzen = new TaterzenNPC(Taterzens.TATERZEN, world);
+
+        taterzen.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotations[1], rotations[2]);
+        taterzen.setHeadYaw(rotations[0]);
+        taterzen.setCustomName(new LiteralText(displayName));
+        taterzen.applySkin(SkullBlockEntity.loadProperties(taterzen.getGameProfile()));
+
+        return taterzen;
+    }
+
+    /**
+     * Creates a Taterzen NPC from owner with provided display name.
+     * You'll still have to spawn it in (use {@link World#spawnEntity(Entity)}
+     * to achieve that).
+     * @param owner player whose rotations and world will be copied to Taterzen
+     * @param displayName Taterzen's name.
+     * @return TaterzenNPC
+     */
+    public static TaterzenNPC createTaterzen(ServerPlayerEntity owner, String displayName) {
+        return createTaterzen(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
     }
 
     /**

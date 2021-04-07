@@ -29,6 +29,11 @@ public class TaterConfig {
     @SerializedName("disable_registry_sync")
     public boolean disableRegistrySync = true;
 
+    public String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
+    public String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
+    @SerializedName("taterzen_tablist_timeout")
+    public int taterzenTablistTimeout = 30;
+
 
     public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
     /**
@@ -64,6 +69,7 @@ public class TaterConfig {
         public String hurtSound = "entity.player.hurt";
         @SerializedName("ambient_sound")
         public String ambientSound = "entity.player.breath";
+        public boolean invulnerable = true;
     }
 
     public static class Messages {
