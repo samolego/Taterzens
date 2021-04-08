@@ -23,6 +23,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.api.TaterzensAPI;
@@ -125,7 +126,7 @@ public class NpcCommand {
                             )
                         )
                         .then(literal("invulnerable")
-                            .then(argument("invulnerable", BoolArgumentType.bool()).executes(NpcCommand::setInvulnerable))
+                                .then(argument("invulnerable", BoolArgumentType.bool()).executes(NpcCommand::setInvulnerable))
                         )
                         .then(literal("type")
                                 .then(argument("entity type", EntitySummonArgumentType.entitySummon())
@@ -158,7 +159,12 @@ public class NpcCommand {
                                 .executes(NpcCommand::copySkinLayers)
                                 .then(argument("player name", word()).executes(NpcCommand::setSkin))
                         )
-                        .then(literal("equipment").executes(NpcCommand::setEquipment))
+                        .then(literal("equipment")
+                                .then(literal("allowEquipmentDrops")
+                                        .then(argument("drop", BoolArgumentType.bool()).executes(NpcCommand::setEquipmentDrops))
+                                )
+                                .executes(NpcCommand::setEquipment)
+                        )
                         .then(literal("look").executes(context -> changeMovement(context, "FORCED_LOOK")))
                         .then(literal("movement")
                                 .then(argument("movement type", word())
@@ -170,8 +176,26 @@ public class NpcCommand {
         );
     }
 
+    private static int setEquipmentDrops(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_equipment_equipmentDrops)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            boolean drop = BoolArgumentType.getBool(context, "drop");
+            taterzen.allowEquipmentDrops(drop);
+            player.sendMessage(successText(lang.success.equipmentDropStatus, new LiteralText(String.valueOf(drop))), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
     private static int setInvulnerable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_invulnerability)) {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_tags_invulnerability)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
@@ -186,7 +210,6 @@ public class NpcCommand {
             context.getSource().sendError(noSelectedTaterzenError());
 
         return 0;
-
     }
 
     private static int setTaterzenBehaviour(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -198,9 +221,19 @@ public class NpcCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
-            NPCData.Behaviour hostile = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
-            taterzen.setBehaviour(hostile);
-            player.sendMessage(successText(lang.success.behaviour, new LiteralText(String.valueOf(hostile))), false);
+            NPCData.Behaviour behaviour = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
+            taterzen.setBehaviour(behaviour);
+            player.sendMessage(successText(lang.success.behaviour, new LiteralText(String.valueOf(behaviour))), false);
+            if(behaviour != NPCData.Behaviour.PASSIVE && taterzen.isInvulnerable())
+                player.sendMessage(new LiteralText(lang.success.behaviourSuggestion)
+                        .formatted(Formatting.GOLD)
+                        .formatted(Formatting.ITALIC)
+                        .styled(style -> style
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit invulnerable false"))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Disable invulnerability")))
+                        ),
+                        false
+                );
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 
@@ -584,7 +617,7 @@ public class NpcCommand {
         return 0;
     }
 
-    private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) {
         if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_preset_load)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
@@ -594,12 +627,19 @@ public class NpcCommand {
         File preset = new File(getPresetDir() + "/" + filename);
 
         if(preset.exists()) {
-            ServerPlayerEntity player = context.getSource().getPlayer();
-            TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, player.getEntityWorld());
+            TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, context.getSource().getWorld());
             assert taterzenNPC != null;
-            taterzenNPC.refreshPositionAndAngles(player.getX(), player.getY(), player.getZ(), player.yaw, player.pitch);
-            player.getEntityWorld().spawnEntity(taterzenNPC);
-            ((TaterzenEditor) player).selectNpc(taterzenNPC);
+            Vec3d pos = context.getSource().getPosition();
+            Vec2f rotation = context.getSource().getRotation();
+            taterzenNPC.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
+
+            context.getSource().getWorld().spawnEntity(taterzenNPC);
+
+            try {
+                ServerPlayerEntity player = context.getSource().getPlayer();
+                ((TaterzenEditor) player).selectNpc(taterzenNPC);
+            } catch(CommandSyntaxException ignored) {
+            }
 
             context.getSource().sendFeedback(
                     successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),

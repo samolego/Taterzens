@@ -299,6 +299,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 }
             }
             super.tickMovement();
+            if(this.isAttacking() && this.onGround && this.getTarget() != null && this.squaredDistanceTo(this.getTarget()) < 4.0D && this.random.nextInt(5) == 0)
+                this.jump();
         }
     }
 
@@ -517,8 +519,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         this.npcData.permissionLevel = npcTag.getInt("PermissionLevel");
-        //todo remove contains check after a while
-        this.npcData.behaviour = npcTag.contains("Behaviour") ? NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")) : NPCData.Behaviour.PASSIVE;
+        //todo remove contains check after a while?
+        this.setBehaviour(npcTag.contains("Behaviour") ? NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")) : NPCData.Behaviour.PASSIVE);
+        this.setInvulnerable(npcTag.contains("Invulnerable") && npcTag.getBoolean("Invulnerable"));
+        this.npcData.allowEquipmentDrops = npcTag.contains("DropsAllowed") && npcTag.getBoolean("DropsAllowed");
+
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
         if(DISGUISELIB_LOADED) {
@@ -581,8 +586,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.put("Messages", messages);
 
         npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
-
         npcTag.putString("Behaviour", this.npcData.behaviour.toString());
+        npcTag.putBoolean("Invulnerable", this.isInvulnerable());
+        npcTag.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
 
         tag.put("TaterzenNPCTag", npcTag);
     }
@@ -647,6 +653,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         ((TaterzenPlayer) player).setLastInteraction(lastAction);
         return result;
+    }
+
+    @Override
+    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
+        // Additional drop check
+        if(this.npcData.allowEquipmentDrops)
+            super.dropEquipment(source, lootingMultiplier, allowDrops);
     }
 
     /**
@@ -881,5 +894,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     public PlayerEntity getFakePlayer() {
         return this.fakePlayer;
+    }
+
+    /**
+     * Toggles whether Taterzen will drop its equipment.
+     * @param drop drop rule
+     */
+    public void allowEquipmentDrops(boolean drop) {
+        this.npcData.allowEquipmentDrops = drop;
     }
 }

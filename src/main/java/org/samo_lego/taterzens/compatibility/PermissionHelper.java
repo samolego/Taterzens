@@ -22,6 +22,7 @@ public class PermissionHelper {
      * @return true if commandSource has the permission, otherwise false
      */
     public static boolean checkPermission(ServerCommandSource commandSource, String permission) {
-        return Permissions.check(commandSource, permission, 4);
+        // Enable command blocks
+        return commandSource.getEntity() == null || Permissions.check(commandSource, permission, 4);
     }
 }

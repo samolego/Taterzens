@@ -27,6 +27,7 @@ public class NPCData {
     public int permissionLevel = config.defaults.commandPermissionLevel;
     public ArrayList<String> commands = new ArrayList<>();
     public Behaviour behaviour = Behaviour.PASSIVE;
+    public boolean allowEquipmentDrops = false;
 
 
     /**

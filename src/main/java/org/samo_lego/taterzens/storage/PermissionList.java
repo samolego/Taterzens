@@ -100,6 +100,7 @@ public class PermissionList {
 
     public final String _comment_npcEditEquipment = "// Enables changing Taterzen's equipment.";
     public final String npc_edit_equipment = "taterzens.npc.edit.equipment";
+    public final String npc_edit_equipment_equipmentDrops = "taterzens.npc.edit.equipment.drops";
 
     public final String _comment_npcEditMovement = "// Enables editing Taterzen's movement.";
     public final String npc_edit_movement = "taterzens.npc.edit.movement";
@@ -108,7 +109,7 @@ public class PermissionList {
     public final String npc_edit_behaviour = "taterzens.npc.edit.behaviour";
 
     public final String _comment_npcEditInvulnerability = "// Enables editing Taterzen's behaviour.";
-    public final String npc_edit_invulnerability = "taterzens.npc.edit.invulnerability";
+    public final String npc_edit_tags_invulnerability = "taterzens.npc.edit.tags.invulnerability";
 
     /**
      * Saves the permission list to the given file.
