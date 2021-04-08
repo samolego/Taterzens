@@ -17,7 +17,7 @@ public class TaterConfig {
             .disableHtmlEscaping()
             .create();
 
-    public String _comment_language = "// Language file to use.";
+    public final String _comment_language = "// Language file to use.";
     /**
      * Language file used by Taterzens.
      *
@@ -25,17 +25,17 @@ public class TaterConfig {
      */
     public String language = "en_us";
 
-    public String _comment_disableRegistrySync = "// Whether to disable Fabric's registry sync. Leave this to true if you'd like to keep the mod server-sided.";
+    public final String _comment_disableRegistrySync = "// Whether to disable Fabric's registry sync. Leave this to true if you'd like to keep the mod server-sided.";
     @SerializedName("disable_registry_sync")
     public boolean disableRegistrySync = true;
 
-    public String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
-    public String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
+    public final String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
+    public final String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
     @SerializedName("taterzen_tablist_timeout")
     public int taterzenTablistTimeout = 30;
 
 
-    public String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
+    public final String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -53,16 +53,16 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public String _comment_name = "// Default settings for new Taterzens.";
+        public final String _comment_name = "// Default settings for new Taterzens.";
         public String name = "Taterzen";
         public boolean leashable = false;
         public boolean pushable = false;
 
-        public String _comment_commandPermissionLevel = "// Default command permission level of Taterzen";
+        public final String _comment_commandPermissionLevel = "// Default command permission level of Taterzen";
         @SerializedName("command_permission_level")
         public int commandPermissionLevel = 4;
 
-        public String _comment_sounds = "// Default sounds for Taterzens. Set to null to mute them.";
+        public final String _comment_sounds = "// Default sounds for Taterzens. Set to null to mute them.";
         @SerializedName("death_sound")
         public String deathSound = "entity.player.death";
         @SerializedName("hurt_sound")
@@ -73,9 +73,9 @@ public class TaterConfig {
     }
 
     public static class Messages {
-        public String _comment_messageDelay = "// Default delay between each message, in ticks.";
+        public final String _comment_messageDelay = "// Default delay between each message, in ticks.";
         public int messageDelay = 100;
-        public String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
+        public final String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
         @SerializedName("exit_editor_after_msg_edit")
         public boolean exitEditorAfterMsgEdit = true;
     }
@@ -87,7 +87,7 @@ public class TaterConfig {
          * Color of particles used in path editor.
          */
         public static class Color {
-            public String _comment = "// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).";
+            public final String _comment = "// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;

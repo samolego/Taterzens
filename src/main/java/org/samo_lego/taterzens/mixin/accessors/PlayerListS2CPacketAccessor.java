@@ -12,7 +12,12 @@ public interface PlayerListS2CPacketAccessor {
     @Accessor("action")
     void setAction(PlayerListS2CPacket.Action action);
 
+    @Accessor("action")
+    PlayerListS2CPacket.Action getAction();
+
     @Mutable
     @Accessor("entries")
     void setEntries(List<PlayerListS2CPacket.Entry> entries);
+    @Accessor("entries")
+    List<PlayerListS2CPacket.Entry> getEntries();
 }

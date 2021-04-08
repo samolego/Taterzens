@@ -8,6 +8,8 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.MobNavigation;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -72,22 +74,26 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     private final PlayerManager playerManager;
     private final MinecraftServer server;
-    private PlayerEntity fakePlayer;
+    private final PlayerEntity fakePlayer;
     private GameProfile gameProfile;
+    private short ticks = 0;
 
     // Goals
     private final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
     private final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
 
-    private final FollowTargetGoal<PlayerEntity> followTargetGoal = new FollowTargetGoal<>(this, PlayerEntity.class, false, true);
-    private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 0.4F, 30);
-    private final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 0.4F);
-    private final DirectPathGoal directPathGoal = new DirectPathGoal(this, 0.4F);
+    private final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, false, true);
+    private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
+    private final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
+    private final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
 
+    // Attack-based goals
     private final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
-    private final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.0D, 20, 40.0F);
+    private final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.2D, 20, 40.0F);
     private final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
-    private short ticks = 0;
+    private final RevengeGoal revengeGoal = new RevengeGoal(this);
+    private final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
+    private final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class,false);
 
     /**
      * Creates a TaterzenNPC.
@@ -132,6 +138,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), (byte) 0x7f);
 
         TATERZEN_NPCS.add(this);
+    }
+
+    public static DefaultAttributeContainer.Builder createTaterzenAttributes() {
+        return HostileEntity.createHostileAttributes()
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2505D)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 35.0D);
     }
 
     /**
@@ -205,14 +217,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
             if(movement == NPCData.Movement.FORCED_PATH) {
-                this.goalSelector.add(3, directPathGoal);
+                this.goalSelector.add(4, directPathGoal);
             } else {
                 this.goalSelector.add(5, lookPlayerGoal);
                 this.goalSelector.add(6, lookAroundGoal);
                 if(movement == NPCData.Movement.PATH)
-                    this.goalSelector.add(3, pathGoal);
+                    this.goalSelector.add(4, pathGoal);
                 else if(movement == NPCData.Movement.FREE)
-                    this.goalSelector.add(3, wanderAroundFarGoal);
+                    this.goalSelector.add(4, wanderAroundFarGoal);
             }
         }
     }
@@ -375,8 +387,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * Updates Taterzen's {@link GameProfile} for others.
      */
     public void sendProfileUpdates() {
-        System.out.println("PROFILE UPDATE");
-
         ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
         ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
         EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
@@ -456,7 +466,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         super.readCustomDataFromTag(tag);
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
-        this.npcData.hostile = npcTag.getBoolean("hostile");
         this.npcData.movement = NPCData.Movement.valueOf(npcTag.getString("movement"));
 
         this.npcData.leashable = npcTag.getBoolean("leashable");
@@ -469,7 +478,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         // Compatibility (transition to disguiselib) & presets
         if(DISGUISELIB_LOADED && npcTag.contains("entityType")) {
             Identifier identifier = new Identifier(npcTag.getString("entityType"));
-            DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
+            if(!identifier.getPath().equals("player"))
+                DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
         }
 
         // todo @deprecated (migration to more commands)
@@ -507,7 +517,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         this.npcData.permissionLevel = npcTag.getInt("PermissionLevel");
-
+        //todo remove contains check after a while
+        this.npcData.behaviour = npcTag.contains("Behaviour") ? NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")) : NPCData.Behaviour.PASSIVE;
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
         if(DISGUISELIB_LOADED) {
@@ -532,8 +543,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         super.writeCustomDataToTag(tag);
 
         CompoundTag npcTag = new CompoundTag();
-
-        npcTag.putBoolean("hostile", this.npcData.hostile);
 
         npcTag.putString("movement", this.npcData.movement.toString());
 
@@ -572,6 +581,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.put("Messages", messages);
 
         npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
+
+        npcTag.putString("Behaviour", this.npcData.behaviour.toString());
 
         tag.put("TaterzenNPCTag", npcTag);
     }
@@ -732,7 +743,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        //this.dataTracker.startTracking(PLAYER_MODEL_PARTS, (byte) 0x7f); //todo
     }
 
     @Override
@@ -775,14 +785,47 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         TATERZEN_NPCS.remove(this);
     }
 
+    public void setBehaviour(NPCData.Behaviour level) {
+        this.npcData.behaviour = level;
+
+        this.goalSelector.remove(reachMeleeAttackGoal);
+        this.goalSelector.remove(crossbowAttackGoal);
+        this.goalSelector.remove(bowAttackGoal);
+        this.goalSelector.remove(attackMonstersGoal);
+
+
+        this.targetSelector.remove(followTargetGoal);
+        this.targetSelector.remove(revengeGoal);
+        this.targetSelector.remove(followMonstersGoal);
+
+        switch(level) {
+            case DEFENSIVE:
+                this.targetSelector.add(3, revengeGoal);
+                break;
+            case FRIENDLY:
+                this.targetSelector.add(2, revengeGoal);
+                this.targetSelector.add(3, followMonstersGoal);
+                this.goalSelector.add(3, attackMonstersGoal);
+                break;
+            case HOSTILE:
+                this.targetSelector.add(2, revengeGoal);
+                this.targetSelector.add(3, followTargetGoal);
+                this.goalSelector.add(3, reachMeleeAttackGoal);
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
-        return this.npcData.hostile;
+        return this.npcData.behaviour != NPCData.Behaviour.PASSIVE;
     }
 
     @Override
     protected void updateDespawnCounter() {
     }
+
     @Override
     public void setCharging(boolean charging) {
 
@@ -790,7 +833,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
-        //this.attack(target, 4.0F);
+        // Crossbow attack
+        System.out.println("Shoot!");
+
     }
 
     @Override
@@ -799,6 +844,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
+        // Bow attack
+        System.out.println("Bow shoot!");
     }
 
     @Override

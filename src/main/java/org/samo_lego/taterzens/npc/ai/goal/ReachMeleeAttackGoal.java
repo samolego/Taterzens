@@ -15,18 +15,6 @@ public class ReachMeleeAttackGoal extends MeleeAttackGoal {
     }
 
     @Override
-    public void stop() {
-        super.stop();
-        this.mob.setAttacking(false);
-    }
-
-    @Override
-    public void start() {
-        super.start();
-        this.mob.setAttacking(true);
-    }
-
-    @Override
     public boolean shouldContinue() {
         LivingEntity livingEntity = this.mob.getTarget();
         if(livingEntity == null || !livingEntity.isAlive()) {

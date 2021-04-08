@@ -15,7 +15,7 @@ import java.io.File;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.permissions.PermissionHelper.checkPermission;
+import static org.samo_lego.taterzens.compatibility.PermissionHelper.checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class TaterzensCommand {

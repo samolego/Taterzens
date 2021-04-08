@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.commands;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,7 +10,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.*;
@@ -22,10 +22,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
@@ -44,22 +42,19 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.command.suggestion.SuggestionProviders.SUMMONABLE_ENTITIES;
-import static net.minecraft.entity.EntityType.FISHING_BOBBER;
-import static net.minecraft.entity.EntityType.ITEM;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.api.TaterzensAPI.getPresets;
 import static org.samo_lego.taterzens.api.TaterzensAPI.noSelectedTaterzenError;
+import static org.samo_lego.taterzens.compatibility.PermissionHelper.checkPermission;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
-import static org.samo_lego.taterzens.permissions.PermissionHelper.checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
 
-    private static final SuggestionProvider<ServerCommandSource> ENTITIES;
     private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
-    private static final boolean FABRICTAILOR_LOADED;
+    private static final SuggestionProvider<ServerCommandSource> HOSTILITY_TYPES;
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -123,6 +118,15 @@ public class NpcCommand {
                                 .then(literal("clear").executes(NpcCommand::clearCommands))
                                 .then(literal("list").executes(NpcCommand::listTaterzenCommands))
                         )
+                        .then(literal("behaviour")
+                            .then(argument("behaviour", word())
+                                    .suggests(HOSTILITY_TYPES)
+                                    .executes(NpcCommand::setTaterzenBehaviour)
+                            )
+                        )
+                        .then(literal("invulnerable")
+                            .then(argument("invulnerable", BoolArgumentType.bool()).executes(NpcCommand::setInvulnerable))
+                        )
                         .then(literal("type")
                                 .then(argument("entity type", EntitySummonArgumentType.entitySummon())
                                         .suggests(SUMMONABLE_ENTITIES)
@@ -143,6 +147,10 @@ public class NpcCommand {
                                 .then(literal("list").executes(NpcCommand::listTaterzenMessages))
                                 .then(argument("message id", IntegerArgumentType.integer(0))
                                         .then(literal("delete").executes(NpcCommand::deleteTaterzenMessage))
+                                        .then(literal("setDelay")
+                                                .then(argument("delay", IntegerArgumentType.integer())
+                                                        .executes(NpcCommand::editMessageDelay))
+                                        )
                                         .executes(NpcCommand::editMessage)
                                 )
                         )
@@ -160,6 +168,43 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int setInvulnerable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_invulnerability)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            boolean invulnerable = BoolArgumentType.getBool(context, "invulnerable");
+            taterzen.setInvulnerable(invulnerable);
+            player.sendMessage(successText(lang.success.invulnerableStatus, new LiteralText(String.valueOf(invulnerable))), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+
+    }
+
+    private static int setTaterzenBehaviour(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_behaviour)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            NPCData.Behaviour hostile = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
+            taterzen.setBehaviour(hostile);
+            player.sendMessage(successText(lang.success.behaviour, new LiteralText(String.valueOf(hostile))), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
     }
 
     private static int removeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -296,6 +341,32 @@ public class NpcCommand {
             } else {
                 player.sendMessage(successText(lang.success.messageDeleted, taterzen.getMessages().get(selected).getFirst()), false);
                 taterzen.removeMessage(selected);
+            }
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+
+        return 0;
+    }
+
+    private static int editMessageDelay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if(LUCKPERMS_ENABLED && !checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delay)) {
+            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+            return -1;
+        }
+
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
+        if(taterzen != null) {
+            int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
+            if(selected >= taterzen.getMessages().size()) {
+                player.sendMessage(
+                        errorText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                        false
+                );
+            } else {
+                int delay = IntegerArgumentType.getInteger(context, "delay");
+                taterzen.setMessageDelay(selected, delay);
+                player.sendMessage(successText(lang.success.messageDelaySet, new LiteralText(String.valueOf(delay))), false);
             }
         } else
             context.getSource().sendError(noSelectedTaterzenError());
@@ -770,7 +841,6 @@ public class NpcCommand {
         if(taterzen != null) {
             Byte skinLayers = player.getDataTracker().get(getPLAYER_MODEL_PARTS());
             taterzen.getFakePlayer().getDataTracker().set(getPLAYER_MODEL_PARTS(), skinLayers);
-            System.out.println("Skin data: " + skinLayers);
 
             taterzen.sendProfileUpdates();
             context.getSource().sendFeedback(
@@ -963,20 +1033,16 @@ public class NpcCommand {
     }
 
     static {
-        ENTITIES = SuggestionProviders.register(
-                new Identifier("taterzens", "entites"),
-                (context, builder) ->
-                        CommandSource.suggestFromIdentifier(Registry.ENTITY_TYPE.stream().filter(type -> type != FISHING_BOBBER || type != ITEM), builder, EntityType::getId,
-                                (entityType) -> new TranslatableText(Util.createTranslationKey("entity", EntityType.getId(entityType)))
-                        )
-        );
-
         MOVEMENT_TYPES = SuggestionProviders.register(
                 new Identifier(MODID, "movement_types"),
                 (context, builder) ->
                         CommandSource.suggestMatching(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
 
-        FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
+        HOSTILITY_TYPES = SuggestionProviders.register(
+                new Identifier(MODID, "hostility_types"),
+                (context, builder) ->
+                        CommandSource.suggestMatching(Stream.of(NPCData.Behaviour.values()).map(Enum::name).collect(Collectors.toList()), builder)
+        );
     }
 }

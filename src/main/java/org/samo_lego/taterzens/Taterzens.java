@@ -73,10 +73,11 @@ public class Taterzens implements ModInitializer {
                     .disableSummon()
                     .build()
     );
+    public static boolean FABRICTAILOR_LOADED;
 
     @Override
     public void onInitialize() {
-        FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createMobAttributes());
+        FabricDefaultAttributeRegistry.register(TATERZEN, TaterzenNPC.createTaterzenAttributes());
 
         taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens/presets");
         if (!taterDir.exists() && !taterDir.mkdirs())
@@ -94,6 +95,8 @@ public class Taterzens implements ModInitializer {
         if(LUCKPERMS_ENABLED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
         }
+
+        FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
 
         // Events
         CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);

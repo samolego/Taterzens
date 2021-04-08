@@ -88,6 +88,8 @@ public class PermissionList {
     public final String npc_edit_messages_list = "taterzens.npc.edit.messages.list";
     public final String _comment_npcEditMessagesDelete = "// Deletes Taterzen's message by ID.";
     public final String npc_edit_messages_delete = "taterzens.npc.edit.messages.delete";
+    public final String _comment_npcEditMessagesDelay = "// Edits delay of the message by ID.";
+    public final String npc_edit_messages_delay = "taterzens.npc.edit.messages.delay";
     public final String _comment_npcEditMessagesEdit = "// Enables editing selected message.";
     public final String npc_edit_messages_edit = "taterzens.npc.edit.messages.edit";
 
@@ -101,6 +103,12 @@ public class PermissionList {
 
     public final String _comment_npcEditMovement = "// Enables editing Taterzen's movement.";
     public final String npc_edit_movement = "taterzens.npc.edit.movement";
+
+    public final String _comment_npcEditBehaviour = "// Enables editing Taterzen's behaviour.";
+    public final String npc_edit_behaviour = "taterzens.npc.edit.behaviour";
+
+    public final String _comment_npcEditInvulnerability = "// Enables editing Taterzen's behaviour.";
+    public final String npc_edit_invulnerability = "taterzens.npc.edit.invulnerability";
 
     /**
      * Saves the permission list to the given file.

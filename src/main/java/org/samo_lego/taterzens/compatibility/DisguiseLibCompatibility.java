@@ -4,8 +4,13 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
-import xyz.nucleoid.disguiselib.EntityDisguise;
+import xyz.nucleoid.disguiselib.casts.EntityDisguise;
 
+/**
+ * Just DisguiseLib methods in their own
+ * class, in order to make
+ * the mod run without the lib as well.
+ */
 public class DisguiseLibCompatibility {
 
     public static void disguiseAs(TaterzenNPC taterzen, EntityType<?> entityType) {

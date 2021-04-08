@@ -54,7 +54,7 @@ public class TaterLang {
         public String msgEditorDescLine2 = "You can use normal text or tellraw structure (for colors).";
         public String messageAdded = "Message %s was added successfully.";
         public String messagesCleared = "Taterzen %s has been muted.";
-        public String messageDelaySet = "Message delay for the last message is now %s.";
+        public String messageDelaySet = "Message delay for the selected message is now %s.";
         public String messageChanged = "Message has been changed to %s.";
         public String messageDeleted = "Message %s has been deleted successfully.";
         public String deselectedTaterzen = "Your Taterzen selection has been cleared.";
@@ -62,6 +62,8 @@ public class TaterLang {
         public String commandsCleared = "Commands for %s have been cleared.";
         public String commandRemoved = "Command %s has been removed successfully.";
         public String skinLayersMirrored = "Skin layers for %s were mirrored from you successfully.";
+        public String behaviour = "Behaviour is now set to %s.";
+        public String invulnerableStatus = "Invulnerable status has been set to %s.";
     }
 
     public static class Error {

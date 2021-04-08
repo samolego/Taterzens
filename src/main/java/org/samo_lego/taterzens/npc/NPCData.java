@@ -1,7 +1,6 @@
 package org.samo_lego.taterzens.npc;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -27,6 +26,7 @@ public class NPCData {
     public ArrayList<Pair<Text, Integer>> messages = new ArrayList<>();
     public int permissionLevel = config.defaults.commandPermissionLevel;
     public ArrayList<String> commands = new ArrayList<>();
+    public Behaviour behaviour = Behaviour.PASSIVE;
 
 
     /**
@@ -59,5 +59,24 @@ public class NPCData {
          * Wandering around at Taterzen's will.
          */
         FREE
+    }
+
+    public enum Behaviour {
+        /**
+         * Doesn't attack. What's a weapon?
+         */
+        PASSIVE,
+        /**
+         * Peaceful, but can bite back if attacked.
+         */
+        DEFENSIVE,
+        /**
+         * Will turn against hostile mobs.
+         */
+        FRIENDLY,
+        /**
+         * Attacks all living creatures.
+         */
+        HOSTILE
     }
 }

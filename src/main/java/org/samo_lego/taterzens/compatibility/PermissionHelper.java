@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.permissions;
+package org.samo_lego.taterzens.compatibility;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.server.command.ServerCommandSource;
