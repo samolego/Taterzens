@@ -38,7 +38,7 @@ import static org.samo_lego.taterzens.Taterzens.*;
  */
 
 // * IDK If I should put those in TaterzenNPC class instead,
-// * cause I feel like it would be too cluttered.
+// * but I feel like it would be too cluttered.
 public class TaterzensAPI {
 
     private static final JsonParser parser = new JsonParser();
@@ -46,6 +46,7 @@ public class TaterzensAPI {
             .setPrettyPrinting()
             .serializeNulls()
             .disableHtmlEscaping()
+            .setLenient()
             .create();
 
     /**
