@@ -7,7 +7,7 @@ on:
     types:
       - published
   workflow_dispatch:
-      - master
+    branches: [ master ]
 
 jobs:
   build:
