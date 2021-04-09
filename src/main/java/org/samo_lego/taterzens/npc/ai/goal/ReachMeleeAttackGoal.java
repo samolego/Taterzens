@@ -20,6 +20,7 @@ public class ReachMeleeAttackGoal extends MeleeAttackGoal {
         if(livingEntity == null || !livingEntity.isAlive()) {
             return false;
         }
+        //todo (livingEntity instanceof TaterzenNPC
         return !(livingEntity instanceof PlayerEntity) || (!livingEntity.isSpectator() && !((PlayerEntity) livingEntity).isCreative());
     }
 

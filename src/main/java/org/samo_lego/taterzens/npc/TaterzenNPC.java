@@ -631,7 +631,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ItemStack stack = player.getStackInHand(hand);
 
             if (stack.isEmpty() && player.isSneaking()) {
-                this.dropEquipment(DamageSource.player(player), 1, true);
+                this.dropEquipment(DamageSource.player(player), 1, this.npcData.allowEquipmentDrops);
             }
             else if(player.isSneaking()) {
                 this.equipStack(EquipmentSlot.MAINHAND, stack);
@@ -660,6 +660,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         // Additional drop check
         if(this.npcData.allowEquipmentDrops)
             super.dropEquipment(source, lootingMultiplier, allowDrops);
+        else {
+            for(EquipmentSlot slot : EquipmentSlot.values()) {
+                this.equipStack(slot, ItemStack.EMPTY);
+            }
+        }
     }
 
     /**
@@ -813,7 +818,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         switch(level) {
             case DEFENSIVE:
-                this.targetSelector.add(3, revengeGoal);
+                this.targetSelector.add(2, revengeGoal);
+                this.goalSelector.add(3, reachMeleeAttackGoal);
                 break;
             case FRIENDLY:
                 this.targetSelector.add(2, revengeGoal);
