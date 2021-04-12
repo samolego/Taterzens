@@ -13,6 +13,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
+import org.samo_lego.taterzens.api.professions.ProfessionParseCallback;
+import org.samo_lego.taterzens.api.professions.ProfessionParseHandler;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.event.BlockInteractEvent;
@@ -102,6 +104,9 @@ public class Taterzens implements ModInitializer {
         CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
         CommandRegistrationCallback.EVENT.register(NpcCommand::register);
         UseBlockCallback.EVENT.register(new BlockInteractEvent());
+
+        // Profession event
+        ProfessionParseCallback.EVENT.register(new ProfessionParseHandler());
     }
 
     public static Logger getLogger() {

@@ -29,7 +29,6 @@ public class NPCData {
     public Behaviour behaviour = Behaviour.PASSIVE;
     public boolean allowEquipmentDrops = false;
 
-
     /**
      * Types of movement a Taterzen can perform.
      * FORCED types will always follow the type strictly.
