@@ -7,6 +7,7 @@ license = "MIT"
 modId = "taterzens"
 version = "${version}"
 displayName = "Taterzens"
+displayURL="https://samolego.github.io/Taterzens"
 authors = "samo_lego"
 description = '''
 A citizens like mod.
@@ -23,6 +24,6 @@ side = "BOTH"
 [[dependencies.taterzens]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16.2,)"
+versionRange = "[1.16.5,)"
 ordering = "NONE"
 side = "BOTH"
