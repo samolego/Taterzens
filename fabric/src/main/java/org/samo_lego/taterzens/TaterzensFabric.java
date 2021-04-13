@@ -1,0 +1,63 @@
+package org.samo_lego.taterzens;
+
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.SpawnGroup;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import org.samo_lego.taterzens.api.professions.ProfessionParseCallback;
+import org.samo_lego.taterzens.api.professions.ProfessionParseHandler;
+import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.event.BlockInteractEvent;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
+
+import java.io.File;
+
+import static org.samo_lego.taterzens.Taterzens.*;
+
+public class TaterzensFabric implements ModInitializer {
+
+    @Override
+    public void onInitialize() {
+        TATERZEN_TYPE = Registry.register(
+                Registry.ENTITY_TYPE,
+                new Identifier(MODID, "npc"),
+                FabricEntityTypeBuilder
+                        .create(SpawnGroup.MONSTER, TaterzenNPC::new)
+                        .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+                        .disableSummon()
+                        .build()
+        );
+
+        FabricDefaultAttributeRegistry.register(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes());
+
+        taterDir = new File(FabricLoader.getInstance().getConfigDir() + "/Taterzens/presets");
+
+        DISGUISELIB_LOADED = FabricLoader.getInstance().isModLoaded("disguiselib");
+
+        // Permissions
+        LUCKPERMS_ENABLED = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+
+        FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
+
+        // Events
+        UseBlockCallback.EVENT.register(new BlockInteractEvent());
+
+        // Profession event
+        ProfessionParseCallback.EVENT.register(new ProfessionParseHandler());
+
+        // Common initialization
+        Taterzens.onInitialize();
+
+        // Events
+        CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
+        CommandRegistrationCallback.EVENT.register(NpcCommand::register);
+        UseBlockCallback.EVENT.register(new BlockInteractEvent());
+    }
+}

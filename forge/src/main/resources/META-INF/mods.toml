@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[35,)"
+issueTrackerURL = "https://github.com/samolego/Taterzens/issues"
+license = "MIT"
+
+[[mods]]
+modId = "taterzens"
+version = "${version}"
+displayName = "Taterzens"
+authors = "samo_lego"
+description = '''
+A citizens like mod.
+'''
+logoFile = "assets/taterzens/icon.png"
+
+[[dependencies.taterzens]]
+modId = "forge"
+mandatory = true
+versionRange = "[35,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.taterzens]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.2,)"
+ordering = "NONE"
+side = "BOTH"

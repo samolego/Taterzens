@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.samo_lego.taterzens.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ServerPlayerEntityMixinCast_TaterzenEditor",
+    "ServerPlayerEntityMixinCast_TaterzenPlayer",
+    "ServerPlayInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin_MsgEditor",
+    "ServerPlayNetworkHandlerMixin_PacketFaker",
+    "ThreadedAnvilChunkStorageMixin_TaterzenList",
+    "accessors.EntityAccessor",
+    "accessors.EntityTrackerEntryAccessor",
+    "accessors.EntityTrackerUpdateS2CPacketAccessor",
+    "accessors.MobSpawnS2CPacketAccessor",
+    "accessors.PlayerEntityAccessor",
+    "accessors.PlayerListS2CPacketAccessor",
+    "accessors.PlayerSpawnS2CPacketAccessor",
+    "accessors.ThreadedAnvilChunkStorageAccessor"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

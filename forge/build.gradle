@@ -1,0 +1,85 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
+
+configurations {
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+loom {
+    useFabricMixin = true
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+
+    implementation(project(path: ":common")) {
+        transitive = false
+    }
+    developmentForge(project(path: ":common")) {
+        transitive = false
+    }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
+        transitive = false
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+
+    configurations = [project.configurations.shadowCommon]
+    classifier "dev-shadow"
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    classifier "forge"
+}
+
+jar {
+    classifier "dev"
+}
+
+java {
+    withSourcesJar()
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            // add all the jars that should be included when publishing to maven
+            artifact(remapJar) {
+                classifier null
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}

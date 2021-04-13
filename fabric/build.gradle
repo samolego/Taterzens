@@ -1,0 +1,162 @@
+import com.modrinth.minotaur.TaskModrinthUpload
+
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "com.modrinth.minotaur" version "1.1.0"
+}
+
+repositories {
+    jcenter()
+    maven {
+        url "https://dl.bintray.com/kotlin/dokka"
+    }
+    maven {
+        url 'https://jitpack.io'
+    }
+    /*maven {
+        url 'https://maven.nucleoid.xyz'
+    }*/
+    maven {
+        url 'https://dl.bintray.com/bymartrixx/maven'
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+}
+
+configurations {
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+def ENV = System.getenv();
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+    modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+
+    // LuckPerms
+    modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
+
+    // Why did my command fail
+    modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
+
+    // DisguiseLib
+    modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}" // jitpack
+    //modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}"
+
+    modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
+    modRuntime "com.github.astei:lazydfu:0.1.2"
+
+    implementation(project(path: ":common")) {
+        transitive = false
+    }
+    developmentFabric(project(path: ":common")) {
+        transitive = false
+    }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) {
+        transitive = false
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowCommon]
+    classifier "dev-shadow"
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    classifier "fabric"
+}
+
+jar {
+    classifier "dev"
+}
+
+java {
+    withSourcesJar()
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+publishing {
+    publications {
+        mavenFabric(MavenPublication) {
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            // add all the jars that should be included when publishing to maven
+            artifact(remapJar) {
+                classifier null
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+    }
+}
+
+
+// from FAPI https://github.com/FabricMC/fabric/blob/1.16/build.gradle
+curseforge {
+    if (ENV.CURSEFORGE_API_KEY) {
+        apiKey = ENV.CURSEFORGE_API_KEY
+    }
+
+    project {
+        id = "446499"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/commits/"
+        releaseType = "release"
+        addGameVersion "${project.minecraft_version}"
+        addGameVersion "Fabric"
+
+        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")) {
+            displayName = "[${project.minecraft_version}] Taterzens ${version}"
+        }
+
+        afterEvaluate {
+            uploadTask.dependsOn("remapJar")
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
+    onlyIf {
+        ENV.MODRINTH_TOKEN
+    }
+
+    token = ENV.MODRINTH_TOKEN
+    projectId = "vE972Kux"
+    versionNumber = version
+    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    releaseType = "release"
+
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")
+
+    addGameVersion("${project.minecraft_version}")
+    addLoader('fabric')
+}

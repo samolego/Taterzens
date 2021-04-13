@@ -1,10 +1,7 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-
 plugins {
-	id 'fabric-loom' version '0.6-SNAPSHOT'
+	id "architectury-plugin" version "3.0-SNAPSHOT"
+	id "forgified-fabric-loom" version "0.6-SNAPSHOT" apply false
 	id 'maven-publish'
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
-	id "com.modrinth.minotaur" version "1.1.0"
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
 	id("org.jetbrains.dokka") version "1.4.30"
@@ -18,160 +15,51 @@ repositories {
 	maven {
 		url 'https://jitpack.io'
 	}
-	maven {
-		url 'https://maven.nucleoid.xyz'
-	}
-	maven {
-		url 'https://dl.bintray.com/bymartrixx/maven'
-	}
-	maven {
-		url 'https://oss.sonatype.org/content/repositories/snapshots'
-	}
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-${project.minecraft_version}"
-group = project.maven_group
-
-def ENV = System.getenv()
-
-dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// LuckPerms
-	modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
-
-	// Why did my command fail
-	modRuntime 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
-
-	// FabricTailor
-	//modRuntime 'com.github.samolego:FabricTailor:1.4.0'
-
-	// Nicer documentation
-	dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:1.4.30")
-
-	// DisguiseLib
-	//modImplementation "xyz.nucleoid:DisguiseLib:${project.disguiselib_version}"
-	modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}"
-
-	modRuntime 'com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0'
-	modRuntime 'com.github.astei:lazydfu:0.1.2'
+architectury {
+	minecraft = rootProject.minecraft_version
 }
 
-processResources {
-	inputs.property "version", project.version
+subprojects {
+	apply plugin: "forgified-fabric-loom"
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+	dependencies {
+		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+		mappings("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
 	}
 }
 
-tasks.withType(dokkaHtml.getClass()).configureEach {
-	pluginsMapConfiguration.set(
-			["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
-	)
-}
+allprojects {
+	apply plugin: "java"
+	apply plugin: "architectury-plugin"
+	apply plugin: "maven-publish"
 
-tasks.withType(JavaCompile).configureEach {
-	// ensure that the encoding is set to UTF-8, no matter what the system default is
-	// this fixes some edge cases with special characters not displaying correctly
-	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-	// If Javadoc is generated, this must be specified in that task too.
-	it.options.encoding = "UTF-8"
+	archivesBaseName = rootProject.archives_base_name
+	version = rootProject.mod_version
+	group = rootProject.maven_group
 
-	// The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
-	// JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
-	// We'll use that if it's available, but otherwise we'll use the older option.
-	def targetVersion = 8
-	if (JavaVersion.current().isJava9Compatible()) {
-		 it.options.release = targetVersion
-	}
-}
-
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
-	}
-}
-
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(remapJar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
-		}
-	}
-
-	// Select the repositories you want to publish to
-	// To publish to maven local, no extra repositories are necessary. Just use the task `publishToMavenLocal`.
 	repositories {
-		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	}
-}
-
-
-// from FAPI https://github.com/FabricMC/fabric/blob/1.16/build.gradle
-curseforge {
-	if (ENV.CURSEFORGE_API_KEY) {
-		apiKey = ENV.CURSEFORGE_API_KEY
+		// Add repositories to retrieve artifacts from in here.
+		// You should only use this when depending on other mods because
+		// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+		// See https://docs.gradle.org/current/userguide/declaring_repositories.html
+		// for more information about repositories.
 	}
 
-	project {
-		id = "446499"
-		changelog = "A changelog can be found at https://github.com/samolego/Taterzens/commits/"
-		releaseType = "release"
-		addGameVersion "${project.minecraft_version}"
-		addGameVersion "Fabric"
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
 
-		mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")) {
-			displayName = "[${project.minecraft_version}] Taterzens ${version}"
-		}
-
-		afterEvaluate {
-			uploadTask.dependsOn("remapJar")
+		// The Minecraft launcher currently installs Java 8 for users, so your mod probably wants to target Java 8 too
+		// JDK 9 introduced a new way of specifying this that will make sure no newer classes or methods are used.
+		// We'll use that if it's available, but otherwise we'll use the older option.
+		def targetVersion = 8
+		if (JavaVersion.current().isJava9Compatible()) {
+			options.release = targetVersion
 		}
 	}
 
-	options {
-		forgeGradleIntegration = false
+	java {
+		withSourcesJar()
 	}
-}
-
-task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
-	onlyIf {
-		ENV.MODRINTH_TOKEN
-	}
-
-	token = ENV.MODRINTH_TOKEN
-	projectId = "vE972Kux"
-	versionNumber = version
-	versionName = "[${project.minecraft_version}] Taterzens ${version}"
-	releaseType = "release"
-
-	uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")
-
-	addGameVersion("${project.minecraft_version}")
-	addLoader('fabric')
 }
