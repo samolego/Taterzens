@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.api.professions;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -9,11 +8,17 @@ import static org.samo_lego.taterzens.api.professions.DefaultProfession.TYPE;
 
 public class ProfessionParseHandler implements ProfessionParseCallback {
 
-    public ProfessionParseHandler() {}
+    /**
+     * A handler for the default profession type.
+     */
+    public ProfessionParseHandler() {
+    }
+
 
     @Override
-    public void parseProfession(CompoundTag tag, TaterzenNPC taterzen) {
-        if(tag.getString("ProfessionType").equals(TYPE))
-            taterzen.setProfession(new Identifier(MODID, TYPE), new DefaultProfession(taterzen));
+    public void parseProfession(String professionId, TaterzenNPC taterzen) {
+        Identifier defaultProfessionId = new Identifier(MODID, TYPE);
+        if(professionId.equals(defaultProfessionId.toString()))
+            taterzen.setProfession(defaultProfessionId, new DefaultProfession(taterzen));
     }
 }

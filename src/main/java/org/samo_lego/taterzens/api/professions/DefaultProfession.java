@@ -22,21 +22,42 @@ public class DefaultProfession implements TaterzenProfession {
     }
 
     @Override
-    public void tickMovement() { }
+    public boolean tickMovement() {
+        return false;
+    }
 
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
         return ActionResult.PASS;
     }
 
+    /**
+     * Called when Taterzen is attack
+     *
+     * @param attacker entity that is attacking
+     *
+     * @return true to cancel the attack, otherwise false
+     */
     @Override
     public boolean handleAttack(Entity attacker) {
         return false;
     }
 
+    /**
+     * Called onb Taterzen detah / removal.
+     */
     @Override
-    public void fromTag(CompoundTag tag) { }
+    public void onRemove() {
+
+    }
 
     @Override
-    public void toTag(CompoundTag tag) { }
+    public void fromTag(CompoundTag tag) {
+
+    }
+
+    @Override
+    public void toTag(CompoundTag tag) {
+
+    }
 }

@@ -111,6 +111,9 @@ public class PermissionList {
     public final String _comment_npcEditInvulnerability = "// Enables editing Taterzen's behaviour.";
     public final String npc_edit_tags_invulnerability = "taterzens.npc.edit.tags.invulnerability";
 
+    public final String _comment_npcEditProfession = "// Allows setting a new profession to Taterzen.";
+    public final String npc_edit_profession = "taterzens.npc.edit.profession";
+
     /**
      * Saves the permission list to the given file.
      *

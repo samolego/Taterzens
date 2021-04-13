@@ -80,21 +80,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private short ticks = 0;
 
     // Goals
-    private final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
-    private final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
+    // Public so they can be accessed from professions.
+    public final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
+    public final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
 
-    private final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, false, true);
-    private final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
-    private final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
-    private final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
+    public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, false, true);
+    public final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
+    public final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
+    public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
 
     // Attack-based goals
-    private final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
-    private final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.2D, 20, 40.0F);
-    private final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
-    private final RevengeGoal revengeGoal = new RevengeGoal(this);
-    private final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
-    private final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class,false);
+    // Public so they can be accessed from professions.
+    public final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
+    public final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.2D, 20, 40.0F);
+    public final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
+    public final RevengeGoal revengeGoal = new RevengeGoal(this);
+    public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
+    public final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class,false);
 
     /**
      * Creates a TaterzenNPC.
@@ -275,6 +277,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.ticks = 0;
         if(this.npcData.equipmentEditor != null)
             return;
+        if(this.profession.tickMovement())
+            return;
+        this.profession.tickMovement();
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
             Box box = this.getBoundingBox().expand(4.0D);
             this.world.getEntityCollisions(this, box, entity -> {
@@ -305,8 +310,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             super.tickMovement();
             if(this.isAttacking() && this.onGround && this.getTarget() != null && this.squaredDistanceTo(this.getTarget()) < 4.0D && this.random.nextInt(5) == 0)
                 this.jump();
-
-            this.profession.tickMovement();
         }
     }
 
@@ -545,8 +548,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setSkinFromTag(skinTag);
 
         // Profession initialising
-        if(tag.contains("ProfessionType"))
-            ProfessionParseCallback.EVENT.invoker().parseProfession(npcTag, this);
+        if(npcTag.contains("ProfessionType")) {
+            ProfessionParseCallback.EVENT.invoker().parseProfession(npcTag.getString("ProfessionType"), this);
+            this.profession.fromTag((CompoundTag) npcTag.get("ProfessionData"));
+        }
 
         // Initialises movement
         this.setMovement(this.npcData.movement);
@@ -777,6 +782,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.setStackInHand(Hand.OFF_HAND, main);
             return true;
         }
+        if(this.profession.handleAttack(attacker))
+            return true;
         return this.isInvulnerable();
     }
 
@@ -819,12 +826,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.playerManager.sendToAll(playerListS2CPacket);*/ // not needed as of 1.0.0
         super.onDeath(source);
         TATERZEN_NPCS.remove(this);
+        this.profession.onRemove();
     }
 
     @Override
     public void remove() {
         super.remove();
         TATERZEN_NPCS.remove(this);
+        this.profession.onRemove();
     }
 
     /**
@@ -862,6 +871,22 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             default:
                 break;
         }
+    }
+
+    /**
+     * Gets the Taterzen's target selector.
+     * @return target selector of Taterzen.
+     */
+    public GoalSelector getTargetSelector() {
+        return this.targetSelector;
+    }
+
+    /**
+     * Gets the Taterzen's goal selector.
+     * @return goal selector of Taterzen.
+     */
+    public GoalSelector getGoalSelector() {
+        return this.goalSelector;
     }
 
     @Override

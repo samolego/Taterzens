@@ -66,6 +66,7 @@ public class TaterLang {
         public String behaviourSuggestion = "You'd probably want to set invulnerability to false as well.";
         public String invulnerableStatus = "Invulnerable status has been set to %s.";
         public String equipmentDropStatus = "Equipment drops have been set to %s.";
+        public String professionChanged = "Profession was set to %s.";
     }
 
     public static class Error {
