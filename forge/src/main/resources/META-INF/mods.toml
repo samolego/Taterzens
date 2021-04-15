@@ -12,7 +12,7 @@ authors = "samo_lego"
 description = '''
 A citizens like mod.
 '''
-logoFile = "assets/taterzens/icon.png"
+logoFile = "icon.png"
 
 [[dependencies.taterzens]]
 modId = "forge"

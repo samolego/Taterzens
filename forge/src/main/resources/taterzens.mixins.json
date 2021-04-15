@@ -3,7 +3,10 @@
   "minVersion": "0.8",
   "package": "org.samo_lego.taterzens.mixin",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [],
+  "mixins": [
+    "NetworkInstanceAccessor",
+    "NetworkRegistryMixin_MarkServerside"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1

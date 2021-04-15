@@ -5,8 +5,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLConfig;
@@ -18,6 +20,7 @@ import java.io.File;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 
+@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(MODID)
 public class TaterzensForge {
 
@@ -25,12 +28,22 @@ public class TaterzensForge {
         taterDir = new File(FMLConfig.defaultConfigPath() + "/Taterzens/presets");
         Identifier identifier = new Identifier(MODID, "npc");
 
+        //noinspection
         TATERZEN_TYPE = (EntityType<TaterzenNPC>) EntityType.Builder
                 .create(TaterzenNPC::new, SpawnGroup.MONSTER)
                 .setDimensions(0.6F, 1.8F)
                 .build(identifier.toString())
                 .setRegistryName(identifier.toString());
+
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.addListener(TaterzensForge::entityAttributes);
         Taterzens.onInitialize();
+    }
+
+    @SubscribeEvent
+    public static void entityAttributes(EntityAttributeCreationEvent event) {
+        System.out.println("ATTRIBUTES");
+        event.put(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes().build());
     }
 
     @SubscribeEvent

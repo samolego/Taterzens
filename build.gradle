@@ -1,7 +1,6 @@
 plugins {
 	id "architectury-plugin" version "3.0-SNAPSHOT"
 	id "forgified-fabric-loom" version "0.6-SNAPSHOT" apply false
-	id 'maven-publish'
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
 	id("org.jetbrains.dokka") version "1.4.30"
