@@ -11,7 +11,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -25,7 +25,7 @@ import static org.samo_lego.taterzens.Taterzens.*;
 public class TaterzensForge {
 
     public TaterzensForge() {
-        taterDir = new File(FMLConfig.defaultConfigPath() + "/Taterzens/presets");
+        taterDir = new File(FMLPaths.CONFIGDIR.get() + "/Taterzens/presets");
         Identifier identifier = new Identifier(MODID, "npc");
 
         //noinspection
@@ -42,7 +42,6 @@ public class TaterzensForge {
 
     @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
-        System.out.println("ATTRIBUTES");
         event.put(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes().build());
     }
 
