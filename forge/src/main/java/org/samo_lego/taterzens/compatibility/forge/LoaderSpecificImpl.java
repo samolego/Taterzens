@@ -8,9 +8,6 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 public class LoaderSpecificImpl {
 
-    public static void parseProfessionEvent(String professionType, TaterzenNPC taterzenNPC) {
-    }
-
     public static void disguiselib$setGameProfile(TaterzenNPC taterzenNPC, GameProfile gameProfile) {
     }
 

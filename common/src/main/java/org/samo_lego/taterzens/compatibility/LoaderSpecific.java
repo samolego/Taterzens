@@ -17,11 +17,6 @@ public class LoaderSpecific {
     }
 
     @ExpectPlatform
-    public static void parseProfessionEvent(String professionType, TaterzenNPC taterzenNPC) {
-        throw new AssertionError();
-    }
-
-    @ExpectPlatform
     public static void disguiselib$disguiseAs(TaterzenNPC taterzenNPC, EntityType<?> entityType) {
         throw new AssertionError();
     }

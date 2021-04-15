@@ -1,14 +1,19 @@
 package org.samo_lego.taterzens;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
+import org.samo_lego.taterzens.api.TaterzensAPI;
+import org.samo_lego.taterzens.api.professions.DefaultProfession;
+import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 
 public class Taterzens {
@@ -29,6 +34,8 @@ public class Taterzens {
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
+
+    public static final HashMap<Identifier, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
 
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
@@ -67,6 +74,9 @@ public class Taterzens {
         if(LUCKPERMS_ENABLED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
         }
+
+        // Profession registering
+        TaterzensAPI.registerProfession(DefaultProfession.ID, new DefaultProfession());
     }
 
     public static Logger getLogger() {

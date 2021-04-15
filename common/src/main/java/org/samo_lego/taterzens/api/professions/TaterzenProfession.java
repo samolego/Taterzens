@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 /**
  * Profession interface, providing hooks
@@ -61,4 +62,12 @@ public interface TaterzenProfession {
      * @param tag tag to save profession data to.
      */
     void toTag(CompoundTag tag);
+
+    /**
+     * Method used for creating the new profession for given taterzen.
+     *
+     * @param taterzen taterzen to create profession for
+     * @return new profession object of taterzen.
+     */
+    TaterzenProfession create(TaterzenNPC taterzen);
 }

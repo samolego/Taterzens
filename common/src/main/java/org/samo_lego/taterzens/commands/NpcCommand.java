@@ -49,7 +49,6 @@ import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.api.TaterzensAPI.getPresets;
 import static org.samo_lego.taterzens.api.TaterzensAPI.noSelectedTaterzenError;
-import static org.samo_lego.taterzens.api.professions.DefaultProfession.TYPE;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -175,13 +174,14 @@ public class NpcCommand {
                                 )
                         )
                         .then(literal("profession")
-                            .then(literal("reset").executes(NpcCommand::resetProfession))
+                            .then(argument("profession type", word()).executes(ctx -> setProfession(ctx, new Identifier(StringArgumentType.getString(ctx, "profession type")))))
+                            .then(literal("reset").executes(ctx -> setProfession(ctx, DefaultProfession.ID)))
                         )
                 )
         );
     }
 
-    private static int resetProfession(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int setProfession(CommandContext<ServerCommandSource> context, Identifier id) throws CommandSyntaxException {
         if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_profession)) {
             context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
@@ -190,8 +190,8 @@ public class NpcCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
-            taterzen.setProfession(new Identifier(MODID, TYPE), new DefaultProfession(taterzen));
-            player.sendMessage(successText(lang.success.professionChanged, new LiteralText(TYPE)), false);
+            taterzen.setProfession(id);
+            player.sendMessage(successText(lang.success.professionChanged, new LiteralText(id.toString())), false);
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 

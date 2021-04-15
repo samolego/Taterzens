@@ -18,10 +18,12 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -164,6 +166,16 @@ public class TaterzensAPI {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
                 );
+    }
+
+    /**
+     * Registeres a new {@link TaterzenProfession}.
+     *
+     * @param prodessionId a unique id of profession
+     * @param profession
+     */
+    public static void registerProfession(Identifier prodessionId, TaterzenProfession profession) {
+        PROFESSION_TYPES.put(prodessionId, profession);
     }
 
 

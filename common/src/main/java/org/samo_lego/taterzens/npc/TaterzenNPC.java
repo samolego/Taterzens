@@ -57,7 +57,6 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.api.professions.DefaultProfession.TYPE;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
 
 /**
@@ -126,8 +125,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.server = world.getServer();
         this.playerManager = server.getPlayerManager();
 
-        this.profession = new DefaultProfession(this);
-        this.professionId = new Identifier(MODID, TYPE);
+        this.profession = new DefaultProfession().create(this);
+        this.professionId = DefaultProfession.ID;
 
         this.fakePlayer = new PlayerEntity(world, this.getBlockPos(), this.headYaw, new GameProfile(this.uuid, null)) {
             @Override
@@ -548,7 +547,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         // Profession initialising
         if(npcTag.contains("ProfessionType")) {
-            LoaderSpecific.parseProfessionEvent(npcTag.getString("ProfessionType"), this);
+            Identifier professionId = new Identifier(npcTag.getString("ProfessionType"));
+            this.profession = PROFESSION_TYPES.getOrDefault(professionId, new DefaultProfession()).create(this);
+
+            // Parsing profession data
             this.profession.fromTag((CompoundTag) npcTag.get("ProfessionData"));
         }
 
@@ -960,6 +962,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public void allowEquipmentDrops(boolean drop) {
         this.npcData.allowEquipmentDrops = drop;
+    }
+
+    /**
+     * Sets Taterzen's profession.
+     * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(Identifier, TaterzenProfession)}.
+     * @param professionId identifier of the profession
+     */
+    public void setProfession(Identifier professionId) {
+        this.professionId = professionId;
+        this.profession = PROFESSION_TYPES.getOrDefault(professionId, new DefaultProfession()).create(this);
     }
 
     /**

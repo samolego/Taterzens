@@ -5,15 +5,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-public class DefaultProfession implements TaterzenProfession {
-    public static final String TYPE = "default";
-    private final TaterzenNPC npc;
+import static org.samo_lego.taterzens.Taterzens.MODID;
 
-    public DefaultProfession(TaterzenNPC taterzen) {
-        this.npc = taterzen;
+public class DefaultProfession implements TaterzenProfession {
+    public static final Identifier ID = new Identifier(MODID, "default_profession");
+    protected TaterzenNPC npc;
+
+    public DefaultProfession() {
     }
 
     @Override
@@ -59,5 +61,18 @@ public class DefaultProfession implements TaterzenProfession {
     @Override
     public void toTag(CompoundTag tag) {
 
+    }
+
+    /**
+     * Method used for creating the new profession for given taterzen.
+     *
+     * @param taterzen taterzen to create profession for
+     * @return new profession object of taterzen.
+     */
+    @Override
+    public TaterzenProfession create(TaterzenNPC taterzen) {
+        DefaultProfession profession = new DefaultProfession();
+        profession.npc = taterzen;
+        return profession;
     }
 }
