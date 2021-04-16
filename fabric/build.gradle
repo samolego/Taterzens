@@ -4,6 +4,9 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "1.1.0"
+    // Dokka docs
+    id "org.jetbrains.kotlin.jvm"
+    id("org.jetbrains.dokka")
 }
 
 repositories {
@@ -41,6 +44,9 @@ dependencies {
 
     // LuckPerms
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
+    /*modRuntime group: 'me.lucko.luckperms', name: 'luckperms-api', version: '4.0'
+    modRuntime 'com.github.lucko.LuckPerms:api:v5.3'
+    modRuntime 'com.github.lucko.LuckPerms:common:v5.3'*/
 
     // Why did my command fail
     modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'

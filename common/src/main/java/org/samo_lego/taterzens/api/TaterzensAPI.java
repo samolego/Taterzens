@@ -169,13 +169,17 @@ public class TaterzensAPI {
     }
 
     /**
-     * Registeres a new {@link TaterzenProfession}.
+     * Registers a new {@link TaterzenProfession}.
+     * If it already exist, it will error
      *
-     * @param prodessionId a unique id of profession
-     * @param profession
+     * @param professionId a unique id of profession.
+     * @param profession profession to register.
      */
-    public static void registerProfession(Identifier prodessionId, TaterzenProfession profession) {
-        PROFESSION_TYPES.put(prodessionId, profession);
+    public static void registerProfession(Identifier professionId, TaterzenProfession profession) {
+        if(!PROFESSION_TYPES.containsKey(professionId))
+            PROFESSION_TYPES.put(professionId, profession);
+        else
+            getLogger().warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
     }
 
 

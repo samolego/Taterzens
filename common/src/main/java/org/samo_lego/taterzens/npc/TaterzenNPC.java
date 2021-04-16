@@ -548,7 +548,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         // Profession initialising
         if(npcTag.contains("ProfessionType")) {
             Identifier professionId = new Identifier(npcTag.getString("ProfessionType"));
-            this.profession = PROFESSION_TYPES.getOrDefault(professionId, new DefaultProfession()).create(this);
+            if(PROFESSION_TYPES.containsKey(professionId)) {
+                this.professionId = professionId;
+                this.profession = PROFESSION_TYPES.get(professionId).create(this);
+            }
+            else
+                getLogger().error("Taterzen {} was saved with profession id {}, but none of the mod provides it. Marking as default.", this.getName().asString(), professionId);
+
 
             // Parsing profession data
             this.profession.fromTag((CompoundTag) npcTag.get("ProfessionData"));
@@ -970,8 +976,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param professionId identifier of the profession
      */
     public void setProfession(Identifier professionId) {
-        this.professionId = professionId;
-        this.profession = PROFESSION_TYPES.getOrDefault(professionId, new DefaultProfession()).create(this);
+        if(PROFESSION_TYPES.containsKey(professionId)) {
+            this.professionId = professionId;
+            this.profession = PROFESSION_TYPES.get(professionId).create(this);
+        } else
+            getLogger().warn("Trying to set unknown profession {} to {}.", professionId, this.getName().asString());
     }
 
     /**

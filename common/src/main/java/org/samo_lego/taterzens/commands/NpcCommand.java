@@ -27,7 +27,6 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.api.professions.DefaultProfession;
 import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
@@ -174,8 +173,11 @@ public class NpcCommand {
                                 )
                         )
                         .then(literal("profession")
-                            .then(argument("profession type", word()).executes(ctx -> setProfession(ctx, new Identifier(StringArgumentType.getString(ctx, "profession type")))))
-                            .then(literal("reset").executes(ctx -> setProfession(ctx, DefaultProfession.ID)))
+                            .then(argument("profession type", message())
+                                    .suggests((context, builder) -> CommandSource.suggestMatching(PROFESSION_TYPES.keySet().stream().map(Identifier::toString), builder))
+                                    .executes(ctx -> setProfession(ctx, new Identifier(MessageArgumentType.getMessage(ctx, "profession type").asString())))
+                            )
+                            //.then(literal("reset").executes(ctx -> setProfession(ctx, DefaultProfession.ID)))
                         )
                 )
         );
@@ -190,8 +192,11 @@ public class NpcCommand {
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
-            taterzen.setProfession(id);
-            player.sendMessage(successText(lang.success.professionChanged, new LiteralText(id.toString())), false);
+            if(PROFESSION_TYPES.containsKey(id)) {
+                taterzen.setProfession(id);
+                player.sendMessage(successText(lang.success.professionChanged, new LiteralText(id.toString())), false);
+            } else
+                context.getSource().sendError(errorText(lang.error.noProfessionFound, new LiteralText(id.toString())));
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 

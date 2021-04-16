@@ -80,6 +80,7 @@ public class TaterLang {
         public String enterMessageEditorMode = "You need to enter message editor mode to use this feature.";
         public String noCommandFound = "No commands with id %s were found.";
         public String disguiseLibRequired = "DisguiseLib mod is required for this action.";
+        public String noProfessionFound = "No professions with id %s were found.";
     }
 
 
