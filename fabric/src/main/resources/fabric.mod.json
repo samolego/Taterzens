@@ -26,7 +26,8 @@
     ]
   },
   "mixins": [
-    "taterzens.mixins.json"
+    "taterzens.mixins.json",
+    "taterzens.common.mixins.json"
   ],
 
   "depends": {

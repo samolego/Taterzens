@@ -19,6 +19,7 @@ architectury {
 }
 
 loom {
+    mixinConfigs = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
     useFabricMixin = true
 }
 

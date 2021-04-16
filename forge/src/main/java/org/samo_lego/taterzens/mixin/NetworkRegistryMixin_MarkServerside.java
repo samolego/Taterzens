@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 @Mixin(NetworkRegistry.class)
 public class NetworkRegistryMixin_MarkServerside {
 
-    @Shadow private static Map<Identifier, NetworkInstance> instances;
+    @Shadow(remap = false) private static Map<Identifier, NetworkInstance> instances;
 
     /**
      * Extremely cursed. I know. I shouldn't be doing this.
@@ -35,7 +35,7 @@ public class NetworkRegistryMixin_MarkServerside {
             cancellable = true
     )
     private static void taterzens$removeTaterzensFromRegistrySync(BiFunction<NetworkInstance, String, Boolean> testFunction, CallbackInfoReturnable<List<String>> cir, List<String> results) {
-        results.remove("taterzens");
+        //results.remove("taterzens");
         System.out.println(results);
         instances.values().forEach(networkInstance -> {
              System.out.println("Checking: split");

@@ -10,4 +10,5 @@ public interface PlayerEntityAccessor {
     @Accessor("PLAYER_MODEL_PARTS")
     static TrackedData<Byte> getPLAYER_MODEL_PARTS() {
         throw new AssertionError();
-    }}
+    }
+}

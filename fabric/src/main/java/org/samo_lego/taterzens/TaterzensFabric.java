@@ -44,9 +44,6 @@ public class TaterzensFabric implements ModInitializer {
 
         FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
 
-        // Events
-        UseBlockCallback.EVENT.register(new BlockInteractEvent());
-
         // Common initialization
         Taterzens.onInitialize();
 
