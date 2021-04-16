@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.api.professions;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -70,4 +71,14 @@ public interface TaterzenProfession {
      * @return new profession object of taterzen.
      */
     TaterzenProfession create(TaterzenNPC taterzen);
+
+    /**
+     * Called when Taterzen has the ability to pickup an item.
+     * You can create a local inventory in the profession and save it there.
+     * Taterzen needs to have {@link TaterzenNPC#canPickUpLoot()} enabled.
+     *
+     * @param stack stack to be picked up
+     * @return true if item should be picked up, otherwise false.
+     */
+    boolean tryPickupItem(ItemStack stack);
 }

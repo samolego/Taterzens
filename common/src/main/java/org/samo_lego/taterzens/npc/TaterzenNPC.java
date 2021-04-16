@@ -992,4 +992,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.professionId = professionId;
         this.profession = profession;
     }
+
+    /**
+     * Manages item pickup.
+     * @param stack stack to pick up.
+     * @return true if pickup was successfull, otherwise false.
+     */
+    @Override
+    public boolean tryEquip(ItemStack stack) {
+        if(this.canPickUpLoot()) {
+            return this.profession.tryPickupItem(stack) || super.tryEquip(stack);
+        }
+        return super.tryEquip(stack);
+    }
 }
