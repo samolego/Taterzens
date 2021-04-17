@@ -137,7 +137,7 @@ curseforge {
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Fabric"
 
-        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")) {
+        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")) {
             displayName = "[${project.minecraft_version}] Taterzens ${version}"
         }
 
@@ -162,7 +162,7 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
     versionName = "[${project.minecraft_version}] Taterzens ${version}"
     releaseType = "release"
 
-    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")
 
     addGameVersion("${project.minecraft_version}")
     addLoader('fabric')
