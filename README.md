@@ -4,6 +4,6 @@
 [![Server environment](https://img.shields.io/badge/Environment-server-blue?style=flat-square)](https://github.com/samolego/Taterzens)
 [![Singleplayer environment](https://img.shields.io/badge/Environment-singleplayer-yellow?style=flat-square)](https://github.com/samolego/Taterzens)
 
-A fabric citizens attempt.
+A fabric / forge citizens attempt.
 
 You can find documentation [here](https://samolego.github.io/Taterzens/).

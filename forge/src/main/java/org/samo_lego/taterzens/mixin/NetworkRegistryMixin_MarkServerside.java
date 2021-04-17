@@ -39,13 +39,13 @@ public class NetworkRegistryMixin_MarkServerside {
     private static void taterzens$removeTaterzensFromRegistrySync(BiFunction<NetworkInstance, String, Boolean> testFunction, CallbackInfoReturnable<List<String>> cir, List<String> results) {
         //results.remove("taterzens");
         if(config.disableRegistrySync) {
-            System.out.println(results);
+            /*System.out.println(results);
             instances.values().forEach(networkInstance -> {
                 System.out.println("Checking: split");
                 System.out.println(((NetworkInstanceAccessor) networkInstance).networkProtocolVersion());
                 System.out.println(((NetworkInstanceAccessor) networkInstance).clientAcceptedVersions());
                 System.out.println(((NetworkInstanceAccessor) networkInstance).getServerAcceptedVersions());
-            });
+            });*/
             cir.setReturnValue(Collections.emptyList());
         }
     }

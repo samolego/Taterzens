@@ -42,6 +42,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
+
     // LuckPerms
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
     /*modRuntime group: 'me.lucko.luckperms', name: 'luckperms-api', version: '4.0'

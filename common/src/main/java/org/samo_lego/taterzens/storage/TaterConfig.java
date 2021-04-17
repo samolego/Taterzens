@@ -86,7 +86,7 @@ public class TaterConfig {
          * Permission level required to execute /taterzens command.
          * Valid only if LuckPerms isn't present.
          */
-        @SerializedName("npc_command_permission_level")
+        @SerializedName("taterzens_command_permission_level")
         public int taterzensCommandPermissionLevel = 4;
 
         public final String _comment_allowSettingHigherPermissionLevel1 = "// Whether to allow players to set the permission level";

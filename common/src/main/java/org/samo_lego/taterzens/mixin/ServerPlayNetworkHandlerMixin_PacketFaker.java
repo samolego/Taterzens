@@ -27,9 +27,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
@@ -42,13 +43,14 @@ import static org.samo_lego.taterzens.Taterzens.config;
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public ServerPlayerEntity player;
+
+    @Shadow public abstract void sendPacket(Packet<?> packet);
+
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
-    private final HashSet<PlayerListS2CPacket> taterzens$tablistQueue = new HashSet<>();
+    private final List<TaterzenNPC> taterzens$tablistQueue = new ArrayList<TaterzenNPC>();
     private int taterzens$queueTimer;
-
-    @Shadow public abstract void sendPacket(Packet<?> packet);
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
@@ -78,9 +80,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             PlayerListS2CPacket playerAddPacket = new PlayerListS2CPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
-                    Collections.singletonList(
-                            playerAddPacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName())
-                    )
+                    Arrays.asList(playerAddPacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName()))
             );
             taterzens$skipCheck = true;
             this.sendPacket(playerAddPacket);
@@ -91,18 +91,12 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.sendPacket(packet);
 
             PlayerListS2CPacket playerRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
-            //noinspection ConstantConditions
-            ((PlayerListS2CPacketAccessor) playerRemovePacket).setEntries(
-                    Collections.singletonList(
-                            playerRemovePacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName())
-                    )
-            );
             // And now we can remove it from tablist
             // we must delay the tablist packet so as to allow
             // the client to fetch skin.
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
-            this.taterzens$tablistQueue.add(playerRemovePacket);
+            this.taterzens$tablistQueue.add(npc);
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
 
             this.taterzens$skipCheck = false;
@@ -123,8 +117,23 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     private void removeTaterzenFromTablist(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer == 0) {
             this.taterzens$skipCheck = true;
-            this.taterzens$tablistQueue.forEach(this::sendPacket);
+
+            PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
+            List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue
+                    .stream()
+                    .map(npc -> taterzensRemovePacket.new Entry(
+                                    npc.getGameProfile(),
+                                    0,
+                                    GameMode.SURVIVAL,
+                                    npc.getName()
+                            )
+                    )
+                    .collect(Collectors.toList());
+            //noinspection ConstantConditions
+            ((PlayerListS2CPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
+            this.sendPacket(taterzensRemovePacket);
             this.taterzens$tablistQueue.clear();
+
             this.taterzens$skipCheck = false;
         }
     }

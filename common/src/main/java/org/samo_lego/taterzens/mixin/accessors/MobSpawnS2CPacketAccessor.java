@@ -10,6 +10,4 @@ public interface MobSpawnS2CPacketAccessor {
     @Accessor("id")
     int getId();
 
-    @Accessor("entityTypeId")
-    int getEntityTypeId();
 }
