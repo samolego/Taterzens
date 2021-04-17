@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -39,5 +40,10 @@ public class TaterzensForge {
     @SubscribeEvent
     public static void entityAttributes(EntityAttributeCreationEvent event) {
         event.put(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes().build());
+    }
+
+    @SubscribeEvent
+    public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
+        event.getRegistry().registerAll(TATERZEN_TYPE);
     }
 }

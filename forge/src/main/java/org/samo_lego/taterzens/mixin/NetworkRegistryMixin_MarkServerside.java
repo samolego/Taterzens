@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-@Mixin(NetworkRegistry.class)
+import static org.samo_lego.taterzens.Taterzens.config;
+
+@Mixin(value = NetworkRegistry.class, remap = false)
 public class NetworkRegistryMixin_MarkServerside {
 
     @Shadow(remap = false) private static Map<Identifier, NetworkInstance> instances;
@@ -36,13 +38,15 @@ public class NetworkRegistryMixin_MarkServerside {
     )
     private static void taterzens$removeTaterzensFromRegistrySync(BiFunction<NetworkInstance, String, Boolean> testFunction, CallbackInfoReturnable<List<String>> cir, List<String> results) {
         //results.remove("taterzens");
-        System.out.println(results);
-        instances.values().forEach(networkInstance -> {
-             System.out.println("Checking: split");
-             System.out.println(((NetworkInstanceAccessor) networkInstance).networkProtocolVersion());
-             System.out.println(((NetworkInstanceAccessor) networkInstance).clientAcceptedVersions());
-             System.out.println(((NetworkInstanceAccessor) networkInstance).getServerAcceptedVersions());
-        });
-        cir.setReturnValue(Collections.emptyList());
+        if(config.disableRegistrySync) {
+            System.out.println(results);
+            instances.values().forEach(networkInstance -> {
+                System.out.println("Checking: split");
+                System.out.println(((NetworkInstanceAccessor) networkInstance).networkProtocolVersion());
+                System.out.println(((NetworkInstanceAccessor) networkInstance).clientAcceptedVersions());
+                System.out.println(((NetworkInstanceAccessor) networkInstance).getServerAcceptedVersions());
+            });
+            cir.setReturnValue(Collections.emptyList());
+        }
     }
 }

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.function.Predicate;
 
-@Mixin(NetworkInstance.class)
+@Mixin(value = NetworkInstance.class, remap = false)
 public interface NetworkInstanceAccessor {
     @Accessor(value = "networkProtocolVersion", remap = false)
     String networkProtocolVersion();
