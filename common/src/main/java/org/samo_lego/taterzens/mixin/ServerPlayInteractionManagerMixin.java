@@ -26,16 +26,15 @@ public class ServerPlayInteractionManagerMixin {
      *
      * @param blockPos position of the broken block
      * @param playerAction action the player is trying to do
-     * @param direction
-     * @param i
-     * @param ci
+     * @param direction direction
+     * @param worldHeight world height
      */
     @Inject(
             method = "processBlockBreakingAction(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/network/packet/c2s/play/PlayerActionC2SPacket$Action;Lnet/minecraft/util/math/Direction;I)V",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int i, CallbackInfo ci) {
+    private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
         if (playerAction == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
             TaterzenEditor player = (TaterzenEditor) this.player;
             if(player.getNpc() != null && player.inPathEditMode()) {

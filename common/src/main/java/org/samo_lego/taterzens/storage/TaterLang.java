@@ -81,6 +81,7 @@ public class TaterLang {
         public String noCommandFound = "No commands with id %s were found.";
         public String disguiseLibRequired = "DisguiseLib mod is required for this action.";
         public String noProfessionFound = "No professions with id %s were found.";
+        public String cannotSetPermissionLevel = "Permission level %s is higher than your permission level.";
     }
 
 

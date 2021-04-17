@@ -60,7 +60,7 @@ public class NpcCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(literal("npc")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4) || LUCKPERMS_ENABLED)
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(config.perms.npcCommandPermissionLevel) || LUCKPERMS_ENABLED)
                 .then(literal("create")
                         .then(argument("name", message())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
@@ -354,20 +354,25 @@ public class NpcCommand {
     }
 
     private static int setPermissionLevel(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_setPermissionLevel)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
+        ServerCommandSource source = context.getSource();
+        if(LUCKPERMS_ENABLED && !permissions$checkPermission(source, PERMISSIONS.npc_edit_commands_setPermissionLevel)) {
+            source.sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
 
-        ServerPlayerEntity player = context.getSource().getPlayer();
+        ServerPlayerEntity player = source.getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
             int newPermLevel = IntegerArgumentType.getInteger(context, "level");
-            player.sendMessage(successText(lang.success.updatedPermissionLevel, new LiteralText(String.valueOf(newPermLevel))), false);
+            if(!config.perms.allowSettingHigherPermissionLevel && !source.hasPermissionLevel(newPermLevel)) {
+                source.sendError(errorText(lang.error.cannotSetPermissionLevel, new LiteralText(String.valueOf(newPermLevel))));
+                return -1;
+            }
+            source.sendFeedback(successText(lang.success.updatedPermissionLevel, new LiteralText(String.valueOf(newPermLevel))), false);
             taterzen.setPermissionLevel(newPermLevel);
 
         } else
-            context.getSource().sendError(noSelectedTaterzenError());
+            source.sendError(noSelectedTaterzenError());
 
         return 0;
     }

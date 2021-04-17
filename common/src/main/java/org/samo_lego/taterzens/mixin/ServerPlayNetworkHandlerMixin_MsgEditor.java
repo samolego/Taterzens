@@ -28,8 +28,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
      * message edit mode, messages sent to chat
      * will be saved to taterzen instead.
      *
-     * @param msg
-     * @param ci
+     * @param msg message sent by player
      */
     @Inject(
             method = "method_31286(Ljava/lang/String;)V",
@@ -56,7 +55,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                 }
             } else {
                 Text text;
-                if(msg.startsWith("{") && msg.endsWith("}")) {
+                if((msg.startsWith("{") && msg.endsWith("}") || (msg.startsWith("[") && msg.endsWith("]")))) {
                     // NBT tellraw message structure, try parse it
                     try {
                         text = Text.Serializer.fromJson(new StringReader(msg));

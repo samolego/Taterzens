@@ -21,7 +21,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 public class TaterzensCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(literal("taterzens")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(4))
+                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(config.perms.taterzensCommandPermissionLevel))
                 .then(literal("config")
                         .then(literal("reload")
                                 .executes(TaterzensCommand::reloadConfig)

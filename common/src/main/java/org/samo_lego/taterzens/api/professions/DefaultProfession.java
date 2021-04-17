@@ -82,12 +82,12 @@ public class DefaultProfession implements TaterzenProfession {
      * You can create a local inventory in the profession and save it there.
      * Taterzen needs to have {@link TaterzenNPC#canPickUpLoot()} enabled.
      *
-     * @param stack stack to be picked up
+     * @param groundStack stack to be picked up
      *
      * @return true if item should be picked up, otherwise false.
      */
     @Override
-    public boolean tryPickupItem(ItemStack stack) {
+    public boolean tryPickupItem(ItemStack groundStack) {
         return false;
     }
 }
