@@ -7,7 +7,6 @@ on:
     types:
       - published
   workflow_dispatch:
-    branches: [ master ]
 
 jobs:
   build:
@@ -33,7 +32,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and publish with Gradle
-        run: ./gradlew build modrinth curseforge --stacktrace
+        run: ./gradlew build fabric:modrinth fabric:curseforge --stacktrace
         env:
            CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
            MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
@@ -44,5 +43,5 @@ jobs:
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev.jar'
+          files: 'fabric/build/libs/*-fabric.jar;forge/build/libs/*-forge.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
