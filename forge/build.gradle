@@ -1,5 +1,9 @@
+import com.modrinth.minotaur.TaskModrinthUpload
+
 plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
+    id 'com.matthewprenger.cursegradle'
+    id "com.modrinth.minotaur"
     // Dokka docs
     id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
@@ -22,6 +26,8 @@ loom {
     mixinConfigs = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
     useFabricMixin = true
 }
+
+def ENV = System.getenv();
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
@@ -90,4 +96,53 @@ publishing {
     repositories {
         // Add repositories to publish to here.
     }
+}
+
+tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
+    )
+}
+
+curseforge {
+    if (ENV.CURSEFORGE_API_KEY) {
+        apiKey = ENV.CURSEFORGE_API_KEY
+    }
+
+    project {
+        id = "473071"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/commits/"
+        releaseType = "release"
+        addGameVersion "${project.minecraft_version}"
+        addGameVersion "Forge"
+
+        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar")) {
+            displayName = "[${project.minecraft_version}] Taterzens ${version}"
+        }
+
+        afterEvaluate {
+            uploadTask.dependsOn("remapJar")
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
+    onlyIf {
+        ENV.MODRINTH_TOKEN
+    }
+
+    token = ENV.MODRINTH_TOKEN
+    projectId = "vE972Kux"
+    versionNumber = version
+    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    releaseType = "release"
+
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar")
+
+    addGameVersion("${project.minecraft_version}")
+    addLoader('forge')
 }

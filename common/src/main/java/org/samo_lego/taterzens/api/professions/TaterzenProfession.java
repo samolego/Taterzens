@@ -42,14 +42,14 @@ public interface TaterzenProfession {
     }
 
     /**
-     * Called when Taterzen is attack
-     * @param attacker entity that is attacking
-     * @return true to cancel the attack, otherwise false
+     * Called when Taterzen is attacked.
+     * @param attacker entity that is attacking taterzen.
+     * @return true to cancel the attack, otherwise false.
      */
     boolean handleAttack(Entity attacker);
 
     /**
-     * Called onb Taterzen detah / removal.
+     * Called onb Taterzen death / removal.
      */
     void onRemove();
 

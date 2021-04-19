@@ -21,6 +21,12 @@ java {
     withSourcesJar()
 }
 
+tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
+    )
+}
+
 publishing {
     publications {
         mavenCommon(MavenPublication) {

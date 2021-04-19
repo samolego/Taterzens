@@ -2,8 +2,8 @@ import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id "com.modrinth.minotaur" version "1.1.0"
+    id 'com.matthewprenger.cursegradle'
+    id "com.modrinth.minotaur"
     // Dokka docs
     id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
@@ -121,6 +121,12 @@ publishing {
     repositories {
         // Add repositories to publish to here.
     }
+}
+
+tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
+    pluginsMapConfiguration.set(
+            ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
+    )
 }
 
 
