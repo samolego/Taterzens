@@ -25,6 +25,7 @@ public class TaterLang {
     public String editMessageMode = "You are now editing message: %s. Click enter after editing to save it.";
     public String enterMessageEditor = "Click to enter message editing mode.";
     public String taterzenCommands = "Taterzen %s will execute the following commands on right-click.";
+    public String taterzenProfessions = "Taterzen %s has the following professions set. Click on X to remove one.";
 
     public static class Success {
         public String spawnedTaterzen = "Taterzen %s has been spawned successfully.";
@@ -66,7 +67,8 @@ public class TaterLang {
         public String behaviourSuggestion = "You'd probably want to set invulnerability to false as well.";
         public String invulnerableStatus = "Invulnerable status has been set to %s.";
         public String equipmentDropStatus = "Equipment drops have been set to %s.";
-        public String professionChanged = "Profession was set to %s.";
+        public String professionAdded = "Profession %s has been added successfully.";
+        public String professionRemoved = "Profession %s has been removed successfully.";
     }
 
     public static class Error {

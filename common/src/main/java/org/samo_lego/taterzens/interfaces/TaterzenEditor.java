@@ -14,36 +14,11 @@ public interface TaterzenEditor {
     @Nullable
     TaterzenNPC getNpc();
 
+    /**
+     * Selects {@link TaterzenNPC} to be editoed.
+     * @param npc Taterzen to select
+     */
     void selectNpc(@Nullable TaterzenNPC npc);
-
-    /**
-     * Whether player is in path edit mode.
-     * If true, blocks that are broken will
-     * be added to {@link TaterzenNPC NPC's} path.
-     * @return true if player is in path edit mode, otherwise false.
-     */
-    boolean inPathEditMode();
-
-    /**
-     * Sets the player's path edit mode property
-     * for selected {@link TaterzenNPC}.
-     * @param editMode edit mode status
-     */
-    void setPathEditMode(boolean editMode);
-
-    /**
-     * Whether player is in message edit mode.
-     * If true, messages sent to chat
-     * will be redirected to {@link org.samo_lego.taterzens.npc.NPCData#messages}.
-     * @return true if player is in message edit mode, otherwise false.
-     */
-    boolean inMsgEditMode();
-    /**
-     * Sets the player's message edit mode property
-     * for selected {@link TaterzenNPC}.
-     * @param editMode edit mode status
-     */
-    void setMsgEditMode(boolean editMode);
 
     /**
      * Sets the index of message that's

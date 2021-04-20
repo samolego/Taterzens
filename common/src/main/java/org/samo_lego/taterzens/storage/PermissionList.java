@@ -28,6 +28,7 @@ public class PermissionList {
     public final String taterzens_config_reload = "taterzens.config.reload";
 
     public final String _comment_npcPermissions = "/* Permissions for managing Taterzens. */";
+    public final String npc = "taterzens.npc";
     public final String _comment_npcCreate = "// Handles Taterzen creation.";
     public final String npc_create = "taterzens.npc.create";
 
@@ -109,8 +110,11 @@ public class PermissionList {
     public final String _comment_npcEditInvulnerability = "// Enables editing Taterzen's behaviour.";
     public final String npc_edit_tags_invulnerability = "taterzens.npc.edit.tags.invulnerability";
 
-    public final String _comment_npcEditProfession = "// Allows setting a new profession to Taterzen.";
-    public final String npc_edit_profession = "taterzens.npc.edit.profession";
+    public final String _comment_npcEditProfession = "// Allows editing Taterzen's professions.";
+    public final String npc_edit_profession = "taterzens.npc.edit.professions";
+    public final String npc_edit_profession_add = "taterzens.npc.edit.professions.add";
+    public final String npc_edit_profession_remove = "taterzens.npc.edit.professions.remove";
+    public final String npc_edit_profession_list = "taterzens.npc.edit.professions.list";
 
     /**
      * Saves the permission list to the given file.

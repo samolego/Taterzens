@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import org.samo_lego.taterzens.interfaces.ActiveEditMode;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +38,7 @@ public class ServerPlayInteractionManagerMixin {
     private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
         if (playerAction == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
             TaterzenEditor player = (TaterzenEditor) this.player;
-            if(player.getNpc() != null && player.inPathEditMode()) {
+            if(player.getNpc() != null && ((ActiveEditMode) this.player).getEditorMode() == ActiveEditMode.Types.PATH) {
                 player.getNpc().addPathTarget(blockPos);
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(blockPos, Blocks.REDSTONE_BLOCK.getDefaultState()));
                 ci.cancel();
