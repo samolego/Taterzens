@@ -28,6 +28,9 @@ subprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 		mappings("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
+
+		// Thanks Shedaniel :)
+		implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: '1.5.0-M2'
 	}
 }
 
