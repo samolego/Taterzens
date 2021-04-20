@@ -31,7 +31,7 @@ public class LoaderSpecific {
     }
 
     @ExpectPlatform
-    public static boolean permissions$checkPermission(ServerCommandSource source, String permissionNode) {
+    public static boolean permissions$checkPermission(ServerCommandSource source, String permissionNode, int fallbackLevel) {
         throw new AssertionError();
     }
 

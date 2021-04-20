@@ -6,7 +6,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.storage.TaterLang;
@@ -21,21 +20,20 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 public class TaterzensCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(literal("taterzens")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(config.perms.taterzensCommandPermissionLevel))
                 .then(literal("config")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.taterzens_config_reload, config.perms.taterzensCommandPermissionLevel))
                         .then(literal("reload")
                                 .executes(TaterzensCommand::reloadConfig)
                         )
                 )
-                .then(literal("wiki").executes(TaterzensCommand::wikiInfo))
+                .then(literal("wiki")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.taterzens_wiki, config.perms.taterzensCommandPermissionLevel))
+                        .executes(TaterzensCommand::wikiInfo)
+                )
         );
     }
 
     private static int wikiInfo(CommandContext<ServerCommandSource> context) {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), MODID + ".wiki_info")) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
         context.getSource().sendFeedback(
                 successText("Visit %s for documentation.", new LiteralText("https://samolego.github.io/Taterzens/"))
                     .formatted(Formatting.GREEN)
@@ -49,11 +47,6 @@ public class TaterzensCommand {
     }
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), MODID + ".config.reload")) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
         lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
 

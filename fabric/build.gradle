@@ -10,16 +10,6 @@ plugins {
 }
 
 repositories {
-    jcenter()
-    maven {
-        url "https://dl.bintray.com/kotlin/dokka"
-    }
-    maven {
-        url 'https://jitpack.io'
-    }
-    /*maven {
-        url 'https://maven.nucleoid.xyz'
-    }*/
     maven {
         url 'https://dl.bintray.com/bymartrixx/maven'
     }
@@ -45,9 +35,6 @@ dependencies {
 
     // LuckPerms
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
-    /*modRuntime group: 'me.lucko.luckperms', name: 'luckperms-api', version: '4.0'
-    modRuntime 'com.github.lucko.LuckPerms:api:v5.3'
-    modRuntime 'com.github.lucko.LuckPerms:common:v5.3'*/
 
     // Why did my command fail
     modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
@@ -58,6 +45,7 @@ dependencies {
 
     modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
     modRuntime "com.github.astei:lazydfu:0.1.2"
+    //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
 
     implementation(project(path: ":common")) {
         transitive = false

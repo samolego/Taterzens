@@ -3,9 +3,6 @@ plugins {
     id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
 }
-repositories {
-    jcenter()
-}
 
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies

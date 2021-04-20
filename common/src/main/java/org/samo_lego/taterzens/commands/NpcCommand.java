@@ -60,28 +60,44 @@ public class NpcCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         dispatcher.register(literal("npc")
-                .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(config.perms.npcCommandPermissionLevel) || LUCKPERMS_ENABLED)
+                .requires(src -> LUCKPERMS_ENABLED || src.hasPermissionLevel(config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_create, config.perms.npcCommandPermissionLevel))
                         .then(argument("name", message())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
                                 .executes(NpcCommand::spawnTaterzen)
                         )
                 )
                 .then(literal("select")
-                        .then(argument("id", IntegerArgumentType.integer(1)).executes(NpcCommand::selectTaterzenById))
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_select, config.perms.npcCommandPermissionLevel))
+                        .then(argument("id", IntegerArgumentType.integer(1))
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_select_id, config.perms.npcCommandPermissionLevel))
+                                .executes(NpcCommand::selectTaterzenById)
+                        )
                         .executes(NpcCommand::selectTaterzen)
                 )
-                .then(literal("deselect").executes(NpcCommand::deselectTaterzen))
-                .then(literal("list").executes(NpcCommand::listTaterzens))
-                .then(literal("remove").executes(NpcCommand::removeTaterzen))
+                .then(literal("deselect")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_deselect, config.perms.npcCommandPermissionLevel))
+                        .executes(NpcCommand::deselectTaterzen)
+                )
+                .then(literal("list")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_list, config.perms.npcCommandPermissionLevel))
+                        .executes(NpcCommand::listTaterzens)
+                )
+                .then(literal("remove")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_remove, config.perms.npcCommandPermissionLevel))
+                        .executes(NpcCommand::removeTaterzen)
+                )
                 .then(literal("preset")
                         .then(literal("save")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_preset_save, config.perms.npcCommandPermissionLevel))
                                 .then(argument("preset name", word())
                                         .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                         .executes(NpcCommand::saveTaterzenToPreset)
                                 )
                         )
                         .then(literal("load")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_preset_load, config.perms.npcCommandPermissionLevel))
                                 .then(argument("preset name", word())
                                         .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                         .executes(NpcCommand::loadTaterzenFromPreset)
@@ -89,6 +105,7 @@ public class NpcCommand {
                         )
                 )
                 .then(literal("tp")
+                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_tp, config.perms.npcCommandPermissionLevel))
                         .then(argument("destination", EntityArgumentType.entity())
                                 .executes(context -> teleportTaterzen(context, EntityArgumentType.getEntity(context, "destination").getPos()))
                         )
@@ -97,15 +114,23 @@ public class NpcCommand {
                         )
                 )
                 .then(literal("edit")
-                        .then(literal("name").then(argument("new name", message()).executes(NpcCommand::renameTaterzen)))
+                        .then(literal("name")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_name, config.perms.npcCommandPermissionLevel))
+                                .then(argument("new name", message()).executes(NpcCommand::renameTaterzen))
+                        )
                         .then(literal("commands")
                                 .then(literal("setPermissionLevel")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_setPermissionLevel, config.perms.npcCommandPermissionLevel))
                                         .then(argument("level", IntegerArgumentType.integer(0, 4))
                                                 .executes(NpcCommand::setPermissionLevel)
                                         )
                                 )
-                                .then(literal("remove").then(argument("command id", IntegerArgumentType.integer(0)).executes(NpcCommand::removeCommand)))
+                                .then(literal("remove")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_remove, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("command id", IntegerArgumentType.integer(0)).executes(NpcCommand::removeCommand))
+                                )
                                 .then(literal("add")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_add, config.perms.npcCommandPermissionLevel))
                                         .redirect(dispatcher.getRoot(), context -> {
                                             // Really ugly, but ... works :P
                                             String cmd = addCommand(context);
@@ -116,19 +141,28 @@ public class NpcCommand {
                                             ).create();
                                         })
                                 )
-                                .then(literal("clear").executes(NpcCommand::clearCommands))
-                                .then(literal("list").executes(NpcCommand::listTaterzenCommands))
+                                .then(literal("clear")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_clear, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::clearCommands)
+                                )
+                                .then(literal("list")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_clear, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::listTaterzenCommands)
+                                )
                         )
                         .then(literal("behaviour")
+                            .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_behaviour, config.perms.npcCommandPermissionLevel))
                             .then(argument("behaviour", word())
                                     .suggests(HOSTILITY_TYPES)
                                     .executes(NpcCommand::setTaterzenBehaviour)
                             )
                         )
                         .then(literal("invulnerable")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_invulnerability, config.perms.npcCommandPermissionLevel))
                                 .then(argument("invulnerable", BoolArgumentType.bool()).executes(NpcCommand::setInvulnerable))
                         )
                         .then(literal("type")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
                                 .then(argument("entity type", EntitySummonArgumentType.entitySummon())
                                         .suggests(SUMMONABLE_ENTITIES)
                                         .executes(NpcCommand::changeType)
@@ -136,59 +170,91 @@ public class NpcCommand {
                                                 .executes(NpcCommand::changeType)
                                         )
                                 )
-                                .then(literal("minecraft:player").executes(NpcCommand::resetType))
-                                .then(literal("player").executes(NpcCommand::resetType))
-                                .then(literal("reset").executes(NpcCommand::resetType))
-                        )
-                        .then(literal("path").executes(NpcCommand::editTaterzenPath)
-                            .then(literal("clear").executes(NpcCommand::clearTaterzenPath))
-                        )
-                        .then(literal("messages").executes(NpcCommand::editTaterzenMessages)
-                                .then(literal("clear").executes(NpcCommand::clearTaterzenMessages))
-                                .then(literal("list").executes(NpcCommand::listTaterzenMessages))
-                                .then(argument("message id", IntegerArgumentType.integer(0))
-                                        .then(literal("delete").executes(NpcCommand::deleteTaterzenMessage))
-                                        .then(literal("setDelay")
-                                                .then(argument("delay", IntegerArgumentType.integer())
-                                                        .executes(NpcCommand::editMessageDelay))
-                                        )
-                                        .executes(NpcCommand::editMessage)
+                                .then(literal("minecraft:player")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::resetType)
+                                )
+                                .then(literal("player")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::resetType)
+                                )
+                                .then(literal("reset")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::resetType)
                                 )
                         )
+                        .then(literal("path")
+                                .then(literal("clear")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_path_clear, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::clearTaterzenPath)
+                                )
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_path, config.perms.npcCommandPermissionLevel))
+                                .executes(NpcCommand::editTaterzenPath)
+                        )
+                        .then(literal("messages")
+                                .then(literal("clear")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_clear, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::clearTaterzenMessages)
+                                )
+                                .then(literal("list")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_list, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::listTaterzenMessages)
+                                )
+                                .then(argument("message id", IntegerArgumentType.integer(0))
+                                        .then(literal("delete")
+                                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_delete, config.perms.npcCommandPermissionLevel))
+                                                .executes(NpcCommand::deleteTaterzenMessage)
+                                        )
+                                        .then(literal("setDelay")
+                                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_delay, config.perms.npcCommandPermissionLevel))
+                                                .then(argument("delay", IntegerArgumentType.integer())
+                                                        .executes(NpcCommand::editMessageDelay)
+                                                )
+                                        )
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages, config.perms.npcCommandPermissionLevel))
+                                        .executes(NpcCommand::editMessage)
+                                )
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_edit, config.perms.npcCommandPermissionLevel))
+                                .executes(NpcCommand::editTaterzenMessages)
+                        )
                         .then(literal("skin")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_skin, config.perms.npcCommandPermissionLevel))
+                                .then(argument("player name", word())
+                                        .executes(NpcCommand::setSkin)
+                                )
                                 .executes(NpcCommand::copySkinLayers)
-                                .then(argument("player name", word()).executes(NpcCommand::setSkin))
                         )
                         .then(literal("equipment")
                                 .then(literal("allowEquipmentDrops")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment_equipmentDrops, config.perms.npcCommandPermissionLevel))
                                         .then(argument("drop", BoolArgumentType.bool()).executes(NpcCommand::setEquipmentDrops))
                                 )
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment, config.perms.npcCommandPermissionLevel))
                                 .executes(NpcCommand::setEquipment)
                         )
-                        .then(literal("look").executes(context -> changeMovement(context, "FORCED_LOOK")))
+                        .then(literal("look")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
+                                .executes(context -> changeMovement(context, "FORCED_LOOK"))
+                        )
                         .then(literal("movement")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
                                 .then(argument("movement type", word())
                                         .suggests(MOVEMENT_TYPES)
                                         .executes(context -> changeMovement(context, StringArgumentType.getString(context, "movement type")))
                                 )
                         )
                         .then(literal("profession")
+                            .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_profession, config.perms.npcCommandPermissionLevel))
                             .then(argument("profession type", message())
                                     .suggests((context, builder) -> CommandSource.suggestMatching(PROFESSION_TYPES.keySet().stream().map(Identifier::toString), builder))
                                     .executes(ctx -> setProfession(ctx, new Identifier(MessageArgumentType.getMessage(ctx, "profession type").asString())))
                             )
-                            //.then(literal("reset").executes(ctx -> setProfession(ctx, DefaultProfession.ID)))
                         )
                 )
         );
     }
 
     private static int setProfession(CommandContext<ServerCommandSource> context, Identifier id) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_profession)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -204,11 +270,6 @@ public class NpcCommand {
     }
 
     private static int setEquipmentDrops(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_equipment_equipmentDrops)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -222,11 +283,6 @@ public class NpcCommand {
     }
 
     private static int setInvulnerable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_tags_invulnerability)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -240,11 +296,6 @@ public class NpcCommand {
     }
 
     private static int setTaterzenBehaviour(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_behaviour)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -268,11 +319,6 @@ public class NpcCommand {
     }
 
     private static int removeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_remove)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -293,11 +339,6 @@ public class NpcCommand {
     }
 
     private static int clearCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_clear)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -311,11 +352,6 @@ public class NpcCommand {
     }
 
     private static int listTaterzenCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_clear)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -355,10 +391,6 @@ public class NpcCommand {
 
     private static int setPermissionLevel(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(source, PERMISSIONS.npc_edit_commands_setPermissionLevel)) {
-            source.sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
 
         ServerPlayerEntity player = source.getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
@@ -378,22 +410,12 @@ public class NpcCommand {
     }
 
     private static int deselectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_deselect)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ((TaterzenEditor) context.getSource().getPlayer()).selectNpc(null);
         context.getSource().sendFeedback(new LiteralText(lang.success.deselectedTaterzen).formatted(Formatting.GREEN), false);
         return 0;
     }
 
     private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delete)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -414,11 +436,6 @@ public class NpcCommand {
     }
 
     private static int editMessageDelay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delay)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -440,11 +457,6 @@ public class NpcCommand {
     }
 
     private static int editMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_delete)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -476,11 +488,6 @@ public class NpcCommand {
     }
 
     private static int listTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_list)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -524,11 +531,6 @@ public class NpcCommand {
     }
 
     private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_clear)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -541,11 +543,6 @@ public class NpcCommand {
     }
 
     private static int editTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_messages_edit)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -584,11 +581,6 @@ public class NpcCommand {
     }
 
     private static int clearTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_path_clear)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -608,11 +600,6 @@ public class NpcCommand {
     }
 
     private static int editTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_path)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -650,11 +637,6 @@ public class NpcCommand {
     }
 
     private static int loadTaterzenFromPreset(CommandContext<ServerCommandSource> context) {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_preset_load)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         String filename = StringArgumentType.getString(context, "preset name") + ".json";
         File preset = new File(presetsDir + "/" + filename);
 
@@ -686,11 +668,6 @@ public class NpcCommand {
     }
 
     private static int saveTaterzenToPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_preset_save)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -709,11 +686,6 @@ public class NpcCommand {
     }
 
     private static int listTaterzens(CommandContext<ServerCommandSource> context) {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_list)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         MutableText response = new LiteralText(lang.availableTaterzens).formatted(Formatting.AQUA);
         for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
             int index = i + 1;
@@ -734,11 +706,6 @@ public class NpcCommand {
     }
 
     private static int selectTaterzenById(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_select_id)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         int id = IntegerArgumentType.getInteger(context, "id");
         if(id > TATERZEN_NPCS.size()) {
@@ -757,11 +724,6 @@ public class NpcCommand {
     }
 
     private static int renameTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_name)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -778,11 +740,6 @@ public class NpcCommand {
     }
 
     private static int teleportTaterzen(CommandContext<ServerCommandSource> context, Vec3d destination) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_tp)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -793,11 +750,6 @@ public class NpcCommand {
     }
 
     private static int changeMovement(CommandContext<ServerCommandSource> context, String movement) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_movement)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -812,11 +764,6 @@ public class NpcCommand {
     }
 
     private static int setEquipment(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_equipment)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -856,11 +803,6 @@ public class NpcCommand {
     }
 
     private static int setSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_skin)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
 
@@ -904,10 +846,6 @@ public class NpcCommand {
 
 
     private static int copySkinLayers(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_skin_layers)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
         ServerPlayerEntity player = context.getSource().getPlayer();
         TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
         if(taterzen != null) {
@@ -926,11 +864,6 @@ public class NpcCommand {
     }
 
     private static String addCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_commands_add)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return null;
-        }
-
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
         // Extremely :concern:
         // I know it
@@ -946,11 +879,6 @@ public class NpcCommand {
     }
 
     private static int removeTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_remove)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         TaterzenNPC taterzen = ((TaterzenEditor) context.getSource().getPlayer()).getNpc();
         if(taterzen != null) {
             taterzen.kill();
@@ -965,12 +893,6 @@ public class NpcCommand {
     }
 
     private static int selectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_select)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
-
         ServerPlayerEntity player = context.getSource().getPlayer();
 
         Box box = player.getBoundingBox().offset(player.getRotationVector().multiply(2.0D)).expand(0.3D);
@@ -1000,10 +922,6 @@ public class NpcCommand {
                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
                     )
             );
-            return -1;
-        }
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_entityType)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
             return -1;
         }
 
@@ -1050,11 +968,6 @@ public class NpcCommand {
             );
             return -1;
         }
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_edit_entityType)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         try {
             ServerPlayerEntity player = context.getSource().getPlayer();
             TaterzenNPC taterzen = ((TaterzenEditor) player).getNpc();
@@ -1083,11 +996,6 @@ public class NpcCommand {
     }
 
     private static int spawnTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(LUCKPERMS_ENABLED && !permissions$checkPermission(context.getSource(), PERMISSIONS.npc_create)) {
-            context.getSource().sendError(new TranslatableText("commands.help.failed").formatted(Formatting.RED));
-            return -1;
-        }
-
         try {
             ServerPlayerEntity player = context.getSource().getPlayer();
             String taterzenName = MessageArgumentType.getMessage(context, "name").asString();

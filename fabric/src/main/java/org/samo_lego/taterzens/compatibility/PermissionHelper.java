@@ -19,10 +19,11 @@ public class PermissionHelper {
      *
      * @param commandSource commandSource to check permission for.
      * @param permission permission node to check.
+     * @param fallbackLevel level to require if permission isn't set
      * @return true if commandSource has the permission, otherwise false
      */
-    public static boolean checkPermission(ServerCommandSource commandSource, String permission) {
+    public static boolean checkPermission(ServerCommandSource commandSource, String permission, int fallbackLevel) {
         // Enable command blocks
-        return commandSource.getEntity() == null || Permissions.check(commandSource, permission, 4);
+        return commandSource.getEntity() == null || Permissions.check(commandSource, permission, fallbackLevel);
     }
 }

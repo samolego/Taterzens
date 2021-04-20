@@ -21,10 +21,10 @@ public class LoaderSpecificImpl {
         return false;
     }
 
-    public static boolean permissions$checkPermission(ServerCommandSource source, String permissionNode) {
-        return true;
+    public static void disguiselib$clearDisguise(TaterzenNPC taterzen) {
     }
 
-    public static void disguiselib$clearDisguise(TaterzenNPC taterzen) {
+    public static boolean permissions$checkPermission(ServerCommandSource source, String permissionNode, int fallbackLevel) {
+        return source.hasPermissionLevel(fallbackLevel);
     }
 }
