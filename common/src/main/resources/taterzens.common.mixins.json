@@ -4,8 +4,7 @@
   "package": "org.samo_lego.taterzens.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ServerCommandSourceMixinCast_TaterzenEditor",
-    "ServerPlayerEntityMixin_PathVisualiser",
+    "ServerPlayerEntityMixinCast_TaterzenEditor",
     "ServerPlayerEntityMixinCast_TaterzenPlayer",
     "ServerPlayInteractionManagerMixin",
     "ServerPlayNetworkHandlerMixin_MsgEditor",

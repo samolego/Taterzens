@@ -6,7 +6,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.samo_lego.taterzens.interfaces.ActiveEditMode;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 
 public class BlockEvent {
@@ -24,7 +23,7 @@ public class BlockEvent {
     public static ActionResult onBlockInteract(PlayerEntity playerEntity, World world, BlockPos blockPos) {
         if(playerEntity instanceof ServerPlayerEntity) { // Prevents crash on client
             TaterzenEditor player = (TaterzenEditor) playerEntity;
-            if(player.getNpc() != null && ((ActiveEditMode) playerEntity).getEditorMode() == ActiveEditMode.Types.PATH) {
+            if(player.getNpc() != null && ((TaterzenEditor) playerEntity).getEditorMode() == TaterzenEditor.Types.PATH) {
                 player.getNpc().removePathTarget(blockPos);
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos)));
                 return ActionResult.FAIL;

@@ -30,7 +30,7 @@ public class TextUtil {
         return (LiteralText) new LiteralText(split[0])
                 .formatted(messageColor)
                 .append(insertedText.copy().formatted(insertedTextColor))
-                .append(split[1])
+                .append(split.length  > 1 ? split[1] : "")
                 .formatted(messageColor);
 
     }

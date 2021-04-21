@@ -7,7 +7,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.samo_lego.taterzens.interfaces.ActiveEditMode;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.util.TextUtil;
@@ -41,8 +40,9 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
             cancellable = true
     )
     private void onMessage(String msg, CallbackInfo ci) {
-        TaterzenNPC taterzen = ((TaterzenEditor) this.player).getNpc();
-        if(taterzen != null && ((ActiveEditMode) this.player).getEditorMode() == ActiveEditMode.Types.MESSAGES && !msg.startsWith("/")) {
+        TaterzenEditor editor = (TaterzenEditor) this.player;
+        TaterzenNPC taterzen = (editor).getNpc();
+        if(taterzen != null && ((TaterzenEditor) this.player).getEditorMode() == TaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
             if(msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if(split.length > 1) {
@@ -67,15 +67,15 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                     }
                 } else
                     text = new LiteralText(msg);
-                if(((TaterzenEditor) player).getEditingMessageIndex() != -1) {
+                if((editor).getEditingMessageIndex() != -1) {
                     // Editing selected message
-                    taterzen.editMessage(((TaterzenEditor) player).getEditingMessageIndex(), text); // Editing message
+                    taterzen.editMessage(editor.getEditingMessageIndex(), text); // Editing message
                     player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
-                        ((ActiveEditMode) player).setEditorMode(ActiveEditMode.Types.NONE);
-                        ((TaterzenEditor) player).setEditingMessageIndex(-1);
+                        ((TaterzenEditor) this.player).setEditorMode(TaterzenEditor.Types.NONE);
+                        (editor).setEditingMessageIndex(-1);
                         player.sendMessage(new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE), false);
                     }
                 } else {
