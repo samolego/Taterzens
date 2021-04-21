@@ -38,7 +38,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -1074,21 +1073,18 @@ public class NpcCommand {
     }
 
     private static int spawnTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        try {
-            ServerPlayerEntity player = context.getSource().getPlayer();
-            String taterzenName = MessageArgumentType.getMessage(context, "name").asString();
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        String taterzenName = MessageArgumentType.getMessage(context, "name").asString();
 
-            TaterzenNPC taterzen = TaterzensAPI.createTaterzen(player, taterzenName);
-            player.getEntityWorld().spawnEntity(taterzen);
+        TaterzenNPC taterzen = TaterzensAPI.createTaterzen(player, taterzenName);
+        player.getEntityWorld().spawnEntity(taterzen);
 
-            ((TaterzenEditor) context.getSource()).selectNpc(taterzen);
-            player.sendMessage(
-                    successText(lang.success.spawnedTaterzen, taterzen.getCustomName()),
-                    false
-            );
-        } catch(ClassCastException | NoSuchElementException e) {
-            e.printStackTrace();
-        }
+        ((TaterzenEditor) player).selectNpc(taterzen);
+        player.sendMessage(
+                successText(lang.success.spawnedTaterzen, taterzen.getCustomName()),
+                false
+        );
+
         return 0;
     }
 
