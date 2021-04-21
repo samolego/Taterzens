@@ -37,7 +37,7 @@ dependencies {
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
 
     // Why did my command fail
-    modImplementation 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
+    modRuntime 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
     // DisguiseLib
     modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}" // jitpack

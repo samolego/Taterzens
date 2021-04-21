@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import static org.samo_lego.taterzens.Taterzens.getLogger;
+import static org.samo_lego.taterzens.Taterzens.LOGGER;
 
 /**
  * List of permissions. Not meant to be changed, just to keep them in one place.
@@ -125,7 +125,7 @@ public class PermissionList {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             gson.toJson(this, writer);
         } catch (IOException e) {
-            getLogger().error("Problem occurred when saving permission list: " + e.getMessage());
+            LOGGER.error("Problem occurred when saving permission list: " + e.getMessage());
         }
     }
 }

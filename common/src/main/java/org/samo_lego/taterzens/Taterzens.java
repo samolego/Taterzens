@@ -29,7 +29,7 @@ public class Taterzens {
      * Language file.
      */
     public static TaterLang lang;
-    private static final Logger LOGGER = (Logger) LogManager.getLogger("Taterzens");
+    public static final Logger LOGGER = (Logger) LogManager.getLogger(MODID);
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
@@ -77,9 +77,5 @@ public class Taterzens {
 
         // Profession registering
         TaterzensAPI.registerProfession(DefaultProfession.ID, new DefaultProfession());
-    }
-
-    public static Logger getLogger() {
-        return LOGGER;
     }
 }

@@ -6,8 +6,8 @@ import com.google.gson.GsonBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MODID;
-import static org.samo_lego.taterzens.Taterzens.getLogger;
 
 public class TaterLang {
     private static final Gson gson = new GsonBuilder()
@@ -125,7 +125,7 @@ public class TaterLang {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             gson.toJson(this, writer);
         } catch (IOException e) {
-            getLogger().error("Problem occurred when saving language file: " + e.getMessage());
+            LOGGER.error("Problem occurred when saving language file: " + e.getMessage());
         }
     }
 }

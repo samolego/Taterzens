@@ -68,7 +68,7 @@ public class TaterzensAPI {
             ) {
                 element = parser.parse(fileReader).getAsJsonObject();
             } catch(IOException e) {
-                Taterzens.getLogger().error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
+                LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
             }
             if(element != null) {
                 try {
@@ -118,7 +118,7 @@ public class TaterzensAPI {
         try(Writer writer = new OutputStreamWriter(new FileOutputStream(preset), StandardCharsets.UTF_8)) {
             gson.toJson(element, writer);
         } catch(IOException e) {
-            getLogger().error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
+            LOGGER.error("Problem occurred when saving Taterzen preset file: " + e.getMessage());
         }
     }
 
@@ -179,7 +179,7 @@ public class TaterzensAPI {
         if(!PROFESSION_TYPES.containsKey(professionId))
             PROFESSION_TYPES.put(professionId, profession);
         else
-            getLogger().warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
+            LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
     }
 
 

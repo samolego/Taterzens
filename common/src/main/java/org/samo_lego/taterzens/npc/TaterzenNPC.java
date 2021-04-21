@@ -41,6 +41,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
@@ -563,7 +564,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     profession.fromTag((CompoundTag) npcTag.get("ProfessionData"));
                 }
                 else
-                    getLogger().error("Taterzen {} was saved with profession id {}, but none of the mod provides it.", this.getName().asString(), professionId);
+                    Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mod provides it.", this.getName().asString(), professionId);
             });
         }
 
@@ -1002,7 +1003,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(PROFESSION_TYPES.containsKey(professionId)) {
             this.setProfession(professionId, PROFESSION_TYPES.get(professionId).create(this));
         } else
-            getLogger().warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().asString());
+            Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().asString());
     }
 
     /**
