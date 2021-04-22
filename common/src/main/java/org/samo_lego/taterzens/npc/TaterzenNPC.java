@@ -22,7 +22,6 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
@@ -123,7 +122,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
         }
         this.server = world.getServer();
-        PlayerManager playerManager = server.getPlayerManager();
 
         this.fakePlayer = new PlayerEntity(world, this.getBlockPos(), this.headYaw, new GameProfile(this.uuid, null)) {
             @Override

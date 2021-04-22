@@ -16,6 +16,10 @@ repositories {
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
+    maven {
+        name = "Ladysnake Libs"
+        url = "https://dl.bintray.com/ladysnake/libs"
+    }
 }
 
 configurations {
@@ -33,7 +37,7 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
 
-    // LuckPerms
+    // Permission API
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
 
     // Why did my command fail
@@ -41,11 +45,14 @@ dependencies {
 
     // DisguiseLib
     modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}" // jitpack
-    //modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}"
 
     modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
     modRuntime "com.github.astei:lazydfu:0.1.2"
+
     //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
+
+    modRuntime 'com.github.Draylar:identity:1.12.0-beta-1.16.5'
+    modRuntime "io.github.ladysnake:PlayerAbilityLib:1.2.1"
 
     implementation(project(path: ":common")) {
         transitive = false
