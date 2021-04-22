@@ -11,7 +11,8 @@ plugins {
 
 repositories {
     maven {
-        url 'https://dl.bintray.com/bymartrixx/maven'
+        name = "Why did my cmd fail"
+        url =  'https://dl.bintray.com/bymartrixx/maven'
     }
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
@@ -19,6 +20,20 @@ repositories {
     maven {
         name = "Ladysnake Libs"
         url = "https://dl.bintray.com/ladysnake/libs"
+    }
+
+
+    maven {
+        name = "fall flying lib"
+        url = "https://dl.bintray.com/adriantodt/maven"
+    }
+    maven {
+        name = "AperLambda"
+        url = 'https://aperlambda.github.io/maven'
+    }
+    maven {
+        name = "entity reach"
+        url = "https://maven.jamieswhiteshirt.com/libs-release/"
     }
 }
 
@@ -50,9 +65,9 @@ dependencies {
     modRuntime "com.github.astei:lazydfu:0.1.2"
 
     //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
+    //modRuntime 'com.github.Virtuoel:Pehkui:2.0.0'
 
-    modRuntime 'com.github.Draylar:identity:1.12.0-beta-1.16.5'
-    modRuntime "io.github.ladysnake:PlayerAbilityLib:1.2.1"
+    //modRuntime 'com.github.TheOneTrueZandra:Figura:0.0.5'
 
     implementation(project(path: ":common")) {
         transitive = false
