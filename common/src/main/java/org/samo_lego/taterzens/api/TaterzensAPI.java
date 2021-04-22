@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -24,7 +23,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
-import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.*;
@@ -76,12 +74,9 @@ public class TaterzensAPI {
                     if(tag instanceof CompoundTag) {
                         CompoundTag compoundTag = (CompoundTag) tag;
                         TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
-                        taterzenNPC.readCustomDataFromTag(compoundTag);
-                        if(DISGUISELIB_LOADED && compoundTag.contains("CustomType")) {
-                            CompoundTag customTypeTag = compoundTag.getCompound("CustomType");
-                            Entity customEntity = EntityType.loadEntityWithPassengers(customTypeTag, taterzenNPC.world, (entityx) -> entityx);
-                            LoaderSpecific.disguiselib$disguiseAs(taterzenNPC, customEntity);
-                        }
+                        compoundTag.putUuid("UUID", taterzenNPC.getUuid());
+                        taterzenNPC.fromTag(compoundTag);
+
                         return taterzenNPC;
                     }
                 } catch(Throwable e) {
@@ -99,19 +94,17 @@ public class TaterzensAPI {
      */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         CompoundTag saveTag = new CompoundTag();
-        taterzen.writeCustomDataToTag(saveTag);
-        if(DISGUISELIB_LOADED && LoaderSpecific.disguiselib$isDisguised(taterzen)) {
-            CompoundTag customTypeTag = new CompoundTag();
-            taterzen.toTag(customTypeTag);
-            if(customTypeTag.contains("DisguiseLib")) {
-                // Saves DisguiseEntity to preset
-                saveTag.put("CustomType", customTypeTag.getCompound("DisguiseLib").getCompound("DisguiseEntity"));
-            }
-        }
+        taterzen.toTag(saveTag);
 
         //todo Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");
+
+
+        saveTag.remove("UUID");
+        saveTag.remove("Pos");
+        saveTag.remove("Motion");
+        saveTag.remove("Rotation");
 
         JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 

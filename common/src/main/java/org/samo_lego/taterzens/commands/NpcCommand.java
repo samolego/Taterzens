@@ -711,19 +711,20 @@ public class NpcCommand {
 
         if(preset.exists()) {
             TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, source.getWorld());
-            assert taterzenNPC != null;
-            Vec3d pos = source.getPosition();
-            Vec2f rotation = source.getRotation();
-            taterzenNPC.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
+            if(taterzenNPC != null) {
+                Vec3d pos = source.getPosition();
+                Vec2f rotation = source.getRotation();
+                taterzenNPC.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
 
-            source.getWorld().spawnEntity(taterzenNPC);
+                source.getWorld().spawnEntity(taterzenNPC);
 
-            ((TaterzenEditor) source.getPlayer()).selectNpc(taterzenNPC);
+                ((TaterzenEditor) source.getPlayer()).selectNpc(taterzenNPC);
 
-            source.sendFeedback(
-                    successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
-                    false
-            );
+                source.sendFeedback(
+                        successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
+                        false
+                );
+            }
         } else {
             source.sendError(
                     errorText(lang.error.noPresetFound, new LiteralText(filename))
