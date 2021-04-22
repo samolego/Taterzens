@@ -536,27 +536,18 @@ public class NpcCommand {
         ServerCommandSource source = context.getSource();
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
-            if(((TaterzenEditor) source.getPlayer()).getEditorMode() == TaterzenEditor.Types.MESSAGES) {
-                int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
-                if(selected >= taterzen.getMessages().size()) {
-                    source.sendFeedback(
-                            successText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
-                            false
-                    );
-                } else {
-                    ((TaterzenEditor) source.getPlayer()).setEditingMessageIndex(selected);
-                    source.sendFeedback(successText(lang.editMessageMode, taterzen.getMessages().get(selected).getFirst()), false);
-                }
-            } else {
-                source.sendFeedback(new LiteralText(lang.error.enterMessageEditorMode)
-                        .formatted(Formatting.RED)
-                        .styled(style -> style
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.enterMessageEditor)))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages"))
-                        ),
+            ((TaterzenEditor) source.getPlayer()).setEditorMode(TaterzenEditor.Types.MESSAGES);
+            int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
+            if(selected >= taterzen.getMessages().size()) {
+                source.sendFeedback(
+                        successText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
                         false
                 );
+            } else {
+                ((TaterzenEditor) source.getPlayer()).setEditingMessageIndex(selected);
+                source.sendFeedback(successText(lang.editMessageMode, taterzen.getMessages().get(selected).getFirst()), false);
             }
+
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 
@@ -567,7 +558,6 @@ public class NpcCommand {
         ServerCommandSource source = context.getSource();
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
-            ((TaterzenEditor) source.getPlayer()).setEditorMode(TaterzenEditor.Types.MESSAGES);
             ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
 
             MutableText response = joinText(lang.taterzenMessages, Formatting.AQUA, taterzen.getCustomName(), Formatting.YELLOW);

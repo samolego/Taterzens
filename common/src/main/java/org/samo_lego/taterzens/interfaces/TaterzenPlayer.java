@@ -1,5 +1,7 @@
 package org.samo_lego.taterzens.interfaces;
 
+import java.util.UUID;
+
 public interface TaterzenPlayer {
     /**
      * Gets the last time player has interacted with
@@ -21,27 +23,31 @@ public interface TaterzenPlayer {
     /**
      * Gets how many ticks have passed
      * since player got last message.
+     * @param taterzenUuid uuid of taterzen to get msg pos for
      * @return ticks since last message
      */
-    int ticksSinceLastMessage();
+    int ticksSinceLastMessage(UUID taterzenUuid);
 
     /**
      * Resets ticks since player got the last message
      * from {@link org.samo_lego.taterzens.npc.TaterzenNPC}.
+     * @param taterzenUuid uuid of taterzen to get msg pos for
      */
-    void resetMessageTicks();
+    void resetMessageTicks(UUID taterzenUuid);
 
     /**
      * Gets last message position in
      * {@link org.samo_lego.taterzens.npc.NPCData#messages array of messages}.
+     * @param taterzenUuid uuid of taterzen to get msg pos for
      * @return last message index
      */
-    int getLastMsgPos();
+    int getLastMsgPos(UUID taterzenUuid);
 
     /**
      * Sets the index of last message in
      * {@link org.samo_lego.taterzens.npc.NPCData#messages array of messages}.
+     * @param taterzenUuid uuid of taterzen to get msg pos for
      * @param newPos new index for the last sent message.
      */
-    void setLastMsgPos(int newPos);
+    void setLastMsgPos(UUID taterzenUuid, int newPos);
 }

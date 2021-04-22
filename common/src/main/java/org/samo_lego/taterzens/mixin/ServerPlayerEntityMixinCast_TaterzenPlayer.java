@@ -4,16 +4,24 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
+import java.util.UUID;
+
+import static org.samo_lego.taterzens.Taterzens.config;
+
 /**
  * Additional methods for players to track {@link TaterzenNPC}
  */
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlayer {
+public abstract class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlayer {
+
+    @Shadow public abstract void tick();
 
     /**
      * Stores last interaction time.
@@ -27,13 +35,13 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
      * Ticks since this player got last message from taterzen.
      */
     @Unique
-    private int taterzens$lastMessageTicks = 0;
+    private final HashMap<UUID, Integer> taterzens$lastMessageTicks = new HashMap<>();
     /**
      * The last message index of the message that was sent
      * to player.
      */
     @Unique
-    private int taterzens$currentMsg = 0;
+    private final HashMap<UUID, Integer> taterzens$currentMsg = new HashMap<>();
 
     @Override
     public long getLastInteractionTime() {
@@ -46,31 +54,37 @@ public class ServerPlayerEntityMixinCast_TaterzenPlayer implements TaterzenPlaye
     }
 
     @Override
-    public int ticksSinceLastMessage() {
-        return this.taterzens$lastMessageTicks;
+    public int ticksSinceLastMessage(UUID taterzenUuid) {
+        if(!this.taterzens$lastMessageTicks.containsKey(taterzenUuid))
+            this.taterzens$lastMessageTicks.put(taterzenUuid, config.messages.messageDelay + 1);
+        return this.taterzens$lastMessageTicks.get(taterzenUuid);
     }
 
     @Override
-    public void resetMessageTicks() {
-        this.taterzens$lastMessageTicks = 0;
+    public void resetMessageTicks(UUID taterzenUuid) {
+        this.taterzens$lastMessageTicks.put(taterzenUuid, 0);
     }
 
     @Override
-    public int getLastMsgPos() {
-        return this.taterzens$currentMsg;
+    public int getLastMsgPos(UUID taterzenUuid) {
+        if(!this.taterzens$currentMsg.containsKey(taterzenUuid))
+            this.taterzens$currentMsg.put(taterzenUuid, 0);
+        return this.taterzens$currentMsg.get(taterzenUuid);
     }
 
     @Override
-    public void setLastMsgPos(int newPos) {
-        this.taterzens$currentMsg = newPos;
+    public void setLastMsgPos(UUID taterzenUuid, int newPos) {
+        this.taterzens$currentMsg.put(taterzenUuid, newPos);
     }
 
     /**
      * Increases the ticks since last message counter.
-     * @param ci
      */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void postTick(CallbackInfo ci) {
-        ++this.taterzens$lastMessageTicks;
+        for(UUID npcId : this.taterzens$lastMessageTicks.keySet()) {
+            int ticks = this.taterzens$lastMessageTicks.get(npcId) + 1;
+            this.taterzens$lastMessageTicks.put(npcId, ticks);
+        }
     }
 }

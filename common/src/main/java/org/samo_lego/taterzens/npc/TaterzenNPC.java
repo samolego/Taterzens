@@ -292,16 +292,24 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
             this.yaw = this.headYaw; // Rotates body as well
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty())) {
+                // Checking here if path targets size was changed during the previous tick
+                if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
+                    this.npcData.currentMoveTarget = 0;
+
                 if(this.getPositionTarget().getSquaredDistance(this.getPos(), false) < 5.0D) {
-                    if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
-                        this.npcData.currentMoveTarget = 0;
+                    ++this.npcData.currentMoveTarget;
+
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 2);
                 }
             } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue() && !this.npcData.pathTargets.isEmpty()) {
+                // Checking here if path targets size was changed during the previous tick
+                if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
+                    this.npcData.currentMoveTarget = 0;
+
                 if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), false) < 5.0D) {
-                    if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
-                        this.npcData.currentMoveTarget = 0;
+                    ++this.npcData.currentMoveTarget;
+
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
@@ -331,19 +339,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.world.getEntityCollisions(this, box, entity -> {
                 if(entity instanceof ServerPlayerEntity && ((TaterzenEditor) entity).getEditorMode() != TaterzenEditor.Types.MESSAGES) {
                     TaterzenPlayer pl = (TaterzenPlayer) entity;
-                    int msgPos = pl.getLastMsgPos();
-                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage()) {
+                    int msgPos = pl.getLastMsgPos(this.getUuid());
+                    if(msgPos >= this.npcData.messages.size())
+                        msgPos = 0;
+                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUuid())) {
                         entity.sendSystemMessage(
-                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(pl.getLastMsgPos()).getFirst()),
+                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(msgPos).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
-                        pl.resetMessageTicks();
+                        pl.resetMessageTicks(this.getUuid());
 
-                        if(++msgPos >= this.npcData.messages.size())
-                            msgPos = 0;
+                        ++msgPos;
                         // Setting new message position
-                        pl.setLastMsgPos(msgPos);
+                        pl.setLastMsgPos(this.getUuid(), msgPos);
                     }
                     return true;
                 }
