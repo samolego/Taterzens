@@ -25,8 +25,8 @@ public class DefaultProfession implements TaterzenProfession {
     }
 
     @Override
-    public boolean tickMovement() {
-        return false;
+    public ActionResult tickMovement() {
+        return ActionResult.PASS;
     }
 
     @Override

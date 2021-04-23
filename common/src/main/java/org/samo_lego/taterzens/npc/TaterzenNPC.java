@@ -272,9 +272,21 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             return;
 
         // Profession event
+        professionLoop:
         for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.tickMovement())
-                return;
+            ActionResult result = profession.tickMovement();
+            switch(result) {
+                case CONSUME: // Stop processing others, but continue with base Taterzen movement tick
+                    break professionLoop;
+                case FAIL: // Stop whole movement tick
+                    return;
+                case SUCCESS: // Continue with super, but skip Taterzen's movement tick
+                    super.tickMovement();
+                    return;
+                case PASS: // Continue with other professions
+                default:
+                    break;
+            }
         }
 
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
@@ -289,7 +301,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
             this.yaw = this.headYaw; // Rotates body as well
-            if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty())) {
+            if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isNavigating()) {
                 // Checking here if path targets size was changed during the previous tick
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
@@ -1036,6 +1048,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public void removeProfession(Identifier professionId) {
         this.professions.remove(professionId);
+    }
+
+    /**
+     * Gets Taterzen's profession.
+     * @param professionId id of the profession that is in Taterzen's profession map.
+     */
+    @Nullable
+    public TaterzenProfession getProfession(Identifier professionId) {
+        if(this.professions.containsKey(professionId)) {
+            return this.professions.get(professionId);
+        } else {
+            Taterzens.LOGGER.warn("Trying to get profession {} from {}, but taterzen doesn't have it.", professionId, this.getName().asString());
+            return null;
+        }
     }
 
     /**

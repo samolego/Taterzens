@@ -26,9 +26,17 @@ public interface TaterzenProfession {
 
     /**
      * Called on movement tick.
-     * @return true if you want to cancel the default Taterzen movement tick.
+     * Returning different action results has different meanings:
+     * <ul>
+     *     <li>{@link ActionResult#PASS} - Default; continues ticking other professions.</li>
+     *     <li>{@link ActionResult#CONSUME} - Stops processing others, but continues with base Taterzen movement tick.</li>
+     *     <li>{@link ActionResult#FAIL} - Stops whole movement tick.</li>
+     *     <li>{@link ActionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's movement tick.</li>
+     * </ul>
+     *
+     * @return action result which determines further execution
      */
-    boolean tickMovement();
+    ActionResult tickMovement();
 
     /**
      * Called on Taterzen interaction.
