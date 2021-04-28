@@ -79,6 +79,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     // Goals
     // Public so they can be accessed from professions.
     public final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
+    public final LookAtEntityGoal forceLookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F, 1.1F);
     public final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
 
     public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, false, true);
@@ -212,11 +213,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.directPathGoal);
         this.goalSelector.remove(this.pathGoal);
         this.goalSelector.remove(this.lookPlayerGoal);
+        this.goalSelector.remove(this.forceLookPlayerGoal);
         this.goalSelector.remove(this.lookAroundGoal);
 
-        if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
+        if(movement != NPCData.Movement.NONE) {
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.add(4, directPathGoal);
+            } else if(movement == NPCData.Movement.FORCED_LOOK) {
+                this.goalSelector.add(5, forceLookPlayerGoal);
             } else {
                 this.goalSelector.add(5, lookPlayerGoal);
                 this.goalSelector.add(6, lookAroundGoal);
@@ -283,24 +287,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 case SUCCESS: // Continue with super, but skip Taterzen's movement tick
                     super.tickMovement();
                     return;
-                case PASS: // Continue with other professions
-                default:
+                default: // Continue with other professions
                     break;
             }
         }
 
+        this.yaw = this.headYaw; // Rotates body as well
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-            Box box = this.getBoundingBox().expand(4.0D);
-            this.world.getEntityCollisions(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity) {
-                    this.lookAtEntity(entity, 60.0F, 60.0F);
-                    this.setHeadYaw(this.yaw);
-                    return true;
-                }
-                return false;
-            });
+            super.tickMovement();
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
-            this.yaw = this.headYaw; // Rotates body as well
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isNavigating()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
