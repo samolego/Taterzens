@@ -302,23 +302,25 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
             this.yaw = this.headYaw; // Rotates body as well
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isNavigating()) {
-                // Checking here if path targets size was changed during the previous tick
+                // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
                 if(this.getPositionTarget().getSquaredDistance(this.getPos(), false) < 5.0D) {
-                    ++this.npcData.currentMoveTarget;
+                    if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
+                        this.npcData.currentMoveTarget = 0;
 
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 2);
                 }
             } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue() && !this.npcData.pathTargets.isEmpty()) {
-                // Checking here if path targets size was changed during the previous tick
+                // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
                 if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), false) < 5.0D) {
-                    ++this.npcData.currentMoveTarget;
+                    if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
+                        this.npcData.currentMoveTarget = 0;
 
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);

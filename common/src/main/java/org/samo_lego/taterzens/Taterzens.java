@@ -4,8 +4,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
-import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.api.professions.DefaultProfession;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.PermissionList;
@@ -74,8 +72,5 @@ public class Taterzens {
         if(LUCKPERMS_ENABLED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
         }
-
-        // Profession registering
-        TaterzensAPI.registerProfession(DefaultProfession.ID, new DefaultProfession());
     }
 }
