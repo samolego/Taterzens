@@ -970,7 +970,7 @@ public class NpcCommand {
         Box box = player.getBoundingBox().offset(player.getRotationVector().multiply(2.0D)).expand(0.3D);
         ((TaterzenEditor) source.getPlayer()).selectNpc(null);
 
-        player.getEntityWorld().getEntityCollisions(player, box, entity -> {
+        player.getEntityWorld().getOtherEntities(player, box, entity -> {
             if(entity instanceof TaterzenNPC && ((TaterzenEditor) player).getNpc() == null) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
                 context.getSource().sendFeedback(

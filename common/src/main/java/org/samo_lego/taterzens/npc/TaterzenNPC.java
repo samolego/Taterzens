@@ -283,15 +283,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 case SUCCESS: // Continue with super, but skip Taterzen's movement tick
                     super.tickMovement();
                     return;
-                case PASS: // Continue with other professions
-                default:
+                default: // Continue with other professions
                     break;
             }
         }
 
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
             Box box = this.getBoundingBox().expand(4.0D);
-            this.world.getEntityCollisions(this, box, entity -> {
+            this.world.getOtherEntities(this, box, entity -> {
                 if(entity instanceof ServerPlayerEntity) {
                     this.lookAtEntity(entity, 60.0F, 60.0F);
                     this.setHeadYaw(this.yaw);
@@ -348,7 +347,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         if(!this.npcData.messages.isEmpty()) {
             Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
-            this.world.getEntityCollisions(this, box, entity -> {
+            this.world.getOtherEntities(this, box, entity -> {
                 if(entity instanceof ServerPlayerEntity && ((TaterzenEditor) entity).getEditorMode() != TaterzenEditor.Types.MESSAGES) {
                     TaterzenPlayer pl = (TaterzenPlayer) entity;
                     int msgPos = pl.getLastMsgPos(this.getUuid());
