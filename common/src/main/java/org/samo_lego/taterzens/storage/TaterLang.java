@@ -40,7 +40,7 @@ public class TaterLang {
         public String equipmentEditorDescLine3 = "Punch to swap hands.";
         public String equipmentEditorDescLine4 = "Shift right click with empty hand to drop all equipment.";
         public String editorExit = "You've exited the editor.";
-        public String taterzenSkinChange = "Skin of Taterzen was fetched from %s.";
+        public String skinChanged = "Skin of Taterzen was fetched from %s.";
         public String configReloaded = "Config was reloaded successfully.";
         public String changedMovementType = "Movement type was set to %s.";
         public String renameTaterzen = "Taterzen has been renamed to %s.";
@@ -84,6 +84,7 @@ public class TaterLang {
         public String disguiseLibRequired = "DisguiseLib mod is required for this action.";
         public String noProfessionFound = "No professions with id %s were found.";
         public String cannotSetPermissionLevel = "Permission level %s is higher than your permission level.";
+        public String malformedUrl = "URL %s is malformed.";
     }
 
 

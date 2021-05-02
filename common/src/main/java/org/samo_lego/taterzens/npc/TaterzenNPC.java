@@ -413,10 +413,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.gameProfile = new GameProfile(this.getUuid(), profileName);
         if(skin != null) {
             this.setSkinFromTag(skin);
-            if(DISGUISELIB_LOADED) {
-                LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
-            } else
-                this.sendProfileUpdates();
+             this.sendProfileUpdates();
         }
     }
 
@@ -424,11 +421,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * Updates Taterzen's {@link GameProfile} for others.
      */
     public void sendProfileUpdates() {
-        ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
-        ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
-        EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
-        if(trackerEntry != null)
-            trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+        if(DISGUISELIB_LOADED)
+            LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
+        else {
+            ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
+            ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
+            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+            if(trackerEntry != null)
+                trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+        }
     }
 
 

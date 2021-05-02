@@ -34,11 +34,16 @@ import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.io.File;
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -59,6 +64,8 @@ public class NpcCommand {
 
     private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
     private static final SuggestionProvider<ServerCommandSource> HOSTILITY_TYPES;
+    private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/id/";
+    private static final ExecutorService THREADPOOL = Executors.newCachedThreadPool();
 
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -222,8 +229,8 @@ public class NpcCommand {
                         )
                         .then(literal("skin")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_skin, config.perms.npcCommandPermissionLevel))
-                                .then(argument("player name", word())
-                                        .executes(NpcCommand::setSkin)
+                                .then(argument("mineskin URL", message())
+                                    .executes(NpcCommand::setCustomSkin)
                                 )
                                 .executes(NpcCommand::copySkinLayers)
                         )
@@ -269,6 +276,90 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int setCustomSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
+
+        // Shameless self-promotion
+        if(config.fabricTailorAdvert) {
+            if(FABRICTAILOR_LOADED) {
+                source.sendFeedback(new LiteralText(lang.skinCommandUsage)
+                                .formatted(Formatting.GOLD)
+                                .styled(style ->
+                                        style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
+                                ),
+                        false
+                );
+            } else {
+                source.sendFeedback(new LiteralText(lang.fabricTailorAdvert)
+                                .formatted(Formatting.ITALIC)
+                                .formatted(Formatting.GOLD)
+                                .styled(style -> style
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/FabricTailor"))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install FabricTailor")))
+                                ),
+                        false
+                );
+            }
+
+        }
+
+        if(taterzen != null) {
+            String id = MessageArgumentType.getMessage(context, "mineskin URL").getString();
+            if(id.contains(":")) {
+                THREADPOOL.submit(() -> {
+                    String[] params = id.split("/");
+                    String mineskinUrl = MINESKIN_API_URL + params[params.length - 1];
+                    try {
+                        URL url = new URL(mineskinUrl);
+                        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                        connection.setUseCaches(false);
+                        connection.setDoOutput(true);
+                        connection.setRequestProperty("Content-Type", "application/json");
+                        connection.setRequestMethod("GET");
+
+                        try (
+                                InputStream is = connection.getInputStream();
+                                InputStreamReader isr = new InputStreamReader(is);
+                                BufferedReader br = new BufferedReader(isr);
+                        ) {
+                            String response = br.readLine();
+                            String value = response.split("\"value\":\"")[1].split("\"")[0];
+                            String signature = response.split("\"signature\":\"")[1].split("\"")[0];
+
+                            CompoundTag skinTag = new CompoundTag();
+                            skinTag.putString("value", value);
+                            skinTag.putString("signature", signature);
+
+                            taterzen.setSkinFromTag(skinTag);
+                            taterzen.sendProfileUpdates();
+
+                            source.sendFeedback(
+                                    successText(lang.success.skinChanged, new LiteralText(id)),
+                                    false
+                            );
+                        }
+                    } catch(MalformedURLException e) {
+                        source.sendError(errorText(lang.error.malformedUrl, new LiteralText(mineskinUrl)));
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                // Player's name
+                GameProfile skinProfile = new GameProfile(null, id);
+                skinProfile = SkullBlockEntity.loadProperties(skinProfile);
+                taterzen.applySkin(skinProfile);
+                context.getSource().sendFeedback(
+                        successText(lang.success.skinChanged, new LiteralText(id)),
+                        false
+                );
+            }
+        } else
+            source.sendError(noSelectedTaterzenError());
+        return 0;
     }
 
     private static int listTaterzenProfessions(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -870,49 +961,6 @@ public class NpcCommand {
 
         return 0;
     }
-
-    private static int setSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
-
-        // Shameless self-promotion
-        if(config.fabricTailorAdvert) {
-            if(FABRICTAILOR_LOADED) {
-                source.sendFeedback(new LiteralText(lang.skinCommandUsage)
-                        .formatted(Formatting.GOLD)
-                        .styled(style ->
-                            style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
-                        ),
-                    false
-                );
-            } else {
-                source.sendFeedback(new LiteralText(lang.fabricTailorAdvert)
-                                .formatted(Formatting.ITALIC)
-                                .formatted(Formatting.GOLD)
-                                .styled(style -> style
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/FabricTailor"))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install FabricTailor")))
-                                ),
-                        false
-                );
-            }
-
-        }
-
-        if(taterzen != null) {
-            String skinPlayerName = StringArgumentType.getString(context, "player name");
-            GameProfile skinProfile = new GameProfile(null, skinPlayerName);
-            skinProfile = SkullBlockEntity.loadProperties(skinProfile);
-            taterzen.applySkin(skinProfile);
-            context.getSource().sendFeedback(
-                    successText(lang.success.taterzenSkinChange, new LiteralText(skinPlayerName)),
-                    false
-            );
-        } else
-            context.getSource().sendError(noSelectedTaterzenError());
-        return 0;
-    }
-
 
     private static int copySkinLayers(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
