@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -13,8 +14,11 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -27,6 +31,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -34,6 +39,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -87,9 +93,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
 
     // Attack-based goals
-    // Public so they can be accessed from professions.
-    public final CrossbowAttackGoal<TaterzenNPC> crossbowAttackGoal = new CrossbowAttackGoal<>(this, 1.0D, 40.0F);
-    public final BowAttackGoal<TaterzenNPC> bowAttackGoal = new BowAttackGoal<>(this, 1.2D, 20, 40.0F);
+    public final ProjectileAttackGoal projectileAttackGoal = new ProjectileAttackGoal(this, 1.2D, 40, 40.0F);
     public final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
     public final RevengeGoal revengeGoal = new RevengeGoal(this);
     public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
@@ -413,7 +417,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.gameProfile = new GameProfile(this.getUuid(), profileName);
         if(skin != null) {
             this.setSkinFromTag(skin);
-             this.sendProfileUpdates();
+            this.sendProfileUpdates();
         }
     }
 
@@ -704,7 +708,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         if(this.isEquipmentEditor(player)) {
-            ItemStack stack = player.getStackInHand(hand);
+            ItemStack stack = player.getStackInHand(hand).copy();
 
             if (stack.isEmpty() && player.isSneaking()) {
                 this.dropEquipment(DamageSource.player(player), 1, this.npcData.allowEquipmentDrops);
@@ -715,6 +719,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             else {
                 this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
             }
+            // Updating behaviour (if npc had a sword and now has a bow, it won't
+            // be able to attack otherwise.)
+            this.setBehaviour(this.npcData.behaviour);
             result = ActionResult.PASS;
         }
         else if(!this.npcData.commands.isEmpty()) {
@@ -741,6 +748,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 this.equipStack(slot, ItemStack.EMPTY);
             }
         }
+    }
+
+    @Override
+    protected boolean shouldDropLoot() {
+        return this.npcData.allowEquipmentDrops;
+    }
+
+    @Override
+    protected boolean canDropLootAndXp() {
+        return this.npcData.allowEquipmentDrops;
     }
 
     /**
@@ -896,8 +913,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.behaviour = level;
 
         this.goalSelector.remove(reachMeleeAttackGoal);
-        this.goalSelector.remove(crossbowAttackGoal);
-        this.goalSelector.remove(bowAttackGoal);
+        this.goalSelector.remove(projectileAttackGoal);
         this.goalSelector.remove(attackMonstersGoal);
 
 
@@ -908,7 +924,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         switch(level) {
             case DEFENSIVE:
                 this.targetSelector.add(2, revengeGoal);
-                this.goalSelector.add(3, reachMeleeAttackGoal);
+                this.setAttackGoal();
                 break;
             case FRIENDLY:
                 this.targetSelector.add(2, revengeGoal);
@@ -918,10 +934,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             case HOSTILE:
                 this.targetSelector.add(2, revengeGoal);
                 this.targetSelector.add(3, followTargetGoal);
-                this.goalSelector.add(3, reachMeleeAttackGoal);
+                this.setAttackGoal();
                 break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * Sets proper attack goal, based on hand item stack.
+     */
+    private void setAttackGoal() {
+        ItemStack mainHandStack = this.getMainHandStack();
+        ItemStack offHandStack = this.getOffHandStack();
+        if(mainHandStack.getItem() instanceof RangedWeaponItem || offHandStack.getItem() instanceof RangedWeaponItem) {
+            this.goalSelector.add(3, projectileAttackGoal);
+        } else {
+            this.goalSelector.add(3, reachMeleeAttackGoal);
         }
     }
 
@@ -952,14 +981,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void setCharging(boolean charging) {
-
     }
 
     @Override
     public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
         // Crossbow attack
-        System.out.println("Shoot!");
-
+        this.shootProjectile(target, projectile, multiShotSpray);
     }
 
     @Override
@@ -968,8 +995,28 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
-        // Bow attack
-        System.out.println("Bow shoot!");
+        // Ranged attack
+        ItemStack arrowType = this.getArrowType(this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.BOW)));
+        if(arrowType.isEmpty())
+            arrowType = this.getArrowType(this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.CROSSBOW)));
+
+        PersistentProjectileEntity projectile = ProjectileUtil.createArrowProjectile(this, arrowType.copy(), pullProgress);
+
+        this.shootProjectile(target, projectile, 0.0F);
+    }
+
+    private void shootProjectile(LivingEntity target, ProjectileEntity projectile, float multishotSpray) {
+        double deltaX = target.getX() - this.getX();
+        double y = target.getBodyY(0.3333333333333333D) - projectile.getY();
+        double deltaZ = target.getZ() - this.getZ();
+        double planeDistance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        Vector3f launchVelocity = this.getProjectileLaunchVelocity(this, new Vec3d(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
+
+        projectile.setVelocity(launchVelocity.getX(), launchVelocity.getY(), launchVelocity.getZ(), 1.6F, 0);
+        //projectile.setVelocity(deltaX, y + planeDistance * 0.2D, deltaZ, 1.6F, 0);
+
+        this.playSound(SoundEvents.ENTITY_ARROW_SHOOT, 1.0F, 0.125F);
+        this.world.spawnEntity(projectile);
     }
 
     @Override
@@ -1000,7 +1047,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     protected Text getDefaultName() {
-        return new LiteralText(config.defaults.name);
+        return new LiteralText("-" + config.defaults.name + "-");
     }
 
     public PlayerEntity getFakePlayer() {
@@ -1069,7 +1116,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Manages item pickup.
      * @param stack stack to pick up.
-     * @return true if pickup was successfull, otherwise false.
+     * @return true if pickup was successful, otherwise false.
      */
     @Override
     public boolean tryEquip(ItemStack stack) {

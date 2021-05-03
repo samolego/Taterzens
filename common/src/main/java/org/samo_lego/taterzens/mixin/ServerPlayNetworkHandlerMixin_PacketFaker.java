@@ -1,6 +1,7 @@
 package org.samo_lego.taterzens.mixin;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.datafixers.util.Pair;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
@@ -14,6 +15,7 @@ import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerUpdateS2CPacketAccessor;
@@ -49,7 +51,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
-    private final List<TaterzenNPC> taterzens$tablistQueue = new ArrayList<TaterzenNPC>();
+    private final List<Pair<GameProfile, Text>> taterzens$tablistQueue = new ArrayList<>();
     private int taterzens$queueTimer;
 
     /**
@@ -68,7 +70,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     )
     private void changeEntityType(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
         World world = player.getEntityWorld();
-        if(packet instanceof PlayerSpawnS2CPacket && !taterzens$skipCheck) {
+        if(packet instanceof PlayerSpawnS2CPacket && !this.taterzens$skipCheck) {
             Entity entity = world.getEntityById(((PlayerSpawnS2CPacketAccessor) packet).getId());
 
             if(!(entity instanceof TaterzenNPC))
@@ -90,13 +92,12 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // show it ... :mojank:
             this.sendPacket(packet);
 
-            PlayerListS2CPacket playerRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
             // And now we can remove it from tablist
             // we must delay the tablist packet so as to allow
             // the client to fetch skin.
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
-            this.taterzens$tablistQueue.add(npc);
+            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
 
             this.taterzens$skipCheck = false;
@@ -110,6 +111,16 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             PlayerEntity fakePlayer = ((TaterzenNPC) entity).getFakePlayer();
             List<DataTracker.Entry<?>> trackedValues = fakePlayer.getDataTracker().getAllEntries();
             ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
+        } else if(packet instanceof PlayerListS2CPacket && !this.taterzens$skipCheck) {
+            this.taterzens$skipCheck = true;
+            this.taterzens$queueTimer = config.taterzenTablistTimeout;
+            ((PlayerListS2CPacketAccessor) packet).getEntries().forEach(entry -> {
+                if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
+                    // Fixes unloaded taterzens showing in tablist (disguiselib)
+                    this.taterzens$tablistQueue.add(new Pair<>(entry.getProfile(), entry.getDisplayName()));
+                }
+            });
+            this.taterzens$skipCheck = false;
         }
     }
 
@@ -121,11 +132,11 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
             List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue
                     .stream()
-                    .map(npc -> taterzensRemovePacket.new Entry(
-                                    npc.getGameProfile(),
+                    .map(pair -> taterzensRemovePacket.new Entry(
+                                    pair.getFirst(),
                                     0,
                                     GameMode.SURVIVAL,
-                                    npc.getName()
+                                    pair.getSecond()
                             )
                     )
                     .collect(Collectors.toList());
