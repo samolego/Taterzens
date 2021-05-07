@@ -48,7 +48,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
-import org.samo_lego.taterzens.compatibility.LoaderSpecific;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
@@ -123,7 +123,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
         if(DISGUISELIB_LOADED) {
-            LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         }
         this.server = world.getServer();
 
@@ -330,7 +330,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 }
             }
             super.tickMovement();
-            if(this.isAttacking() && this.onGround && this.getTarget() != null && this.squaredDistanceTo(this.getTarget()) < 4.0D && this.random.nextInt(5) == 0)
+            if(this.isAttacking() && this.npcData.jumpWhileAttacking && this.onGround && this.getTarget() != null && this.squaredDistanceTo(this.getTarget()) < 4.0D && this.random.nextInt(5) == 0)
                 this.jump();
         }
     }
@@ -344,9 +344,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         super.tick();
 
         // Profession event
+        professionLoop:
         for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.tick())
-                return;
+            ActionResult result = profession.tickMovement();
+            switch(result) {
+                case CONSUME: // Stop processing others, but continue with base Taterzen tick
+                    break professionLoop;
+                case FAIL: // Stop whole movement tick
+                    return;
+                case SUCCESS: // Continue with super, but skip Taterzen's tick
+                    super.tickMovement();
+                    return;
+                default: // Continue with other professions
+                    break;
+            }
         }
 
         if(!this.npcData.messages.isEmpty()) {
@@ -426,7 +437,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public void sendProfileUpdates() {
         if(DISGUISELIB_LOADED)
-            LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         else {
             ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
             ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
@@ -450,7 +461,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
         if(DISGUISELIB_LOADED) {
-            LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         }
 
         // Sending updates
@@ -521,7 +532,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(DISGUISELIB_LOADED && npcTag.contains("entityType")) {
             Identifier identifier = new Identifier(npcTag.getString("entityType"));
             if(!identifier.getPath().equals("player"))
-                LoaderSpecific.disguiselib$disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
+                DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
         }
 
         // todo @deprecated (migration to more commands)
@@ -564,10 +575,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setInvulnerable(npcTag.contains("Invulnerable") && npcTag.getBoolean("Invulnerable"));
         this.npcData.allowEquipmentDrops = npcTag.contains("DropsAllowed") && npcTag.getBoolean("DropsAllowed");
 
+        String profileName = this.getName().getString();
+        if(profileName.length() > 16) {
+            // Minecraft kicks you if player has name longer than 16 chars in GameProfile
+            profileName = profileName.substring(0, 16);
+        }
 
-        this.gameProfile = new GameProfile(this.getUuid(), this.getDisplayName().asString());
+        this.gameProfile = new GameProfile(this.getUuid(), profileName);
         if(DISGUISELIB_LOADED) {
-            LoaderSpecific.disguiselib$setGameProfile(this, this.gameProfile);
+            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         }
 
         // Skin is cached

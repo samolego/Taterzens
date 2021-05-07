@@ -44,7 +44,7 @@ public class PermissionList {
     public final String _comment_npcList = "// Lists Taterzens.";
     public final String npc_list = "taterzens.npc.list";
 
-    public final String _comment_npcRemove = "// Remove Taterzens.";
+    public final String _comment_npcRemove = "// Removes Taterzen.";
     public final String npc_remove = "taterzens.npc.remove";
 
     public final String _comment_npcPresetSave = "// Save Taterzen to a preset file.";
@@ -112,8 +112,12 @@ public class PermissionList {
 
     public final String _comment_npcEditProfession = "// Allows editing Taterzen's professions.";
     public final String npc_edit_profession = "taterzens.npc.edit.professions";
+
+    public final String _comment_npcEditProfessionAdd = "// Enables adding profession.";
     public final String npc_edit_profession_add = "taterzens.npc.edit.professions.add";
+    public final String _comment_npcEditProfessionRemove = "// Enables removing profession.";
     public final String npc_edit_profession_remove = "taterzens.npc.edit.professions.remove";
+    public final String _comment_npcEditProfessionList = "// Enables listing Taterzen's professions.";
     public final String npc_edit_profession_list = "taterzens.npc.edit.professions.list";
 
     /**

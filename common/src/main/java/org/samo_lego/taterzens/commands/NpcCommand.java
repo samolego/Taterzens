@@ -29,7 +29,7 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.compatibility.LoaderSpecific;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -1061,7 +1061,7 @@ public class NpcCommand {
                 nbt.putString("id", disguise.toString());
 
                 EntityType.loadEntityWithPassengers(nbt, source.getWorld(), (entityx) -> {
-                    LoaderSpecific.disguiselib$disguiseAs(taterzen, entityx);
+                    DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
                     source.sendFeedback(
                             successText(lang.success.changedEntityType, new TranslatableText(entityx.getType().getTranslationKey())),
                             false
@@ -1091,7 +1091,7 @@ public class NpcCommand {
         }
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
-            LoaderSpecific.disguiselib$clearDisguise(taterzen);
+            DisguiseLibCompatibility.clearDisguise(taterzen);
             source.sendFeedback(
                     successText(lang.success.resetEntityType, taterzen.getCustomName()),
                     false

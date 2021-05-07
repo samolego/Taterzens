@@ -7,6 +7,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.samo_lego.taterzens.event.EventHandler;
@@ -22,6 +23,7 @@ public class TaterzensForge {
 
     public TaterzensForge() {
         taterDir = new File(FMLPaths.CONFIGDIR.get() + "/Taterzens/presets");
+        DISGUISELIB_LOADED = ModList.get().isLoaded("disguiselib");
         Identifier identifier = new Identifier(MODID, "npc");
 
         //noinspection

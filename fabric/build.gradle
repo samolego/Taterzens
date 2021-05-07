@@ -11,21 +11,7 @@ plugins {
 
 repositories {
     maven {
-        name = "Why did my cmd fail"
-        url =  'https://dl.bintray.com/bymartrixx/maven'
-    }
-    maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
-    }
-    maven {
-        name = "Ladysnake Libs"
-        url = "https://dl.bintray.com/ladysnake/libs"
-    }
-
-
-    maven {
-        name = "fall flying lib"
-        url = "https://dl.bintray.com/adriantodt/maven"
     }
     maven {
         name = "AperLambda"
@@ -55,11 +41,9 @@ dependencies {
     // Permission API
     modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
 
-    // Why did my command fail
-    modRuntime 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
     // DisguiseLib
-    modImplementation "com.github.NucleoidMC:DisguiseLib:${project.disguiselib_version}" // jitpack
+    modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
 
     modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
     modRuntime "com.github.astei:lazydfu:0.1.2"

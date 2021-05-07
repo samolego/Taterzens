@@ -64,6 +64,7 @@ public class NPCData {
      * Whether to allow dropping equipment on death.
      */
     public boolean allowEquipmentDrops = false;
+    public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
     /**
      * Types of movement a Taterzen can perform.

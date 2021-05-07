@@ -137,10 +137,20 @@ public class TaterConfig {
          */
         @SerializedName("ambient_sound")
         public String ambientSound = "entity.player.breath";
+
+        public final String _comment_invulnerable = "// Whether Taterzen is invulnerable by default.";
         /**
          * Whether Taterzen is invulnerable by default.
          */
         public boolean invulnerable = true;
+
+        public final String _comment_jumpWhileAttacking = "// Enable jumps when Taterzen is in attack mode.";
+        /**
+         * Whether to enable jumps when Taterzen
+         * is in attack mode.
+         */
+        @SerializedName("jump_while_attacking")
+        public boolean jumpWhileAttacking = true;
     }
 
     /**

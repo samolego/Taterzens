@@ -20,9 +20,19 @@ public interface TaterzenProfession {
 
     /**
      * Called on Taterzen entity tick.
+     * Returning different action results has different meanings:
+     * <ul>
+     *     <li>{@link ActionResult#PASS} - Default; continues ticking other professions.</li>
+     *     <li>{@link ActionResult#CONSUME} - Stops processing others, but continues with base Taterzen tick.</li>
+     *     <li>{@link ActionResult#FAIL} - Stops whole movement tick.</li>
+     *     <li>{@link ActionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's tick.</li>
+     * </ul>
+     *
      * @return true if you want to cancel the default Taterzen ticking.
      */
-    boolean tick();
+    default ActionResult tick() {
+        return ActionResult.PASS;
+    }
 
     /**
      * Called on movement tick.
@@ -36,7 +46,9 @@ public interface TaterzenProfession {
      *
      * @return action result which determines further execution
      */
-    ActionResult tickMovement();
+    default ActionResult tickMovement() {
+        return ActionResult.PASS;
+    }
 
     /**
      * Called on Taterzen interaction.
@@ -54,23 +66,29 @@ public interface TaterzenProfession {
      * @param attacker entity that is attacking taterzen.
      * @return true to cancel the attack, otherwise false.
      */
-    boolean handleAttack(Entity attacker);
+    default boolean handleAttack(Entity attacker) {
+        return false;
+    }
 
     /**
      * Called onb Taterzen death / removal.
      */
-    void onRemove();
+    default void onRemove() {
+    }
 
     /**
      * Called on parsing Taterzen data from {@link CompoundTag}.
      * @param tag tag to load profession data from.
      */
-    void fromTag(CompoundTag tag);
+    default void fromTag(CompoundTag tag) {
+    }
+
     /**
      * Called on saving Taterzen data to {@link CompoundTag}.
      * @param tag tag to save profession data to.
      */
-    void toTag(CompoundTag tag);
+    default void toTag(CompoundTag tag) {
+    }
 
     /**
      * Method used for creating the new profession for given taterzen.
@@ -88,5 +106,7 @@ public interface TaterzenProfession {
      * @param groundStack stack to be picked up
      * @return true if item should be picked up, otherwise false.
      */
-    boolean tryPickupItem(ItemStack groundStack);
+    default boolean tryPickupItem(ItemStack groundStack) {
+        return false;
+    }
 }
