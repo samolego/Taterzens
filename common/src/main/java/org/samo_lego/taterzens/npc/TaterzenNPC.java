@@ -41,7 +41,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
@@ -147,17 +146,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return HostileEntity.createHostileAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2505D)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 35.0D);
-    }
-
-    /**
-     * Sets the *ONLY* command to be executed on right - click
-     * @param command command to execute
-     * @deprecated please use {@link TaterzenNPC#addCommand(String)}
-     */
-    @Deprecated
-    public void setCommand(String command) {
-        this.clearCommands();
-        this.npcData.commands.add(command);
     }
 
     /**
@@ -527,17 +515,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         // Skin layers
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
 
-        //todo @Deprecated (migration to disguiselib)
-        // Compatibility (transition to disguiselib) & presets
-        if(DISGUISELIB_LOADED && npcTag.contains("entityType")) {
-            Identifier identifier = new Identifier(npcTag.getString("entityType"));
-            if(!identifier.getPath().equals("player"))
-                DisguiseLibCompatibility.disguiseAs(this, Registry.ENTITY_TYPE.get(identifier));
-        }
-
-        // todo @deprecated (migration to more commands)
-        if(npcTag.contains("command"))
-            this.npcData.commands.add(npcTag.getString("command"));
 
         // Multiple commands
         ListTag commands = (ListTag) npcTag.get("Commands");
