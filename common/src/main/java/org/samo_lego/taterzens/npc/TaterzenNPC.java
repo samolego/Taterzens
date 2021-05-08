@@ -579,7 +579,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     this.professions.put(professionId, profession);
 
                     // Parsing profession data
-                    profession.fromTag((CompoundTag) npcTag.get("ProfessionData"));
+                    profession.fromTag(professionCompound.getCompound("ProfessionData"));
                 }
                 else
                     Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mod provides it.", this.getName().asString(), professionId);
@@ -1098,12 +1098,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     @Nullable
     public TaterzenProfession getProfession(Identifier professionId) {
-        if(this.professions.containsKey(professionId)) {
-            return this.professions.get(professionId);
-        } else {
-            Taterzens.LOGGER.warn("Trying to get profession {} from {}, but taterzen doesn't have it.", professionId, this.getName().asString());
-            return null;
-        }
+        return this.professions.getOrDefault(professionId, null);
     }
 
     /**
