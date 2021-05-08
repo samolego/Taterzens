@@ -99,9 +99,8 @@ public interface TaterzenProfession {
     TaterzenProfession create(TaterzenNPC taterzen);
 
     /**
-     * Called when Taterzen has the ability to pickup an item.
+     * Called when Taterzen has a chance to pickup an item.
      * You can create a local inventory in the profession and save it there.
-     * Taterzen needs to have {@link TaterzenNPC#canPickUpLoot()} enabled.
      *
      * @param groundStack stack to be picked up
      * @return true if item should be picked up, otherwise false.

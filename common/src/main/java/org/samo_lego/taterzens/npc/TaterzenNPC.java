@@ -1103,18 +1103,23 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     /**
      * Manages item pickup.
-     * @param stack stack to pick up.
-     * @return true if pickup was successful, otherwise false.
+     * @param item item to pick up.
      */
     @Override
-    public boolean tryEquip(ItemStack stack) {
-        if(this.canPickUpLoot()) {
-            // Profession event
-            for(TaterzenProfession profession : this.professions.values()) {
-                if(profession.tryPickupItem(stack))
-                    return true;
+    protected void loot(ItemEntity item) {
+        // Profession event
+        ItemStack stack = item.getStack();
+        ItemStack copiedStack = stack.copy();
+        for(TaterzenProfession profession : this.professions.values()) {
+            if(profession.tryPickupItem(copiedStack)) {
+                this.method_29499(item); // stats increase
+                this.sendPickup(item, stack.getCount());
+                stack.setCount(0);
+                item.remove();
+                return;
             }
         }
-        return super.tryEquip(stack);
+
+        super.loot(item);
     }
 }
