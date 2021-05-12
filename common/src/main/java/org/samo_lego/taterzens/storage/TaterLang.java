@@ -69,6 +69,7 @@ public class TaterLang {
         public String equipmentDropStatus = "Equipment drops have been set to %s.";
         public String professionAdded = "Profession %s has been added successfully.";
         public String professionRemoved = "Profession %s has been removed successfully.";
+        public String flagSet = "Taterzen flag has been changed to %s.";
     }
 
     public static class Error {

@@ -45,6 +45,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -167,9 +168,39 @@ public class NpcCommand {
                                     .executes(NpcCommand::setTaterzenBehaviour)
                             )
                         )
-                        .then(literal("invulnerable")
-                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_invulnerability, config.perms.npcCommandPermissionLevel))
-                                .then(argument("invulnerable", BoolArgumentType.bool()).executes(NpcCommand::setInvulnerable))
+                        .then(literal("tags")
+                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags, config.perms.npcCommandPermissionLevel))
+                                .then(literal("leashable")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_leashable, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("leashable", BoolArgumentType.bool())
+                                            .executes(ctx -> {
+                                                boolean leashable = BoolArgumentType.getBool(ctx, "leashable");
+                                                return setFlag(ctx, "leashable", leashable, npc -> npc.setLeashable(leashable));
+                                            })
+                                        )
+                                )
+                                .then(literal("pushable")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_pushable, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("pushable", BoolArgumentType.bool())
+                                            .executes(ctx -> {
+                                                boolean pushable = BoolArgumentType.getBool(ctx, "pushable");
+                                                return setFlag(ctx, "pushable", pushable, npc -> npc.setPushable(pushable));
+                                            })
+                                        )
+                                )
+                                .then(literal("jumpWhileAttacking")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_jumpWhileAttacking, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("perform jumps", BoolArgumentType.bool())
+                                                .executes(ctx -> {
+                                                    boolean jumpWhileAttacking = BoolArgumentType.getBool(ctx, "perform jumps");
+                                                    return setFlag(ctx, "jumpWhileAttacking", jumpWhileAttacking, npc -> npc.setPerformAttackJumps(jumpWhileAttacking));
+                                                })
+                                        )
+                                )
+                                .then(literal("allowEquipmentDrops")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment_equipmentDrops, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("drop", BoolArgumentType.bool()).executes(NpcCommand::setEquipmentDrops))
+                                )
                         )
                         .then(literal("type")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
@@ -276,6 +307,17 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int setFlag(CommandContext<ServerCommandSource> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
+        if(taterzen != null) {
+            flag.accept(taterzen);
+            source.sendFeedback(successText(lang.success.flagSet, new LiteralText(flagName + ":" + flagValue)), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+        return 0;
     }
 
     private static int setCustomSkin(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -449,19 +491,6 @@ public class NpcCommand {
         return 0;
     }
 
-    private static int setInvulnerable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
-        if(taterzen != null) {
-            boolean invulnerable = BoolArgumentType.getBool(context, "invulnerable");
-            taterzen.setInvulnerable(invulnerable);
-            source.sendFeedback(successText(lang.success.invulnerableStatus, new LiteralText(String.valueOf(invulnerable))), false);
-        } else
-            context.getSource().sendError(noSelectedTaterzenError());
-
-        return 0;
-    }
-
     private static int setTaterzenBehaviour(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
@@ -474,7 +503,7 @@ public class NpcCommand {
                         .formatted(Formatting.GOLD)
                         .formatted(Formatting.ITALIC)
                         .styled(style -> style
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit invulnerable false"))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/data merge entity " + taterzen.getUuidAsString() + " {Invulnerable:0b}"))
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Disable invulnerability")))
                         ),
                         false

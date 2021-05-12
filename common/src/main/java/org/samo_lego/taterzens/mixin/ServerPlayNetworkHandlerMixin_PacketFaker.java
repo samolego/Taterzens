@@ -7,14 +7,15 @@ import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.*;
+import net.minecraft.scoreboard.AbstractTeam;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.npc.TaterzenNPC.taterzens$NAMETAG_HIDE_TEAM;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -52,7 +54,13 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     private boolean taterzens$skipCheck;
     @Unique
     private final List<Pair<GameProfile, Text>> taterzens$tablistQueue = new ArrayList<>();
+    @Unique
     private int taterzens$queueTimer;
+
+    @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("TAIL"))
+    private void constructor(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        taterzens$NAMETAG_HIDE_TEAM.setNameTagVisibilityRule(AbstractTeam.VisibilityRule.NEVER);
+    }
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
@@ -97,8 +105,8 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // the client to fetch skin.
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
-            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
+            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.isCustomNameVisible() ? npc.getName() : LiteralText.EMPTY));
 
             this.taterzens$skipCheck = false;
             this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
@@ -126,8 +134,23 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Inject(method = "onPlayerMove(Lnet/minecraft/network/packet/c2s/play/PlayerMoveC2SPacket;)V", at = @At("RETURN"))
     private void removeTaterzenFromTablist(PlayerMoveC2SPacket packet, CallbackInfo ci) {
-        if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer == 0) {
+        if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer <= 0) {
             this.taterzens$skipCheck = true;
+
+            // Adding Taterzens with hidden names to team
+
+            // Create team
+            this.sendPacket(new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, 0));
+
+            List<String> hiddenNameList = this.taterzens$tablistQueue
+                    .stream()
+                    .filter(pair -> pair.getSecond().equals(LiteralText.EMPTY))
+                    .map(pair -> pair.getSecond().getString())
+                    .collect(Collectors.toList());
+            if(!hiddenNameList.isEmpty()) {
+                TeamS2CPacket teamPacket = new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, hiddenNameList, 3);
+                this.sendPacket(teamPacket);
+            }
 
             PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
             List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue
@@ -143,6 +166,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             //noinspection ConstantConditions
             ((PlayerListS2CPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
             this.sendPacket(taterzensRemovePacket);
+
             this.taterzens$tablistQueue.clear();
 
             this.taterzens$skipCheck = false;

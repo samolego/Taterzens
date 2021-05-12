@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import static org.samo_lego.taterzens.Taterzens.MODID;
-import static org.samo_lego.taterzens.Taterzens.config;
 
 
 @Mixin(RegistrySyncManager.class)
@@ -26,12 +25,10 @@ public class RegistrySyncManagerMixin_TaterzenSyncDisabler {
             remap = false
     )
     private static void removeTaterzenFromSync(boolean isClientSync, CompoundTag activeTag, CallbackInfoReturnable<CompoundTag> cir, CompoundTag mainTag, CompoundTag tag) {
-        if(config.disableRegistrySync) {
-            CompoundTag registries = tag.getCompound("registries");
-            CompoundTag entityTypes = registries.getCompound("minecraft:entity_type");
-            if(entityTypes != null) {
-                entityTypes.remove(MODID + ":npc");
-            }
+        CompoundTag registries = tag.getCompound("registries");
+        CompoundTag entityTypes = registries.getCompound("minecraft:entity_type");
+        if(entityTypes != null) {
+            entityTypes.remove(MODID + ":npc");
         }
     }
 }

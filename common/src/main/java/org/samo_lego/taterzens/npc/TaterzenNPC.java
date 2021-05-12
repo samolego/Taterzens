@@ -25,6 +25,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -57,10 +60,7 @@ import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
@@ -80,6 +80,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private final HashMap<Identifier, TaterzenProfession> professions = new HashMap<>();
     private GameProfile gameProfile;
     private short ticks = 0;
+
+    public static final Team taterzens$NAMETAG_HIDE_TEAM = new Team(new Scoreboard(), "");
 
     // Goals
     // Public so they can be accessed from professions.
@@ -420,6 +422,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
     }
 
+    @Override
+    public void setCustomNameVisible(boolean visible) {
+        super.setCustomNameVisible(visible);
+
+        this.world.getServer().getPlayerManager().sendToDimension(new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, 0), this.world.getRegistryKey());
+
+        // not using collection.singleton as it could cause compatibility issues
+        TeamS2CPacket teamPacket = new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, Arrays.asList(this.getName().getString()), visible ? 4 : 3);
+        this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
+
+    }
+
     /**
      * Updates Taterzen's {@link GameProfile} for others.
      */
@@ -509,8 +523,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         this.npcData.movement = NPCData.Movement.valueOf(npcTag.getString("movement"));
 
+        //todo @deprecated
         this.npcData.leashable = npcTag.getBoolean("leashable");
         this.npcData.pushable = npcTag.getBoolean("pushable");
+        this.npcData.allowEquipmentDrops = npcTag.contains("DropsAllowed") && npcTag.getBoolean("DropsAllowed");
+
+
+        CompoundTag tags = npcTag.getCompound("Tags");
+        this.npcData.leashable = tags.getBoolean("Leashable");
+        this.npcData.pushable = tags.getBoolean("Pushable");
+        this.npcData.jumpWhileAttacking = tags.getBoolean("JumpAttack");
+        this.npcData.allowEquipmentDrops = tags.getBoolean("DropsAllowed");
+
 
         // Skin layers
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
@@ -549,8 +573,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.npcData.permissionLevel = npcTag.getInt("PermissionLevel");
         //todo remove contains check after a while?
         this.setBehaviour(npcTag.contains("Behaviour") ? NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")) : NPCData.Behaviour.PASSIVE);
-        this.setInvulnerable(npcTag.contains("Invulnerable") && npcTag.getBoolean("Invulnerable"));
-        this.npcData.allowEquipmentDrops = npcTag.contains("DropsAllowed") && npcTag.getBoolean("DropsAllowed");
 
         String profileName = this.getName().getString();
         if(profileName.length() > 16) {
@@ -582,7 +604,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     profession.fromTag(professionCompound.getCompound("ProfessionData"));
                 }
                 else
-                    Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mod provides it.", this.getName().asString(), professionId);
+                    Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mods provides it.", this.getName().asString(), professionId);
             });
         }
 
@@ -601,10 +623,20 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         CompoundTag npcTag = new CompoundTag();
 
+        // Vanilla saves CustomNameVisible only if set to true
+        this.setCustomNameVisible(tag.contains("CustomNameVisible"));
+
         npcTag.putString("movement", this.npcData.movement.toString());
 
-        npcTag.putBoolean("leashable", this.npcData.leashable);
-        npcTag.putBoolean("pushable", this.npcData.pushable);
+        CompoundTag tags = new CompoundTag();
+
+        tags.putBoolean("Leashable", this.npcData.leashable);
+        tags.putBoolean("Pushable", this.npcData.pushable);
+        tags.putBoolean("JumpAttack", this.npcData.jumpWhileAttacking);
+        tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
+
+        npcTag.put("Tags", tags);
+
 
         npcTag.putByte("SkinLayers", this.fakePlayer.getDataTracker().get(getPLAYER_MODEL_PARTS()));
 
@@ -639,8 +671,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         npcTag.putInt("PermissionLevel", this.npcData.permissionLevel);
         npcTag.putString("Behaviour", this.npcData.behaviour.toString());
-        npcTag.putBoolean("Invulnerable", this.isInvulnerable());
-        npcTag.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
 
         // Profession initialising
         ListTag professions = new ListTag();
@@ -687,12 +717,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
         long lastAction = ((ServerPlayerEntity) player).getLastActionTime();
-        ActionResult result = ActionResult.FAIL;
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
         if(lastAction - ((TaterzenPlayer) player).getLastInteractionTime() < 50)
-            return result;
+            return ActionResult.FAIL;
+        ((TaterzenPlayer) player).setLastInteraction(lastAction);
+
+        System.out.println("Interact " + player.getStackInHand(hand));
+
 
         for(TaterzenProfession profession : this.professions.values()) {
             ActionResult professionResult = profession.interactAt(player, pos, hand);
@@ -715,20 +748,18 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             // Updating behaviour (if npc had a sword and now has a bow, it won't
             // be able to attack otherwise.)
             this.setBehaviour(this.npcData.behaviour);
-            result = ActionResult.PASS;
+            return ActionResult.PASS;
         }
-        else if(!this.npcData.commands.isEmpty()) {
+        if(!this.npcData.commands.isEmpty()) {
             this.npcData.commands.forEach(cmd -> {
                 if(cmd.contains("--clicker--")) {
                     cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
                 }
                 this.server.getCommandManager().execute(this.getCommandSource(), cmd);
             });
-            result = ActionResult.PASS;
         }
 
-        ((TaterzenPlayer) player).setLastInteraction(lastAction);
-        return result;
+        return ActionResult.FAIL; //this.interact(player, hand);
     }
 
     @Override
@@ -827,6 +858,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
+     * Sets the pushable flag
+     * @param pushable whether Taterzen can be pushed
+     */
+    public void setPushable(boolean pushable) {
+        this.npcData.pushable = pushable;
+    }
+
+    /**
      * Handles received hits.
      *
      * @param attacker entity that attacked NPC.
@@ -865,7 +904,22 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public boolean canBeLeashedBy(PlayerEntity player) {
+        System.out.println("Leashable :: " + (!this.isLeashed() && this.npcData.leashable));
         return !this.isLeashed() && this.npcData.leashable;
+    }
+
+    /**
+     * Sets whether Taterzen can be leashed.
+     * @param leashable Taterzen leashability.
+     */
+    public void setLeashable(boolean leashable) {
+        this.npcData.leashable = leashable;
+    }
+
+    @Override
+    public void attachLeash(Entity entityIn, boolean sendAttachNotification) {
+        super.attachLeash(entityIn, sendAttachNotification);
+        System.out.println("Leashing??: " + entityIn + ", with nots: " + sendAttachNotification);
     }
 
     @Override
@@ -1121,5 +1175,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         super.loot(item);
+    }
+
+    /**
+     * Sets whether Taterzen can perform jumps when in
+     * proximity of target that it is attacking.
+     * @param jumpWhileAttacking whether to jump during attacks.
+     */
+    public void setPerformAttackJumps(boolean jumpWhileAttacking) {
+        this.npcData.jumpWhileAttacking = jumpWhileAttacking;
     }
 }

@@ -25,17 +25,16 @@ public class TaterConfig {
      */
     public String language = "en_us";
 
-    public final String _comment_disableRegistrySync1 = "// Whether to remove Taterzens from Fabric's registry sync. Safe to be true.";
-    public final String _comment_disableRegistrySync2 = "// If using Forge, this will remove WHOLE registry sync. Proceed with caution.";
+    public final String _comment_disableRegistrySync1 = "// Whether to remove Taterzens from registry sync. Auto applied in Fabric";
+    public final String _comment_disableRegistrySync2 = "// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.";
     /**
-     * Whether to disable Fabric's / Forge's registry sync.
-     * This marks mod as serverside.
+     * Whether to disable Forge's registry sync.
+     * (This marks mod as serverside.)
      *
-     * If using Fabric, Taterzen NPC type is just removed from sync packet.
      * If using Forge, the whole thing is not synced. Use carefully!
      */
     @SerializedName("disable_registry_sync")
-    public boolean disableRegistrySync = true;
+    public boolean disableRegistrySync = false;
 
     public final String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
     public final String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
