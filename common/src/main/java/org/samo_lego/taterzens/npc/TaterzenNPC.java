@@ -58,6 +58,7 @@ import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
+import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
@@ -88,7 +89,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
     public final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
 
-    public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, false, true);
+    public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isTeammate(target));
     public final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
     public final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
     public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
@@ -96,9 +97,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     // Attack-based goals
     public final ProjectileAttackGoal projectileAttackGoal = new ProjectileAttackGoal(this, 1.2D, 40, 40.0F);
     public final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
-    public final RevengeGoal revengeGoal = new RevengeGoal(this);
+    public final TeamRevengeGoal revengeGoal = new TeamRevengeGoal(this);
     public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
-    public final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class,false);
+    public final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class, 100,false, true, target -> !this.isTeammate(target));
 
     /**
      * Creates a TaterzenNPC.
