@@ -1,12 +1,14 @@
 package org.samo_lego.taterzens.api.professions;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
+import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 /**
@@ -106,6 +108,39 @@ public interface TaterzenProfession {
      * @return true if item should be picked up, otherwise false.
      */
     default boolean tryPickupItem(ItemStack groundStack) {
+        return false;
+    }
+
+
+    /**
+     * Called when Taterzen's movement changes.
+     * @param movement new movement type.
+     */
+    default void onMovementSet(NPCData.Movement movement) {
+    }
+
+    /**
+     * Called when Taterzen's behaviour changes.
+     * @param behaviourLevel new behaviour level.
+     */
+    default void onBehaviourSet(NPCData.Behaviour behaviourLevel) {
+    }
+
+    /**
+     * Whether to cancel ranged attack.
+     * @param target targeted entity.
+     * @return false if attack should continue, true to cancel.
+     */
+    default boolean cancelRangedAttack(LivingEntity target) {
+        return false;
+    }
+
+    /**
+     * Whether to cancel melee attack.
+     * @param target targeted entity.
+     * @return false if attack should continue, true to cancel.
+     */
+    default boolean cancelMeleeAttack(Entity target) {
         return false;
     }
 }

@@ -209,6 +209,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.lookPlayerGoal);
         this.goalSelector.remove(this.lookAroundGoal);
 
+        for(TaterzenProfession profession : this.professions.values()) {
+            profession.onMovementSet(movement);
+        }
+
         if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.add(4, directPathGoal);
@@ -964,10 +968,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(projectileAttackGoal);
         this.goalSelector.remove(attackMonstersGoal);
 
-
         this.targetSelector.remove(followTargetGoal);
         this.targetSelector.remove(revengeGoal);
         this.targetSelector.remove(followMonstersGoal);
+
+        for(TaterzenProfession profession : this.professions.values()) {
+            profession.onBehaviourSet(level);
+        }
 
         switch(level) {
             case DEFENSIVE:
@@ -1043,6 +1050,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
+
+        for(TaterzenProfession profession : this.professions.values()) {
+            if(profession.cancelRangedAttack(target))
+                return;
+        }
+
         // Ranged attack
         ItemStack arrowType = this.getArrowType(this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.BOW)));
         if(arrowType.isEmpty())
@@ -1051,6 +1064,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         PersistentProjectileEntity projectile = ProjectileUtil.createArrowProjectile(this, arrowType.copy(), pullProgress);
 
         this.shootProjectile(target, projectile, 0.0F);
+
+
     }
 
     private void shootProjectile(LivingEntity target, ProjectileEntity projectile, float multishotSpray) {
@@ -1068,24 +1083,45 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
+    public boolean tryAttack(Entity target) {
+        for(TaterzenProfession profession : this.professions.values()) {
+            if(profession.cancelMeleeAttack(target))
+                return false;
+        }
+        return super.tryAttack(target);
+    }
+
+    @Override
     protected SoundEvent getAmbientSound() {
-        if(config.defaults.ambientSound == null)
+        if(config.defaults.ambientSounds.isEmpty())
             return null;
-        return new SoundEvent(new Identifier(config.defaults.ambientSound));
+
+        int rnd = this.random.nextInt(config.defaults.ambientSounds.size());
+        Identifier sound = new Identifier(config.defaults.ambientSounds.get(rnd));
+
+        return new SoundEvent(sound);
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        if(config.defaults.hurtSound == null)
+        if(config.defaults.hurtSounds.isEmpty())
             return null;
-        return new SoundEvent(new Identifier(config.defaults.hurtSound));
+
+        int rnd = this.random.nextInt(config.defaults.hurtSounds.size());
+        Identifier sound = new Identifier(config.defaults.hurtSounds.get(rnd));
+
+        return new SoundEvent(sound);
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        if(config.defaults.deathSound == null)
+        if(config.defaults.deathSounds.isEmpty())
             return null;
-        return new SoundEvent(new Identifier(config.defaults.deathSound));
+
+        int rnd = this.random.nextInt(config.defaults.deathSounds.size());
+        Identifier sound = new Identifier(config.defaults.deathSounds.get(rnd));
+
+        return new SoundEvent(sound);
     }
 
     @Override

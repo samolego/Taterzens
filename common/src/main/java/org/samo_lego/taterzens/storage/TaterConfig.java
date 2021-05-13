@@ -6,6 +6,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MODID;
@@ -122,20 +124,26 @@ public class TaterConfig {
          * Default Taterzen death sound.
          * Can be null to not produce any sounds.
          */
-        @SerializedName("death_sound")
-        public String deathSound = "entity.player.death";
+        @SerializedName("death_sounds")
+        public ArrayList<String> deathSounds = new ArrayList<>(Arrays.asList(
+                "entity.player.death"
+        ));
         /**
          * Default Taterzen hurt / hit sound.
          * Can be null to not produce any sounds.
          */
-        @SerializedName("hurt_sound")
-        public String hurtSound = "entity.player.hurt";
+        @SerializedName("hurt_sounds")
+        public ArrayList<String> hurtSounds = new ArrayList<>(Arrays.asList(
+                "entity.player.hurt"
+        ));
         /**
          * Default Taterzen ambient sound.
          * Can be null to not produce any sounds.
          */
-        @SerializedName("ambient_sound")
-        public String ambientSound = "entity.player.breath";
+        @SerializedName("ambient_sounds")
+        public ArrayList<String> ambientSounds = new ArrayList<>(Arrays.asList(
+                "entity.player.breath"
+        ));
 
         public final String _comment_invulnerable = "// Whether Taterzen is invulnerable by default.";
         /**
