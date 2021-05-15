@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,6 +66,7 @@ public class NpcCommand {
 
     private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
     private static final SuggestionProvider<ServerCommandSource> HOSTILITY_TYPES;
+    private static final SuggestionProvider<ServerCommandSource> FOLLOW_TYPES;
     private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/id/";
     private static final ExecutorService THREADPOOL = Executors.newCachedThreadPool();
 
@@ -260,7 +262,7 @@ public class NpcCommand {
                         )
                         .then(literal("skin")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_skin, config.perms.npcCommandPermissionLevel))
-                                .then(argument("mineskin URL", message())
+                                .then(argument("mineskin URL | playername", message())
                                     .executes(NpcCommand::setCustomSkin)
                                 )
                                 .executes(NpcCommand::copySkinLayers)
@@ -279,6 +281,16 @@ public class NpcCommand {
                         )
                         .then(literal("movement")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
+                                .then(literal("follow")
+                                    .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement_follow, config.perms.npcCommandPermissionLevel))
+                                    .then(argument("follow type", word())
+                                            .suggests(FOLLOW_TYPES)
+                                            .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
+                                            .then(argument("uuid", EntityArgumentType.entity())
+                                                    .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
+                                            )
+                                    )
+                                )
                                 .then(argument("movement type", word())
                                         .suggests(MOVEMENT_TYPES)
                                         .executes(context -> changeMovement(context, StringArgumentType.getString(context, "movement type")))
@@ -307,6 +319,26 @@ public class NpcCommand {
                         )
                 )
         );
+    }
+
+    private static int setFollowType(CommandContext<ServerCommandSource> context, NPCData.FollowTypes followType) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
+        if(taterzen != null) {
+            taterzen.setFollowType(followType);
+            if(followType == NPCData.FollowTypes.UUID) {
+                try {
+                    UUID uuid = EntityArgumentType.getEntity(context, "uuid").getUuid();
+                    taterzen.setFollowUuid(uuid);
+                } catch(IllegalArgumentException ignored) {
+                    source.sendError(errorText(lang.error.noUuidProvided, new LiteralText(followType.toString())));
+                }
+            }
+
+            source.sendFeedback(successText(lang.success.changedMovementTypeFollow, new LiteralText(followType.toString())), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+        return 0;
     }
 
     private static int setFlag(CommandContext<ServerCommandSource> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
@@ -349,7 +381,7 @@ public class NpcCommand {
         }
 
         if(taterzen != null) {
-            String id = MessageArgumentType.getMessage(context, "mineskin URL").getString();
+            String id = MessageArgumentType.getMessage(context, "mineskin URL | playername").getString();
             if(id.contains(":")) {
                 THREADPOOL.submit(() -> {
                     String[] params = id.split("/");
@@ -365,7 +397,7 @@ public class NpcCommand {
                         try (
                                 InputStream is = connection.getInputStream();
                                 InputStreamReader isr = new InputStreamReader(is);
-                                BufferedReader br = new BufferedReader(isr);
+                                BufferedReader br = new BufferedReader(isr)
                         ) {
                             String response = br.readLine();
                             String value = response.split("\"value\":\"")[1].split("\"")[0];
@@ -468,7 +500,7 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
             if(PROFESSION_TYPES.containsKey(id)) {
-                taterzen.setProfession(id);
+                taterzen.addProfession(id);
                 source.sendFeedback(successText(lang.success.professionAdded, new LiteralText(id.toString())), false);
             } else
                 context.getSource().sendError(errorText(lang.error.noProfessionFound, new LiteralText(id.toString())));
@@ -1161,6 +1193,12 @@ public class NpcCommand {
                 new Identifier(MODID, "movement_types"),
                 (context, builder) ->
                         CommandSource.suggestMatching(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
+        );
+
+        FOLLOW_TYPES = SuggestionProviders.register(
+                new Identifier(MODID, "follow_types"),
+                (context, builder) ->
+                        CommandSource.suggestMatching(Stream.of(NPCData.FollowTypes.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
 
         HOSTILITY_TYPES = SuggestionProviders.register(

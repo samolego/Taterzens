@@ -103,6 +103,7 @@ public class PermissionList {
 
     public final String _comment_npcEditMovement = "// Enables editing Taterzen's movement.";
     public final String npc_edit_movement = "taterzens.npc.edit.movement";
+    public final String npc_edit_movement_follow = "taterzens.npc.edit.movement.follow";
 
     public final String _comment_npcEditBehaviour = "// Enables editing Taterzen's behaviour.";
     public final String npc_edit_behaviour = "taterzens.npc.edit.behaviour";

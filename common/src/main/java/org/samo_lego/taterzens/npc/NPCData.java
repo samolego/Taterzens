@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
@@ -66,6 +67,17 @@ public class NPCData {
     public boolean allowEquipmentDrops = false;
     public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
+    public Follow follow = new Follow();
+
+    public static class Follow {
+        /**
+         * UUID of entity to follow.
+         */
+        @Nullable
+        public UUID targetUuid;
+        public FollowTypes type = FollowTypes.NONE;
+    }
+
     /**
      * Types of movement a Taterzen can perform.
      * FORCED types will always follow the type strictly.
@@ -118,5 +130,12 @@ public class NPCData {
          * Attacks all living creatures.
          */
         HOSTILE
+    }
+
+    public enum FollowTypes {
+        NONE,
+        UUID,
+        PLAYERS,
+        MOBS
     }
 }

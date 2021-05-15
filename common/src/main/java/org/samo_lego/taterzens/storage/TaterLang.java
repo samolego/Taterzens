@@ -43,6 +43,7 @@ public class TaterLang {
         public String skinChanged = "Skin of Taterzen was fetched from %s.";
         public String configReloaded = "Config was reloaded successfully.";
         public String changedMovementType = "Movement type was set to %s.";
+        public String changedMovementTypeFollow = "Taterzen following goal has been set to %s.";
         public String renameTaterzen = "Taterzen has been renamed to %s.";
         public String exportedTaterzen = "Taterzen has been exported to %s.";
         public String importedTaterzenPreset = "Taterzen was successfully loaded from %s.";
@@ -86,6 +87,7 @@ public class TaterLang {
         public String noProfessionFound = "No professions with id %s were found.";
         public String cannotSetPermissionLevel = "Permission level %s is higher than your permission level.";
         public String malformedUrl = "URL %s is malformed.";
+        public String noUuidProvided = "Follow type %s requires uuid argument.";
     }
 
 

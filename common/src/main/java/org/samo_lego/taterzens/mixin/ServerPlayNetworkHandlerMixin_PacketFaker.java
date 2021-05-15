@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.npc.TaterzenNPC.taterzens$NAMETAG_HIDE_TEAM;
+import static org.samo_lego.taterzens.npc.TaterzenNPC.NAMETAG_HIDE_TEAM;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -59,7 +59,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("TAIL"))
     private void constructor(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        taterzens$NAMETAG_HIDE_TEAM.setNameTagVisibilityRule(AbstractTeam.VisibilityRule.NEVER);
+        NAMETAG_HIDE_TEAM.setNameTagVisibilityRule(AbstractTeam.VisibilityRule.NEVER);
     }
 
     /**
@@ -140,7 +140,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // Adding Taterzens with hidden names to team
 
             // Create team
-            this.sendPacket(new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, 0));
+            this.sendPacket(new TeamS2CPacket(NAMETAG_HIDE_TEAM, 0));
 
             List<String> hiddenNameList = this.taterzens$tablistQueue
                     .stream()
@@ -148,7 +148,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                     .map(pair -> pair.getSecond().getString())
                     .collect(Collectors.toList());
             if(!hiddenNameList.isEmpty()) {
-                TeamS2CPacket teamPacket = new TeamS2CPacket(taterzens$NAMETAG_HIDE_TEAM, hiddenNameList, 3);
+                TeamS2CPacket teamPacket = new TeamS2CPacket(NAMETAG_HIDE_TEAM, hiddenNameList, 3);
                 this.sendPacket(teamPacket);
             }
 
