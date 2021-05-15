@@ -281,7 +281,7 @@ public class NpcCommand {
                         )
                         .then(literal("movement")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
-                                .then(literal("follow")
+                                .then(literal("FOLLOW")
                                     .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement_follow, config.perms.npcCommandPermissionLevel))
                                     .then(argument("follow type", word())
                                             .suggests(FOLLOW_TYPES)
