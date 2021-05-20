@@ -903,15 +903,30 @@ public class NpcCommand {
         return 0;
     }
 
-    private static int listTaterzens(CommandContext<ServerCommandSource> context) {
+    private static int listTaterzens(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+
+        boolean console = source.getEntity() == null;
+        TaterzenNPC npc = null;
+
+        if(!console) {
+            npc = ((TaterzenEditor) source.getPlayer()).getNpc();
+        }
+
         MutableText response = new LiteralText(lang.availableTaterzens).formatted(Formatting.AQUA);
+        Object[] array = TATERZEN_NPCS.toArray();
+
         for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
             int index = i + 1;
-            Text name = ((TaterzenNPC) TATERZEN_NPCS.toArray()[i]).getCustomName();
+            TaterzenNPC taterzenNPC = (TaterzenNPC) array[i];
+            String name = taterzenNPC.getName().getString();
+
+            boolean sel = taterzenNPC == npc;
+
             response.append(
                     new LiteralText("\n" + index + "-> ")
-                            .append(name)
-                            .formatted(i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD)
+                            .append(name.concat(console ? " ".concat(taterzenNPC.getUuidAsString()) : ""))
+                            .formatted(sel ? Formatting.BLUE : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Select ").append(name)))
@@ -919,7 +934,7 @@ public class NpcCommand {
             );
         }
 
-        context.getSource().sendFeedback(response, false);
+        source.sendFeedback(response, false);
         return 0;
     }
 

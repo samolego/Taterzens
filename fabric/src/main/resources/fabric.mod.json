@@ -14,7 +14,7 @@
   },
 
   "license": "MIT",
-  "icon": "assets/taterzens/icon.png",
+  "icon": "icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -35,7 +35,6 @@
     "fabric": "*"
   },
   "recommends": {
-    "disguiselib": ">=1.0.0",
-    "fabrictailor": ">=1.5.0"
+    "disguiselib": ">=1.0.0"
   }
 }
