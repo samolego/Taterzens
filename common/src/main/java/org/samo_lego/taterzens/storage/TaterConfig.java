@@ -48,7 +48,8 @@ public class TaterConfig {
     public int taterzenTablistTimeout = 30;
 
 
-    public final String _comment_fabricTailorAdvert = "// Whether to remind you that if FabricTailor mod is installed, it has some more skin functionality for Taterzens as well.";
+    public final String _comment_fabricTailorAdvert1 = "// Whether to remind you that if FabricTailor mod is installed,";
+    public final String _comment_fabricTailorAdvert2 = "// it has some built-in skin swapping functionality for Taterzens as well.";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -56,7 +57,7 @@ public class TaterConfig {
      * @see <a href="https://github.com/samolego/FabricTailor">FabricTailor</a>
      */
     @SerializedName("post_fabrictailor_advert")
-    public boolean fabricTailorAdvert = true;
+    public boolean fabricTailorAdvert = false;
 
     public Defaults defaults = new Defaults();
     public Path path = new Path();

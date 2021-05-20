@@ -88,6 +88,7 @@ public class TaterLang {
         public String cannotSetPermissionLevel = "Permission level %s is higher than your permission level.";
         public String malformedUrl = "URL %s is malformed.";
         public String noUuidProvided = "Follow type %s requires uuid argument.";
+        public String noTaterzenDetected = "No Taterzen was detected in front of you.";
     }
 
 

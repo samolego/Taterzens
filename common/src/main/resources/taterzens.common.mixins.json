@@ -16,6 +16,7 @@
     "accessors.PlayerEntityAccessor",
     "accessors.PlayerListS2CPacketAccessor",
     "accessors.PlayerSpawnS2CPacketAccessor",
+    "accessors.ServerCommandSourceAccessor",
     "accessors.ThreadedAnvilChunkStorageAccessor"
   ],
   "client": [],
