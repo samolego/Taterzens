@@ -59,6 +59,7 @@ import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
+import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
@@ -93,6 +94,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
     public final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
+    public final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
 
     /**
      * Target selectors.
@@ -100,10 +102,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isTeammate(target));
     public final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class, 100,false, true, target -> !this.isTeammate(target));
     public final FollowTargetGoal<PlayerEntity> followPlayersGoal = new FollowTargetGoal<>(this, PlayerEntity.class, 100,false, true, target -> !this.isTeammate(target));
-    public final FollowTargetGoal<LivingEntity> followSpecificUuidGoal = new FollowTargetGoal<>(this, LivingEntity.class, 100,false, true, target -> target.getUuid().equals(this.npcData.follow.targetUuid));
+
+    /**
+     * Tracking movement
+     */
+    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> true);
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, PlayerEntity.class, target -> true);
+    public final TrackEntityGoal trackUuidGoal = new TrackEntityGoal(this, LivingEntity.class, target -> this.npcData.follow.targetUuid == null || this.npcData.follow.targetUuid.equals(target.getUuid()));
 
 
-    public final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
     /**
      * Used for {@link NPCData.Movement#PATH} or {@link NPCData.FollowTypes}.
      */
@@ -226,6 +233,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.lookPlayerGoal);
         this.goalSelector.remove(this.lookAroundGoal);
 
+        // Follow types
+        this.goalSelector.remove(trackLivingGoal);
+        this.goalSelector.remove(trackUuidGoal);
+        this.goalSelector.remove(trackPlayersGoal);
+
         for(TaterzenProfession profession : this.professions.values()) {
             profession.onMovementSet(movement);
         }
@@ -343,8 +355,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     // New target
                     this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
-            } else if(this.npcData.follow.type != NPCData.FollowTypes.NONE && target != null) {
-                this.setPositionTarget(target.getBlockPos(), 2);
             }
             super.tickMovement();
             if(this.isAttacking() && this.npcData.jumpWhileAttacking && this.onGround && target != null && this.squaredDistanceTo(target) < 4.0D && this.random.nextInt(5) == 0)
@@ -1254,24 +1264,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      */
     public void setFollowType(NPCData.FollowTypes followType) {
         this.npcData.follow.type = followType;
-
-        this.targetSelector.remove(followTargetGoal);
-        this.targetSelector.remove(followSpecificUuidGoal);
-        this.targetSelector.remove(followPlayersGoal);
-
-        if(followType != NPCData.FollowTypes.NONE) {
-            this.setMovement(NPCData.Movement.PATH);
-        }
+        this.setMovement(NPCData.Movement.LOOK);
 
         switch(followType) {
             case MOBS:
-                this.targetSelector.add(4, followTargetGoal);
+                this.goalSelector.add(4, trackLivingGoal);
                 break;
             case PLAYERS:
-                this.targetSelector.add(4, followPlayersGoal);
+                this.goalSelector.add(4, trackPlayersGoal);
                 break;
             case UUID:
-                this.targetSelector.add(4, followSpecificUuidGoal);
+                this.goalSelector.add(4, trackUuidGoal);
                 break;
             default:
                 break;

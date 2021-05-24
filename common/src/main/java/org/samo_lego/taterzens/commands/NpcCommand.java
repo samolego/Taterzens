@@ -81,6 +81,7 @@ public class NpcCommand {
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
                                 .executes(NpcCommand::spawnTaterzen)
                         )
+                        .executes(NpcCommand::spawnTaterzen)
                 )
                 .then(literal("select")
                         .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_select, config.perms.npcCommandPermissionLevel))
@@ -926,12 +927,20 @@ public class NpcCommand {
 
             response.append(
                     new LiteralText("\n" + index + "-> ")
-                            .append(name.concat(console ? " (".concat(taterzenNPC.getUuidAsString().concat(")")) : ""))
-                            .formatted(sel ? Formatting.BLUE : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
+                            .formatted(sel ? Formatting.BOLD : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Select ").append(name)))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(sel ? "Currently selected: " : "Select ")
+                                            .append(name))
+                                    )
                             )
+                            .append(new LiteralText(name + " (" + (console ? taterzenNPC.getUuidAsString() : "uuid") + ")")
+                                .styled(style -> style
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("See uuid")))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getUuidAsString()))
+                                )
+                            )
+
             );
         }
 
