@@ -925,22 +925,25 @@ public class NpcCommand {
 
             boolean sel = taterzenNPC == npc;
 
-            response.append(
-                    new LiteralText("\n" + index + "-> ")
-                            .formatted(sel ? Formatting.BOLD : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
+            response
+                    .append(
+                        new LiteralText("\n" + index + "-> " + name)
+                            .formatted(sel ? Formatting.BOLD : Formatting.RESET)
+                            .formatted(sel ? Formatting.GREEN : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(sel ? "Currently selected: " : "Select ")
                                             .append(name))
                                     )
                             )
-                            .append(new LiteralText(name + " (" + (console ? taterzenNPC.getUuidAsString() : "uuid") + ")")
+                    )
+                    .append(
+                            new LiteralText(" (" + (console ? taterzenNPC.getUuidAsString() : "uuid") + ")")
+                                .formatted(Formatting.GRAY)
                                 .styled(style -> style
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("See uuid")))
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getUuidAsString()))
-                                )
-                            )
-
+                    )
             );
         }
 
@@ -1121,6 +1124,7 @@ public class NpcCommand {
             source.sendError(
                     new LiteralText(lang.error.noTaterzenDetected)
                         .formatted(Formatting.RED)
+                        .append("\n")
                         .append(new LiteralText(lang.success.deselectedTaterzen).formatted(Formatting.GOLD))
             );
         }

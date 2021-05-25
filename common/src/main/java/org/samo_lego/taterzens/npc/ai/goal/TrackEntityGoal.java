@@ -2,7 +2,6 @@ package org.samo_lego.taterzens.npc.ai.goal;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetFinder;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.PathAwareEntity;
@@ -10,7 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.function.Predicate;
@@ -35,37 +33,35 @@ public class TrackEntityGoal extends Goal {
     }
 
     public boolean canStart() {
-        /*if(this.mob.isInWalkTargetRange()) {
+        if((this.trackingEntity != null && this.trackingEntity.isAlive() && this.mob.squaredDistanceTo(this.trackingEntity) < this.distance) ||  this.mob.isNavigating()) {
+            System.out.println("In walk range of :: " + this.trackingEntity);
             return false;
-        } else {*/
+        } else {
+            if(this.trackingEntity == null || !this.trackingEntity.isAlive())
+                this.findClosestTarget();
+            System.out.println(this.trackingEntity);
             if(this.trackingEntity == null)
-                this.trackingEntity = this.findClosestTarget();
-        System.out.println(this.trackingEntity);
-        if(this.trackingEntity == null)
                 return false;
 
-            Vec3d vec3d = TargetFinder.findTargetTowards(this.mob, 16, 7, this.trackingEntity.getPos());
-            System.out.println("Found: " + this.trackingEntity);
-            if (vec3d == null) {
-                return false;
-            } else {
-                this.x = vec3d.x;
-                this.y = vec3d.y;
-                this.z = vec3d.z;
-                return true;
-            }
-        //}
+            Vec3d vec3d = this.trackingEntity.getPos();
+            this.x = vec3d.x;
+            this.y = vec3d.y;
+            this.z = vec3d.z;
+
+            return true;
+        }
     }
 
-    @Nullable
-    private Entity findClosestTarget() {
-        Entity tracking;
+    public void resetTrackingEntity() {
+        this.trackingEntity = null;
+    }
+
+    private void findClosestTarget() {
         if (this.trackingClass != PlayerEntity.class && this.trackingClass != ServerPlayerEntity.class) {
-            tracking = this.mob.world.getClosestEntity(this.trackingClass, this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ(), this.getSearchBox());
+            this.trackingEntity = this.mob.world.getClosestEntity(this.trackingClass, this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ(), this.getSearchBox());
         } else {
-            tracking = this.mob.world.getClosestPlayer(this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+            this.trackingEntity = this.mob.world.getClosestPlayer(this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
         }
-        return tracking;
     }
 
 

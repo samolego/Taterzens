@@ -56,10 +56,7 @@ import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
-import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
-import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
-import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
-import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
+import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
@@ -106,9 +103,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Tracking movement
      */
-    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> true);
-    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, PlayerEntity.class, target -> true);
-    public final TrackEntityGoal trackUuidGoal = new TrackEntityGoal(this, LivingEntity.class, target -> this.npcData.follow.targetUuid == null || this.npcData.follow.targetUuid.equals(target.getUuid()));
+    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, LivingEntity::isAlive);
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, ServerPlayerEntity.class, target -> !((ServerPlayerEntity) target).isDisconnected());
+    public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUuid().equals(this.npcData.follow.targetUuid));
 
 
     /**
@@ -234,9 +231,12 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.lookAroundGoal);
 
         // Follow types
-        this.goalSelector.remove(trackLivingGoal);
-        this.goalSelector.remove(trackUuidGoal);
-        this.goalSelector.remove(trackPlayersGoal);
+        this.goalSelector.remove(this.trackLivingGoal);
+        this.goalSelector.remove(this.trackUuidGoal);
+        this.goalSelector.remove(this.trackPlayersGoal);
+
+        this.trackPlayersGoal.resetTrackingEntity();
+        this.trackLivingGoal.resetTrackingEntity();
 
         for(TaterzenProfession profession : this.professions.values()) {
             profession.onMovementSet(movement);
