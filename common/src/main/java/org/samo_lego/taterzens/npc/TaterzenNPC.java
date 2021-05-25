@@ -103,13 +103,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * Tracking movement
      */
-    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, LivingEntity::isAlive);
-    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, ServerPlayerEntity.class, target -> !((ServerPlayerEntity) target).isDisconnected());
+    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> !(target instanceof ServerPlayerEntity) && target.isAlive());
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, PlayerEntity.class, target -> !((ServerPlayerEntity) target).isDisconnected());
     public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUuid().equals(this.npcData.follow.targetUuid));
 
 
     /**
-     * Used for {@link NPCData.Movement#PATH} or {@link NPCData.FollowTypes}.
+     * Used for {@link NPCData.Movement#PATH}.
      */
     public final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
     public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
@@ -235,6 +235,9 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.goalSelector.remove(this.trackUuidGoal);
         this.goalSelector.remove(this.trackPlayersGoal);
 
+        this.npcData.follow.targetUuid = null;
+        this.npcData.follow.type = NPCData.FollowTypes.NONE;
+
         this.trackPlayersGoal.resetTrackingEntity();
         this.trackLivingGoal.resetTrackingEntity();
 
@@ -251,7 +254,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 if(movement == NPCData.Movement.PATH)
                     this.goalSelector.add(4, pathGoal);
                 else if(movement == NPCData.Movement.FREE)
-                    this.goalSelector.add(5, wanderAroundFarGoal);
+                    this.goalSelector.add(6, wanderAroundFarGoal);
             }
         }
     }
@@ -635,15 +638,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             });
         }
 
+        this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
+
         // Follow targets
         CompoundTag followTag = npcTag.getCompound("Follow");
-        if(followTag.contains("UUID"))
-            this.setFollowUuid(followTag.getUuid("UUID"));
-
         if(followTag.contains("Type"))
             this.setFollowType(NPCData.FollowTypes.valueOf(followTag.getString("Type")));
 
-        this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
+        if(followTag.contains("UUID"))
+            this.setFollowUuid(followTag.getUuid("UUID"));
     }
 
     /**
@@ -720,6 +723,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             professions.add(professionCompound);
         });
         npcTag.put("Professions", professions);
+
+        CompoundTag followTag = new CompoundTag();
+        followTag.putString("Type", this.npcData.follow.type.toString());
+
+        if(this.npcData.follow.targetUuid != null)
+            followTag.putUuid("UUID", this.npcData.follow.targetUuid);
+
+        npcTag.put("Follow", followTag);
+
 
         tag.put("TaterzenNPCTag", npcTag);
     }
@@ -1263,8 +1275,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param followType type of target to follow
      */
     public void setFollowType(NPCData.FollowTypes followType) {
+        this.setMovement(NPCData.Movement.FREE);
         this.npcData.follow.type = followType;
-        this.setMovement(NPCData.Movement.LOOK);
 
         switch(followType) {
             case MOBS:

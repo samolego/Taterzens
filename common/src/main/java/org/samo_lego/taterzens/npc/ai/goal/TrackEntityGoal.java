@@ -34,12 +34,10 @@ public class TrackEntityGoal extends Goal {
 
     public boolean canStart() {
         if((this.trackingEntity != null && this.trackingEntity.isAlive() && this.mob.squaredDistanceTo(this.trackingEntity) < this.distance) ||  this.mob.isNavigating()) {
-            System.out.println("In walk range of :: " + this.trackingEntity);
             return false;
         } else {
-            if(this.trackingEntity == null || !this.trackingEntity.isAlive())
+            if(this.trackingEntity == null || !this.trackingEntity.isAlive() || this.mob.distanceTo(this.trackingEntity) > this.distance)
                 this.findClosestTarget();
-            System.out.println(this.trackingEntity);
             if(this.trackingEntity == null)
                 return false;
 
@@ -60,7 +58,7 @@ public class TrackEntityGoal extends Goal {
         if (this.trackingClass != PlayerEntity.class && this.trackingClass != ServerPlayerEntity.class) {
             this.trackingEntity = this.mob.world.getClosestEntity(this.trackingClass, this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ(), this.getSearchBox());
         } else {
-            this.trackingEntity = this.mob.world.getClosestPlayer(this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+            this.trackingEntity = this.mob.world.getClosestPlayer(this.targetPredicate, this.mob);
         }
     }
 
