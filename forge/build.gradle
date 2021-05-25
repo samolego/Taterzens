@@ -93,8 +93,18 @@ publishing {
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/samolego/Taterzens")
+            credentials {
+                username = ENV.USERNAME
+                password = ENV.PASSWORD
+            }
+        }
+        // uncomment to publish to the local maven
+        mavenLocal()
     }
+
 }
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
