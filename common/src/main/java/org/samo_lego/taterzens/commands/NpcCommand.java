@@ -17,7 +17,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -211,7 +211,7 @@ public class NpcCommand {
                                 .then(argument("entity type", EntitySummonArgumentType.entitySummon())
                                         .suggests(SUMMONABLE_ENTITIES)
                                         .executes(NpcCommand::changeType)
-                                        .then(argument("nbt", NbtCompoundTagArgumentType.nbtCompound())
+                                        .then(argument("nbt", NbtCompoundArgumentType.nbtCompound())
                                                 .executes(NpcCommand::changeType)
                                         )
                                 )
@@ -405,7 +405,7 @@ public class NpcCommand {
                             String value = response.split("\"value\":\"")[1].split("\"")[0];
                             String signature = response.split("\"signature\":\"")[1].split("\"")[0];
 
-                            CompoundTag skinTag = new CompoundTag();
+                            NbtCompound skinTag = new NbtCompound();
                             skinTag.putString("value", value);
                             skinTag.putString("signature", signature);
 
@@ -1151,11 +1151,11 @@ public class NpcCommand {
 
                 Identifier disguise = EntitySummonArgumentType.getEntitySummon(context, "entity type");
 
-                CompoundTag nbt;
+                NbtCompound nbt;
                 try {
-                    nbt = NbtCompoundTagArgumentType.getCompoundTag(context, "nbt").copy();
+                    nbt = NbtCompoundArgumentType.getNbtCompound(context, "nbt").copy();
                 } catch(IllegalArgumentException ignored) {
-                    nbt = new CompoundTag();
+                    nbt = new NbtCompound();
                 }
                 nbt.putString("id", disguise.toString());
 

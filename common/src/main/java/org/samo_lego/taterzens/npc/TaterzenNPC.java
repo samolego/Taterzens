@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -20,9 +19,9 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.RangedWeaponItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
@@ -40,10 +39,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.NotNull;
@@ -325,13 +321,13 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             this.world.getOtherEntities(this, box, entity -> {
                 if(entity instanceof ServerPlayerEntity) {
                     this.lookAtEntity(entity, 60.0F, 60.0F);
-                    this.setHeadYaw(this.yaw);
+                    this.setHeadYaw(this.getYaw());
                     return true;
                 }
                 return false;
             });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
-            this.yaw = this.headYaw; // Rotates body as well
+            this.setYaw(this.headYaw); // Rotates body as well
             LivingEntity target = this.getTarget();
 
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isNavigating()) {
@@ -419,16 +415,16 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public Packet<?> createSpawnPacket() {
-        PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket();
+        PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket(this.fakePlayer);
         //noinspection ConstantConditions
         PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
-        spawnS2CPacketAccessor.setId(this.getEntityId());
+        spawnS2CPacketAccessor.setId(this.getId());
         spawnS2CPacketAccessor.setUuid(this.getUuid());
         spawnS2CPacketAccessor.setX(this.getX());
         spawnS2CPacketAccessor.setY(this.getY());
         spawnS2CPacketAccessor.setZ(this.getZ());
-        spawnS2CPacketAccessor.setYaw((byte)((int)(this.yaw * 256.0F / 360.0F)));
-        spawnS2CPacketAccessor.setPitch((byte)((int)(this.pitch * 256.0F / 360.0F)));
+        spawnS2CPacketAccessor.setYaw((byte)((int)(this.getYaw() * 256.0F / 360.0F)));
+        spawnS2CPacketAccessor.setPitch((byte)((int)(this.getPitch() * 256.0F / 360.0F)));
 
         return playerSpawnS2CPacket;
     }
@@ -452,7 +448,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                 profileName = name.getString().substring(0, 16);
             }
         }
-        CompoundTag skin = null;
+        NbtCompound skin = null;
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
         this.gameProfile = new GameProfile(this.getUuid(), profileName);
@@ -466,10 +462,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void setCustomNameVisible(boolean visible) {
         super.setCustomNameVisible(visible);
 
-        this.world.getServer().getPlayerManager().sendToDimension(new TeamS2CPacket(NAMETAG_HIDE_TEAM, 0), this.world.getRegistryKey());
+        this.world.getServer().getPlayerManager().sendToDimension(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true), this.world.getRegistryKey());
 
         // not using collection.singleton as it could cause compatibility issues
-        TeamS2CPacket teamPacket = new TeamS2CPacket(NAMETAG_HIDE_TEAM, Arrays.asList(this.getName().getString()), visible ? 4 : 3);
+        TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.ADD : TeamS2CPacket.Operation.REMOVE);
         this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
 
     }
@@ -483,7 +479,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         else {
             ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
             ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
-            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getEntityId());
+            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getId());
             if(trackerEntry != null)
                 trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
         }
@@ -514,7 +510,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * Sets the Taterzen skin from tag
      * @param tag compound tag containing the skin
      */
-    public void setSkinFromTag(CompoundTag tag) {
+    public void setSkinFromTag(NbtCompound tag) {
         // Clearing current skin
         try {
             PropertyMap map = this.gameProfile.getProperties();
@@ -540,8 +536,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      *
      * @return compound tag with skin values
      */
-    public CompoundTag writeSkinToTag(GameProfile profile) {
-        CompoundTag skinTag = new CompoundTag();
+    public NbtCompound writeSkinToTag(GameProfile profile) {
+        NbtCompound skinTag = new NbtCompound();
         try {
             PropertyMap propertyMap = profile.getProperties();
             Property skin = propertyMap.get("textures").iterator().next();
@@ -553,15 +549,15 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         return skinTag;
     }
     /**
-     * Loads Taterzen from {@link CompoundTag}.
+     * Loads Taterzen from {@link NbtCompound}.
      * @param tag tag to load Taterzen from.
      */
     @Override
-    public void readCustomDataFromTag(CompoundTag tag) {
-        super.readCustomDataFromTag(tag);
-        CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
+    public void readCustomDataFromNbt(NbtCompound tag) {
+        super.readCustomDataFromNbt(tag);
+        NbtCompound npcTag = tag.getCompound("TaterzenNPCTag");
 
-        CompoundTag tags = npcTag.getCompound("Tags");
+        NbtCompound tags = npcTag.getCompound("Tags");
         this.setLeashable(tags.getBoolean("Leashable"));
         this.setPushable(tags.getBoolean("Pushable"));
         this.setPerformAttackJumps(tags.getBoolean("JumpAttack"));
@@ -572,19 +568,19 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
 
         // Multiple commands
-        ListTag commands = (ListTag) npcTag.get("Commands");
+        NbtList commands = (NbtList) npcTag.get("Commands");
         if(commands != null) {
             commands.forEach(cmdTag -> {
                 this.addCommand(cmdTag.asString());
             });
         }
 
-        ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
+        NbtList pathTargets = (NbtList) npcTag.get("PathTargets");
         if(pathTargets != null) {
             if(pathTargets.size() > 0) {
                 pathTargets.forEach(posTag -> {
-                    if(posTag instanceof CompoundTag) {
-                        CompoundTag pos = (CompoundTag) posTag;
+                    if(posTag instanceof NbtCompound) {
+                        NbtCompound pos = (NbtCompound) posTag;
                         BlockPos target = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
                         this.addPathTarget(target);
                     }
@@ -593,11 +589,11 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             }
         }
 
-        ListTag messages = (ListTag) npcTag.get("Messages");
+        NbtList messages = (NbtList) npcTag.get("Messages");
         if(messages != null && messages.size() > 0) {
             messages.forEach(msgTag -> {
-                CompoundTag msgCompound = (CompoundTag) msgTag;
-                this.addMessage(TextUtil.fromTag(msgCompound.get("Message")), msgCompound.getInt("Delay"));
+                NbtCompound msgCompound = (NbtCompound) msgTag;
+                this.addMessage(TextUtil.fromNbtElement(msgCompound.get("Message")), msgCompound.getInt("Delay"));
             });
         }
 
@@ -616,14 +612,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         }
 
         // Skin is cached
-        CompoundTag skinTag = npcTag.getCompound("skin");
+        NbtCompound skinTag = npcTag.getCompound("skin");
         this.setSkinFromTag(skinTag);
 
         // Profession initialising
-        ListTag professions = (ListTag) npcTag.get("Professions");
+        NbtList professions = (NbtList) npcTag.get("Professions");
         if(professions != null && professions.size() > 0) {
             professions.forEach(professionTag -> {
-                CompoundTag professionCompound = (CompoundTag) professionTag;
+                NbtCompound professionCompound = (NbtCompound) professionTag;
 
                 Identifier professionId = new Identifier(professionCompound.getString("ProfessionType"));
                 if(PROFESSION_TYPES.containsKey(professionId)) {
@@ -631,7 +627,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
                     this.addProfession(professionId, profession);
 
                     // Parsing profession data
-                    profession.fromTag(professionCompound.getCompound("ProfessionData"));
+                    profession.readNbt(professionCompound.getCompound("ProfessionData"));
                 }
                 else
                     Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mods provides it.", this.getName().asString(), professionId);
@@ -641,7 +637,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
 
         // Follow targets
-        CompoundTag followTag = npcTag.getCompound("Follow");
+        NbtCompound followTag = npcTag.getCompound("Follow");
         if(followTag.contains("Type"))
             this.setFollowType(NPCData.FollowTypes.valueOf(followTag.getString("Type")));
 
@@ -650,22 +646,22 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     /**
-     * Saves Taterzen to {@link CompoundTag tag}.
+     * Saves Taterzen to {@link NbtCompound tag}.
      *
      * @param tag tag to save Taterzen to.
      */
     @Override
-    public void writeCustomDataToTag(CompoundTag tag) {
-        super.writeCustomDataToTag(tag);
+    public void writeCustomDataToNbt(NbtCompound tag) {
+        super.writeCustomDataToNbt(tag);
 
-        CompoundTag npcTag = new CompoundTag();
+        NbtCompound npcTag = new NbtCompound();
 
         // Vanilla saves CustomNameVisible only if set to true
         this.setCustomNameVisible(tag.contains("CustomNameVisible"));
 
         npcTag.putString("movement", this.npcData.movement.toString());
 
-        CompoundTag tags = new CompoundTag();
+        NbtCompound tags = new NbtCompound();
 
         tags.putBoolean("Leashable", this.npcData.leashable);
         tags.putBoolean("Pushable", this.npcData.pushable);
@@ -678,17 +674,17 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putByte("SkinLayers", this.fakePlayer.getDataTracker().get(getPLAYER_MODEL_PARTS()));
 
         // Commands
-        ListTag commands = new ListTag();
+        NbtList commands = new NbtList();
         this.npcData.commands.forEach(cmd -> {
-            commands.add(StringTag.of(cmd));
+            commands.add(NbtString.of(cmd));
         });
         npcTag.put("Commands", commands);
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
-        ListTag pathTargets = new ListTag();
+        NbtList pathTargets = new NbtList();
         this.npcData.pathTargets.forEach(blockPos -> {
-            CompoundTag pos = new CompoundTag();
+            NbtCompound pos = new NbtCompound();
             pos.putInt("x", blockPos.getX());
             pos.putInt("y", blockPos.getY());
             pos.putInt("z", blockPos.getZ());
@@ -697,10 +693,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.put("PathTargets", pathTargets);
 
         // Messages
-        ListTag messages = new ListTag();
+        NbtList messages = new NbtList();
         this.npcData.messages.forEach(pair -> {
-            CompoundTag msg = new CompoundTag();
-            msg.put("Message", TextUtil.toTag(pair.getFirst()));
+            NbtCompound msg = new NbtCompound();
+            msg.put("Message", TextUtil.toNbtElement(pair.getFirst()));
             msg.putInt("Delay", pair.getSecond());
             messages.add(msg);
         });
@@ -710,21 +706,21 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         npcTag.putString("Behaviour", this.npcData.behaviour.toString());
 
         // Profession initialising
-        ListTag professions = new ListTag();
+        NbtList professions = new NbtList();
         this.professions.forEach((id, profession) -> {
-            CompoundTag professionCompound = new CompoundTag();
+            NbtCompound professionCompound = new NbtCompound();
 
             professionCompound.putString("ProfessionType", id.toString());
 
-            CompoundTag professionData = new CompoundTag();
-            profession.toTag(professionData);
+            NbtCompound professionData = new NbtCompound();
+            profession.saveNbt(professionData);
             professionCompound.put("ProfessionData", professionData);
 
             professions.add(professionCompound);
         });
         npcTag.put("Professions", professions);
 
-        CompoundTag followTag = new CompoundTag();
+        NbtCompound followTag = new NbtCompound();
         followTag.putString("Type", this.npcData.follow.type.toString());
 
         if(this.npcData.follow.targetUuid != null)
@@ -824,7 +820,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
-    protected boolean canDropLootAndXp() {
+    protected boolean shouldDropXp() {
         return this.npcData.allowEquipmentDrops;
     }
 
@@ -994,8 +990,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     }
 
     @Override
-    public void remove() {
-        super.remove();
+    public void remove(Entity.RemovalReason reason) {
+        super.remove(null);
         TATERZEN_NPCS.remove(this);
 
         for(TaterzenProfession profession : this.professions.values()) {
@@ -1119,7 +1115,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         double y = target.getBodyY(0.3333333333333333D) - projectile.getY();
         double deltaZ = target.getZ() - this.getZ();
         double planeDistance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-        Vector3f launchVelocity = this.getProjectileLaunchVelocity(this, new Vec3d(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
+        Vec3f launchVelocity = this.getProjectileLaunchVelocity(this, new Vec3d(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
 
         projectile.setVelocity(launchVelocity.getX(), launchVelocity.getY(), launchVelocity.getZ(), 1.6F, 0);
         //projectile.setVelocity(deltaX, y + planeDistance * 0.2D, deltaZ, 1.6F, 0);
@@ -1249,10 +1245,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         ItemStack copiedStack = stack.copy();
         for(TaterzenProfession profession : this.professions.values()) {
             if(profession.tryPickupItem(copiedStack)) {
-                this.method_29499(item); // stats increase
+                this.triggerItemPickedUpByEntityCriteria(item);
                 this.sendPickup(item, stack.getCount());
                 stack.setCount(0);
-                item.remove();
+                item.remove(null);
                 return;
             }
         }

@@ -4,7 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
@@ -79,17 +79,17 @@ public interface TaterzenProfession {
     }
 
     /**
-     * Called on parsing Taterzen data from {@link CompoundTag}.
+     * Called on parsing Taterzen data from {@link NbtCompound}.
      * @param tag tag to load profession data from.
      */
-    default void fromTag(CompoundTag tag) {
+    default void readNbt(NbtCompound tag) {
     }
 
     /**
-     * Called on saving Taterzen data to {@link CompoundTag}.
+     * Called on saving Taterzen data to {@link NbtCompound}.
      * @param tag tag to save profession data to.
      */
-    default void toTag(CompoundTag tag) {
+    default void saveNbt(NbtCompound tag) {
     }
 
     /**
