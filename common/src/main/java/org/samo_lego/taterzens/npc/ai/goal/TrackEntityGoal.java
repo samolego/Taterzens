@@ -13,6 +13,8 @@ import net.minecraft.util.math.Vec3d;
 import java.util.EnumSet;
 import java.util.function.Predicate;
 
+import static net.minecraft.entity.ai.TargetPredicate.createNonAttackable;
+
 public class TrackEntityGoal extends Goal {
     private final Class<? extends LivingEntity> trackingClass;
     private final PathAwareEntity mob;
@@ -27,7 +29,7 @@ public class TrackEntityGoal extends Goal {
         super();
         this.mob = mob;
         this.setControls(EnumSet.of(Goal.Control.MOVE));
-        this.targetPredicate = new TargetPredicate().setBaseMaxDistance(32.0D).setPredicate(targetPredicate);
+        this.targetPredicate = createNonAttackable().setBaseMaxDistance(32.0D).setPredicate(targetPredicate);
         this.trackingClass = targetClass;
         this.distance = 32.0D;
     }

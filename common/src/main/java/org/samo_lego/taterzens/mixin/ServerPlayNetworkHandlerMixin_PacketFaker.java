@@ -90,7 +90,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             PlayerListS2CPacket playerAddPacket = new PlayerListS2CPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
-                    Arrays.asList(playerAddPacket.new Entry(profile, 0, GameMode.SURVIVAL, npc.getName()))
+                    Arrays.asList(new PlayerListS2CPacket.Entry(profile, 0, GameMode.SURVIVAL, npc.getName()))
             );
             taterzens$skipCheck = true;
             this.sendPacket(playerAddPacket);
@@ -140,7 +140,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // Adding Taterzens with hidden names to team
 
             // Create team
-            this.sendPacket(new TeamS2CPacket(NAMETAG_HIDE_TEAM, 0));
+            this.sendPacket(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true));
 
             List<String> hiddenNameList = this.taterzens$tablistQueue
                     .stream()
@@ -148,14 +148,16 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                     .map(pair -> pair.getSecond().getString())
                     .collect(Collectors.toList());
             if(!hiddenNameList.isEmpty()) {
-                TeamS2CPacket teamPacket = new TeamS2CPacket(NAMETAG_HIDE_TEAM, hiddenNameList, 3);
-                this.sendPacket(teamPacket);
+                hiddenNameList.forEach(s -> {
+                    TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, s, TeamS2CPacket.Operation.REMOVE);
+                    this.sendPacket(teamPacket);
+                });
             }
 
             PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
             List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue
                     .stream()
-                    .map(pair -> taterzensRemovePacket.new Entry(
+                    .map(pair -> new PlayerListS2CPacket.Entry(
                                     pair.getFirst(),
                                     0,
                                     GameMode.SURVIVAL,
