@@ -31,7 +31,7 @@ subprojects {
 		mappings("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
 
 		// Thanks Shedaniel :)
-		implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk16', version: '1.5.0-M2'
+		implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.20-M1'
 	}
 }
 
