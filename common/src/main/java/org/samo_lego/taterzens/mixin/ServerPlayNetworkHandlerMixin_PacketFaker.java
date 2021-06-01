@@ -9,6 +9,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.scoreboard.AbstractTeam;
@@ -47,6 +48,8 @@ import static org.samo_lego.taterzens.npc.TaterzenNPC.NAMETAG_HIDE_TEAM;
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public ServerPlayerEntity player;
+    @Unique
+    private boolean taterzens$sentTeamPacket;
 
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
@@ -138,18 +141,15 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.taterzens$skipCheck = true;
 
             // Adding Taterzens with hidden names to team
-
-            // Create team
-            this.sendPacket(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true));
-
-            List<String> hiddenNameList = this.taterzens$tablistQueue
+            List<GameProfile> hiddenNameList = this.taterzens$tablistQueue
                     .stream()
                     .filter(pair -> pair.getSecond().equals(LiteralText.EMPTY))
-                    .map(pair -> pair.getSecond().getString())
+                    .map(Pair::getFirst)
                     .collect(Collectors.toList());
             if(!hiddenNameList.isEmpty()) {
-                hiddenNameList.forEach(s -> {
-                    TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, s, TeamS2CPacket.Operation.REMOVE);
+                hiddenNameList.forEach(p -> {
+                    System.out.println("Removing: (packet) " + p.getName());
+                    TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, p.getName(), TeamS2CPacket.Operation.ADD);
                     this.sendPacket(teamPacket);
                 });
             }
@@ -172,6 +172,15 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.taterzens$tablistQueue.clear();
 
             this.taterzens$skipCheck = false;
+        }
+    }
+
+    @Inject(method = "onCustomPayload(Lnet/minecraft/network/packet/c2s/play/CustomPayloadC2SPacket;)V", at = @At("TAIL"))
+    private void onClientBrand(CustomPayloadC2SPacket packet, CallbackInfo ci) {
+        if(!this.taterzens$sentTeamPacket) {
+            // Create team
+            this.sendPacket(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true));
+            this.taterzens$sentTeamPacket = true;
         }
     }
 }

@@ -79,7 +79,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     /**
      * A fake team used to hide nicknames on player types.
      */
-    public static final Team NAMETAG_HIDE_TEAM = new Team(new Scoreboard(), "");
+    public static final Team NAMETAG_HIDE_TEAM = new Team(new Scoreboard(), MODID);
 
     /**
      * Goals
@@ -462,10 +462,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void setCustomNameVisible(boolean visible) {
         super.setCustomNameVisible(visible);
 
-        this.world.getServer().getPlayerManager().sendToDimension(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true), this.world.getRegistryKey());
-
         // not using collection.singleton as it could cause compatibility issues
-        TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.ADD : TeamS2CPacket.Operation.REMOVE);
+        TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.REMOVE : TeamS2CPacket.Operation.ADD);
         this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
 
     }
@@ -657,7 +655,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         NbtCompound npcTag = new NbtCompound();
 
         // Vanilla saves CustomNameVisible only if set to true
-        this.setCustomNameVisible(tag.contains("CustomNameVisible"));
+        super.setCustomNameVisible(tag.contains("CustomNameVisible"));
 
         npcTag.putString("movement", this.npcData.movement.toString());
 
