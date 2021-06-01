@@ -7,6 +7,7 @@ import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
@@ -50,9 +51,12 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
             if(this.taterzens$editorMode == TaterzenEditor.Types.PATH) {
                 ArrayList<BlockPos> pathTargets = editor.getNpc().getPathTargets();
                 DustParticleEffect effect = new DustParticleEffect(
-                        config.path.color.red / 255.0F,
-                        config.path.color.green / 255.0F,
-                        config.path.color.blue / 255.0F, 1.0F
+                        new Vec3f(
+                            config.path.color.red / 255.0F,
+                            config.path.color.green / 255.0F,
+                            config.path.color.blue / 255.0F
+                        ),
+                        1.0F
                 );
 
                 for(int i = 0; i < pathTargets.size(); ++i) {

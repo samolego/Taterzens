@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.mixin;
 
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
+import net.minecraft.server.filter.TextStream;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -28,10 +29,10 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
      * message edit mode, messages sent to chat
      * will be saved to taterzen instead.
      *
-     * @param msg message sent by player
+     * @param message message sent by player
      */
     @Inject(
-            method = "method_31286(Ljava/lang/String;)V",
+            method = "handleMessage(Lnet/minecraft/server/filter/TextStream$Message;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerPlayerEntity;updateLastActionTime()V",
@@ -39,9 +40,10 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
             ),
             cancellable = true
     )
-    private void onMessage(String msg, CallbackInfo ci) {
+    private void onMessage(TextStream.Message message, CallbackInfo ci) {
         TaterzenEditor editor = (TaterzenEditor) this.player;
         TaterzenNPC taterzen = (editor).getNpc();
+        String msg = message.getFiltered();
         if(taterzen != null && ((TaterzenEditor) this.player).getEditorMode() == TaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
             if(msg.startsWith("delay")) {
                 String[] split = msg.split(" ");

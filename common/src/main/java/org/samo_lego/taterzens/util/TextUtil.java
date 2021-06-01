@@ -3,9 +3,9 @@ package org.samo_lego.taterzens.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -48,13 +48,13 @@ public class TextUtil {
         return joinText(message, Formatting.RED, insertedText, Formatting.LIGHT_PURPLE);
     }
 
-    public static CompoundTag toTag(Text text) {
+    public static NbtElement toNbtElement(Text text) {
         JsonElement json = parser.parse(Text.Serializer.toJson(text));
-        return (CompoundTag) JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
+        return (NbtCompound) JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
     }
 
-    public static Text fromTag(Tag textTag) {
-        JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textTag);
+    public static Text fromNbtElement(NbtElement textNbtElement) {
+        JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textNbtElement);
         return Text.Serializer.fromJson(json);
     }
 }

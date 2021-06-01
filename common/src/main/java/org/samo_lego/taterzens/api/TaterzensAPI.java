@@ -7,9 +7,9 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.ClickEvent;
@@ -70,12 +70,12 @@ public class TaterzensAPI {
             }
             if(element != null) {
                 try {
-                    Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
-                    if(tag instanceof CompoundTag) {
-                        CompoundTag compoundTag = (CompoundTag) tag;
+                    NbtElement tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
+                    if(tag instanceof NbtCompound) {
+                        NbtCompound NbtCompound = (NbtCompound) tag;
                         TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
-                        compoundTag.putUuid("UUID", taterzenNPC.getUuid());
-                        taterzenNPC.fromTag(compoundTag);
+                        NbtCompound.putUuid("UUID", taterzenNPC.getUuid());
+                        taterzenNPC.readNbt(NbtCompound);
 
                         return taterzenNPC;
                     }
@@ -93,8 +93,8 @@ public class TaterzensAPI {
      * @param preset file to save taterzen to.
      */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
-        CompoundTag saveTag = new CompoundTag();
-        taterzen.toTag(saveTag);
+        NbtCompound saveTag = new NbtCompound();
+        taterzen.saveNbt(saveTag);
 
         //todo Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
@@ -145,7 +145,7 @@ public class TaterzensAPI {
      * @return TaterzenNPC
      */
     public static TaterzenNPC createTaterzen(ServerPlayerEntity owner, String displayName) {
-        return createTaterzen(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.yaw, owner.pitch});
+        return createTaterzen(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.getYaw(), owner.getPitch()});
     }
 
     /**
