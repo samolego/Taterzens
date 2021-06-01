@@ -638,8 +638,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             });
         }
 
-        this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
-
         // Follow targets
         CompoundTag followTag = npcTag.getCompound("Follow");
         if(followTag.contains("Type"))
@@ -647,6 +645,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
         if(followTag.contains("UUID"))
             this.setFollowUuid(followTag.getUuid("UUID"));
+
+        this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
     }
 
     /**
@@ -1275,7 +1275,8 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param followType type of target to follow
      */
     public void setFollowType(NPCData.FollowTypes followType) {
-        this.setMovement(NPCData.Movement.FREE);
+        if(followType != NPCData.FollowTypes.NONE)
+            this.setMovement(NPCData.Movement.FREE);
         this.npcData.follow.type = followType;
 
         switch(followType) {
