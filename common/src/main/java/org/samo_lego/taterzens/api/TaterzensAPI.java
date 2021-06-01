@@ -131,7 +131,7 @@ public class TaterzensAPI {
         taterzen.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotations[1], rotations[2]);
         taterzen.setHeadYaw(rotations[0]);
         taterzen.setCustomName(new LiteralText(displayName));
-        taterzen.applySkin(SkullBlockEntity.loadProperties(taterzen.getGameProfile()));
+        SkullBlockEntity.loadProperties(taterzen.getGameProfile(), taterzen::applySkin);
 
         return taterzen;
     }

@@ -10,7 +10,6 @@
     "ServerPlayNetworkHandlerMixin_MsgEditor",
     "ServerPlayNetworkHandlerMixin_PacketFaker",
     "ThreadedAnvilChunkStorageMixin_TaterzenList",
-    "accessors.EntityAccessor",
     "accessors.EntityTrackerEntryAccessor",
     "accessors.EntityTrackerUpdateS2CPacketAccessor",
     "accessors.MobSpawnS2CPacketAccessor",

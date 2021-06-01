@@ -481,7 +481,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
             EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getId());
             if(trackerEntry != null)
-                trackerEntry.getTrackingPlayers().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+                trackerEntry.getListeners().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
         }
     }
 
@@ -1114,11 +1114,10 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         double deltaX = target.getX() - this.getX();
         double y = target.getBodyY(0.3333333333333333D) - projectile.getY();
         double deltaZ = target.getZ() - this.getZ();
-        double planeDistance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        double planeDistance = MathHelper.sqrt((float) (deltaX * deltaX + deltaZ * deltaZ));
         Vec3f launchVelocity = this.getProjectileLaunchVelocity(this, new Vec3d(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
 
         projectile.setVelocity(launchVelocity.getX(), launchVelocity.getY(), launchVelocity.getZ(), 1.6F, 0);
-        //projectile.setVelocity(deltaX, y + planeDistance * 0.2D, deltaZ, 1.6F, 0);
 
         this.playSound(SoundEvents.ENTITY_ARROW_SHOOT, 1.0F, 0.125F);
         this.world.spawnEntity(projectile);

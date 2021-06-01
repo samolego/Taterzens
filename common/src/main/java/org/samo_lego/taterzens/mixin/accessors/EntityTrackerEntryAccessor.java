@@ -11,6 +11,6 @@ import java.util.Set;
 public interface EntityTrackerEntryAccessor {
     @Accessor("entry")
     EntityTrackerEntry getEntry();
-    @Accessor("playersTracking")
-    Set<ServerPlayerEntity> getTrackingPlayers();
+    @Accessor("listeners")
+    Set<ServerPlayerEntity> getListeners();
 }

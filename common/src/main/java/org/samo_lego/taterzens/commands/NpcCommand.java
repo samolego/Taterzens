@@ -426,8 +426,7 @@ public class NpcCommand {
             } else {
                 // Player's name
                 GameProfile skinProfile = new GameProfile(null, id);
-                skinProfile = SkullBlockEntity.loadProperties(skinProfile);
-                taterzen.applySkin(skinProfile);
+                SkullBlockEntity.loadProperties(skinProfile, taterzen::applySkin);
                 context.getSource().sendFeedback(
                         successText(lang.success.skinChanged, new LiteralText(id)),
                         false

@@ -43,10 +43,10 @@ dependencies {
 
 
     // DisguiseLib
-    modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
+    //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
 
-    modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
-    modRuntime "com.github.astei:lazydfu:0.1.2"
+    //modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.16.5-v0.2.0"
+    //modRuntime "com.github.astei:lazydfu:0.1.2"
 
     //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
     //modRuntime 'com.github.Virtuoel:Pehkui:2.0.0'

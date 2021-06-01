@@ -1,6 +1,6 @@
 package org.samo_lego.taterzens.compatibility;
 
-import me.shedaniel.architectury.annotations.ExpectPlatform;
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.server.command.ServerCommandSource;
 
 /**
