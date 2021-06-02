@@ -16,7 +16,6 @@ import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -109,10 +108,11 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
-            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.isCustomNameVisible() ? npc.getName() : LiteralText.EMPTY));
+            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
+
+            this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
 
             this.taterzens$skipCheck = false;
-            this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
             ci.cancel();
         } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
             Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
@@ -124,6 +124,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
         } else if(packet instanceof PlayerListS2CPacket && !this.taterzens$skipCheck) {
             this.taterzens$skipCheck = true;
+
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
             ((PlayerListS2CPacketAccessor) packet).getEntries().forEach(entry -> {
                 if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
@@ -131,6 +132,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                     this.taterzens$tablistQueue.add(new Pair<>(entry.getProfile(), entry.getDisplayName()));
                 }
             });
+
             this.taterzens$skipCheck = false;
         }
     }
@@ -139,20 +141,6 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     private void removeTaterzenFromTablist(PlayerMoveC2SPacket packet, CallbackInfo ci) {
         if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer <= 0) {
             this.taterzens$skipCheck = true;
-
-            // Adding Taterzens with hidden names to team
-            List<GameProfile> hiddenNameList = this.taterzens$tablistQueue
-                    .stream()
-                    .filter(pair -> pair.getSecond().equals(LiteralText.EMPTY))
-                    .map(Pair::getFirst)
-                    .collect(Collectors.toList());
-            if(!hiddenNameList.isEmpty()) {
-                hiddenNameList.forEach(p -> {
-                    System.out.println("Removing: (packet) " + p.getName());
-                    TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, p.getName(), TeamS2CPacket.Operation.ADD);
-                    this.sendPacket(teamPacket);
-                });
-            }
 
             PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
             List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue

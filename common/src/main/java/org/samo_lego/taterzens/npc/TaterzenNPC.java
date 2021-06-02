@@ -460,12 +460,14 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void setCustomNameVisible(boolean visible) {
+        boolean wasVisible = this.isCustomNameVisible();
         super.setCustomNameVisible(visible);
-
-        // not using collection.singleton as it could cause compatibility issues
-        TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.REMOVE : TeamS2CPacket.Operation.ADD);
-        this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
-
+        if(wasVisible ^ visible) {
+            if(DISGUISELIB_LOADED && DisguiseLibCompatibility.isDisguised(this))
+                return;
+            TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.REMOVE : TeamS2CPacket.Operation.ADD);
+            this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
+        }
     }
 
     /**
@@ -479,7 +481,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
             ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
             EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getId());
             if(trackerEntry != null)
-                trackerEntry.getListeners().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking));
+                trackerEntry.getListeners().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking.getPlayer()));
         }
     }
 
