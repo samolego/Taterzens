@@ -51,8 +51,7 @@
   "taterzens.command.deselect": "You now don't have any taterzens selected.",
   "taterzens.command.create": "Taterzen %s has been spawned successfully.",
   "taterzens.command.remove": "Taterzen %s has been removed.",
-  "taterzens.command.list": "Available Taterzens:",
-  "taterzens.command.list": "Show loaded Taterzens",
+  "taterzens.command.list": "Available Taterzens",
   "taterzens.command.flag.changed": "Taterzen flag has been changed to %s.",
   "taterzens.command.config.success": "Config was reloaded successfully.",
   "taterzens.command.rename.success": "Taterzen has been renamed to %s.",
@@ -61,5 +60,5 @@
   "taterzens.error.404.detected": "No Taterzen was detected in front of you."
   "taterzens.error.404.id": "No Taterzens with id %s were found.",
   "taterzens.error.select": "You have to select Taterzen first.",
-  "taterzens.error.permission": "Permission level %s is higher than your permission level.",
+  "taterzens.error.permission": "Permission level %s is higher than your permission level."
 }
