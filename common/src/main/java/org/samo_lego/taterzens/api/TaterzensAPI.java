@@ -65,7 +65,7 @@ public class TaterzensAPI {
             )
             ) {
                 element = parser.parse(fileReader).getAsJsonObject();
-            } catch(IOException e) {
+            } catch(IOException e) { //todo
                 LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
             }
             if(element != null) {

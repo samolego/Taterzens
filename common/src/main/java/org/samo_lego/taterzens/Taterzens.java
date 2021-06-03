@@ -1,5 +1,6 @@
 package org.samo_lego.taterzens;
 
+import com.google.gson.JsonObject;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -8,7 +9,6 @@ import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
-import org.samo_lego.taterzens.storage.TaterLang;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public class Taterzens {
     /**
      * Language file.
      */
-    public static TaterLang lang;
+    public static JsonObject lang;
     public static final Logger LOGGER = (Logger) LogManager.getLogger(MODID);
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
@@ -44,7 +44,7 @@ public class Taterzens {
     /**
      * Permissions for players.
      * Used only if LuckPerms mod is loaded.
-     * @see Taterzens#LUCKPERMS_ENABLED
+     * @see Taterzens#LUCKPERMS_LOADED
      */
     public static final PermissionList PERMISSIONS = new PermissionList();
 
@@ -56,7 +56,9 @@ public class Taterzens {
      * Whether LuckPerms mod is loaded.
      * @see <a href="https://luckperms.net/">LuckPerms website</a>.
      */
-    public static boolean LUCKPERMS_ENABLED;
+    public static boolean LUCKPERMS_LOADED;
+
+    public static boolean SERVER_TRANSLATIONS_LOADED;
 
     public static boolean FABRICTAILOR_LOADED;
 
@@ -67,9 +69,9 @@ public class Taterzens {
         taterDir = taterDir.getParentFile();
 
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
-        lang = TaterLang.loadLanguageFile(new File(taterDir + "/" + config.language + ".json"));
+        lang = TaterConfig.loadLanguageFile(config.language);
 
-        if(LUCKPERMS_ENABLED) {
+        if(LUCKPERMS_LOADED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
         }
     }

@@ -40,9 +40,12 @@ public class TaterzensFabric implements ModInitializer {
         DISGUISELIB_LOADED = FabricLoader.getInstance().isModLoaded("disguiselib");
 
         // Permissions
-        LUCKPERMS_ENABLED = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+        LUCKPERMS_LOADED = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
 
         FABRICTAILOR_LOADED = FabricLoader.getInstance().isModLoaded("fabrictailor");
+
+        // server-translations-api
+        SERVER_TRANSLATIONS_LOADED = FabricLoader.getInstance().isModLoaded("server_translations_api");
 
         // Common initialization
         Taterzens.onInitialize();

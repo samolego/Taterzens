@@ -21,6 +21,10 @@ repositories {
         name = "entity reach"
         url = "https://maven.jamieswhiteshirt.com/libs-release/"
     }
+    maven {
+        name = "Nucleoid maven"
+        url = "https://maven.nucleoid.xyz/"
+    }
 }
 
 configurations {
@@ -39,8 +43,10 @@ dependencies {
 
 
     // Permission API
-    modImplementation 'me.lucko:fabric-permissions-api:0.1-SNAPSHOT'
+    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
+    // Serverside translations
+    modImplementation("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
 
     // DisguiseLib
     //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
