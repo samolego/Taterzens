@@ -152,7 +152,7 @@ public class NpcCommand {
                                             throw new SimpleCommandExceptionType(
                                                     cmd == null ?
                                                             noSelectedTaterzenError() :
-                                                            joinString(lang.success.setCommandAction, Formatting.GOLD, "/" + cmd, Formatting.GRAY)
+                                                            joinText("taterzens.command.commands.set", Formatting.GOLD, Formatting.GRAY, "/" + cmd)
                                             ).create();
                                         })
                                 )
@@ -333,11 +333,11 @@ public class NpcCommand {
                     UUID uuid = EntityArgumentType.getEntity(context, "uuid").getUuid();
                     taterzen.setFollowUuid(uuid);
                 } catch(IllegalArgumentException ignored) {
-                    source.sendError(errorText(lang.error.noUuidProvided, new LiteralText(followType.toString())));
+                    source.sendError(errorText("taterzens.command.movement.follow.error.uuid", followType.toString()));
                 }
             }
 
-            source.sendFeedback(successText(lang.success.changedMovementTypeFollow, new LiteralText(followType.toString())), false);
+            source.sendFeedback(successText("taterzens.command.movement.follow.set", followType.toString()), false);
         } else
             context.getSource().sendError(noSelectedTaterzenError());
         return 0;
@@ -348,7 +348,7 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
             flag.accept(taterzen);
-            source.sendFeedback(successText(lang.success.flagSet, new LiteralText(flagName + ":" + flagValue)), false);
+            source.sendFeedback(successText("taterzens.command.flag.changed", flagName + ":" + flagValue), false);
         } else
             context.getSource().sendError(noSelectedTaterzenError());
         return 0;
@@ -361,7 +361,7 @@ public class NpcCommand {
         // Shameless self-promotion
         if(config.fabricTailorAdvert) {
             if(FABRICTAILOR_LOADED) {
-                source.sendFeedback(new LiteralText(lang.skinCommandUsage)
+                source.sendFeedback(translate("advert.fabrictailor.skin_command")
                                 .formatted(Formatting.GOLD)
                                 .styled(style ->
                                         style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
@@ -369,7 +369,7 @@ public class NpcCommand {
                         false
                 );
             } else {
-                source.sendFeedback(new LiteralText(lang.fabricTailorAdvert)
+                source.sendFeedback(translate("advert.fabrictailor")
                                 .formatted(Formatting.ITALIC)
                                 .formatted(Formatting.GOLD)
                                 .styled(style -> style
@@ -413,12 +413,12 @@ public class NpcCommand {
                             taterzen.sendProfileUpdates();
 
                             source.sendFeedback(
-                                    successText(lang.success.skinChanged, new LiteralText(id)),
+                                    successText("taterzens.command.skin.fetched", id),
                                     false
                             );
                         }
                     } catch(MalformedURLException e) {
-                        source.sendError(errorText(lang.error.malformedUrl, new LiteralText(mineskinUrl)));
+                        source.sendError(errorText("taterzens.error.invalid.url", mineskinUrl));
                     } catch(IOException e) {
                         e.printStackTrace();
                     }
@@ -428,7 +428,7 @@ public class NpcCommand {
                 GameProfile skinProfile = new GameProfile(null, id);
                 SkullBlockEntity.loadProperties(skinProfile, taterzen::applySkin);
                 context.getSource().sendFeedback(
-                        successText(lang.success.skinChanged, new LiteralText(id)),
+                        successText("taterzens.command.skin.fetched", id),
                         false
                 );
             }
@@ -443,7 +443,7 @@ public class NpcCommand {
         if(taterzen != null) {
             Collection<Identifier> professionIds = taterzen.getProfessionIds();
 
-            MutableText response = joinText(lang.taterzenProfessions, Formatting.AQUA, taterzen.getCustomName(), Formatting.YELLOW);
+            MutableText response = joinText("taterzens.command.profession.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
             AtomicInteger i = new AtomicInteger();
 
             professionIds.forEach(identifier -> {
@@ -476,9 +476,9 @@ public class NpcCommand {
         if(taterzen != null) {
             if(taterzen.getProfessionIds().contains(id)) {
                 taterzen.removeProfession(id);
-                source.sendFeedback(successText(lang.success.professionRemoved, new LiteralText(id.toString())), false);
+                source.sendFeedback(successText("taterzens.command.profession.remove", id.toString()), false);
             } else
-                context.getSource().sendError(errorText(lang.error.noProfessionFound, new LiteralText(id.toString())));
+                context.getSource().sendError(errorText("taterzens.command.profession.error.404", id.toString()));
         } else
             context.getSource().sendError(noSelectedTaterzenError());
         return 0;
@@ -502,9 +502,9 @@ public class NpcCommand {
         if(taterzen != null) {
             if(PROFESSION_TYPES.containsKey(id)) {
                 taterzen.addProfession(id);
-                source.sendFeedback(successText(lang.success.professionAdded, new LiteralText(id.toString())), false);
+                source.sendFeedback(successText("taterzens.command.profession.add", id.toString()), false);
             } else
-                context.getSource().sendError(errorText(lang.error.noProfessionFound, new LiteralText(id.toString())));
+                context.getSource().sendError(errorText("taterzens.command.profession.error.404", id.toString()));
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 
@@ -517,7 +517,7 @@ public class NpcCommand {
         if(taterzen != null) {
             boolean drop = BoolArgumentType.getBool(context, "drop");
             taterzen.allowEquipmentDrops(drop);
-            source.sendFeedback(successText(lang.success.equipmentDropStatus, new LiteralText(String.valueOf(drop))), false);
+            source.sendFeedback(successText("taterzens.command.equipment.drop_mode.set", String.valueOf(drop)), false);
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 
@@ -530,9 +530,9 @@ public class NpcCommand {
         if(taterzen != null) {
             NPCData.Behaviour behaviour = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
             taterzen.setBehaviour(behaviour);
-            source.sendFeedback(successText(lang.success.behaviour, new LiteralText(String.valueOf(behaviour))), false);
+            source.sendFeedback(successText("taterzens.command.behaviour.set", String.valueOf(behaviour)), false);
             if(behaviour != NPCData.Behaviour.PASSIVE && taterzen.isInvulnerable())
-                source.sendFeedback(new LiteralText(lang.success.behaviourSuggestion)
+                source.sendFeedback(translate("taterzens.command.behaviour.suggest.invulnerable.false")
                         .formatted(Formatting.GOLD)
                         .formatted(Formatting.ITALIC)
                         .styled(style -> style
@@ -554,11 +554,11 @@ public class NpcCommand {
             int selected = IntegerArgumentType.getInteger(context, "command id") - 1;
             if(selected >= taterzen.getCommands().size()) {
                 source.sendFeedback(
-                        errorText(lang.error.noCommandFound, new LiteralText(String.valueOf(selected))),
+                        errorText("taterzens.command.commands.error.404", String.valueOf(selected)),
                         false
                 );
             } else {
-                source.sendFeedback(successText(lang.success.commandRemoved, new LiteralText(String.valueOf(taterzen.getCommands().get(selected)))), false);
+                source.sendFeedback(successText("taterzens.command.commands.removed", taterzen.getCommands().get(selected)), false);
                 taterzen.removeCommand(selected);
             }
         } else
@@ -571,7 +571,7 @@ public class NpcCommand {
         ServerCommandSource source = context.getSource();
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
-            source.sendFeedback(successText(lang.success.commandsCleared, taterzen.getName()), false);
+            source.sendFeedback(successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
             taterzen.clearCommands();
 
         } else
@@ -586,7 +586,7 @@ public class NpcCommand {
         if(taterzen != null) {
             ArrayList<String> commands = taterzen.getCommands();
 
-            MutableText response = joinText(lang.taterzenCommands, Formatting.AQUA, taterzen.getCustomName(), Formatting.YELLOW);
+            MutableText response = joinText("taterzens.command.commands.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
             if(!commands.isEmpty()) {
                 AtomicInteger i = new AtomicInteger();
 
@@ -625,10 +625,10 @@ public class NpcCommand {
         if(taterzen != null) {
             int newPermLevel = IntegerArgumentType.getInteger(context, "level");
             if(!config.perms.allowSettingHigherPermissionLevel && !source.hasPermissionLevel(newPermLevel)) {
-                source.sendError(errorText(lang.error.cannotSetPermissionLevel, new LiteralText(String.valueOf(newPermLevel))));
+                source.sendError(errorText("taterzens.error.permission", String.valueOf(newPermLevel)));
                 return -1;
             }
-            source.sendFeedback(successText(lang.success.updatedPermissionLevel, new LiteralText(String.valueOf(newPermLevel))), false);
+            source.sendFeedback(successText("taterzens.command.commands.permission.set", String.valueOf(newPermLevel)), false);
             taterzen.setPermissionLevel(newPermLevel);
 
         } else
@@ -640,7 +640,7 @@ public class NpcCommand {
     private static int deselectTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ((TaterzenEditor) source.getPlayer()).selectNpc(null);
-        source.sendFeedback(new LiteralText(lang.success.deselectedTaterzen).formatted(Formatting.GREEN), false);
+        source.sendFeedback(translate("taterzens.command.deselect").formatted(Formatting.GREEN), false);
         return 0;
     }
 
@@ -651,11 +651,11 @@ public class NpcCommand {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
-                        errorText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                        errorText("taterzens.command.message.error.404", String.valueOf(selected)),
                         false
                 );
             } else {
-                source.sendFeedback(successText(lang.success.messageDeleted, taterzen.getMessages().get(selected).getFirst()), false);
+                source.sendFeedback(successText("taterzens.command.message.deleted", taterzen.getMessages().get(selected).getFirst().getString()), false);
                 taterzen.removeMessage(selected);
             }
         } else
@@ -671,13 +671,13 @@ public class NpcCommand {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
-                        errorText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                        errorText("taterzens.command.message.error.404", String.valueOf(selected)),
                         false
                 );
             } else {
                 int delay = IntegerArgumentType.getInteger(context, "delay");
                 taterzen.setMessageDelay(selected, delay);
-                source.sendFeedback(successText(lang.success.messageDelaySet, new LiteralText(String.valueOf(delay))), false);
+                source.sendFeedback(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
             }
         } else
             context.getSource().sendError(noSelectedTaterzenError());
@@ -693,12 +693,15 @@ public class NpcCommand {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
-                        successText(lang.error.noMessageFound, new LiteralText(String.valueOf(selected))),
+                        successText("taterzens.command.message.list", String.valueOf(selected)),
                         false
                 );
             } else {
                 ((TaterzenEditor) source.getPlayer()).setEditingMessageIndex(selected);
-                source.sendFeedback(successText(lang.editMessageMode, taterzen.getMessages().get(selected).getFirst()), false);
+                source.sendFeedback(
+                        successText("taterzens.command.message.editor.enter", taterzen.getMessages().get(selected).getFirst().getString()),
+                        false)
+                ;
             }
 
         } else
@@ -713,7 +716,7 @@ public class NpcCommand {
         if(taterzen != null) {
             ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
 
-            MutableText response = joinText(lang.taterzenMessages, Formatting.AQUA, taterzen.getCustomName(), Formatting.YELLOW);
+            MutableText response = joinText("taterzens.command.message.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
             AtomicInteger i = new AtomicInteger();
 
             messages.forEach(pair -> {
@@ -753,7 +756,7 @@ public class NpcCommand {
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
         if(taterzen != null) {
             taterzen.clearMessages();
-            source.sendFeedback(successText(lang.success.messagesCleared, taterzen.getName()), false);
+            source.sendFeedback(successText("taterzens.command.message.clear", taterzen.getName().getString()), false);
         } else
             context.getSource().sendError(noSelectedTaterzenError());
 
@@ -770,14 +773,14 @@ public class NpcCommand {
                 ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
                 ((TaterzenEditor) source.getPlayer()).setEditingMessageIndex(-1);
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
+                        translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
                 );
             } else {
                 // Entering the edit mode
                 ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.MESSAGES);
                 context.getSource().sendFeedback(
-                        joinText(lang.success.msgEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                        joinText("taterzens.command.message.editor.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages"))
@@ -786,9 +789,9 @@ public class NpcCommand {
                         false
                 );
                 context.getSource().sendFeedback(
-                        successText(lang.success.msgEditorDescLine1, taterzen.getCustomName())
+                        successText("taterzens.command.message.editor.desc.1", taterzen.getName().getString())
                                 .append("\n")
-                                .append(new LiteralText(lang.success.msgEditorDescLine2))
+                                .append(translate("taterzens.command.message.editor.desc.2"))
                                 .formatted(Formatting.GREEN),
                         false
                 );
@@ -810,7 +813,7 @@ public class NpcCommand {
             ));
             taterzen.clearPathTargets();
             context.getSource().sendFeedback(
-                    successText(lang.success.clearPath, taterzen.getCustomName()),
+                    successText("taterzens.command.path_editor.clear", taterzen.getName().getString()),
                     false
             );
         } else
@@ -827,14 +830,14 @@ public class NpcCommand {
             if(((TaterzenEditor) player).getEditorMode() == TaterzenEditor.Types.PATH) {
                 ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
+                        translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
                 );
 
             } else {
 
                 context.getSource().sendFeedback(
-                        joinText(lang.success.pathEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                        joinText("taterzens.command.path_editor.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
@@ -843,8 +846,8 @@ public class NpcCommand {
                         false
                 );
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.pathEditorDescLine1).append("\n").formatted(Formatting.BLUE)
-                                .append(new LiteralText(lang.success.pathEditorDescLine2).formatted(Formatting.RED)),
+                        translate("taterzens.command.path_editor.desc.1").append("\n").formatted(Formatting.BLUE)
+                                .append(translate("taterzens.command.path_editor.desc.2").formatted(Formatting.RED)),
                         false
                 );
 
@@ -874,13 +877,13 @@ public class NpcCommand {
                 ((TaterzenEditor) source.getPlayer()).selectNpc(taterzenNPC);
 
                 source.sendFeedback(
-                        successText(lang.success.importedTaterzenPreset, new LiteralText(filename)),
+                        successText("taterzens.command.preset.import.success", filename),
                         false
                 );
             }
         } else {
             source.sendError(
-                    errorText(lang.error.noPresetFound, new LiteralText(filename))
+                    errorText("taterzens.command.preset.import.error.404", filename)
             );
         }
         return 0;
@@ -895,7 +898,7 @@ public class NpcCommand {
             TaterzensAPI.saveTaterzenToPreset(taterzen, preset);
 
             context.getSource().sendFeedback(
-                    successText(lang.success.exportedTaterzen, new LiteralText(filename)),
+                    successText("taterzens.command.preset.export.success", filename),
                     false
             );
         } else
@@ -914,7 +917,7 @@ public class NpcCommand {
             npc = ((TaterzenEditor) source.getPlayer()).getNpc();
         }
 
-        MutableText response = new LiteralText(lang.availableTaterzens).formatted(Formatting.AQUA);
+        MutableText response = translate("taterzens.command.list").formatted(Formatting.AQUA);
         Object[] array = TATERZEN_NPCS.toArray();
 
         for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
@@ -954,14 +957,12 @@ public class NpcCommand {
         int id = IntegerArgumentType.getInteger(context, "id");
         ServerCommandSource source = context.getSource();
         if(id > TATERZEN_NPCS.size()) {
-            source.sendError(
-                    errorText(lang.error.noTaterzenFound, new LiteralText(String.valueOf(id)))
-            );
+            source.sendError(errorText("taterzens.error.404.id", String.valueOf(id)));
         } else {
             TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.toArray()[id - 1];
             ((TaterzenEditor) source.getPlayer()).selectNpc(taterzen);
             source.sendFeedback(
-                    successText(lang.success.selectedTaterzen, taterzen.getCustomName()),
+                    successText("taterzens.command.select", taterzen.getName().getString()),
                     false
             );
         }
@@ -975,7 +976,7 @@ public class NpcCommand {
             Text newName = MessageArgumentType.getMessage(context, "new name");
             taterzen.setCustomName(newName);
             context.getSource().sendFeedback(
-                    successText(lang.success.renameTaterzen, newName),
+                    successText("taterzens.command.rename.success", newName.getString()),
                     false
             );
         } else
@@ -1000,7 +1001,7 @@ public class NpcCommand {
         if(taterzen != null) {
             taterzen.setMovement(NPCData.Movement.valueOf(movement));
             context.getSource().sendFeedback(
-                    successText(lang.success.changedMovementType, new LiteralText(movement)),
+                    successText("taterzens.command.movement.set", movement),
                     false
             );
         } else
@@ -1017,14 +1018,14 @@ public class NpcCommand {
                 ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
                 taterzen.setEquipmentEditor(null);
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE),
+                        translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
                 );
 
                 taterzen.setEquipmentEditor(null);
             } else {
                 context.getSource().sendFeedback(
-                        joinText(lang.success.equipmentEditorEnter, Formatting.LIGHT_PURPLE, taterzen.getCustomName(), Formatting.AQUA)
+                        joinText("taterzens.command.equipment.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit equipment"))
@@ -1033,10 +1034,10 @@ public class NpcCommand {
                         false
                 );
                 context.getSource().sendFeedback(
-                        new LiteralText(lang.success.equipmentEditorDescLine1).append("\n")
-                                .append(lang.success.equipmentEditorDescLine2).append("\n")
-                                .append(lang.success.equipmentEditorDescLine3).formatted(Formatting.YELLOW).append("\n")
-                                .append(new LiteralText(lang.success.equipmentEditorDescLine4).formatted(Formatting.RED)),
+                        translate("taterzens.command.equipment.desc.1").append("\n")
+                                .append(translate("taterzens.command.equipment.desc.2")).append("\n")
+                                .append(translate("taterzens.command.equipment.desc.3")).formatted(Formatting.YELLOW).append("\n")
+                                .append(translate("taterzens.command.equipment.desc.4").formatted(Formatting.RED)),
                         false
                 );
                 
@@ -1059,7 +1060,7 @@ public class NpcCommand {
 
             taterzen.sendProfileUpdates();
             context.getSource().sendFeedback(
-                    successText(lang.success.skinLayersMirrored, taterzen.getCustomName()),
+                    successText("taterzens.command.skin.mirrored", taterzen.getName().getString()),
                     false
             );
         } else
@@ -1090,7 +1091,7 @@ public class NpcCommand {
         if(taterzen != null) {
             taterzen.kill();
             source.sendFeedback(
-                    successText(lang.success.killedTaterzen, taterzen.getCustomName()),
+                    successText("taterzens.command.remove", taterzen.getName().getString()),
                     false
             );
         } else
@@ -1111,7 +1112,7 @@ public class NpcCommand {
             if(entity instanceof TaterzenNPC && ((TaterzenEditor) player).getNpc() == null) {
                 ((TaterzenEditor) player).selectNpc((TaterzenNPC) entity);
                 source.sendFeedback(
-                        successText(lang.success.selectedTaterzen, entity.getCustomName()),
+                        successText("taterzens.command.select", entity.getName().getString()),
                         false
                 );
                 return false;
@@ -1121,10 +1122,10 @@ public class NpcCommand {
 
         if(((TaterzenEditor) player).getNpc() == null) {
             source.sendError(
-                    new LiteralText(lang.error.noTaterzenDetected)
+                    translate("taterzens.error.404.detected")
                         .formatted(Formatting.RED)
                         .append("\n")
-                        .append(new LiteralText(lang.success.deselectedTaterzen).formatted(Formatting.GOLD))
+                        .append(translate("taterzens.command.deselect").formatted(Formatting.GOLD))
             );
         }
 
@@ -1134,7 +1135,7 @@ public class NpcCommand {
     private static int changeType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         if(!DISGUISELIB_LOADED) {
-            source.sendError(new LiteralText(lang.error.disguiseLibRequired)
+            source.sendError(new LiteralText("advert.disguiselib.required")
                     .formatted(Formatting.RED)
                     .styled(style -> style
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
@@ -1161,7 +1162,10 @@ public class NpcCommand {
                 EntityType.loadEntityWithPassengers(nbt, source.getWorld(), (entityx) -> {
                     DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
                     source.sendFeedback(
-                            successText(lang.success.changedEntityType, new TranslatableText(entityx.getType().getTranslationKey())),
+                            translate(
+                                    "taterzens.command.entity_type.set",
+                                    new TranslatableText(entityx.getType().getTranslationKey()).formatted(Formatting.YELLOW)
+                            ).formatted(Formatting.GREEN),
                             false
                     );
                     return entityx;
@@ -1178,7 +1182,7 @@ public class NpcCommand {
     private static int resetType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         if(!DISGUISELIB_LOADED) {
-            source.sendError(new LiteralText(lang.error.disguiseLibRequired)
+            source.sendError(translate("advert.disguiselib.required")
                     .formatted(Formatting.RED)
                     .styled(style -> style
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
@@ -1191,7 +1195,7 @@ public class NpcCommand {
         if(taterzen != null) {
             DisguiseLibCompatibility.clearDisguise(taterzen);
             source.sendFeedback(
-                    successText(lang.success.resetEntityType, taterzen.getCustomName()),
+                    successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
                     false
             );
         } else
@@ -1228,7 +1232,7 @@ public class NpcCommand {
 
         ((TaterzenEditor) player).selectNpc(taterzen);
         player.sendMessage(
-                successText(lang.success.spawnedTaterzen, taterzen.getCustomName()),
+                successText("taterzens.command.create", taterzen.getName().getString()),
                 false
         );
 

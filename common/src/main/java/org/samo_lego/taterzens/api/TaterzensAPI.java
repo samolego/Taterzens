@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 /**
  * Class containing static methods to use with Taterzens.
@@ -153,10 +154,10 @@ public class TaterzensAPI {
      * @return formatted error text.
      */
     public static MutableText noSelectedTaterzenError() {
-        return new LiteralText(lang.error.selectTaterzen)
+        return translate("taterzens.error.select")
                 .formatted(Formatting.RED)
                 .styled(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(lang.showLoadedTaterzens)))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.command.list")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
                 );
     }

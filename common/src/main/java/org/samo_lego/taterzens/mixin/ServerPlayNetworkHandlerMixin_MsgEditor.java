@@ -10,7 +10,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.interfaces.TaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
-import org.samo_lego.taterzens.util.TextUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +17,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.Taterzens.lang;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public class ServerPlayNetworkHandlerMixin_MsgEditor {
@@ -42,7 +42,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
     )
     private void onMessage(TextStream.Message message, CallbackInfo ci) {
         TaterzenEditor editor = (TaterzenEditor) this.player;
-        TaterzenNPC taterzen = (editor).getNpc();
+        TaterzenNPC taterzen = editor.getNpc();
         String msg = message.getFiltered();
         if(taterzen != null && ((TaterzenEditor) this.player).getEditorMode() == TaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
             if(msg.startsWith("delay")) {
@@ -50,8 +50,8 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                 if(split.length > 1) {
                     try {
                         int delay = Integer.parseInt(split[1]);
-                        //taterzen.setMessageDelay(delay);
-                        player.sendMessage(TextUtil.successText(lang.success.messageDelaySet, new LiteralText(String.valueOf(delay))), false);
+                        taterzen.setMessageDelay(editor.getEditingMessageIndex(), delay);
+                        this.player.sendMessage(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
                     } catch(NumberFormatException ignored) {
 
                     }
@@ -63,7 +63,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                     try {
                         text = Text.Serializer.fromJson(new StringReader(msg));
                     } catch(JsonParseException ignored) {
-                        player.sendMessage(new LiteralText(lang.error.invalidText).formatted(Formatting.RED), false);
+                        player.sendMessage(translate("taterzens.error.invalid.text").formatted(Formatting.RED), false);
                         ci.cancel();
                         return;
                     }
@@ -72,17 +72,17 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
                 if((editor).getEditingMessageIndex() != -1) {
                     // Editing selected message
                     taterzen.editMessage(editor.getEditingMessageIndex(), text); // Editing message
-                    player.sendMessage(TextUtil.successText(lang.success.messageChanged, text), false);
+                    player.sendMessage(successText("taterzens.command.message.changed", text.getString()), false);
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
                         ((TaterzenEditor) this.player).setEditorMode(TaterzenEditor.Types.NONE);
                         (editor).setEditingMessageIndex(-1);
-                        player.sendMessage(new LiteralText(lang.success.editorExit).formatted(Formatting.LIGHT_PURPLE), false);
+                        player.sendMessage(translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE), false);
                     }
                 } else {
                     taterzen.addMessage(text); // Adding message
-                    player.sendMessage(TextUtil.successText(lang.success.messageAdded, text), false);
+                    player.sendMessage(successText("taterzens.command.message.editor.add", text.getString()), false);
                 }
 
             }

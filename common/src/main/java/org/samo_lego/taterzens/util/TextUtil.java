@@ -3,13 +3,15 @@ package org.samo_lego.taterzens.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+
+import java.util.Arrays;
 
 import static org.samo_lego.taterzens.Taterzens.SERVER_TRANSLATIONS_LOADED;
 import static org.samo_lego.taterzens.Taterzens.lang;
@@ -20,66 +22,26 @@ public class TextUtil {
 
     /**
      * Inserts colored insertedText in string message.
-     *
-     * @param message message to insert name in.
-     * @param messageColor color format of the message.
-     * @param insertedText text to insert in message.
-     * @param insertedTextColor color of inserted text.
-     * @return formatted LiteralText
      */
-    public static LiteralText joinText(LiteralText message, Formatting messageColor, LiteralText insertedText, Formatting insertedTextColor) {
-        if(!message.contains("%s"))
-            return (LiteralText) new LiteralText(message).formatted(messageColor);
-
-        String[] split = message.split("%s");
-        return (LiteralText) new LiteralText(split[0])
-                .formatted(messageColor)
-                .append(insertedText.copy().formatted(insertedTextColor))
-                .append(split.length  > 1 ? split[1] : "")
-                .formatted(messageColor);
-
-    }
-    /**
-     * Inserts colored insertedText in string message.
-     *
-     * @param message message to insert name in.
-     * @param messageColor color format of the message.
-     * @param insertedText text to insert in message.
-     * @param insertedTextColor color of inserted text.
-     * @return formatted LiteralText
-     */
-    public static LiteralText joinText(String message, Formatting messageColor, String insertedText, Formatting insertedTextColor) {
-        if(!message.contains("%s"))
-            return (LiteralText) new LiteralText(message).formatted(messageColor);
-
-        String[] split = message.split("%s");
-        return (LiteralText) new LiteralText(split[0])
-                .formatted(messageColor)
-                .append(insertedText.copy().formatted(insertedTextColor))
-                .append(split.length  > 1 ? split[1] : "")
-                .formatted(messageColor);
-
+    public static MutableText joinText(String key, Formatting messageColor, Formatting insertedTextColor, String... insertedString) {
+        Object[] texts = Arrays.stream(insertedString).map(s -> new LiteralText(s).formatted(insertedTextColor)).toArray();
+        return translate(key, texts /*insertedString*/).copy().formatted(messageColor);
     }
 
-    public static LiteralText joinString(String message, Formatting messageColor, String insertedString, Formatting insertedStringColor) {
-        return joinText(message, messageColor, new LiteralText(insertedString), insertedStringColor);
-
+    public static MutableText successText(String key, String... insertedText) {
+        return joinText(key, Formatting.GREEN, Formatting.YELLOW, insertedText);
     }
 
-    public static LiteralText successText(String message, Text insertedText) {
-        return joinText(message, Formatting.GREEN, insertedText, Formatting.YELLOW);
-    }
-
-    public static LiteralText errorText(String message, String insertedText) {
-        return joinText(message, Formatting.RED, insertedText, Formatting.LIGHT_PURPLE);
+    public static MutableText errorText(String key, String insertedText) {
+        return joinText(key, Formatting.RED, Formatting.LIGHT_PURPLE, insertedText);
     }
 
     public static NbtElement toNbtElement(Text text) {
         JsonElement json = parser.parse(Text.Serializer.toJson(text));
-        return (NbtCompound) JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
+        return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
     }
 
-    public static Text fromNbtElement(NbtElement textNbtElement) {
+    public static MutableText fromNbtElement(NbtElement textNbtElement) {
         JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textNbtElement);
         return Text.Serializer.fromJson(json);
     }
@@ -89,8 +51,8 @@ public class TextUtil {
      * @param key lang key.
      * @return {@link TranslatableText} or {@link LiteralText} depending on whether SERVER_TRANSLATIONS is loaded.
      */
-    public static Text translate(String key) {
-        return SERVER_TRANSLATIONS_LOADED ? new TranslatableText(key) : new LiteralText(lang.get(key).getAsString());
+    public static MutableText translate(String key, Object... args) {
+        return new TranslatableText(SERVER_TRANSLATIONS_LOADED ? key : lang.get(key).getAsString(), args);
     }
 
 }

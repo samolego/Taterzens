@@ -9,6 +9,7 @@ import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
+import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
 import java.util.HashMap;
@@ -67,9 +68,10 @@ public class Taterzens {
             throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
         presetsDir = taterDir;
         taterDir = taterDir.getParentFile();
+        File configFile = new File(taterDir + "/config.json");
+        config = TaterConfig.loadConfigFile(configFile);
 
-        config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
-        lang = TaterConfig.loadLanguageFile(config.language);
+        LanguageUtil.init();
 
         if(LUCKPERMS_LOADED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));

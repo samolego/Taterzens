@@ -5,7 +5,6 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
@@ -78,7 +77,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
                 }
             }
             if(this.taterzens$editorMode != TaterzenEditor.Types.NONE) {
-                player.sendMessage(successText("Current editor: %s", new LiteralText(String.valueOf(this.taterzens$editorMode))), true);
+                player.sendMessage(successText("Current editor: %s", String.valueOf(this.taterzens$editorMode)), true);
             }
 
             this.taterzens$lastRenderTick = 0;

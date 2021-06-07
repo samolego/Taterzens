@@ -15,6 +15,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class TaterzensCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
@@ -34,8 +35,7 @@ public class TaterzensCommand {
 
     private static int wikiInfo(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(
-                successText("Visit %s for documentation.", new LiteralText("https://samolego.github.io/Taterzens/"))
-                    .formatted(Formatting.GREEN)
+                successText("Visit %s for documentation.", "https://samolego.github.io/Taterzens/")
                     .styled(style -> style
                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://samolego.github.io/Taterzens/"))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Click to see documentation.")))
@@ -47,10 +47,10 @@ public class TaterzensCommand {
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
-        lang = TaterConfig.loadLanguageFile(config.language);
+        //lang = TaterConfig.loadLanguageFile();
 
         context.getSource().sendFeedback(
-                new LiteralText(lang.success.configReloaded).formatted(Formatting.GREEN),
+                translate("taterzens.command.config.success").formatted(Formatting.GREEN),
                 false
         );
         return 0;

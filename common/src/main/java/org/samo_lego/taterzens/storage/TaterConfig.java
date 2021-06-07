@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import org.samo_lego.taterzens.Taterzens;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -242,21 +241,16 @@ public class TaterConfig {
     /**
      * Loads language file.
      *
-     * @param langKey lang key code, e.g. `en_us`.
+     * @param file lang file.
      * @return JsonObject containing language keys and values.
      */
-    public static JsonObject loadLanguageFile(String langKey) {
-        InputStream stream = Taterzens.class.getResourceAsStream("/" + langKey + ".json");
-        if(stream == null) {
-            stream = Taterzens.class.getResourceAsStream("/en_us.json");
-        }
-
+    public static JsonObject loadLanguageFile(File file) {
         try (BufferedReader fileReader = new BufferedReader(
-                new InputStreamReader(stream, StandardCharsets.UTF_8)
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
         )) {
             return gson.fromJson(fileReader, JsonObject.class);
         } catch (IOException | NullPointerException e) {
-            throw new RuntimeException(MODID + " Problem occurred when trying to load language: ", e);
+            throw new RuntimeException(MODID + ": Problem occurred when trying to load language: ", e);
         }
     }
 }
