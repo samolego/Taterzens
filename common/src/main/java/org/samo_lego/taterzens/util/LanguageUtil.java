@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import org.samo_lego.taterzens.Taterzens;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -18,43 +17,28 @@ public class LanguageUtil {
             .disableHtmlEscaping()
             .create();
 
+    private static final InputStream DEFAULT_LANG_STREAM = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
+
     /**
      * Initializes the mod's language json object.
      */
     public static void setupLanguage() {
         String langPath = String.format("/data/taterzens/lang/%s.json", config.language);
-        System.out.println(langPath);
         InputStream stream = Taterzens.class.getResourceAsStream(langPath);
-        System.out.println("Stream :: " + stream);
-        try {
-            if(stream == null) {
-                //todo check GH for latest translations
+        if(stream == null) {
+            //todo check GH for latest translations
 
-                System.out.println("ohno, invalid lang file");
-                // Since this language doesn't exist,
-                // change the config back to english.
-                config.language = "en_us";
-                config.saveConfigFile(new File(taterDir + "/config.json"));
+            System.out.println("ohno, invalid lang file");
+            // Since this language doesn't exist,
+            // change the config back to english.
+            config.language = "en_us";
+            config.saveConfigFile(new File(taterDir + "/config.json"));
 
-               loadDefaultLanguage();
-            } else {
-                lang = loadLanguageFile(stream);
-            }
-        } catch(URISyntaxException | IOException e) {
-            e.printStackTrace();
+            lang = loadLanguageFile(DEFAULT_LANG_STREAM);
+        } else {
+            lang = loadLanguageFile(stream);
         }
     }
-
-    /**
-     * Loads default (en_us) language.
-     * @throws URISyntaxException if for some reason file is missing
-     */
-    private static void loadDefaultLanguage() throws URISyntaxException, FileNotFoundException {
-        // Extract language from jar
-        InputStream stream = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
-        lang = loadLanguageFile(stream);
-    }
-
 
     /**
      * Loads language file.
