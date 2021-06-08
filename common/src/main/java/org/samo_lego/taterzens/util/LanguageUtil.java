@@ -1,33 +1,72 @@
 package org.samo_lego.taterzens.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.samo_lego.taterzens.Taterzens;
-import org.samo_lego.taterzens.storage.TaterConfig;
 
-import java.io.File;
+import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 
 public class LanguageUtil {
-    public static void init() {
-        URL url = Taterzens.class.getResource(String.format("/data/%s/lang/%s.json", MODID, config.language));
-        try {
-            File langFile = new File(url.toURI().getPath());
-            //File langFile = new File(taterDir + "/" + config.language + ".json");
-            System.out.println(langFile.exists() + " " + langFile.getPath());
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .disableHtmlEscaping()
+            .create();
 
-            if(!langFile.exists()) {
+    /**
+     * Initializes the mod's language json object.
+     */
+    public static void setupLanguage() {
+        String langPath = String.format("/data/taterzens/lang/%s.json", config.language);
+        System.out.println(langPath);
+        InputStream stream = Taterzens.class.getResourceAsStream(langPath);
+        System.out.println("Stream :: " + stream);
+        try {
+            if(stream == null) {
+                //todo check GH for latest translations
+
+                System.out.println("ohno, invalid lang file");
+                // Since this language doesn't exist,
+                // change the config back to english.
                 config.language = "en_us";
                 config.saveConfigFile(new File(taterDir + "/config.json"));
 
-                // Extract language from jar
-                url = Taterzens.class.getResource(String.format("/data/%s/lang/en_us.json", MODID));
-                langFile = new File(url.toURI().getPath());
+               loadDefaultLanguage();
+            } else {
+                lang = loadLanguageFile(stream);
             }
-            lang = TaterConfig.loadLanguageFile(langFile);
-        } catch(URISyntaxException e) {
+        } catch(URISyntaxException | IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Loads default (en_us) language.
+     * @throws URISyntaxException if for some reason file is missing
+     */
+    private static void loadDefaultLanguage() throws URISyntaxException, FileNotFoundException {
+        // Extract language from jar
+        InputStream stream = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
+        lang = loadLanguageFile(stream);
+    }
+
+
+    /**
+     * Loads language file.
+     *
+     * @param inputStream lang file input stream.
+     * @return JsonObject containing language keys and values.
+     */
+    public static JsonObject loadLanguageFile(InputStream inputStream) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            return gson.fromJson(reader, JsonObject.class);
+        } catch (IOException e) {
+            throw new RuntimeException("[Taterzens]: Problem occurred when trying to load language: ", e);
         }
     }
 }

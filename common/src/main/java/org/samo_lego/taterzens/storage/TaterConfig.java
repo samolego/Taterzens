@@ -2,7 +2,6 @@ package org.samo_lego.taterzens.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
@@ -234,23 +233,6 @@ public class TaterConfig {
             gson.toJson(this, writer);
         } catch (IOException e) {
             LOGGER.error("Problem occurred when saving config: " + e.getMessage());
-        }
-    }
-
-
-    /**
-     * Loads language file.
-     *
-     * @param file lang file.
-     * @return JsonObject containing language keys and values.
-     */
-    public static JsonObject loadLanguageFile(File file) {
-        try (BufferedReader fileReader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
-        )) {
-            return gson.fromJson(fileReader, JsonObject.class);
-        } catch (IOException | NullPointerException e) {
-            throw new RuntimeException(MODID + ": Problem occurred when trying to load language: ", e);
         }
     }
 }

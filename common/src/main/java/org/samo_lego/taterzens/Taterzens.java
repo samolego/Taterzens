@@ -71,7 +71,7 @@ public class Taterzens {
         File configFile = new File(taterDir + "/config.json");
         config = TaterConfig.loadConfigFile(configFile);
 
-        LanguageUtil.init();
+        LanguageUtil.setupLanguage();
 
         if(LUCKPERMS_LOADED) {
             PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));

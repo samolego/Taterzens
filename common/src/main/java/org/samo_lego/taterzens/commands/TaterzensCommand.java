@@ -8,6 +8,7 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.storage.TaterConfig;
+import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
 
@@ -47,7 +48,7 @@ public class TaterzensCommand {
 
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         config = TaterConfig.loadConfigFile(new File(taterDir + "/config.json"));
-        //lang = TaterConfig.loadLanguageFile();
+        LanguageUtil.setupLanguage();
 
         context.getSource().sendFeedback(
                 translate("taterzens.command.config.success").formatted(Formatting.GREEN),
