@@ -63,6 +63,7 @@ public class Taterzens {
 
     public static boolean FABRICTAILOR_LOADED;
 
+
     public static void onInitialize() {
         if (!taterDir.exists() && !taterDir.mkdirs())
             throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));

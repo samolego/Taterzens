@@ -24,6 +24,9 @@ public class PermissionList {
     public final String _comment_modPermissions = "/* Permissions for managing the mod itself. */";
     public final String _comment_taterzensWiki = "// Gets the link for the wiki.";
     public final String taterzens_wiki = "taterzens.wiki_info";
+    public final String _comment_taterzensConfigEdit = "// Enables editing Taterzens config in-game.";
+    public final String taterzens_config = "taterzens.config.edit";
+    public final String taterzens_config_edit_lang = "taterzens.config.edit.language";
     public final String _comment_taterzensConfigReload = "// Enables reloading the config file.";
     public final String taterzens_config_reload = "taterzens.config.reload";
 
