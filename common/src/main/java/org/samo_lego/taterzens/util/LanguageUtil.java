@@ -37,7 +37,6 @@ public class LanguageUtil {
             // Try to fetch language, as it's not present in jar
             try {
                 final URL url = new URL(String.format(LANG_FILE_URL, config.language));
-                System.out.println(url.getPath());
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 
                 int responseCode = conn.getResponseCode();
@@ -98,8 +97,6 @@ public class LanguageUtil {
                 }
             }
             conn.disconnect();
-
-            System.out.println(LANG_LIST);
 
         } catch(IOException e) {
             e.printStackTrace();

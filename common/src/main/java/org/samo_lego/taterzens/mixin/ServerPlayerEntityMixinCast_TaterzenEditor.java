@@ -77,7 +77,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
                 }
             }
             if(this.taterzens$editorMode != TaterzenEditor.Types.NONE) {
-                player.sendMessage(successText("Current editor: %s", String.valueOf(this.taterzens$editorMode)), true);
+                player.sendMessage(successText("taterzens.tooltip.current_editor", String.valueOf(this.taterzens$editorMode)), true);
             }
 
             this.taterzens$lastRenderTick = 0;

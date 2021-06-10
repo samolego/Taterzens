@@ -374,7 +374,7 @@ public class NpcCommand {
                                 .formatted(Formatting.GOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/FabricTailor"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install FabricTailor")))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "FabricTailor")))
                                 ),
                         false
                 );
@@ -456,7 +456,7 @@ public class NpcCommand {
                                                 .formatted(Formatting.RED)
                                                 .formatted(Formatting.BOLD)
                                                 .styled(style -> style
-                                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Delete " + identifier.getPath())))
+                                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", identifier.getPath())))
                                                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit professions remove " + identifier))
                                                 )
                                 )
@@ -537,7 +537,7 @@ public class NpcCommand {
                         .formatted(Formatting.ITALIC)
                         .styled(style -> style
                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/data merge entity " + taterzen.getUuidAsString() + " {Invulnerable:0b}"))
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Disable invulnerability")))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.disable_invulnerability")))
                         ),
                         false
                 );
@@ -602,7 +602,7 @@ public class NpcCommand {
                                                     .formatted(Formatting.RED)
                                                     .formatted(Formatting.BOLD)
                                                     .styled(style -> style
-                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Delete " + index)))
+                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
                                                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands remove " + index))
                                                     )
                                     )
@@ -727,8 +727,7 @@ public class NpcCommand {
                                 .append(pair.getFirst())
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages " + index))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Edit message ")
-                                                .append(String.valueOf(index))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.edit", index))
                                         ))
                                 )
                         .append("   ")
@@ -737,11 +736,10 @@ public class NpcCommand {
                                     .formatted(Formatting.RED)
                                     .formatted(Formatting.BOLD)
                                     .styled(style -> style
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Delete " + index)))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages " + index + " delete"))
                                     )
-                        )
-                );
+                        );
                 i.incrementAndGet();
             });
             source.sendFeedback(response, false);
@@ -784,7 +782,7 @@ public class NpcCommand {
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").formatted(Formatting.RED)))
                                 ),
                         false
                 );
@@ -841,7 +839,7 @@ public class NpcCommand {
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").formatted(Formatting.RED)))
                                 ),
                         false
                 );
@@ -934,8 +932,7 @@ public class NpcCommand {
                             .formatted(sel ? Formatting.GREEN : (i % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD))
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText(sel ? "Currently selected: " : "Select ")
-                                            .append(name))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name))
                                     )
                             )
                     )
@@ -943,7 +940,7 @@ public class NpcCommand {
                             new LiteralText(" (" + (console ? taterzenNPC.getUuidAsString() : "uuid") + ")")
                                 .formatted(Formatting.GRAY)
                                 .styled(style -> style
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("See uuid")))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getUuidAsString()))
                     )
             );
@@ -1029,7 +1026,7 @@ public class NpcCommand {
                                 .formatted(Formatting.BOLD)
                                 .styled(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit equipment"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Exit").formatted(Formatting.RED)))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").formatted(Formatting.RED)))
                                 ),
                         false
                 );
@@ -1135,10 +1132,10 @@ public class NpcCommand {
     private static int changeType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         if(!DISGUISELIB_LOADED) {
-            source.sendError(new LiteralText("advert.disguiselib.required")
+            source.sendError(translate("advert.disguiselib.required")
                     .formatted(Formatting.RED)
                     .styled(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
                     )
             );
@@ -1185,7 +1182,7 @@ public class NpcCommand {
             source.sendError(translate("advert.disguiselib.required")
                     .formatted(Formatting.RED)
                     .styled(style -> style
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("Install DisguiseLib.")))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
                             .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
                     )
             );

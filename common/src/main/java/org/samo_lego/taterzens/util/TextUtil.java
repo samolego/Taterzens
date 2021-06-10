@@ -25,7 +25,7 @@ public class TextUtil {
      */
     public static MutableText joinText(String key, Formatting messageColor, Formatting insertedTextColor, String... insertedString) {
         Object[] texts = Arrays.stream(insertedString).map(s -> new LiteralText(s).formatted(insertedTextColor)).toArray();
-        return translate(key, texts /*insertedString*/).copy().formatted(messageColor);
+        return translate(key, texts).copy().formatted(messageColor);
     }
 
     public static MutableText successText(String key, String... insertedText) {
@@ -36,11 +36,21 @@ public class TextUtil {
         return joinText(key, Formatting.RED, Formatting.LIGHT_PURPLE, insertedText);
     }
 
+    /**
+     * Converts {@link Text} to {@link NbtElement}.
+     * @param text text to convert.
+     * @return NbtElement generated from text.
+     */
     public static NbtElement toNbtElement(Text text) {
         JsonElement json = parser.parse(Text.Serializer.toJson(text));
         return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
     }
 
+    /**
+     * Creates a {@link MutableText} from {@link NbtElement}.
+     * @param textNbtElement text nbt to convert to text
+     * @return mutable text object..
+     */
     public static MutableText fromNbtElement(NbtElement textNbtElement) {
         JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textNbtElement);
         return Text.Serializer.fromJson(json);
@@ -52,7 +62,15 @@ public class TextUtil {
      * @return {@link TranslatableText} or {@link LiteralText} depending on whether SERVER_TRANSLATIONS is loaded.
      */
     public static MutableText translate(String key, Object... args) {
-        return new TranslatableText(SERVER_TRANSLATIONS_LOADED ? key : lang.get(key).getAsString(), args);
+        if(SERVER_TRANSLATIONS_LOADED) {
+            return new TranslatableText(key, args);
+        }
+        String translation;
+        if(lang.has(key))
+            translation = lang.get(key).getAsString();
+        else
+            translation = key;
+        return new TranslatableText(translation, args);
     }
 
 }
