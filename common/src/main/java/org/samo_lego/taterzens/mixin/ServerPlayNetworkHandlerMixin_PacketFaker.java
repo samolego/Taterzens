@@ -7,13 +7,12 @@ import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.npc.TaterzenNPC.NAMETAG_HIDE_TEAM;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -47,8 +45,6 @@ import static org.samo_lego.taterzens.npc.TaterzenNPC.NAMETAG_HIDE_TEAM;
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public ServerPlayerEntity player;
-    @Unique
-    private boolean taterzens$sentTeamPacket;
 
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
@@ -58,11 +54,6 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
     private final List<Pair<GameProfile, Text>> taterzens$tablistQueue = new ArrayList<>();
     @Unique
     private int taterzens$queueTimer;
-
-    @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;)V", at = @At("TAIL"))
-    private void constructor(MinecraftServer server, ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        NAMETAG_HIDE_TEAM.setNameTagVisibilityRule(AbstractTeam.VisibilityRule.NEVER);
-    }
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
@@ -159,15 +150,6 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.taterzens$tablistQueue.clear();
 
             this.taterzens$skipCheck = false;
-        }
-    }
-
-    @Inject(method = "onCustomPayload(Lnet/minecraft/network/packet/c2s/play/CustomPayloadC2SPacket;)V", at = @At("TAIL"))
-    private void onClientBrand(CustomPayloadC2SPacket packet, CallbackInfo ci) {
-        if(!this.taterzens$sentTeamPacket) {
-            // Create team
-            this.sendPacket(TeamS2CPacket.updateTeam(NAMETAG_HIDE_TEAM, true));
-            this.taterzens$sentTeamPacket = true;
         }
     }
 }

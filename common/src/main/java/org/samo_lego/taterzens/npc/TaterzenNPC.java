@@ -24,9 +24,6 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.TeamS2CPacket;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerChunkManager;
@@ -75,11 +72,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     private final LinkedHashMap<Identifier, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
     private short ticks = 0;
-
-    /**
-     * A fake team used to hide nicknames on player types.
-     */
-    public static final Team NAMETAG_HIDE_TEAM = new Team(new Scoreboard(), MODID);
 
     /**
      * Goals
@@ -455,18 +447,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
         if(skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
-        }
-    }
-
-    @Override
-    public void setCustomNameVisible(boolean visible) {
-        boolean wasVisible = this.isCustomNameVisible();
-        super.setCustomNameVisible(visible);
-        if(wasVisible ^ visible) {
-            if(DISGUISELIB_LOADED && DisguiseLibCompatibility.isDisguised(this))
-                return;
-            TeamS2CPacket teamPacket = TeamS2CPacket.changePlayerTeam(NAMETAG_HIDE_TEAM, this.getName().getString(), visible ? TeamS2CPacket.Operation.REMOVE : TeamS2CPacket.Operation.ADD);
-            this.world.getServer().getPlayerManager().sendToDimension(teamPacket, this.world.getRegistryKey());
         }
     }
 
