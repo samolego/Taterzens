@@ -83,10 +83,9 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
         if(packet instanceof PlayerSpawnS2CPacket && !this.taterzens$skipCheck) {
             Entity entity = world.getEntityById(((PlayerSpawnS2CPacketAccessor) packet).getId());
 
-            if(!(entity instanceof TaterzenNPC))
+            if(!(entity instanceof TaterzenNPC npc))
                 return;
 
-            TaterzenNPC npc = (TaterzenNPC) entity;
             GameProfile profile = npc.getGameProfile();
 
             PlayerListS2CPacket playerAddPacket = new PlayerListS2CPacket(ADD_PLAYER);

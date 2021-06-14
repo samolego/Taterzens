@@ -991,7 +991,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
 
     @Override
     public void remove(Entity.RemovalReason reason) {
-        super.remove(null);
+        super.remove(reason);
         TATERZEN_NPCS.remove(this);
 
         for(TaterzenProfession profession : this.professions.values()) {

@@ -95,7 +95,7 @@ public class TaterzensAPI {
      */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
         NbtCompound saveTag = new NbtCompound();
-        taterzen.saveNbt(saveTag);
+        taterzen.writeNbt(saveTag);
 
         //todo Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
