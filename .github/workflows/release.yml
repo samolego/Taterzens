@@ -32,7 +32,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and publish with Gradle
-        run: ./gradlew build fabric:modrinth fabric:curseforge forge:curseforge forge:modrinth --stacktrace
+        run: ./gradlew build fabric:modrinth fabric:curseforge #forge:curseforge forge:modrinth --stacktrace
         env:
            CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
            MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
