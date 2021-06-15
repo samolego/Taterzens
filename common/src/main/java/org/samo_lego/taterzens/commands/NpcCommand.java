@@ -16,6 +16,7 @@ import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.*;
 import net.minecraft.command.suggestion.SuggestionProviders;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -133,6 +134,13 @@ public class NpcCommand {
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_name, config.perms.npcCommandPermissionLevel))
                                 .then(argument("new name", message()).executes(NpcCommand::renameTaterzen))
                         )
+                        .then(literal("pose")
+                            .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_pose, config.perms.npcCommandPermissionLevel))
+                            .then(argument("pose name", word())
+                                .suggests((context, builder) -> CommandSource.suggestMatching(Stream.of(EntityPose.values()).map(Enum::name).collect(Collectors.toList()), builder))
+                                .executes(NpcCommand::editPose)
+                            )
+                        )
                         .then(literal("commands")
                                 .then(literal("setPermissionLevel")
                                         .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_setPermissionLevel, config.perms.npcCommandPermissionLevel))
@@ -204,6 +212,15 @@ public class NpcCommand {
                                 .then(literal("allowEquipmentDrops")
                                         .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment_equipmentDrops, config.perms.npcCommandPermissionLevel))
                                         .then(argument("drop", BoolArgumentType.bool()).executes(NpcCommand::setEquipmentDrops))
+                                )
+                                .then(literal("sneakNameType")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_sneakName, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("sneak type name", BoolArgumentType.bool())
+                                                .executes(ctx -> {
+                                                    boolean sneakNameType = BoolArgumentType.getBool(ctx, "sneak type name");
+                                                    return setFlag(ctx, "sneakNameType", sneakNameType, npc -> npc.setSneaking(sneakNameType));
+                                                })
+                                        )
                                 )
                         )
                         .then(literal("type")
@@ -323,6 +340,18 @@ public class NpcCommand {
         );
     }
 
+    private static int editPose(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
+        if(taterzen != null) {
+            String pose = StringArgumentType.getString(context, "pose name");
+            taterzen.setPose(EntityPose.valueOf(pose));
+            source.sendFeedback(successText("taterzens.command.pose", pose), false);
+        } else
+            context.getSource().sendError(noSelectedTaterzenError());
+        return 0;
+    }
+
     private static int setFollowType(CommandContext<ServerCommandSource> context, NPCData.FollowTypes followType) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         TaterzenNPC taterzen = ((TaterzenEditor) source.getPlayer()).getNpc();
@@ -384,10 +413,10 @@ public class NpcCommand {
 
         if(taterzen != null) {
             String id = MessageArgumentType.getMessage(context, "mineskin URL | playername").getString();
-            if(id.contains(":")) {
+            if(id.contains(":") ) {
                 THREADPOOL.submit(() -> {
-                    String[] params = id.split("/");
-                    String mineskinUrl = MINESKIN_API_URL + params[params.length - 1];
+                    String param = id.replaceAll("[^0-9]", "");
+                    String mineskinUrl = MINESKIN_API_URL + param;
                     try {
                         URL url = new URL(mineskinUrl);
                         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();

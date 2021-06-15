@@ -39,6 +39,7 @@
   "taterzens.command.profession.remove": "Profession %s has been removed successfully.",
   "taterzens.command.profession.error.404": "No professions with id %s were found.",
   "taterzens.command.profession.list": "Taterzen %s has the following professions set. Click on X to remove one.",
+  "taterzens.command.pose": "Taterzen pose has been set to %s.",
   "taterzens.command.movement.set": "Movement type was set to %s.",
   "taterzens.command.movement.follow.set": "Taterzen following goal has been set to %s.",
   "taterzens.command.movement.follow.error.uuid": "Follow type %s requires uuid argument.",

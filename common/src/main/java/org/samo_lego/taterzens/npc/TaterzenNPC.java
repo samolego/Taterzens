@@ -12,6 +12,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -60,7 +61,7 @@ import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPL
 /**
  * The NPC itself.
  */
-public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAttackMob {
+public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, RangedAttackMob {
 
     /**
      * Data of the NPC.
@@ -120,7 +121,7 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
      * @param entityType Taterzen entity type
      * @param world Taterzen's world
      */
-    public TaterzenNPC(EntityType<? extends HostileEntity> entityType, World world) {
+    public TaterzenNPC(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world);
         this.stepHeight = 0.6F;
         this.setCanPickUpLoot(false);
@@ -254,6 +255,26 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     public void addPathTarget(BlockPos blockPos) {
         this.npcData.pathTargets.add(blockPos);
         this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
+    }
+
+    /**
+     * Handles name visibility on sneaking
+     * @param sneaking whether npc's name should look like on sneaking.
+     */
+    @Override
+    public void setSneaking(boolean sneaking) {
+        this.fakePlayer.setSneaking(sneaking);
+        super.setSneaking(sneaking);
+    }
+
+    /**
+     * Sets the npc pose.
+     * @param pose entity pose.
+     */
+    @Override
+    public void setPose(EntityPose pose) {
+        this.fakePlayer.setPose(pose);
+        this.dataTracker.set(POSE, pose);
     }
 
     /**
@@ -1050,10 +1071,6 @@ public class TaterzenNPC extends HostileEntity implements CrossbowUser, RangedAt
     @Override
     public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
         return this.npcData.behaviour != NPCData.Behaviour.PASSIVE;
-    }
-
-    @Override
-    protected void updateDespawnCounter() {
     }
 
     @Override

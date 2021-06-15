@@ -118,7 +118,8 @@ public class PermissionList {
     public final String _comment_npcEditTagsPushable = "// Enables changing whether Taterzen is pushable.";
     public final String npc_edit_tags_pushable = "taterzens.npc.edit.tags.pushable";
     public final String _comment_npcEditTagsJumpAttack = "// Enables changing whether Taterzen should jump during attacking.";
-    public final String npc_edit_tags_jumpWhileAttacking = "";
+    public final String npc_edit_tags_jumpWhileAttacking = "taterzens.npc.edit.tags.jumpWhileAttacking";
+    public final String npc_edit_tags_sneakName = "taterzens.npc.edit.tags.sneakNameType";
 
     public final String _comment_npcEditProfession = "// Allows editing Taterzen's professions.";
     public final String npc_edit_profession = "taterzens.npc.edit.professions";
@@ -129,6 +130,7 @@ public class PermissionList {
     public final String npc_edit_profession_remove = "taterzens.npc.edit.professions.remove";
     public final String _comment_npcEditProfessionList = "// Enables listing Taterzen's professions.";
     public final String npc_edit_profession_list = "taterzens.npc.edit.professions.list";
+    public final String npc_edit_pose = "taterzens.npc.edit.pose";
 
     /**
      * Saves the permission list to the given file.

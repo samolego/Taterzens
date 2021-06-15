@@ -7,6 +7,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
@@ -22,6 +23,7 @@ import org.samo_lego.taterzens.mixin.accessors.EntityTrackerUpdateS2CPacketAcces
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -48,6 +50,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
     @Shadow public abstract void sendPacket(Packet<?> packet);
 
+    @Shadow @Final public ClientConnection connection;
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
@@ -84,13 +87,12 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
                     Arrays.asList(new PlayerListS2CPacket.Entry(profile, 0, GameMode.SURVIVAL, npc.getName()))
             );
-            taterzens$skipCheck = true;
             this.sendPacket(playerAddPacket);
 
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't
             // show it ... :mojank:
-            this.sendPacket(packet);
+            this.connection.send(packet, listener);
 
             // And now we can remove it from tablist
             // we must delay the tablist packet so as to allow
@@ -100,9 +102,8 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
             this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
 
-            this.sendPacket(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))));
+            this.connection.send(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))), listener);
 
-            this.taterzens$skipCheck = false;
             ci.cancel();
         } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
             Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
