@@ -68,6 +68,7 @@ public class NPCData {
     public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
     public Follow follow = new Follow();
+    public boolean allowSounds = !config.defaults.ambientSounds.isEmpty();
 
     public static class Follow {
         /**

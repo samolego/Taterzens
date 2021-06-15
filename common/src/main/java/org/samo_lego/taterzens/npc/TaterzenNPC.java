@@ -569,6 +569,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.setPerformAttackJumps(tags.getBoolean("JumpAttack"));
         this.allowEquipmentDrops(tags.getBoolean("DropsAllowed"));
         this.setSneaking(tags.getBoolean("SneakNameType"));
+        this.setAllowSounds(tags.getBoolean("AllowSounds"));
 
         // Skin layers
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
@@ -677,6 +678,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         tags.putBoolean("JumpAttack", this.npcData.jumpWhileAttacking);
         tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
         tags.putBoolean("SneakNameType", this.isSneaking());
+        tags.putBoolean("AllowSounds", this.npcData.allowSounds);
 
         npcTag.put("Tags", tags);
 
@@ -1140,7 +1142,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
     @Override
     protected SoundEvent getAmbientSound() {
-        if(config.defaults.ambientSounds.isEmpty())
+        if(config.defaults.ambientSounds.isEmpty() || !this.npcData.allowSounds)
             return null;
 
         int rnd = this.random.nextInt(config.defaults.ambientSounds.size());
@@ -1151,7 +1153,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        if(config.defaults.hurtSounds.isEmpty())
+        if(config.defaults.hurtSounds.isEmpty() || !this.npcData.allowSounds)
             return null;
 
         int rnd = this.random.nextInt(config.defaults.hurtSounds.size());
@@ -1162,7 +1164,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
     @Override
     protected SoundEvent getDeathSound() {
-        if(config.defaults.deathSounds.isEmpty())
+        if(config.defaults.deathSounds.isEmpty() || !this.npcData.allowSounds)
             return null;
 
         int rnd = this.random.nextInt(config.defaults.deathSounds.size());
@@ -1301,5 +1303,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setFollowUuid(@Nullable UUID followUuid) {
         this.npcData.follow.targetUuid = followUuid;
+    }
+
+    /**
+     * Whether this Taterzen should make sound.
+     * @param allowSounds whether to allow sounds or not.
+     */
+    public void setAllowSounds(boolean allowSounds) {
+        this.npcData.allowSounds = allowSounds;
     }
 }

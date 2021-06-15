@@ -222,6 +222,15 @@ public class NpcCommand {
                                                 })
                                         )
                                 )
+                                .then(literal("allowSounds")
+                                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_allowSounds, config.perms.npcCommandPermissionLevel))
+                                        .then(argument("allow sounds", BoolArgumentType.bool())
+                                                .executes(ctx -> {
+                                                    boolean allowSounds = BoolArgumentType.getBool(ctx, "allow sounds");
+                                                    return setFlag(ctx, "allowSounds", allowSounds, npc -> npc.setAllowSounds(allowSounds));
+                                                })
+                                        )
+                                )
                         )
                         .then(literal("type")
                                 .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
