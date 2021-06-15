@@ -277,6 +277,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.dataTracker.set(POSE, pose);
     }
 
+    /*@Override
+    public boolean shouldLeaveSwimmingPose() {
+        return false;
+    }*/
+
     /**
      * Removes node from path targets.
      * @param blockPos position from path to remove
@@ -348,19 +353,19 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
-                if(this.getPositionTarget().getSquaredDistance(this.getPos(), false) < 5.0D) {
+                if(this.getPositionTarget().getSquaredDistance(this.getPos(), true) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
                     // New target
-                    this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 2);
+                    this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
             } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue() && !this.npcData.pathTargets.isEmpty()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
-                if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), false) < 5.0D) {
+                if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), true) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
@@ -563,6 +568,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.setPushable(tags.getBoolean("Pushable"));
         this.setPerformAttackJumps(tags.getBoolean("JumpAttack"));
         this.allowEquipmentDrops(tags.getBoolean("DropsAllowed"));
+        this.setSneaking(tags.getBoolean("SneakNameType"));
 
         // Skin layers
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
@@ -571,17 +577,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         // Multiple commands
         NbtList commands = (NbtList) npcTag.get("Commands");
         if(commands != null) {
-            commands.forEach(cmdTag -> {
-                this.addCommand(cmdTag.asString());
-            });
+            commands.forEach(cmdTag -> this.addCommand(cmdTag.asString()));
         }
 
         NbtList pathTargets = (NbtList) npcTag.get("PathTargets");
         if(pathTargets != null) {
             if(pathTargets.size() > 0) {
                 pathTargets.forEach(posTag -> {
-                    if(posTag instanceof NbtCompound) {
-                        NbtCompound pos = (NbtCompound) posTag;
+                    if(posTag instanceof NbtCompound pos) {
                         BlockPos target = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
                         this.addPathTarget(target);
                     }
@@ -643,6 +646,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         if(followTag.contains("UUID"))
             this.setFollowUuid(followTag.getUuid("UUID"));
 
+        if(npcTag.contains("Pose"))
+            this.setPose(EntityPose.valueOf(npcTag.getString("Pose")));
+        else
+            this.setPose(EntityPose.STANDING);
+
         this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
     }
 
@@ -668,6 +676,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         tags.putBoolean("Pushable", this.npcData.pushable);
         tags.putBoolean("JumpAttack", this.npcData.jumpWhileAttacking);
         tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
+        tags.putBoolean("SneakNameType", this.isSneaking());
 
         npcTag.put("Tags", tags);
 
@@ -676,9 +685,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
         // Commands
         NbtList commands = new NbtList();
-        this.npcData.commands.forEach(cmd -> {
-            commands.add(NbtString.of(cmd));
-        });
+        this.npcData.commands.forEach(cmd -> commands.add(NbtString.of(cmd)));
         npcTag.put("Commands", commands);
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
@@ -728,6 +735,8 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             followTag.putUuid("UUID", this.npcData.follow.targetUuid);
 
         npcTag.put("Follow", followTag);
+
+        npcTag.putString("Pose", this.getPose().toString());
 
 
         tag.put("TaterzenNPCTag", npcTag);
