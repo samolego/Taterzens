@@ -277,11 +277,6 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.dataTracker.set(POSE, pose);
     }
 
-    /*@Override
-    public boolean shouldLeaveSwimmingPose() {
-        return false;
-    }*/
-
     /**
      * Removes node from path targets.
      * @param blockPos position from path to remove
