@@ -11,7 +11,7 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
@@ -54,8 +54,8 @@ public class PathCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            if(((TaterzenEditor) player).getEditorMode() == TaterzenEditor.Types.PATH) {
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
+            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.Types.PATH) {
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
                 source.sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
@@ -78,7 +78,7 @@ public class PathCommand {
                         false
                 );
 
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.PATH);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.PATH);
             }
 
         });

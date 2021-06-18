@@ -10,7 +10,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.File;
 
@@ -52,25 +53,25 @@ public class PresetCommand {
         ServerPlayerEntity player = source.getPlayer();
 
         if(preset.exists()) {
-            return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
+            TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, source.getWorld());
+            if(taterzenNPC != null) {
                 Vec3d pos = source.getPosition();
                 Vec2f rotation = source.getRotation();
-                taterzen.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
+                taterzenNPC.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), rotation.x, rotation.y);
+                source.getWorld().spawnEntity(taterzenNPC);
 
-                source.getWorld().spawnEntity(taterzen);
-
-                ((TaterzenEditor) player).selectNpc(taterzen);
-
+                ((ITaterzenEditor) source.getPlayer()).selectNpc(taterzenNPC);
                 source.sendFeedback(
                         successText("taterzens.command.preset.import.success", filename),
                         false
                 );
-            });
+            }
         } else {
             source.sendError(
                     errorText("taterzens.command.preset.import.error.404", filename)
             );
         }
+
         return -1;
     }
 

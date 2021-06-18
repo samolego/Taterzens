@@ -32,7 +32,7 @@ public class TextUtil {
         return joinText(key, Formatting.GREEN, Formatting.YELLOW, insertedText);
     }
 
-    public static MutableText errorText(String key, String insertedText) {
+    public static MutableText errorText(String key, String... insertedText) {
         return joinText(key, Formatting.RED, Formatting.LIGHT_PURPLE, insertedText);
     }
 

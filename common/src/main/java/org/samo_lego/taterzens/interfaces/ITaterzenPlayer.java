@@ -2,7 +2,10 @@ package org.samo_lego.taterzens.interfaces;
 
 import java.util.UUID;
 
-public interface TaterzenPlayer {
+/**
+ * Used for player interactions with Taterzens.
+ */
+public interface ITaterzenPlayer {
     /**
      * Gets the last time player has interacted with
      * {@link org.samo_lego.taterzens.npc.TaterzenNPC}.

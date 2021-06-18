@@ -10,7 +10,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -91,7 +91,7 @@ public class MessagesCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.MESSAGES);
+            ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.MESSAGES);
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
@@ -99,7 +99,7 @@ public class MessagesCommand {
                         false
                 );
             } else {
-                ((TaterzenEditor) player).setEditingMessageIndex(selected);
+                ((ITaterzenEditor) player).setEditingMessageIndex(selected);
                 source.sendFeedback(
                         successText("taterzens.command.message.editor.enter", taterzen.getMessages().get(selected).getFirst().getString()),
                         false)
@@ -155,17 +155,17 @@ public class MessagesCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            if(((TaterzenEditor) player).getEditorMode() == TaterzenEditor.Types.MESSAGES) {
+            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.Types.MESSAGES) {
                 // Exiting the message edit mode
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
-                ((TaterzenEditor) player).setEditingMessageIndex(-1);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
+                ((ITaterzenEditor) player).setEditingMessageIndex(-1);
                 source.sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
                 );
             } else {
                 // Entering the edit mode
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.MESSAGES);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.MESSAGES);
                 source.sendFeedback(
                         joinText("taterzens.command.message.editor.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
                                 .formatted(Formatting.BOLD)

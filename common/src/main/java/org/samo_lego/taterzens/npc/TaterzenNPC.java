@@ -45,8 +45,8 @@ import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
-import org.samo_lego.taterzens.interfaces.TaterzenPlayer;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
@@ -402,8 +402,8 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         if(!this.npcData.messages.isEmpty()) {
             Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
             this.world.getOtherEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity && ((TaterzenEditor) entity).getEditorMode() != TaterzenEditor.Types.MESSAGES) {
-                    TaterzenPlayer pl = (TaterzenPlayer) entity;
+                if(entity instanceof ServerPlayerEntity && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.Types.MESSAGES) {
+                    ITaterzenPlayer pl = (ITaterzenPlayer) entity;
                     int msgPos = pl.getLastMsgPos(this.getUuid());
                     if(msgPos >= this.npcData.messages.size())
                         msgPos = 0;
@@ -769,9 +769,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
-        if(lastAction - ((TaterzenPlayer) player).getLastInteractionTime() < 50)
+        if(lastAction - ((ITaterzenPlayer) player).getLastInteractionTime() < 50)
             return ActionResult.FAIL;
-        ((TaterzenPlayer) player).setLastInteraction(lastAction);
+        ((ITaterzenPlayer) player).setLastInteraction(lastAction);
 
 
         for(TaterzenProfession profession : this.professions.values()) {

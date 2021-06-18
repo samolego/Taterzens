@@ -15,7 +15,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.Collection;
@@ -114,7 +114,7 @@ public class ProfessionsCommand {
     private static CompletableFuture<Suggestions> suggestRemovableProfessions(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) {
         Collection<Identifier> professions = new HashSet<>();
         try {
-            TaterzenNPC taterzen = ((TaterzenEditor) ctx.getSource().getPlayer()).getNpc();
+            TaterzenNPC taterzen = ((ITaterzenEditor) ctx.getSource().getPlayer()).getNpc();
             if(taterzen != null) {
                 professions = taterzen.getProfessionIds();
             }

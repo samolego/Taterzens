@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
  * Additional methods for players to track {@link TaterzenNPC}
  */
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEditor {
+public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEditor {
 
     private final ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
 
@@ -38,16 +38,16 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     @Unique
     private byte taterzens$lastRenderTick;
     @Unique
-    private TaterzenEditor.Types taterzens$editorMode = TaterzenEditor.Types.NONE;
+    private ITaterzenEditor.Types taterzens$editorMode = ITaterzenEditor.Types.NONE;
 
     /**
      * Used for showing the path particles.
      */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
-        TaterzenEditor editor = (TaterzenEditor) this.player;
+        ITaterzenEditor editor = (ITaterzenEditor) this.player;
         if(editor.getNpc() != null && taterzens$lastRenderTick++ > 4) {
-            if(this.taterzens$editorMode == TaterzenEditor.Types.PATH) {
+            if(this.taterzens$editorMode == ITaterzenEditor.Types.PATH) {
                 ArrayList<BlockPos> pathTargets = editor.getNpc().getPathTargets();
                 DustParticleEffect effect = new DustParticleEffect(
                         new Vec3f(
@@ -76,7 +76,7 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
                     }
                 }
             }
-            if(this.taterzens$editorMode != TaterzenEditor.Types.NONE) {
+            if(this.taterzens$editorMode != ITaterzenEditor.Types.NONE) {
                 player.sendMessage(successText("taterzens.tooltip.current_editor", String.valueOf(this.taterzens$editorMode)), true);
             }
 
@@ -85,8 +85,8 @@ public class ServerPlayerEntityMixinCast_TaterzenEditor implements TaterzenEdito
     }
 
     @Override
-    public void setEditorMode(TaterzenEditor.Types mode) {
-        TaterzenEditor editor = (TaterzenEditor) this.player;
+    public void setEditorMode(ITaterzenEditor.Types mode) {
+        ITaterzenEditor editor = (ITaterzenEditor) this.player;
         if(editor.getNpc() != null) {
             World world = player.getEntityWorld();
             if(this.taterzens$editorMode == Types.PATH && mode != Types.PATH) {

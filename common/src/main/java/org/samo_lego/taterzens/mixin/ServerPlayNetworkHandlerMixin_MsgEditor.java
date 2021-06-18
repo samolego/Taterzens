@@ -8,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,10 +41,10 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
             cancellable = true
     )
     private void onMessage(TextStream.Message message, CallbackInfo ci) {
-        TaterzenEditor editor = (TaterzenEditor) this.player;
+        ITaterzenEditor editor = (ITaterzenEditor) this.player;
         TaterzenNPC taterzen = editor.getNpc();
         String msg = message.getFiltered();
-        if(taterzen != null && ((TaterzenEditor) this.player).getEditorMode() == TaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
+        if(taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
             if(msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if(split.length > 1) {
@@ -76,7 +76,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
-                        ((TaterzenEditor) this.player).setEditorMode(TaterzenEditor.Types.NONE);
+                        ((ITaterzenEditor) this.player).setEditorMode(ITaterzenEditor.Types.NONE);
                         (editor).setEditingMessageIndex(-1);
                         player.sendMessage(translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE), false);
                     }

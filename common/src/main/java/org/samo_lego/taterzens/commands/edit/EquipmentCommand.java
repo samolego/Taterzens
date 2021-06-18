@@ -10,7 +10,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.interfaces.TaterzenEditor;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -48,7 +48,7 @@ public class EquipmentCommand {
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
             if(taterzen.isEquipmentEditor(player)) {
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.NONE);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
                 taterzen.setEquipmentEditor(null);
                 context.getSource().sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
@@ -74,7 +74,7 @@ public class EquipmentCommand {
                         false
                 );
 
-                ((TaterzenEditor) player).setEditorMode(TaterzenEditor.Types.EQUIPMENT);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.EQUIPMENT);
                 taterzen.setEquipmentEditor(player);
             }
         });

@@ -4,9 +4,9 @@ import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 /**
- * Interface for players who work with TaterzenNPCs.
+ * Interface for players who edit TaterzenNPCs.
  */
-public interface TaterzenEditor {
+public interface ITaterzenEditor {
     /**
      * Gets the selected Taterzen of player.
      * @return selected Taterzen

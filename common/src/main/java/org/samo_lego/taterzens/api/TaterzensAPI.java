@@ -24,7 +24,6 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -163,11 +162,14 @@ public class TaterzensAPI {
 
     public static List<String> getPresets() {
         List<String> files = new ArrayList<>();
-        Arrays.stream(presetsDir.listFiles()).forEach(file -> {
-            if(file.isFile() && file.getName().endsWith(".json"))
-                files.add(file.getName().substring(0, file.getName().length() - 5));
-        });
-
+        File[] presets = presetsDir.listFiles();
+        if(presets != null) {
+            final String ending = ".json";
+            for(File preset : presets) {
+                if(preset.isFile() && preset.getName().endsWith(ending))
+                    files.add(preset.getName().substring(0, preset.getName().length() - ending.length()));
+            }
+        }
         return files;
     }
 }

@@ -120,7 +120,7 @@ public class TaterConfig {
         @SerializedName("command_permission_level")
         public int commandPermissionLevel = 4;
 
-        public final String _comment_sounds = "// Default sounds for Taterzens. Set to null to mute them.";
+        public final String _comment_sounds = "// Default sounds for Taterzens. Set to [] to mute them.";
         /**
          * Default Taterzen death sound.
          * Can be null to not produce any sounds.
@@ -142,9 +142,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("ambient_sounds")
-        public ArrayList<String> ambientSounds = new ArrayList<>(Arrays.asList(
-                "entity.player.breath"
-        ));
+        public ArrayList<String> ambientSounds = new ArrayList<>();
 
         public final String _comment_invulnerable = "// Whether Taterzen is invulnerable by default.";
         /**

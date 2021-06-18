@@ -4,7 +4,10 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -15,6 +18,7 @@ import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.util.TextUtil.joinText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class TagsCommand {
@@ -70,16 +74,48 @@ public class TagsCommand {
                                 })
                         )
                 )
+                .then(literal("showCustomName")
+                    .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_tags_allowSounds, config.perms.npcCommandPermissionLevel))
+                    .then(argument("show custom name", BoolArgumentType.bool())
+                            .executes(TagsCommand::editNameVisibility)
+                    )
+                )
                 .build();
 
         editNode.addChild(tagsNode);
+    }
+
+    private static int editNameVisibility(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        boolean showName = BoolArgumentType.getBool(context, "show custom name");
+        ServerCommandSource source = context.getSource();
+        final EntityPose POSE = EntityPose.SPIN_ATTACK;
+        return setTag(context, "showCustomName", showName, npc -> {
+            npc.setPose(showName ? EntityPose.STANDING : POSE);
+
+            String oldName = npc.getName().getString();
+            npc.setSneaking(!showName);
+
+            if(!showName) {
+                String newName = String.valueOf(oldName.toCharArray()[0]);
+                npc.setCustomName(new LiteralText(newName));
+
+                source.sendFeedback(
+                        joinText("taterzens.command.tags.hide_name_hint.desc.1", Formatting.GOLD, Formatting.BLUE, newName, POSE.toString())
+                                .append("\n")
+                                .append(joinText("taterzens.command.tags.hide_name_hint.desc.2", Formatting.GOLD, Formatting.BLUE, oldName))
+                                .formatted(Formatting.GOLD),
+                        false
+                );
+            }
+
+        });
     }
 
     private static int setTag(CommandContext<ServerCommandSource> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
             flag.accept(taterzen);
-            source.sendFeedback(successText("taterzens.command.flag.changed", flagName, String.valueOf(flagValue)), false);
+            source.sendFeedback(successText("taterzens.command.tags.changed", flagName, String.valueOf(flagValue)), false);
         });
     }
 }
