@@ -567,7 +567,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.setAllowSounds(tags.getBoolean("AllowSounds"));
 
         // Skin layers
-        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), npcTag.getByte("SkinLayers"));
+        this.setSkinLayers(npcTag.getByte("SkinLayers"));
 
 
         // Multiple commands
@@ -1306,5 +1306,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setAllowSounds(boolean allowSounds) {
         this.npcData.allowSounds = allowSounds;
+    }
+
+    /**
+     * Sets which skin layers should be shown to clients
+     * @param skinLayers byte of skin layers, see wiki.wg for more info.
+     */
+    public void setSkinLayers(Byte skinLayers) {
+        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), skinLayers);
     }
 }

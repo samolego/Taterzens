@@ -12,11 +12,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -32,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 /**
  * Class containing static methods to use with Taterzens.
@@ -149,18 +144,7 @@ public class TaterzensAPI {
         return createTaterzen(owner.getServerWorld(), displayName, owner.getPos(), new float[]{owner.headYaw, owner.getYaw(), owner.getPitch()});
     }
 
-    /**
-     * Error text for no selected taterzen
-     * @return formatted error text.
-     */
-    public static MutableText noSelectedTaterzenError() {
-        return translate("taterzens.error.select")
-                .formatted(Formatting.RED)
-                .styled(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.command.list")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
-                );
-    }
+
 
     /**
      * Registers a new {@link TaterzenProfession}.

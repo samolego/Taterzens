@@ -54,7 +54,7 @@
   "taterzens.command.create": "Taterzen %s has been spawned successfully.",
   "taterzens.command.remove": "Taterzen %s has been removed.",
   "taterzens.command.list": "Available Taterzens",
-  "taterzens.command.flag.changed": "Taterzen flag has been changed to %s.",
+  "taterzens.command.flag.changed": "Flag %s has been changed to %s.",
   "taterzens.command.config.success": "Config was reloaded successfully.",
   "taterzens.command.rename.success": "Taterzen has been renamed to %s.",
   "taterzens.command.language.success": "Successfully fetched and switched to language %s.",
