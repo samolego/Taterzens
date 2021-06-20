@@ -1,0 +1,39 @@
+site_name: Taterzens
+site_url: https://samolego.github.io/Taterzens
+
+repo_url: https://github.com/samolego/Taterzens
+repo_name: samolego/Taterzens
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      primary: light green
+      accent: green
+      scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: green
+      accent: light green
+      scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to dark mode
+
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  
+extra:
+  version:
+    provider: mike
