@@ -37,7 +37,7 @@ public class ServerPlayInteractionManagerMixin {
     private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
         if (playerAction == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
             ITaterzenEditor player = (ITaterzenEditor) this.player;
-            if(player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.Types.PATH) {
+            if(player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
                 player.getNpc().addPathTarget(blockPos);
                 ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(blockPos, Blocks.REDSTONE_BLOCK.getDefaultState()));
                 ci.cancel();

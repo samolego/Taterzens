@@ -14,7 +14,6 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -23,10 +22,10 @@ public class PathCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> pathNode = literal("path")
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_path_clear, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.path.clear", config.perms.npcCommandPermissionLevel))
                         .executes(PathCommand::clearTaterzenPath)
                 )
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_path, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.path", config.perms.npcCommandPermissionLevel))
                 .executes(PathCommand::editTaterzenPath)
                 .build();
 
@@ -54,8 +53,8 @@ public class PathCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.Types.PATH) {
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
+            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                 source.sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
                         false
@@ -78,7 +77,7 @@ public class PathCommand {
                         false
                 );
 
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.PATH);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.PATH);
             }
 
         });

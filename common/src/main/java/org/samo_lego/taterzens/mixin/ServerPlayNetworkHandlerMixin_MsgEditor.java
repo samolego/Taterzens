@@ -44,7 +44,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
         ITaterzenEditor editor = (ITaterzenEditor) this.player;
         TaterzenNPC taterzen = editor.getNpc();
         String msg = message.getFiltered();
-        if(taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.Types.MESSAGES && !msg.startsWith("/")) {
+        if(taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && !msg.startsWith("/")) {
             if(msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if(split.length > 1) {
@@ -76,7 +76,7 @@ public class ServerPlayNetworkHandlerMixin_MsgEditor {
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
-                        ((ITaterzenEditor) this.player).setEditorMode(ITaterzenEditor.Types.NONE);
+                        ((ITaterzenEditor) this.player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                         (editor).setEditingMessageIndex(-1);
                         player.sendMessage(translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE), false);
                     }

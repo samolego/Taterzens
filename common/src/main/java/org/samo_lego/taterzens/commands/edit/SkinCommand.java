@@ -27,7 +27,8 @@ import java.util.concurrent.Executors;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.FABRICTAILOR_LOADED;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -39,7 +40,7 @@ public class SkinCommand {
 
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> skinNode = literal("skin")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_skin, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.skin", config.perms.npcCommandPermissionLevel))
                 .then(argument("mineskin URL | playername", message())
                         .executes(SkinCommand::setCustomSkin)
                 )

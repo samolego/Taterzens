@@ -19,7 +19,8 @@ import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import static net.minecraft.command.suggestion.SuggestionProviders.SUMMONABLE_ENTITIES;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.DISGUISELIB_LOADED;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
@@ -27,7 +28,7 @@ import static org.samo_lego.taterzens.util.TextUtil.translate;
 public class TypeCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> typeNode = literal("type")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity type", EntitySummonArgumentType.entitySummon())
                         .suggests(SUMMONABLE_ENTITIES)
                         .executes(TypeCommand::changeType)
@@ -36,15 +37,15 @@ public class TypeCommand {
                         )
                 )
                 .then(literal("minecraft:player")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .then(literal("player")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .then(literal("reset")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_entityType, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .build();

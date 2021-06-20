@@ -7,9 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
-import org.samo_lego.taterzens.storage.PermissionList;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
+import org.samo_lego.taterzens.util.PermissionExtractor;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,13 +42,6 @@ public class Taterzens {
      */
     public static EntityType<TaterzenNPC> TATERZEN_TYPE;
 
-    /**
-     * Permissions for players.
-     * Used only if LuckPerms mod is loaded.
-     * @see Taterzens#LUCKPERMS_LOADED
-     */
-    public static final PermissionList PERMISSIONS = new PermissionList();
-
     public static File taterDir;
     public static File presetsDir;
 
@@ -74,8 +67,8 @@ public class Taterzens {
 
         LanguageUtil.setupLanguage();
 
-        if(LUCKPERMS_LOADED) {
-            PERMISSIONS.savePermissionList(new File(taterDir + "/permissions.json"));
+        if(LUCKPERMS_LOADED && config.savePermsFile) {
+            PermissionExtractor.extractPermissionsFile(new File(taterDir + "/permissions.toml"));
         }
     }
 }

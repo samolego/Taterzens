@@ -40,15 +40,18 @@ public interface ITaterzenEditor {
      * Sets the active editor mode for the selected Taterzen.
      * @param mode editor mode type
      */
-    void setEditorMode(Types mode);
+    void setEditorMode(EditorMode mode);
 
     /**
      * Gets current edit mode type.
      * @return current editor mode; NONE is default
      */
-    Types getEditorMode();
+    EditorMode getEditorMode();
 
-    enum Types {
+    /**
+     * Available editor modes.
+     */
+    enum EditorMode {
         NONE,
         MESSAGES,
         PATH,

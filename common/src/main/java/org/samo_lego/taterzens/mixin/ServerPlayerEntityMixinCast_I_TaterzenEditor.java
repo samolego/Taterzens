@@ -38,7 +38,7 @@ public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEd
     @Unique
     private byte taterzens$lastRenderTick;
     @Unique
-    private ITaterzenEditor.Types taterzens$editorMode = ITaterzenEditor.Types.NONE;
+    private EditorMode taterzens$editorMode = EditorMode.NONE;
 
     /**
      * Used for showing the path particles.
@@ -47,7 +47,7 @@ public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEd
     private void tick(CallbackInfo ci) {
         ITaterzenEditor editor = (ITaterzenEditor) this.player;
         if(editor.getNpc() != null && taterzens$lastRenderTick++ > 4) {
-            if(this.taterzens$editorMode == ITaterzenEditor.Types.PATH) {
+            if(this.taterzens$editorMode == EditorMode.PATH) {
                 ArrayList<BlockPos> pathTargets = editor.getNpc().getPathTargets();
                 DustParticleEffect effect = new DustParticleEffect(
                         new Vec3f(
@@ -76,7 +76,7 @@ public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEd
                     }
                 }
             }
-            if(this.taterzens$editorMode != ITaterzenEditor.Types.NONE) {
+            if(this.taterzens$editorMode != EditorMode.NONE) {
                 player.sendMessage(successText("taterzens.tooltip.current_editor", String.valueOf(this.taterzens$editorMode)), true);
             }
 
@@ -85,15 +85,15 @@ public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEd
     }
 
     @Override
-    public void setEditorMode(ITaterzenEditor.Types mode) {
+    public void setEditorMode(EditorMode mode) {
         ITaterzenEditor editor = (ITaterzenEditor) this.player;
         if(editor.getNpc() != null) {
             World world = player.getEntityWorld();
-            if(this.taterzens$editorMode == Types.PATH && mode != Types.PATH) {
+            if(this.taterzens$editorMode == EditorMode.PATH && mode != EditorMode.PATH) {
                 editor.getNpc().getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
                         new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos))
                 ));
-            } else if(this.taterzens$editorMode != Types.PATH && mode == Types.PATH) {
+            } else if(this.taterzens$editorMode != EditorMode.PATH && mode == EditorMode.PATH) {
                 editor.getNpc().getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
                         new BlockUpdateS2CPacket(blockPos, Blocks.REDSTONE_BLOCK.getDefaultState())
                 ));
@@ -104,7 +104,7 @@ public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEd
     }
 
     @Override
-    public Types getEditorMode() {
+    public EditorMode getEditorMode() {
         return this.taterzens$editorMode;
     }
 

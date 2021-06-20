@@ -14,7 +14,6 @@ import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -24,10 +23,10 @@ public class EquipmentCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> equipmentNode = literal("equipment")
                 .then(literal("allowEquipmentDrops")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment_equipmentDrops, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.equipment.drops", config.perms.npcCommandPermissionLevel))
                         .then(argument("drop", BoolArgumentType.bool()).executes(EquipmentCommand::setEquipmentDrops))
                 )
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_equipment, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.equipment", config.perms.npcCommandPermissionLevel))
                 .executes(EquipmentCommand::setEquipment)
                 .build();
 
@@ -48,7 +47,7 @@ public class EquipmentCommand {
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
             if(taterzen.isEquipmentEditor(player)) {
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                 taterzen.setEquipmentEditor(null);
                 context.getSource().sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
@@ -74,7 +73,7 @@ public class EquipmentCommand {
                         false
                 );
 
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.EQUIPMENT);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.EQUIPMENT);
                 taterzen.setEquipmentEditor(player);
             }
         });

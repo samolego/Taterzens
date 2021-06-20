@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -27,28 +26,28 @@ public class MessagesCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> messagesNode = literal("messages")
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_clear, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.clear", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::clearTaterzenMessages)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_list, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::listTaterzenMessages)
                 )
                 .then(argument("message id", IntegerArgumentType.integer(0))
                         .then(literal("delete")
-                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_delete, config.perms.npcCommandPermissionLevel))
+                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delete", config.perms.npcCommandPermissionLevel))
                                 .executes(MessagesCommand::deleteTaterzenMessage)
                         )
                         .then(literal("setDelay")
-                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_delay, config.perms.npcCommandPermissionLevel))
+                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delay", config.perms.npcCommandPermissionLevel))
                                 .then(argument("delay", IntegerArgumentType.integer())
                                         .executes(MessagesCommand::editMessageDelay)
                                 )
                         )
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::editMessage)
                 )
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_messages_edit, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.edit", config.perms.npcCommandPermissionLevel))
                 .executes(MessagesCommand::editTaterzenMessages).build();
         
         editNode.addChild(messagesNode);
@@ -91,7 +90,7 @@ public class MessagesCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.MESSAGES);
+            ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.MESSAGES);
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
@@ -155,9 +154,9 @@ public class MessagesCommand {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.Types.MESSAGES) {
+            if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES) {
                 // Exiting the message edit mode
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.NONE);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                 ((ITaterzenEditor) player).setEditingMessageIndex(-1);
                 source.sendFeedback(
                         translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
@@ -165,7 +164,7 @@ public class MessagesCommand {
                 );
             } else {
                 // Entering the edit mode
-                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.Types.MESSAGES);
+                ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.MESSAGES);
                 source.sendFeedback(
                         joinText("taterzens.command.message.editor.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
                                 .formatted(Formatting.BOLD)

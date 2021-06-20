@@ -28,7 +28,8 @@ import java.util.function.Consumer;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
@@ -36,9 +37,9 @@ public class NpcCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
         LiteralCommandNode<ServerCommandSource> npcNode = dispatcher.register(literal("npc")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_create, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.create", config.perms.npcCommandPermissionLevel))
                         .then(argument("name", message())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getOnlinePlayers(context), builder))
                                 .executes(NpcCommand::spawnTaterzen)
@@ -46,23 +47,23 @@ public class NpcCommand {
                         .executes(NpcCommand::spawnTaterzen)
                 )
                 .then(literal("select")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_select, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.select", config.perms.npcCommandPermissionLevel))
                         .then(argument("id", IntegerArgumentType.integer(1))
-                                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_select_id, config.perms.npcCommandPermissionLevel))
+                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
                                 .executes(NpcCommand::selectTaterzenById)
                         )
                         .executes(NpcCommand::selectTaterzen)
                 )
                 .then(literal("deselect")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_deselect, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.select.deselect", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::deselectTaterzen)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_list, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.list", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::listTaterzens)
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_remove, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.remove", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::removeTaterzen)
                 )
         );

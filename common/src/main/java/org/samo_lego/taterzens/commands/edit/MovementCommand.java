@@ -20,7 +20,8 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -32,9 +33,9 @@ public class MovementCommand {
 
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> movementNode = literal("movement")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .then(literal("FOLLOW")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement_follow, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement.follow", config.perms.npcCommandPermissionLevel))
                         .then(argument("follow type", word())
                                 .suggests(FOLLOW_TYPES)
                                 .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
@@ -51,7 +52,7 @@ public class MovementCommand {
 
 
         LiteralCommandNode<ServerCommandSource> lookNode = literal("look")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_movement, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .executes(context -> changeMovement(context, "FORCED_LOOK"))
                 .build();
 

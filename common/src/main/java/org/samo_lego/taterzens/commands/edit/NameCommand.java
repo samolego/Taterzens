@@ -11,7 +11,6 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -20,7 +19,7 @@ public class NameCommand {
 
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> nameNode = literal("name")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_name, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.name", config.perms.npcCommandPermissionLevel))
                 .then(argument("new name", message()).executes(NameCommand::renameTaterzen))
                 .build();
 

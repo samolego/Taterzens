@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.noSelectedTaterzenError;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
@@ -30,17 +29,17 @@ public class CommandsCommand {
     public static void registerNode(CommandDispatcher<ServerCommandSource> dispatcher, LiteralCommandNode< ServerCommandSource > editNode) {
         LiteralCommandNode<ServerCommandSource> commandsNode = literal("commands")
                 .then(literal("setPermissionLevel")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_setPermissionLevel, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.set_permission_level", config.perms.npcCommandPermissionLevel))
                         .then(argument("level", IntegerArgumentType.integer(0, 4))
                                 .executes(CommandsCommand::setPermissionLevel)
                         )
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_remove, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("command id", IntegerArgumentType.integer(0)).executes(CommandsCommand::removeCommand))
                 )
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_add, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                         .redirect(dispatcher.getRoot(), context -> {
                             // Really ugly, but ... works :P
                             String cmd = addCommand(context);
@@ -52,11 +51,11 @@ public class CommandsCommand {
                         })
                 )
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_clear, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
                         .executes(CommandsCommand::clearCommands)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_commands_clear, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
                         .executes(CommandsCommand::listTaterzenCommands)
                 )
                 .build();

@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.PERMISSIONS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -23,7 +22,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 public class PoseCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> poseNode = literal("pose")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_pose, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.pose", config.perms.npcCommandPermissionLevel))
                 .then(argument("pose name", word())
                         .suggests((context, builder) -> CommandSource.suggestMatching(Stream.of(EntityPose.values()).map(Enum::name).collect(Collectors.toList()), builder))
                         .executes(PoseCommand::editPose)

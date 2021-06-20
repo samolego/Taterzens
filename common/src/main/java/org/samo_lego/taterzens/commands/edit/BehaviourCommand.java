@@ -21,7 +21,8 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
@@ -32,7 +33,7 @@ public class BehaviourCommand {
 
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> behaviourNode = literal("behaviour")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_behaviour, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.behaviour", config.perms.npcCommandPermissionLevel))
                 .then(argument("behaviour", word())
                         .suggests(HOSTILITY_TYPES)
                         .executes(BehaviourCommand::setTaterzenBehaviour)

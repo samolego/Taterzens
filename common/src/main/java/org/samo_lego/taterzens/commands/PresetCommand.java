@@ -18,7 +18,8 @@ import java.io.File;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.Taterzens.presetsDir;
 import static org.samo_lego.taterzens.api.TaterzensAPI.getPresets;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
@@ -28,14 +29,14 @@ public class PresetCommand {
     public static void registerNode(LiteralCommandNode<ServerCommandSource> npcNode) {
         LiteralCommandNode<ServerCommandSource> presetNode = literal("preset")
                 .then(literal("save")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_preset_save, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.preset.save", config.perms.npcCommandPermissionLevel))
                         .then(argument("preset name", word())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                 .executes(PresetCommand::saveTaterzenToPreset)
                         )
                 )
                 .then(literal("load")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_preset_load, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.preset.load", config.perms.npcCommandPermissionLevel))
                         .then(argument("preset name", word())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(getPresets(), builder))
                                 .executes(PresetCommand::loadTaterzenFromPreset)

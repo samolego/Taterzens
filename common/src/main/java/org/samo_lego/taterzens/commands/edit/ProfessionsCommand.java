@@ -26,7 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static net.minecraft.command.argument.MessageArgumentType.message;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
@@ -34,23 +35,23 @@ public class ProfessionsCommand {
     
     public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
         LiteralCommandNode<ServerCommandSource> professionsNode = literal("professions")
-                .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_profession, config.perms.npcCommandPermissionLevel))
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions", config.perms.npcCommandPermissionLevel))
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_profession_remove, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests(ProfessionsCommand::suggestRemovableProfessions)
                                 .executes(ctx -> removeProfession(ctx, new Identifier(MessageArgumentType.getMessage(ctx, "profession type").asString())))
                         )
                 )
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_profession_add, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.add", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests((context, builder) -> CommandSource.suggestMatching(PROFESSION_TYPES.keySet().stream().map(Identifier::toString), builder))
                                 .executes(ctx -> setProfession(ctx, new Identifier(MessageArgumentType.getMessage(ctx, "profession type").asString())))
                         )
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, PERMISSIONS.npc_edit_profession_list, config.perms.npcCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.list", config.perms.npcCommandPermissionLevel))
                         .executes(ProfessionsCommand::listTaterzenProfessions)
                 )
                 .build();

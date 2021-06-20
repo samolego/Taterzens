@@ -402,7 +402,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         if(!this.npcData.messages.isEmpty()) {
             Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
             this.world.getOtherEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.Types.MESSAGES) {
+                if(entity instanceof ServerPlayerEntity && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES) {
                     ITaterzenPlayer pl = (ITaterzenPlayer) entity;
                     int msgPos = pl.getLastMsgPos(this.getUuid());
                     if(msgPos >= this.npcData.messages.size())
