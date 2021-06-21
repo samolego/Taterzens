@@ -3,8 +3,12 @@
 [![GitHub license](https://img.shields.io/github/license/samolego/Taterzens?style=flat-square)](https://github.com/samolego/Taterzens/blob/master/LICENSE)
 [![Server environment](https://img.shields.io/badge/Environment-server-blue?style=flat-square)](https://github.com/samolego/Taterzens)
 [![Singleplayer environment](https://img.shields.io/badge/Environment-singleplayer-yellow?style=flat-square)](https://github.com/samolego/Taterzens)
-[![Curseforge downloads](http://cf.way2muchnoise.eu/full_446499_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/taterzens)
+
+Fabric: [![Curseforge downloads](http://cf.way2muchnoise.eu/full_446499_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/taterzens)
 [![Curseforge versions](http://cf.way2muchnoise.eu/versions/For_446499_all.svg)](https://www.curseforge.com/minecraft/mc-mods/taterzens)
+
+Forge: [![Curseforge downloads](http://cf.way2muchnoise.eu/full_473071_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/taterzens-forge)
+[![Curseforge versions](http://cf.way2muchnoise.eu/versions/For_473071_all.svg)](https://www.curseforge.com/minecraft/mc-mods/taterzens-forge)
 
 A fabric / forge citizens like NPC mod.
 
