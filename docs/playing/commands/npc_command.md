@@ -42,26 +42,4 @@ You can select NPCs by their ID or based on proximity and look direction.
 
 ### Editing
 
-You can change many aspects of the NPC, e.g. its entity type, skin, right-click action etc.
-
-todo
-{: .label .label-yellow }
-
-### Auto-generated structure
-
-This might help you understand the layout of the `/npc` command.
-
-<span style="color: cyan;">
-    (For permission nodes described here, have a look [on permissions site](../../configurations/permissions.html).)
-</span>
-
-
-<span style="color: lightgreen;">
-    &lt;These represent arguments&gt;
-</span>
-
-<div class="language-plaintext highlighter-rouge highlight">
-    <pre><code id="npcCommand">Loading ... </code></pre>
-</div>
-
-<script src="./auto_command.js"></script>
+You can change many aspects of the NPC, e.g. its entity type, skin, pose, name, messages, right-click actions etc.

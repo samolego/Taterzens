@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Creating messages
-parent: Messages
-grand_parent: Play
 ---
 
 

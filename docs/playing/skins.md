@@ -1,7 +1,5 @@
 ---
-layout: page
 title: Skins
-parent: Play
 ---
 
 
@@ -46,8 +44,8 @@ To set custom skin layers to Taterzen, use
 ```
 It will copy your skin settings to Taterzen.
 
-<video controls="true" allowfullscreen="true" poster="../assets/img/skin_layer_change_poster.png" width="100%">
-	<source src="https://samolego.github.io/Taterzens/docs/assets/video/skin_layer_change.mp4" type="video/mp4">
+<video controls="true" allowfullscreen="true" poster="../../assets/img/skin_layer_change_poster.png" width="100%">
+	<source src="../../assets/video/skin_layer_change.mp4" type="video/mp4">
 	<p>Your browser does not support the video element.</p>
 </video>
 

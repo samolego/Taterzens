@@ -5,26 +5,22 @@ parent: Installation
 ---
 
 # Source Installation
-{: .no_toc }
 
 ---
 
 ## Compilation of Taterzens
 
-Unstable
-{: .label .label-yellow }
+Here be dragons!
+It might happen that your existing Taterzens will get wiped!
+Proceed with caution!
 
-Builds from sources are not necessary stable! Please make sure you have a backup of the world.
+* Download latest unstable version from [GH actions](https://github.com/samolego/Taterzens/actions/workflows/build.yml).
 
-
-
-1. Clone the repository.
-```batch
+* Build the mod yourself.
+```bash
 git clone https://github.com/samolego/Taterzens.git
+cd Taterzens
+chmod +x gradlew
+gradlew build
 ```
-
-2. Go in the `Taterzens` folder.
-3. Run the build script (you might want to omit `./`).
-```batch
-./gradlew build
-```
+The files can be found in `build/libs` folder.

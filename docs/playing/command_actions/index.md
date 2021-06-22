@@ -1,9 +1,5 @@
 ---
-layout: page
 title: Right-click Actions
-parent: Play
-has_children: true
-nav_order: 2
 ---
 
 

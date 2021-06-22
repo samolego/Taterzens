@@ -1,9 +1,5 @@
 ---
-layout: page
 title: Movement
-parent: Play
-has_children: true
-nav_order: 4
 ---
 
 

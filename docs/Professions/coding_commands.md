@@ -1,7 +1,5 @@
 ---
-layout: page
-title: Profession Commands
-parent: Profession API
+title: Coding Commands
 ---
 
 

@@ -1,7 +1,5 @@
 ---
-layout: page
-title: Profession Coding
-parent: Profession API
+title: Coding Profession
 ---
 
 

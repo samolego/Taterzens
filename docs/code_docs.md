@@ -1,7 +1,5 @@
 ---
-layout: page
 title: Code Documentation
-nav_order: 6
 ---
 
 # ~~Javadoc~~ Dokadoc

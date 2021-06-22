@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Follow Movement
-parent: Movement
-grand_parent: Play
 ---
 
 

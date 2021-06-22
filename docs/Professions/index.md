@@ -1,5 +1,5 @@
 ---
-title: Profession API
+title: API
 ---
 
 # Using code to maximize potential

@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Editing Actions
-parent: Right-click Actions
-grand_parent: Play
 ---
 
 

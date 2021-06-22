@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Passive Behaviour
-parent: Behaviour
-grand_parent: Play
 ---
 
 

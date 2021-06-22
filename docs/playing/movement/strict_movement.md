@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Strict Movement
-parent: Movement
-grand_parent: Play
 ---
 
 
@@ -19,7 +16,7 @@ grand_parent: Play
 ```
 
 <video controls="true" allowfullscreen="true" width="100%">
-	<source src="https://samolego.github.io/Taterzens/docs/assets/video/forced_look.mp4" type="video/mp4">
+	<source src="../../../assets/video/forced_look.mp4" type="video/mp4">
 	<p>Your browser does not support the video element.</p>
 </video>
 

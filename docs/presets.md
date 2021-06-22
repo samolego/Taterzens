@@ -5,7 +5,6 @@ nav_order: 4
 ---
 
 # Taterzen Presets
-{: .no_toc }
 
 ---
 

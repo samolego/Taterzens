@@ -1,8 +1,5 @@
 ---
-layout: page
 title: Editing messages
-parent: Messages
-grand_parent: Play
 ---
 
 

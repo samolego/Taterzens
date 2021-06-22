@@ -1,0 +1,25 @@
+---
+title: Poses
+---
+
+
+# Posing Taterzens
+
+---
+
+
+## Cusom poses
+
+Taterzens support changing their pose
+```
+/npc edit pose <pose to use>
+```
+
+When [entity type](./types.md) is set to `PLAYER`, "working" poses are
+
+* standing (default)
+* swimming
+* sneaking / crouching
+* sleeping
+
+other poses usually just change the name position and do not appear visually different.

@@ -1,7 +1,5 @@
 ---
-layout: page
 title: Help
-nav_order: 5
 ---
 
 # Help

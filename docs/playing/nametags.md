@@ -1,7 +1,5 @@
 ---
-layout: page
 title: Nametags
-parent: Play
 ---
 
 
@@ -13,11 +11,10 @@ parent: Play
 ## Hiding / showing names
 
 Do you need npc's name above head to be hidden?
-There's a vanilla way to achieve that!
+You have the following options
 
-Simply type the following command
-```
-/data merge entity <taterzen uuid> {CustomNameVisible:0b}
-```
-
-*(replace `0b` with `1b` to set it back to `true` again)*
+* add Taterzen to a team and set a nametag visibility team rule
+* use a built-in command (this won't support changing [poses](./poses.md))
+    ```
+    /npc edit tags showCustomName false
+    ```

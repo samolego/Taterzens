@@ -8,8 +8,11 @@ theme:
   name: material
   features:
     - navigation.instant
+    - navigation.top
   icon:
+    logo: fontawesome/solid/users
     repo: fontawesome/brands/github
+  favicon: assets/img/logo.png
   palette:
     - media: "(prefers-color-scheme: dark)"
       primary: light green
@@ -33,7 +36,10 @@ plugins:
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
-  
+  - pymdownx.tilde # strikethrough text
+  - pymdownx.details # "notes"
+  - attr_list #images
+ 
 extra:
   version:
     provider: mike
