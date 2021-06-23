@@ -23,17 +23,17 @@ You can set any skin from any minecraft player using
 ```
 
 * From [mineskin](https://www.mineskin.org).
-1. Visit [mineskin.org](https://www.mineskin.org) site
-2. Upload the skin you want for taterzen / use a player name.
-3. Click on generate & copy URL
-4. Enter the command
-```
-/npc edit skin <your mineskin URL>
-```
-E.g.
-```
-/npc edit skin  https://www.mineskin.org/1234
-```
+	1. Visit [mineskin.org](https://www.mineskin.org) site
+	2. Upload the skin you want for taterzen / use a player name.
+	3. Click on generate & copy URL
+	4. Enter the command
+	```
+	/npc edit skin <your mineskin URL>
+	```
+	E.g.
+	```
+	/npc edit skin  https://www.mineskin.org/1234
+	```
 
 
 
