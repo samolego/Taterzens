@@ -20,7 +20,7 @@ title: Strict Movement
 	<p>Your browser does not support the video element.</p>
 </video>
 
-2. For following the [path](../path.html) strictly with no rests
+2. For following the [path](../path.md) strictly with no rests
 ```
 /npc edit movement FORCED_PATH
 ```

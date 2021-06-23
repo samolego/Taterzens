@@ -29,7 +29,7 @@ To see all the commands that will be run when Taterzen is right-clicked, use
 
 (aka *Why did my command not work?*)
 
-Default permission level for newly-spawned-in NPCs can be found in [config](../../configurations/config.html).
+Default permission level for newly-spawned-in NPCs can be found in [config](../../config.md).
 
 If you'd like to keep a Taterzen to execute non-op
 commands only, you'd type:

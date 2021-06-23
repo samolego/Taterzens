@@ -21,7 +21,7 @@ as it makes the Taterzen move around freely with no restrictions.
 	<p>Your browser does not support the video element.</p>
 </video>
 
-2. For following the [path](../path.html) but enabling *long* rests and looking around, use
+2. For following the [path](../path.md) but enabling *long* rests and looking around, use
 ```
 /npc edit movement PATH
 ```
