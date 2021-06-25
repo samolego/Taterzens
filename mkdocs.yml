@@ -17,14 +17,14 @@ theme:
     - media: "(prefers-color-scheme: dark)"
       primary: light green
       accent: green
-      scheme: slate
+      scheme: default
       toggle:
         icon: material/lightbulb
         name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
       primary: green
       accent: light green
-      scheme: default
+      scheme: slate
       toggle:
         icon: material/lightbulb-outline
         name: Switch to dark mode
