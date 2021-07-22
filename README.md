@@ -1,4 +1,4 @@
-# Taterzens
+# [Taterzens](https://samolego.github.io/Taterzens/)
 [![Discord](https://img.shields.io/discord/797713290545332235?logo=discord&style=flat-square)](https://discord.gg/9PAesuHFnp)
 [![GitHub license](https://img.shields.io/github/license/samolego/Taterzens?style=flat-square)](https://github.com/samolego/Taterzens/blob/master/LICENSE)
 [![Server environment](https://img.shields.io/badge/Environment-server-blue?style=flat-square)](https://github.com/samolego/Taterzens)

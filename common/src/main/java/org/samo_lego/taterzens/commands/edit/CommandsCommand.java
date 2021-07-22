@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.minecraft.command.argument.MessageArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
@@ -38,7 +39,7 @@ public class CommandsCommand {
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("command id", IntegerArgumentType.integer(0)).executes(CommandsCommand::removeCommand))
                 )
-                .then(literal("add")
+                .then(literal("addBuiltin")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                         .redirect(dispatcher.getRoot(), context -> {
                             // Really ugly, but ... works :P
@@ -50,6 +51,12 @@ public class CommandsCommand {
                             ).create();
                         })
                 )
+                .then(literal("addCustom")
+                        .then(argument("velocity command", MessageArgumentType.message())
+                                .executes(CommandsCommand::addVelocityCommand)
+                        )
+                )
+
                 .then(literal("clear")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
                         .executes(CommandsCommand::clearCommands)
@@ -62,6 +69,7 @@ public class CommandsCommand {
         
         editNode.addChild(commandsNode);
     }
+
 
     private static int removeCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
@@ -141,7 +149,16 @@ public class CommandsCommand {
         });
     }
 
+    private static int addVelocityCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        String command = MessageArgumentType.getMessage(context, "velocity command").getString();
 
+        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+            //todo
+            //source.sendFeedback(successText("taterzens.command.commands.set", command), false);
+        });
+
+    }
 
     private static String addCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
@@ -149,7 +166,7 @@ public class CommandsCommand {
         NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
             // Extremely :concern:
             // I know it
-            command.set(context.getInput().substring("/npc edit commands add ".length()));
+            command.set(context.getInput().substring("/npc edit commands addBuiltin ".length()));
             taterzen.addCommand(command.get());
         });
         return command.get();

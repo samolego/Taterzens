@@ -156,7 +156,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     public static DefaultAttributeContainer.Builder createTaterzenAttributes() {
-        return HostileEntity.createHostileAttributes()
+        return PathAwareEntity.createLivingAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2505D)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 35.0D);
     }
@@ -875,7 +875,8 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setMessageDelay(int index, int delay) {
         if(index < this.npcData.messages.size()) {
-            this.npcData.messages.get(index).mapSecond(previous -> delay);
+            Pair<Text, Integer> newMsg = this.npcData.messages.get(index).mapSecond(previous -> delay);
+            this.npcData.messages.set(index, newMsg);
         }
     }
 
@@ -942,6 +943,10 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         return this.isInvulnerable();
     }
 
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        return this.isRemoved() || this.isInvulnerable() && damageSource != DamageSource.OUT_OF_WORLD;
+    }
 
     @Override
     protected void initDataTracker() {

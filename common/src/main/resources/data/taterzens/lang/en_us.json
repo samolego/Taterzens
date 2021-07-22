@@ -10,7 +10,7 @@
   "taterzens.command.message.list": "Taterzen %s has the following messages. Click on one to edit it.",
   "taterzens.command.message.edit": "You are now editing message: %s. Click enter after editing to save it.",
   "taterzens.command.message.clear": "Messages of %s were cleared.",
-  "taterzens.command.message.delay": "Message delay has been set to %s ticks.",
+  "taterzens.command.message.delay": "Message delay between %s and %s is now set to %s ticks.",
   "taterzens.command.message.changed": "Message has been changed to %s.",
   "taterzens.command.message.deleted": "Message %s has been deleted successfully.",
   "taterzens.command.message.error.404": "No messages with id %s were found.",

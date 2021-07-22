@@ -219,7 +219,7 @@ public class NpcCommand {
 
     private static Collection<String> getOnlinePlayers(CommandContext<ServerCommandSource> context) {
         Collection<String> names = new ArrayList<>();
-        context.getSource().getMinecraftServer().getPlayerManager().getPlayerList().forEach(
+        context.getSource().getServer().getPlayerManager().getPlayerList().forEach(
                 player -> names.add(player.getGameProfile().getName())
         );
 

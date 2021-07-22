@@ -73,15 +73,20 @@ public class MessagesCommand {
         ServerCommandSource source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
-            if(selected >= taterzen.getMessages().size()) {
+            ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
+            int size = messages.size();
+            if(selected >= size) {
                 source.sendFeedback(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected)),
                         false
                 );
             } else {
                 int delay = IntegerArgumentType.getInteger(context, "delay");
+                int i = selected - 1;
+                String first = messages.get(i < 0 ? size - 1 : i).getFirst().getString();
+                String second = messages.get(selected).getFirst().getString();
                 taterzen.setMessageDelay(selected, delay);
-                source.sendFeedback(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
+                source.sendFeedback(successText("taterzens.command.message.delay", first, second, String.valueOf(delay)), false);
             }
         });
     }
