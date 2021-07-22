@@ -251,6 +251,7 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getTargetSelector/#/Poin
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/handleAttack/#net.minecraft.entity.Entity/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/handle-attack.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/interactAt/#net.minecraft.entity.player.PlayerEntity#net.minecraft.util.math.Vec3d#net.minecraft.util.Hand/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/interact-at.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/isEquipmentEditor/#net.minecraft.entity.player.PlayerEntity/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/is-equipment-editor.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/isInvulnerableTo/#net.minecraft.entity.damage.DamageSource/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/is-invulnerable-to.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/lookAroundGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/look-around-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/lookPlayerGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/look-player-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/onDeath/#net.minecraft.entity.damage.DamageSource/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/on-death.html
