@@ -34,6 +34,9 @@ $dokka.location:org.samo_lego.taterzens.commands.edit/EquipmentCommand///Pointin
 $dokka.location:org.samo_lego.taterzens.commands.edit/EquipmentCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-equipment-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/MessagesCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-messages-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/MessagesCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-messages-command/register-node.html
+$dokka.location:org.samo_lego.taterzens.commands.edit/MountCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-mount-command/index.html
+$dokka.location:org.samo_lego.taterzens.commands.edit/MountCommand/mountTaterzen/#com.mojang.brigadier.context.CommandContext<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-mount-command/mount-taterzen.html
+$dokka.location:org.samo_lego.taterzens.commands.edit/MountCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-mount-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/MovementCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-movement-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/MovementCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-movement-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/NameCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-name-command/index.html
@@ -241,8 +244,11 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/followPlayersGoal/#/Poin
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/followTargetGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/follow-target-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/gameProfile/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/game-profile.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-commands.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getFollowType/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-follow-type.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getFollowUuid/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-follow-uuid.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getGoalSelector/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-goal-selector.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getMessages/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-messages.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getMovement/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-movement.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getPathTargets/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-path-targets.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getPathfindingFavor/#net.minecraft.util.math.BlockPos#net.minecraft.world.WorldView/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-pathfinding-favor.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getProfession/#net.minecraft.util.Identifier/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-profession.html
@@ -314,8 +320,10 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Defaults/pushable/#/
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/index.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/_comment_exitEditorAfterMsgEdit/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/_comment_exit-editor-after-msg-edit.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/_comment_messageDelay/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/_comment_message-delay.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/_comment_structure/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/_comment_structure.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/exitEditorAfterMsgEdit/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/exit-editor-after-msg-edit.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/messageDelay/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/message-delay.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Messages/structure/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-messages/structure.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Path.Color///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-path/-color/index.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Path.Color/_comment/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-path/-color/_comment.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Path.Color/blue/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-path/-color/blue.html
@@ -343,6 +351,7 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_fabricTailo
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_language/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_language.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout1/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout1.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout2/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout2.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout3/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout3.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/defaults/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/defaults.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/disableRegistrySync/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/disable-registry-sync.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/fabricTailorAdvert/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/fabric-tailor-advert.html
