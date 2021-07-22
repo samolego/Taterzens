@@ -180,6 +180,9 @@ public class TaterConfig {
          */
         @SerializedName("exit_editor_after_msg_edit")
         public boolean exitEditorAfterMsgEdit = true;
+
+        public final String _comment_structure = "// Message format. First %s is replaced with name, second one with message.";
+        public String structure = "%s -> you: %s";
     }
 
 

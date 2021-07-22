@@ -54,6 +54,8 @@
   "taterzens.command.create": "Taterzen %s has been spawned successfully.",
   "taterzens.command.remove": "Taterzen %s has been removed.",
   "taterzens.command.list": "Available Taterzens",
+  "taterzens.command.mount": "Taterzen %s is now riding %s.",
+  "taterzens.command.umount": "Taterzen %s is now not riding anything.",
   "taterzens.command.tags.changed": "Tag %s has been changed to %s.",
   "taterzens.command.tags.hide_name_hint.desc.1": "Taterzen's name was set to %s and its pose to %s, in order to hide the name.",
   "taterzens.command.tags.hide_name_hint.desc.2": "If you'd like to keep the original name and set a custom pose, add %s to a custom team and change settings there.",

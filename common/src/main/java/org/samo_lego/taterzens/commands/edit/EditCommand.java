@@ -23,6 +23,7 @@ public class EditCommand {
         NameCommand.registerNode(editNode);
         PathCommand.registerNode(editNode);
         PoseCommand.registerNode(editNode);
+        MountCommand.registerNode(editNode);
         ProfessionsCommand.registerNode(editNode);
         SkinCommand.registerNode(editNode);
         TagsCommand.registerNode(editNode);

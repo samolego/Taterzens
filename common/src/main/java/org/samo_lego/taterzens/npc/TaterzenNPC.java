@@ -34,12 +34,14 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
@@ -249,6 +251,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     /**
+     * Gets current movement of taterzen.
+     * @return current movement
+     */
+    public NPCData.Movement getMovement() {
+        return this.npcData.movement;
+    }
+
+    /**
      * Adds block position as a node in path of Taterzen.
      * @param blockPos position to add.
      */
@@ -409,7 +419,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                         msgPos = 0;
                     if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUuid())) {
                         entity.sendSystemMessage(
-                                this.getName().copy().append(" -> you: ").append(this.npcData.messages.get(msgPos).getFirst()),
+                                new TranslatableText(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
@@ -1298,6 +1308,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     /**
+     * Gets follow type for taterzen.
+     * @return follow type
+     */
+    public NPCData.FollowTypes getFollowType() {
+        return this.npcData.follow.type;
+    }
+
+    /**
      * Sets the target uuid to follow.
      * @param followUuid uuid of target to follow
      */
@@ -1305,6 +1323,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.npcData.follow.targetUuid = followUuid;
     }
 
+    /**
+     * Gets the UUID of the entity that taterzen is following.
+     * @return entity UUID if following, otherwise null.
+     */
+    @Nullable
+    public UUID getFollowUuid() {
+        return this.npcData.follow.targetUuid;
+    }
     /**
      * Whether this Taterzen should make sound.
      * @param allowSounds whether to allow sounds or not.

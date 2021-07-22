@@ -108,5 +108,7 @@ permissions = [
    #  Enables listing Taterzen's professions.
    "taterzens.npc.edit.professions.list",
    # Enables editing Taterzen's pose
-   "taterzens.npc.edit.pose"
+   "taterzens.npc.edit.pose",
+   # Enables editing Taterzen's vehicle
+   "taterzens.npc.edit.mount"
 ]
