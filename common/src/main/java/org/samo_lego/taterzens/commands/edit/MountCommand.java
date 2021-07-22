@@ -43,7 +43,7 @@ public class MountCommand {
             MutableText feedbackText;
             if(finalToMount == null) {
                 taterzen.stopRiding();
-                feedbackText = successText("taterzens.command.umount");
+                feedbackText = successText("taterzens.command.umount", taterzen.getName().getString());
             } else {
                 taterzen.startRiding(finalToMount, true);
                 feedbackText = successText("taterzens.command.mount", taterzen.getName().getString(), finalToMount.getName().getString());
