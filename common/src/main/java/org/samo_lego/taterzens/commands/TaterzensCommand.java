@@ -64,6 +64,11 @@ public class TaterzensCommand {
 
             LanguageUtil.setupLanguage();
             source.sendFeedback(successText("taterzens.command.language.success", language), false);
+            if(SERVER_TRANSLATIONS_LOADED) {
+                source.sendFeedback(successText("taterzens.command.language.server_translations_hint.1"), false);
+                source.sendFeedback(successText("taterzens.command.language.server_translations_hint.2"), false);
+            }
+
         } else {
             source.sendError(errorText("taterzens.command.language.404", language));
         }

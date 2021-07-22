@@ -46,7 +46,7 @@ dependencies {
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // Serverside translations
-    modImplementation("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
+    modCompileOnly("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
 
     // DisguiseLib
     //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"

@@ -40,6 +40,7 @@ public class TaterConfig {
 
     public final String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
     public final String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
+    public final String _comment_taterzenTablistTimeout3 = "// If you want them to stay on the tablist, set this to -1.";
     /**
      * After how many ticks Taterzens should be cleared from tablist.
      * Some delay is needed, otherwise clients don't fetch their skins.

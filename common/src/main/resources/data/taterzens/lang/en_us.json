@@ -60,6 +60,8 @@
   "taterzens.command.config.success": "Config was reloaded successfully.",
   "taterzens.command.rename.success": "Taterzen has been renamed to %s.",
   "taterzens.command.language.success": "Successfully fetched and switched to language %s.",
+  "taterzens.command.language.server_translations_hint.1": "Since you are using server-translations mod, this won't really have an effect",
+  "taterzens.command.language.server_translations_hint.2": "unless you change your client language.",
   "taterzens.command.language.error": "An error occurred when trying to fetch language %s.",
   "taterzens.command.language.404": "Language %s doesn't exist.",
   "taterzens.command.wiki": "Visit %s for documentation.",

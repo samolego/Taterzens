@@ -100,7 +100,8 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
-            this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
+            if(this.taterzens$queueTimer != -1)
+                this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
 
             this.connection.send(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))), listener);
 
