@@ -67,7 +67,7 @@ public class TypeCommand {
         }
 
         Identifier disguise = EntitySummonArgumentType.getEntitySummon(context, "entity type");
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             NbtCompound nbt;
             try {
                 nbt = NbtCompoundArgumentType.getNbtCompound(context, "nbt").copy();
@@ -102,7 +102,7 @@ public class TypeCommand {
             );
             return -1;
         }
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             DisguiseLibCompatibility.clearDisguise(taterzen);
             source.sendFeedback(
                     successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),

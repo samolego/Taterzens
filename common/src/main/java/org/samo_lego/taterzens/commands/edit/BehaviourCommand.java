@@ -45,7 +45,7 @@ public class BehaviourCommand {
 
     private static int setTaterzenBehaviour(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             NPCData.Behaviour behaviour = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
             taterzen.setBehaviour(behaviour);
             source.sendFeedback(successText("taterzens.command.behaviour.set", String.valueOf(behaviour)), false);

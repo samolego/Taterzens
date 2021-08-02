@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.MessageArgumentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.ClickEvent;
@@ -15,6 +16,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Box;
+import org.jetbrains.annotations.NotNull;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.edit.EditCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
@@ -88,17 +90,21 @@ public class NpcCommand {
 
     /**
      * Gets player's selected Taterzen and executes the consumer.
-     * @param player player to get Taterzen for
+     * @param entity player to get Taterzen for or Taterzen itself
      * @param npcConsumer lambda that gets selected Taterzen as argument
      * @return 1 if player has npc selected and predicate test passed, otherwise 0
      */
-    public static int selectedTaterzenExecutor(ServerPlayerEntity player, Consumer<TaterzenNPC> npcConsumer) {
-        TaterzenNPC taterzen = ((ITaterzenEditor) player).getNpc();
+    public static int selectedTaterzenExecutor(@NotNull Entity entity, Consumer<TaterzenNPC> npcConsumer) {
+        TaterzenNPC taterzen = null;
+        if(entity instanceof ITaterzenEditor player)
+            taterzen = player.getNpc();
+        else if(entity instanceof TaterzenNPC taterzenNPC)
+            taterzen = taterzenNPC;
         if(taterzen != null) {
             npcConsumer.accept(taterzen);
             return 1;
         }
-        player.sendMessage(noSelectedTaterzenError(), false);
+        entity.sendSystemMessage(noSelectedTaterzenError(), entity.getUuid());
         return 0;
     }
 

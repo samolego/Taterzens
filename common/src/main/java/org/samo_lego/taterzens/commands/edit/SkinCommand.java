@@ -54,7 +54,7 @@ public class SkinCommand {
         ServerCommandSource source = context.getSource();
         String id = MessageArgumentType.getMessage(context, "mineskin URL | playername").getString();
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             // Shameless self-promotion
             if(config.fabricTailorAdvert) {
                 if(FABRICTAILOR_LOADED) {

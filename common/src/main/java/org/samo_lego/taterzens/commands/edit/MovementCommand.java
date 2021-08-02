@@ -62,7 +62,7 @@ public class MovementCommand {
 
     private static int changeMovement(CommandContext<ServerCommandSource> context, String movement) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             taterzen.setMovement(NPCData.Movement.valueOf(movement));
             source.sendFeedback(
                     successText("taterzens.command.movement.set", movement),
@@ -73,7 +73,7 @@ public class MovementCommand {
 
     private static int setFollowType(CommandContext<ServerCommandSource> context, NPCData.FollowTypes followType) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             taterzen.setFollowType(followType);
             if(followType == NPCData.FollowTypes.UUID) {
                 try {

@@ -35,7 +35,7 @@ public class EquipmentCommand {
 
     static int setEquipmentDrops(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();;
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             boolean drop = BoolArgumentType.getBool(context, "drop");
             taterzen.allowEquipmentDrops(drop);
             source.sendFeedback(successText("taterzens.command.equipment.drop_mode.set", String.valueOf(drop)), false);
@@ -45,7 +45,7 @@ public class EquipmentCommand {
     private static int setEquipment(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             if(taterzen.isEquipmentEditor(player)) {
                 ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                 taterzen.setEquipmentEditor(null);

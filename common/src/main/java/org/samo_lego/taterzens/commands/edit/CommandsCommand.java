@@ -75,7 +75,7 @@ public class CommandsCommand {
         ServerCommandSource source = context.getSource();
         int selected = IntegerArgumentType.getInteger(context, "command id") - 1;
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             if(selected >= taterzen.getCommands().size()) {
                 source.sendFeedback(
                         errorText("taterzens.command.commands.error.404", String.valueOf(selected)),
@@ -91,7 +91,7 @@ public class CommandsCommand {
     private static int clearCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             source.sendFeedback(successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
             taterzen.clearCommands();
 
@@ -101,7 +101,7 @@ public class CommandsCommand {
     private static int listTaterzenCommands(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             ArrayList<String> commands = taterzen.getCommands();
 
             MutableText response = joinText("taterzens.command.commands.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
@@ -142,7 +142,7 @@ public class CommandsCommand {
             return -1;
         }
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             source.sendFeedback(successText("taterzens.command.commands.permission.set", String.valueOf(newPermLevel)), false);
             taterzen.setPermissionLevel(newPermLevel);
 
@@ -153,7 +153,7 @@ public class CommandsCommand {
         ServerCommandSource source = context.getSource();
         String command = MessageArgumentType.getMessage(context, "velocity command").getString();
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             //todo
             //source.sendFeedback(successText("taterzens.command.commands.set", command), false);
         });

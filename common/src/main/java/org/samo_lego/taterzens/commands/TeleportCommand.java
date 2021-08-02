@@ -32,7 +32,7 @@ public class TeleportCommand {
 
     private static int teleportTaterzen(CommandContext<ServerCommandSource> context, Vec3d destination) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             taterzen.teleport(destination.getX(), destination.getY(), destination.getZ());
         });
     }

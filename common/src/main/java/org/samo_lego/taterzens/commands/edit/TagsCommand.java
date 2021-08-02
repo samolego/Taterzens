@@ -112,7 +112,7 @@ public class TagsCommand {
 
     private static int setTag(CommandContext<ServerCommandSource> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             flag.accept(taterzen);
             source.sendFeedback(successText("taterzens.command.tags.changed", flagName, String.valueOf(flagValue)), false);
         });

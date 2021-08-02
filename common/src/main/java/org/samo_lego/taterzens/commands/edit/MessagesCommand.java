@@ -55,7 +55,7 @@ public class MessagesCommand {
 
     private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
                 source.sendFeedback(
@@ -71,7 +71,7 @@ public class MessagesCommand {
 
     private static int editMessageDelay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
             int size = messages.size();
@@ -114,7 +114,7 @@ public class MessagesCommand {
 
     private static int listTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
 
             MutableText response = joinText("taterzens.command.message.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
@@ -149,7 +149,7 @@ public class MessagesCommand {
 
     private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             taterzen.clearMessages();
             source.sendFeedback(successText("taterzens.command.message.clear", taterzen.getName().getString()), false);
         });

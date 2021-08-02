@@ -62,7 +62,7 @@ public class ProfessionsCommand {
 
     private static int listTaterzenProfessions(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             Collection<Identifier> professionIds = taterzen.getProfessionIds();
 
             MutableText response = joinText("taterzens.command.profession.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
@@ -92,7 +92,7 @@ public class ProfessionsCommand {
 
     private static int removeProfession(CommandContext<ServerCommandSource> context, Identifier id) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             if(taterzen.getProfessionIds().contains(id)) {
                 taterzen.removeProfession(id);
                 source.sendFeedback(successText("taterzens.command.profession.remove", id.toString()), false);
@@ -103,7 +103,7 @@ public class ProfessionsCommand {
 
     private static int setProfession(CommandContext<ServerCommandSource> context, Identifier id) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             if(PROFESSION_TYPES.containsKey(id)) {
                 taterzen.addProfession(id);
                 source.sendFeedback(successText("taterzens.command.profession.add", id.toString()), false);

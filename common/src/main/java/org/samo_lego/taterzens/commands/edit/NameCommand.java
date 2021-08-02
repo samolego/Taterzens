@@ -30,7 +30,7 @@ public class NameCommand {
         ServerCommandSource source = context.getSource();
         Text newName = MessageArgumentType.getMessage(context, "new name");
 
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             taterzen.setCustomName(newName);
             context.getSource().sendFeedback(
                     successText("taterzens.command.rename.success", newName.getString()),

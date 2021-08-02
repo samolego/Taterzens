@@ -34,7 +34,7 @@ public class PoseCommand {
 
     private static int editPose(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource src = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(src.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(src.getEntityOrThrow(), taterzen -> {
             String pose = StringArgumentType.getString(context, "pose name");
             taterzen.setPose(EntityPose.valueOf(pose));
             src.sendFeedback(successText("taterzens.command.pose", pose), false);

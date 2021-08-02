@@ -78,7 +78,7 @@ public class PresetCommand {
 
     private static int saveTaterzenToPreset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             String filename = StringArgumentType.getString(context, "preset name") + ".json";
             File preset = new File(presetsDir + "/" + filename);
             TaterzensAPI.saveTaterzenToPreset(taterzen, preset);

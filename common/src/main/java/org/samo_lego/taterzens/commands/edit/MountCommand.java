@@ -6,7 +6,6 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import org.samo_lego.taterzens.commands.NpcCommand;
 
@@ -38,8 +37,8 @@ public class MountCommand {
         }
 
         Entity finalToMount = toMount;
-        ServerPlayerEntity player = src.getPlayer();
-        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
+        Entity entity = src.getEntityOrThrow();
+        return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             MutableText feedbackText;
             if(finalToMount == null) {
                 taterzen.stopRiding();

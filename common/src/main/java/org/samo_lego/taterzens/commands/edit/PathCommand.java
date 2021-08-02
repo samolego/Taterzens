@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.commands.edit;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,13 +35,14 @@ public class PathCommand {
 
     private static int clearTaterzenPath(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
-        ServerPlayerEntity player = source.getPlayer();
+        Entity entity = source.getEntityOrThrow();
 
-        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            World world = player.getEntityWorld();
-            taterzen.getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
-                    new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos))
-            ));
+        return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
+            World world = entity.getEntityWorld();
+            if(entity instanceof ServerPlayerEntity player)
+                taterzen.getPathTargets().forEach(blockPos -> player.networkHandler.sendPacket(
+                        new BlockUpdateS2CPacket(blockPos, world.getBlockState(blockPos))
+                ));
             taterzen.clearPathTargets();
             context.getSource().sendFeedback(
                     successText("taterzens.command.path_editor.clear", taterzen.getName().getString()),
