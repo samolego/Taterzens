@@ -70,7 +70,7 @@ public class TaterzensCommand {
             }
 
         } else {
-            source.sendError(errorText("taterzens.command.language.404", language));
+            source.sendError(errorText("taterzens.command.language.404", language, "https://github.com/samolego/Taterzens#translation-contributions"));
         }
 
         return 0;
