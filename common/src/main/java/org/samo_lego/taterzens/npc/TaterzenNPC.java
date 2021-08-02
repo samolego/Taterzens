@@ -1,5 +1,6 @@
 package org.samo_lego.taterzens.npc;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -808,12 +809,19 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             return ActionResult.PASS;
         }
         if(!this.npcData.commands.isEmpty()) {
-            this.npcData.commands.forEach(cmd -> {
+            // Saving commands to a new list in order
+            // to allow commands to be modified via commands
+            // Functions are the easiest and cleanest way to do this
+            ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
+            for(String cmd : commands) {
                 if(cmd.contains("--clicker--")) {
                     cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
                 }
+                System.out.println(this.npcData.commands);
                 this.server.getCommandManager().execute(this.getCommandSource(), cmd);
-            });
+                System.out.println(commands);
+                System.out.println(this.npcData.commands);
+            }
         }
 
         return this.interact(player, hand);

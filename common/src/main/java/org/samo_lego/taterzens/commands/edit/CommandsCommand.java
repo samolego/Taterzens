@@ -163,10 +163,12 @@ public class CommandsCommand {
     private static String addCommand(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         AtomicReference<String> command = new AtomicReference<>();
-        NpcCommand.selectedTaterzenExecutor(source.getPlayer(), taterzen -> {
+        NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             // Extremely :concern:
             // I know it
-            command.set(context.getInput().substring("/npc edit commands addBuiltin ".length()));
+            String inputCmd = context.getInput();
+            String index = "addBuiltin ";
+            command.set(inputCmd.substring(inputCmd.indexOf(index) + index.length()));
             taterzen.addCommand(command.get());
         });
         return command.get();
