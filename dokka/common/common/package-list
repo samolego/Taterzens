@@ -130,6 +130,8 @@ $dokka.location:org.samo_lego.taterzens.mixin.accessors/ServerCommandSourceAcces
 $dokka.location:org.samo_lego.taterzens.mixin.accessors/ThreadedAnvilChunkStorageAccessor///PointingToDeclaration/common/org.samo_lego.taterzens.mixin.accessors/-threaded-anvil-chunk-storage-accessor/index.html
 $dokka.location:org.samo_lego.taterzens.mixin.accessors/ThreadedAnvilChunkStorageAccessor/getEntityTrackers/#/PointingToDeclaration/common/org.samo_lego.taterzens.mixin.accessors/-threaded-anvil-chunk-storage-accessor/get-entity-trackers.html
 $dokka.location:org.samo_lego.taterzens.mixin////PointingToDeclaration/common/org.samo_lego.taterzens.mixin/index.html
+$dokka.location:org.samo_lego.taterzens.mixin/ServerCommandSourceMixin_HideTaterzenExecutor///PointingToDeclaration/common/org.samo_lego.taterzens.mixin/-server-command-source-mixin_-hide-taterzen-executor/index.html
+$dokka.location:org.samo_lego.taterzens.mixin/ServerCommandSourceMixin_HideTaterzenExecutor/cancelSendingToOps/#net.minecraft.text.Text#org.spongepowered.asm.mixin.injection.callback.CallbackInfo/PointingToDeclaration/common/org.samo_lego.taterzens.mixin/-server-command-source-mixin_-hide-taterzen-executor/cancel-sending-to-ops.html
 $dokka.location:org.samo_lego.taterzens.mixin/ServerPlayInteractionManagerMixin///PointingToDeclaration/common/org.samo_lego.taterzens.mixin/-server-play-interaction-manager-mixin/index.html
 $dokka.location:org.samo_lego.taterzens.mixin/ServerPlayInteractionManagerMixin/player/#/PointingToDeclaration/common/org.samo_lego.taterzens.mixin/-server-play-interaction-manager-mixin/player.html
 $dokka.location:org.samo_lego.taterzens.mixin/ServerPlayNetworkHandlerMixin_MsgEditor///PointingToDeclaration/common/org.samo_lego.taterzens.mixin/-server-play-network-handler-mixin_-msg-editor/index.html
@@ -353,6 +355,7 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_disableRegi
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_disableRegistrySync2/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_disable-registry-sync2.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_fabricTailorAdvert1/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_fabric-tailor-advert1.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_fabricTailorAdvert2/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_fabric-tailor-advert2.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_hideOpsMessage/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_hide-ops-message.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_language/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_language.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout1/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout1.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout2/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout2.html
@@ -360,6 +363,7 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTab
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/defaults/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/defaults.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/disableRegistrySync/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/disable-registry-sync.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/fabricTailorAdvert/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/fabric-tailor-advert.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig/hideOpsMessage/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/hide-ops-message.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/language/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/language.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/loadConfigFile/#java.io.File/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/load-config-file.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/messages/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/messages.html
