@@ -39,7 +39,7 @@ public class CommandsCommand {
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("command id", IntegerArgumentType.integer(0)).executes(CommandsCommand::removeCommand))
                 )
-                .then(literal("addBuiltin")
+                .then(literal("add")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                         .redirect(dispatcher.getRoot(), context -> {
                             // Really ugly, but ... works :P
