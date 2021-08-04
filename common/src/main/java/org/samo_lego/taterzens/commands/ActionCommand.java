@@ -1,30 +1,16 @@
 package org.samo_lego.taterzens.commands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.BlockPosArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
-import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.NPCData;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
-import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
 
-import java.io.File;
-
-import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.Taterzens.presetsDir;
-import static org.samo_lego.taterzens.api.TaterzensAPI.getPresets;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -55,7 +41,7 @@ public class ActionCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
             if(taterzen.interact(pos)) {
                 source.sendFeedback(
-                        successText("taterzens.command.action.interact.success", pos.toShortString()),
+                        successText("taterzens.command.action.interact.success", taterzen.getName().getString(), pos.toShortString()),
                         false
                 );
             } else {

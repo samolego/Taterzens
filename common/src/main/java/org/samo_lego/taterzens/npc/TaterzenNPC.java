@@ -160,7 +160,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     public static DefaultAttributeContainer.Builder createTaterzenAttributes() {
-        return PathAwareEntity.createLivingAttributes()
+        return HostileEntity.createHostileAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2505D)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 35.0D);
     }
@@ -815,10 +815,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 if(cmd.contains("--clicker--")) {
                     cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
                 }
-                System.out.println(this.npcData.commands);
                 this.server.getCommandManager().execute(this.getCommandSource(), cmd);
-                System.out.println(commands);
-                System.out.println(this.npcData.commands);
             }
         }
 
@@ -1283,16 +1280,26 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         super.loot(item);
     }
 
+    /**
+     * Makes Taterzen interact with block at given position.
+     * It doesn't work if given position is too far away (>4 blocks)
+     * @param pos position of block to interact with.
+     * @return true if interaction was successfull, otherwise false.
+     */
     public boolean interact(BlockPos pos) {
         if(this.getPos().distanceTo(Vec3d.ofCenter(pos)) < 4.0D && !this.world.isClient()) {
             this.lookAt(pos);
             this.swingHand(Hand.MAIN_HAND);
             this.world.getBlockState(pos).onUse(this.world, null, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
+            return true;
         }
         return false;
     }
 
-
+    /**
+     * Makes Taterzen look at given block position.
+     * @param target target block to look at.
+     */
     public void lookAt(BlockPos target) {
         Vec3d vec3d = this.getPos();
         double d = target.getX() - vec3d.x;

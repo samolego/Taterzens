@@ -17,6 +17,13 @@ Commands allow you to tp players, give them
 stuff etc. Even more, you can target the Taterzen itself,
 random player or all players!
 
+They can even edit themselves via commands that they execute! See the following video for example.
+
+<video controls="true" allowfullscreen="true" width="100%">
+	<source src="../../assets/video/self_edit.webm" type="video/webm">
+	<p>Your browser does not support the video element.</p>
+</video>
+
 
 To see all the commands that will be run when Taterzen is right-clicked, use
 

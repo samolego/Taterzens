@@ -64,6 +64,10 @@ public class TaterConfig {
     @SerializedName("save_permissions_file")
     public boolean savePermsFile = true;
 
+    public final String _comment_hideOpsMessage = "// Whether to cancel sending info that Taterzen has executed a command to ops.";
+    @SerializedName("hide_ops_message")
+    public boolean hideOpsMessage = true;
+
     public Defaults defaults = new Defaults();
     public Path path = new Path();
     public Messages messages = new Messages();

@@ -168,7 +168,7 @@ public class CommandsCommand {
             // Extremely :concern:
             // I know it
             String inputCmd = context.getInput();
-            String index = "addBuiltin ";
+            String index = "add ";
             command.set(inputCmd.substring(inputCmd.indexOf(index) + index.length()));
             taterzen.addCommand(command.get());
         });
