@@ -110,5 +110,11 @@ permissions = [
    # Enables editing Taterzen's pose
    "taterzens.npc.edit.pose",
    # Enables editing Taterzen's vehicle
-   "taterzens.npc.edit.mount"
+   "taterzens.npc.edit.mount",
+
+   # Enables providing an action to Taterzen
+   # Going to block position
+   "taterzens.npc.action.goto",
+   # Interacting with block
+   "taterzens.npc.action.interact"
 ]

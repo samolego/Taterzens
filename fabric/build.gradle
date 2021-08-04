@@ -21,10 +21,6 @@ repositories {
         name = "entity reach"
         url = "https://maven.jamieswhiteshirt.com/libs-release/"
     }
-    maven {
-        name = "Nucleoid maven"
-        url = "https://maven.nucleoid.xyz/"
-    }
 }
 
 configurations {
@@ -50,6 +46,7 @@ dependencies {
 
     // DisguiseLib
     //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
+    modRuntime "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
 
     //modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.17.1-v0.3.1"
     modRuntime "com.github.astei:lazydfu:0.1.2"

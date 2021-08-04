@@ -80,6 +80,9 @@
   "taterzens.error.permission": "Stopnja pravic %s je večja od tvoje.",
   "taterzens.command.mount": "Krompirjevec %s sedaj jezdi %s.",
   "taterzens.command.umount": "Krompirjevec %s se je naveličal ježnje.",
-  "taterzens.command.language.server_translations_hint.1": "Ker uporabljaš server-translations mod, ta nastavitev ne bo imela vpliva",
-  "taterzens.command.language.server_translations_hint.2": "dokler ne spremeniš jezika na tvoji napravi."
+  "taterzens.command.language.server_translations_hint.1": "Ker uporabljaš server-translations moda, ta nastavitev ne bo imela vpliva",
+  "taterzens.command.language.server_translations_hint.2": "dokler ne spremeniš jezika na tvoji napravi.",
+  "taterzens.command.action.interact.success": "Krompirjevec %s je uporabil kocko na %s.",
+  "taterzens.command.action.interact.fail": "Lokacija %s je predaleč.",
+  "taterzens.command.action.goto.success": "Krompirjevec %s se je odpravil proti lokaciji %s."
 }

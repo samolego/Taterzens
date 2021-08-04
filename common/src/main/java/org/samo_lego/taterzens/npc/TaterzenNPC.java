@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -39,6 +40,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
@@ -75,7 +77,6 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     private final PlayerEntity fakePlayer;
     private final LinkedHashMap<Identifier, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
-    private short ticks = 0;
 
     /**
      * Goals
@@ -317,9 +318,6 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     @Override
     public void tickMovement() {
-        if(++this.ticks >= 20) {
-            this.ticks = 0;
-        }
         if(this.npcData.equipmentEditor != null)
             return;
 
@@ -1048,6 +1046,10 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             profession.onBehaviourSet(level);
         }
 
+
+        if(this.npcData.movement == NPCData.Movement.NONE)
+            this.setMovement(NPCData.Movement.TICK);
+
         switch(level) {
             case DEFENSIVE:
                 this.targetSelector.add(2, revengeGoal);
@@ -1279,6 +1281,27 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         }
 
         super.loot(item);
+    }
+
+    public boolean interact(BlockPos pos) {
+        if(this.getPos().distanceTo(Vec3d.ofCenter(pos)) < 4.0D && !this.world.isClient()) {
+            this.lookAt(pos);
+            this.swingHand(Hand.MAIN_HAND);
+            this.world.getBlockState(pos).onUse(this.world, null, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
+        }
+        return false;
+    }
+
+
+    public void lookAt(BlockPos target) {
+        Vec3d vec3d = this.getPos();
+        double d = target.getX() - vec3d.x;
+        double e = target.getY() - vec3d.y;
+        double f = target.getZ() - vec3d.z;
+        double g = Math.sqrt(d * d + f * f);
+        this.setPitch(MathHelper.wrapDegrees((float)(-(MathHelper.atan2(e, g) * 57.2957763671875D))));
+        this.setYaw(MathHelper.wrapDegrees((float)(MathHelper.atan2(f, d) * 57.2957763671875D) - 90.0F));
+        this.setHeadYaw(this.getYaw());
     }
 
     /**

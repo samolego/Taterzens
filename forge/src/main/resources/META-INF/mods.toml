@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[35,)"
+loaderVersion = "[37,)"
 issueTrackerURL = "https://github.com/samolego/Taterzens/issues"
 license = "MIT"
 
@@ -17,13 +17,13 @@ logoFile = "icon.png"
 [[dependencies.taterzens]]
 modId = "forge"
 mandatory = true
-versionRange = "[35,)"
+versionRange = "[37,)"
 ordering = "NONE"
 side = "SERVER"
 
 [[dependencies.taterzens]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.16.5,)"
+versionRange = "[1.17.1,)"
 ordering = "NONE"
 side = "SERVER"

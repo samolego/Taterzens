@@ -73,6 +73,7 @@ public class NpcCommand {
         EditCommand.registerNode(dispatcher, npcNode);
         PresetCommand.registerNode(npcNode);
         TeleportCommand.registerNode(npcNode);
+        ActionCommand.registerNode(npcNode);
     }
 
     /**

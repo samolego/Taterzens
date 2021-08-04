@@ -51,11 +51,12 @@ public class CommandsCommand {
                             ).create();
                         })
                 )
-                .then(literal("addCustom")
+                //todo
+                /*.then(literal("addCustom")
                         .then(argument("velocity command", MessageArgumentType.message())
                                 .executes(CommandsCommand::addVelocityCommand)
                         )
-                )
+                )*/
 
                 .then(literal("clear")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))

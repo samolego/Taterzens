@@ -9,7 +9,7 @@ dependencies {
     // Do NOT use other classes from fabric loader
     modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
 
-    modCompileOnly "com.github.NucleoidMC.DisguiseLib:disguiselib-fabric:${rootProject.disguiselib_version}"
+    modCompileOnly "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
 }
 
 def ENV = System.getenv();

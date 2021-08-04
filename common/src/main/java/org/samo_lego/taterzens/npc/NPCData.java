@@ -106,6 +106,10 @@ public class NPCData {
          */
         FORCED_PATH,
         /**
+         * Ticks movement, but does nothing by itself
+         */
+        TICK,
+        /**
          * Wandering around at Taterzen's will.
          */
         FREE
