@@ -31,21 +31,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://samolego.github.io/Taterzens/1.3.0/Professions/</loc>
-         <lastmod>2021-08-04</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://samolego.github.io/Taterzens/1.3.0/Professions/assigning_professions/</loc>
-         <lastmod>2021-08-04</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://samolego.github.io/Taterzens/1.3.0/Professions/coding_professions/</loc>
-         <lastmod>2021-08-04</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://samolego.github.io/Taterzens/1.3.0/installation/</loc>
          <lastmod>2021-08-04</lastmod>
          <changefreq>daily</changefreq>
@@ -57,6 +42,11 @@
     </url>
     <url>
          <loc>https://samolego.github.io/Taterzens/1.3.0/playing/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/playing/actions/</loc>
          <lastmod>2021-08-04</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -82,6 +72,11 @@
     </url>
     <url>
          <loc>https://samolego.github.io/Taterzens/1.3.0/playing/skins/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/playing/sounds/</loc>
          <lastmod>2021-08-04</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -172,6 +167,26 @@
     </url>
     <url>
          <loc>https://samolego.github.io/Taterzens/1.3.0/playing/movement/strict_movement/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/professions/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/professions/assigning_professions/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/professions/coding_professions/</loc>
+         <lastmod>2021-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://samolego.github.io/Taterzens/1.3.0/professions/profession_commands/</loc>
          <lastmod>2021-08-04</lastmod>
          <changefreq>daily</changefreq>
     </url>
