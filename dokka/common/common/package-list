@@ -54,6 +54,8 @@ $dokka.location:org.samo_lego.taterzens.commands.edit/TagsCommand/registerNode/#
 $dokka.location:org.samo_lego.taterzens.commands.edit/TypeCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-type-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands.edit/TypeCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands.edit/-type-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands////PointingToDeclaration/common/org.samo_lego.taterzens.commands/index.html
+$dokka.location:org.samo_lego.taterzens.commands/ActionCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-action-command/index.html
+$dokka.location:org.samo_lego.taterzens.commands/ActionCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-action-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands/NpcCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-npc-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands/NpcCommand/noSelectedTaterzenError/#/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-npc-command/no-selected-taterzen-error.html
 $dokka.location:org.samo_lego.taterzens.commands/NpcCommand/register/#com.mojang.brigadier.CommandDispatcher<net.minecraft.server.command.ServerCommandSource>#boolean/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-npc-command/register.html
@@ -198,6 +200,7 @@ $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement.FREE///PointingToDe
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement.LOOK///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/-l-o-o-k/index.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement.NONE///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/-n-o-n-e/index.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement.PATH///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/-p-a-t-h/index.html
+$dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement.TICK///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/-t-i-c-k/index.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/index.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement/valueOf/#java.lang.String/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/value-of.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData.Movement/values/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/-movement/values.html
@@ -255,10 +258,12 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getProfession/#net.minec
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getProfessionIds/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-profession-ids.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getTargetSelector/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-target-selector.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/handleAttack/#net.minecraft.entity.Entity/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/handle-attack.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/interact/#net.minecraft.util.math.BlockPos/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/interact.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/interactAt/#net.minecraft.entity.player.PlayerEntity#net.minecraft.util.math.Vec3d#net.minecraft.util.Hand/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/interact-at.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/isEquipmentEditor/#net.minecraft.entity.player.PlayerEntity/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/is-equipment-editor.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/isInvulnerableTo/#net.minecraft.entity.damage.DamageSource/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/is-invulnerable-to.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/lookAroundGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/look-around-goal.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/lookAt/#net.minecraft.util.math.BlockPos/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/look-at.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/lookPlayerGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/look-player-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/onDeath/#net.minecraft.entity.damage.DamageSource/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/on-death.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/pathGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/path-goal.html
