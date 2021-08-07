@@ -22,13 +22,22 @@ public class RegistrySyncManagerMixin_TaterzenSyncDisabler {
             method = "toTag",
             at = @At("TAIL"),
             locals = LocalCapture.CAPTURE_FAILHARD,
-            remap = false
+            remap = false,
+            cancellable = true
     )
     private static void removeTaterzenFromSync(boolean isClientSync, NbtCompound activeTag, CallbackInfoReturnable<NbtCompound> cir, NbtCompound mainTag, NbtCompound tag) {
         NbtCompound registries = tag.getCompound("registries");
         NbtCompound entityTypes = registries.getCompound("minecraft:entity_type");
         if(entityTypes != null) {
             entityTypes.remove(MODID + ":npc");
+            for (String key : entityTypes.getKeys()) {
+                // May cause problems if a mod registers entity types using minecraft namespace
+                if (!key.startsWith("minecraft:")) {
+                    cir.setReturnValue(tag);
+                    return;
+                }
+            }
+            registries.remove("minecraft:entity_type");
         }
     }
 }
