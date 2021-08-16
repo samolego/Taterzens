@@ -1290,7 +1290,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         if(this.getPos().distanceTo(Vec3d.ofCenter(pos)) < 4.0D && !this.world.isClient()) {
             this.lookAt(pos);
             this.swingHand(Hand.MAIN_HAND);
-            this.world.getBlockState(pos).onUse(this.world, null, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
+            this.world.getBlockState(pos).onUse(this.world, this.fakePlayer, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
             return true;
         }
         return false;

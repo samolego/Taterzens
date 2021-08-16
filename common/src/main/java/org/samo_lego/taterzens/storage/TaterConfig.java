@@ -60,7 +60,7 @@ public class TaterConfig {
     @SerializedName("post_fabrictailor_advert")
     public boolean fabricTailorAdvert = false;
 
-    public final String _comment_SavePermsFile = "// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.";
+    public final String _comment_savePermsFile = "// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.";
     @SerializedName("save_permissions_file")
     public boolean savePermsFile = true;
 

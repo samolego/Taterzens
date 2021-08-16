@@ -1,6 +1,6 @@
 plugins {
 	id "architectury-plugin" version "3.3-SNAPSHOT"
-	id "dev.architectury.loom" version "0.8.0-SNAPSHOT" apply false
+	id "dev.architectury.loom" version "0.7.4-SNAPSHOT" apply false
 
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id "com.modrinth.minotaur" version "1.1.0"
@@ -10,10 +10,7 @@ plugins {
 }
 
 repositories {
-	jcenter()
-	maven {
-		url "https://dl.bintray.com/kotlin/dokka"
-	}
+	mavenCentral()
 	maven {
 		url 'https://jitpack.io'
 	}
@@ -45,10 +42,7 @@ allprojects {
 	group = rootProject.maven_group
 
 	repositories {
-		jcenter()
-		maven {
-			url "https://dl.bintray.com/kotlin/dokka"
-		}
+		mavenCentral()
 		maven {
 			url 'https://jitpack.io'
 		}
