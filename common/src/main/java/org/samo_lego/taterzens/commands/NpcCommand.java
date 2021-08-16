@@ -168,7 +168,14 @@ public class NpcCommand {
             source.sendError(errorText("taterzens.error.404.id", String.valueOf(id)));
         } else {
             TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.toArray()[id - 1];
-            ((ITaterzenEditor) source.getPlayer()).selectNpc(taterzen);
+            ServerPlayerEntity player = source.getPlayer();
+            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+            if(npc != null) {
+                ((ITaterzenEditor) player).selectNpc(null);
+                npc.sendProfileUpdates();
+            }
+            ((ITaterzenEditor) player).selectNpc(taterzen);
+            taterzen.sendProfileUpdates();
             source.sendFeedback(
                     successText("taterzens.command.select", taterzen.getName().getString()),
                     false
@@ -196,12 +203,18 @@ public class NpcCommand {
         ServerPlayerEntity player = source.getPlayer();
 
         Box box = player.getBoundingBox().offset(player.getRotationVector().multiply(2.0D)).expand(0.3D);
-        ((ITaterzenEditor) player).selectNpc(null);
+
+        TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+        if(npc != null) {
+            ((ITaterzenEditor) player).selectNpc(null);
+            npc.sendProfileUpdates();
+        }
 
         player.getEntityWorld().getOtherEntities(player, box, entity -> {
             // null check in order to select first one colliding
-            if(entity instanceof TaterzenNPC && ((ITaterzenEditor) player).getNpc() == null) {
-                ((ITaterzenEditor) player).selectNpc((TaterzenNPC) entity);
+            if(entity instanceof TaterzenNPC taterzen && ((ITaterzenEditor) player).getNpc() == null) {
+                ((ITaterzenEditor) player).selectNpc(taterzen);
+                taterzen.sendProfileUpdates();
                 source.sendFeedback(
                         successText("taterzens.command.select", entity.getName().getString()),
                         false
@@ -236,6 +249,12 @@ public class NpcCommand {
     private static int spawnTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerCommandSource source = context.getSource();
         ServerPlayerEntity player = source.getPlayer();
+
+        TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+        if(npc != null) {
+            ((ITaterzenEditor) player).selectNpc(null);
+            npc.sendProfileUpdates();
+        }
 
         String taterzenName;
         try {

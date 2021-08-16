@@ -19,7 +19,7 @@ import static org.samo_lego.taterzens.Taterzens.config;
  * Additional methods for players to track {@link TaterzenNPC}
  */
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixinCast_I_TaterzenPlayer implements ITaterzenPlayer {
+public abstract class ServerPlayerEntityMixinCast_ITaterzenPlayer implements ITaterzenPlayer {
 
     @Shadow public abstract void tick();
 

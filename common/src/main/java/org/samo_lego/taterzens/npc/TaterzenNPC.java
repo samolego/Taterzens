@@ -5,7 +5,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -44,7 +43,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
@@ -794,12 +792,18 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
             if (stack.isEmpty() && player.isSneaking()) {
                 this.dropEquipment(DamageSource.player(player), 1, this.npcData.allowEquipmentDrops);
+                for(EquipmentSlot slot : EquipmentSlot.values()) {
+                    this.fakePlayer.equipStack(slot, ItemStack.EMPTY);
+                }
             }
             else if(player.isSneaking()) {
                 this.equipStack(EquipmentSlot.MAINHAND, stack);
+                this.fakePlayer.equipStack(EquipmentSlot.MAINHAND, stack);
             }
             else {
-                this.equipLootStack(getPreferredEquipmentSlot(stack), stack);
+                EquipmentSlot slot = getPreferredEquipmentSlot(stack);
+                this.equipLootStack(slot, stack);
+                this.fakePlayer.equipStack(slot, stack);
             }
             // Updating behaviour (if npc had a sword and now has a bow, it won't
             // be able to attack otherwise.)
@@ -1291,6 +1295,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             this.lookAt(pos);
             this.swingHand(Hand.MAIN_HAND);
             this.world.getBlockState(pos).onUse(this.world, this.fakePlayer, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
+            this.getMainHandStack().use(this.world, this.fakePlayer, Hand.MAIN_HAND);
             return true;
         }
         return false;
@@ -1327,7 +1332,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setFollowType(NPCData.FollowTypes followType) {
         if(followType != NPCData.FollowTypes.NONE)
-            this.setMovement(NPCData.Movement.FREE);
+            this.setMovement(NPCData.Movement.TICK);
         this.npcData.follow.type = followType;
 
         switch(followType) {

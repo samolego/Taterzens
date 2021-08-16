@@ -6,6 +6,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.Packet;
@@ -19,6 +20,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.mixin.accessors.EntityAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerUpdateS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.mixin.accessors.EntityAccessor.getFLAGS;
+import static org.samo_lego.taterzens.mixin.accessors.EntityAccessor.getGLOWING_FLAG_INDEX;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -109,10 +114,21 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
         } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
             Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
 
-            if(!(entity instanceof TaterzenNPC))
+            if(!(entity instanceof TaterzenNPC taterzen))
                 return;
-            PlayerEntity fakePlayer = ((TaterzenNPC) entity).getFakePlayer();
+            PlayerEntity fakePlayer = taterzen.getFakePlayer();
             List<DataTracker.Entry<?>> trackedValues = fakePlayer.getDataTracker().getAllEntries();
+
+            if(taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null) {
+                trackedValues.removeIf(value -> value.getData().getId() == 0);
+                Byte flags = fakePlayer.getDataTracker().get(EntityAccessor.getFLAGS());
+                // Modify Taterzen to have fake glowing effect for the player
+                flags = (byte)(flags | 1 << EntityAccessor.getGLOWING_FLAG_INDEX());
+
+                DataTracker.Entry<Byte> glowingTag = new DataTracker.Entry<>(EntityAccessor.getFLAGS(), flags);
+                trackedValues.add(glowingTag);
+            }
+
             ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
         } else if(packet instanceof PlayerListS2CPacket && !this.taterzens$skipCheck) {
             this.taterzens$skipCheck = true;

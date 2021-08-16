@@ -26,7 +26,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
  * Additional methods for players to track {@link TaterzenNPC}
  */
 @Mixin(ServerPlayerEntity.class)
-public class ServerPlayerEntityMixinCast_I_TaterzenEditor implements ITaterzenEditor {
+public class ServerPlayerEntityMixinCast_ITaterzenEditor implements ITaterzenEditor {
 
     private final ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
 
