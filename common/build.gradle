@@ -15,7 +15,7 @@ dependencies {
 def ENV = System.getenv();
 
 architectury {
-    common(false)
+    common()
 }
 
 java {
@@ -53,6 +53,4 @@ publishing {
         // uncomment to publish to the local maven
         mavenLocal()
     }
-
-
 }

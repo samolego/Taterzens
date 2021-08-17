@@ -28,9 +28,6 @@ def ENV = System.getenv();
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
-    // DisguiseLib
-    modImplementation "com.github.NucleoidMC.DisguiseLib:disguiselib-forge:${rootProject.disguiselib_version}" // jitpack
-
     implementation(project(path: ":common")) {
         transitive = false
     }

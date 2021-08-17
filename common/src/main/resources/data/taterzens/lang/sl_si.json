@@ -57,7 +57,7 @@
   "taterzens.command.tags.changed": "Pravilo %s je bilo nastavljeno na %s.",
   "taterzens.command.tags.hide_name_hint.desc.1": "Za skritje imena sta bili krompirjevčevo ime spremenjeno na %s in položaj na %s.",
   "taterzens.command.tags.hide_name_hint.desc.2": "Če bi rad obdržal pravo ime in nastavil drug položaj, dodaj krompirjevca %s v ekipo, s katero lahko spremeniš vidljivost imen.",
-  "taterzens.command.config.success": "Nastavitve so bile uspešno osvežene,.",
+  "taterzens.command.config.success": "Nastavitve so bile uspešno osvežene.",
   "taterzens.command.rename.success": "Krompirjevec je bil preimenovan v %s.",
   "taterzens.command.language.success": "Jezik je bil uspešno nastavljen na %s.",
   "taterzens.command.language.error": "Prišlo je do napake pri prehajanju na jezik %s.",
