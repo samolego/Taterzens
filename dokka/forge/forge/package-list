@@ -1,0 +1,26 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:org.samo_lego.taterzens.compatibility.forge////PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility.forge/LoaderSpecificImpl///PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/-loader-specific-impl/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility.forge/LoaderSpecificImpl/permissions$checkPermission/#net.minecraft.server.command.ServerCommandSource#java.lang.String#int/PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/-loader-specific-impl/permissions$check-permission.html
+$dokka.location:org.samo_lego.taterzens.event////PointingToDeclaration/forge/org.samo_lego.taterzens.event/index.html
+$dokka.location:org.samo_lego.taterzens.event/EventHandler///PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/index.html
+$dokka.location:org.samo_lego.taterzens.event/EventHandler/EventHandler/#/PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/-event-handler.html
+$dokka.location:org.samo_lego.taterzens.event/EventHandler/onBlockInteract/#net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock/PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/on-block-interact.html
+$dokka.location:org.samo_lego.taterzens.event/EventHandler/registerCommands/#net.minecraftforge.event.RegisterCommandsEvent/PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/register-commands.html
+$dokka.location:org.samo_lego.taterzens.mixin////PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/index.html
+$dokka.location:org.samo_lego.taterzens.mixin/NetworkInstanceAccessor///PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/-network-instance-accessor/index.html
+$dokka.location:org.samo_lego.taterzens.mixin/NetworkInstanceAccessor/clientAcceptedVersions/#/PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/-network-instance-accessor/client-accepted-versions.html
+$dokka.location:org.samo_lego.taterzens.mixin/NetworkInstanceAccessor/getServerAcceptedVersions/#/PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/-network-instance-accessor/get-server-accepted-versions.html
+$dokka.location:org.samo_lego.taterzens.mixin/NetworkInstanceAccessor/networkProtocolVersion/#/PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/-network-instance-accessor/network-protocol-version.html
+$dokka.location:org.samo_lego.taterzens.mixin/NetworkRegistryMixin_MarkServerside///PointingToDeclaration/forge/org.samo_lego.taterzens.mixin/-network-registry-mixin_-mark-serverside/index.html
+$dokka.location:org.samo_lego.taterzens////PointingToDeclaration/forge/org.samo_lego.taterzens/index.html
+$dokka.location:org.samo_lego.taterzens/TaterzensForge///PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/index.html
+$dokka.location:org.samo_lego.taterzens/TaterzensForge/TaterzensForge/#/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/-taterzens-forge.html
+$dokka.location:org.samo_lego.taterzens/TaterzensForge/entityAttributes/#net.minecraftforge.event.entity.EntityAttributeCreationEvent/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/entity-attributes.html
+$dokka.location:org.samo_lego.taterzens/TaterzensForge/registerEntities/#net.minecraftforge.event.RegistryEvent.Register<net.minecraft.entity.EntityType<?>>/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/register-entities.html
+org.samo_lego.taterzens
+org.samo_lego.taterzens.compatibility.forge
+org.samo_lego.taterzens.event
+org.samo_lego.taterzens.mixin
+
