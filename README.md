@@ -1,4 +1,5 @@
-# [Taterzens](https://samolego.github.io/Taterzens/)
+[![Taterzens logo](https://samolego.github.io/Taterzens/latest/assets/img/banner.svg)](https://samolego.github.io/Taterzens/latest)
+
 [![Discord](https://img.shields.io/discord/797713290545332235?logo=discord&style=flat-square)](https://discord.gg/9PAesuHFnp)
 [![GitHub license](https://img.shields.io/github/license/samolego/Taterzens?style=flat-square)](https://github.com/samolego/Taterzens/blob/master/LICENSE)
 [![Server environment](https://img.shields.io/badge/Environment-server-blue?style=flat-square)](https://github.com/samolego/Taterzens)
@@ -12,7 +13,7 @@ Forge: [![Curseforge downloads](http://cf.way2muchnoise.eu/full_473071_downloads
 
 A fabric / forge citizens like NPC mod.
 
-You can find documentation [here](https://samolego.github.io/Taterzens/).
+# **-> *[Documentation](https://samolego.github.io/Taterzens/)* <-**
 
 ## Translation contributions
 1. Fork the repository
