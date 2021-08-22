@@ -67,6 +67,14 @@ $dokka.location:org.samo_lego.taterzens.commands/TaterzensCommand/register/#com.
 $dokka.location:org.samo_lego.taterzens.commands/TeleportCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-teleport-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands/TeleportCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.server.command.ServerCommandSource>/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-teleport-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.compatibility////PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands.KICK///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/-k-i-c-k/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands.MESSAGE///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/-m-e-s-s-a-g-e/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands.MESSAGE_RAW///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/-m-e-s-s-a-g-e_-r-a-w/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands.SERVER///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/-s-e-r-v-e-r/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/index.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands/command/#/PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/command.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands/valueOf/#java.lang.String/PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/value-of.html
+$dokka.location:org.samo_lego.taterzens.compatibility/BungeeCommands/values/#/PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-bungee-commands/values.html
 $dokka.location:org.samo_lego.taterzens.compatibility/DisguiseLibCompatibility///PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-disguise-lib-compatibility/index.html
 $dokka.location:org.samo_lego.taterzens.compatibility/DisguiseLibCompatibility/clearDisguise/#org.samo_lego.taterzens.npc.TaterzenNPC/PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-disguise-lib-compatibility/clear-disguise.html
 $dokka.location:org.samo_lego.taterzens.compatibility/DisguiseLibCompatibility/disguiseAs/#org.samo_lego.taterzens.npc.TaterzenNPC#net.minecraft.entity.Entity/PointingToDeclaration/common/org.samo_lego.taterzens.compatibility/-disguise-lib-compatibility/disguise-as.html
@@ -213,6 +221,7 @@ $dokka.location:org.samo_lego.taterzens.npc/NPCData///PointingToDeclaration/com
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/allowEquipmentDrops/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/allow-equipment-drops.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/allowSounds/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/allow-sounds.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/behaviour/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/behaviour.html
+$dokka.location:org.samo_lego.taterzens.npc/NPCData/bungeeCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/bungee-commands.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/commands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/commands.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/currentMoveTarget/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/current-move-target.html
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/equipmentEditor/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/equipment-editor.html
@@ -226,6 +235,7 @@ $dokka.location:org.samo_lego.taterzens.npc/NPCData/permissionLevel/#/PointingTo
 $dokka.location:org.samo_lego.taterzens.npc/NPCData/pushable/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-n-p-c-data/pushable.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC///PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/index.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/TaterzenNPC/#net.minecraft.entity.EntityType<? extends net.minecraft.entity.mob.PathAwareEntity>#net.minecraft.world.World/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/-taterzen-n-p-c.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/addBungeeCommand/#org.samo_lego.taterzens.compatibility.BungeeCommands#java.lang.String#java.lang.String/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/add-bungee-command.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/addCommand/#java.lang.String/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/add-command.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/addMessage/#net.minecraft.text.Text#int/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/add-message.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/addMessage/#net.minecraft.text.Text/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/add-message.html
@@ -239,7 +249,7 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/attack/#net.minecraft.en
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/attackMonstersGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/attack-monsters-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/canBeLeashedBy/#net.minecraft.entity.player.PlayerEntity/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/can-be-leashed-by.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/canUseRangedWeapon/#net.minecraft.item.RangedWeaponItem/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/can-use-ranged-weapon.html
-$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/clearCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/clear-commands.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/clearCommands/#boolean/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/clear-commands.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/clearMessages/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/clear-messages.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/clearPathTargets/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/clear-path-targets.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/createSpawnPacket/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/create-spawn-packet.html
@@ -251,6 +261,7 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/followMonstersGoal/#/Poi
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/followPlayersGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/follow-players-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/followTargetGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/follow-target-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/gameProfile/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/game-profile.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getBungeeCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-bungee-commands.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-commands.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getFollowType/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-follow-type.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/getFollowUuid/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/get-follow-uuid.html
@@ -278,7 +289,7 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/pushAwayFrom/#net.minecr
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/reachMeleeAttackGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/reach-melee-attack-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/readCustomDataFromNbt/#net.minecraft.nbt.NbtCompound/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/read-custom-data-from-nbt.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/remove/#net.minecraft.entity.Entity.RemovalReason/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove.html
-$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/removeCommand/#int/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove-command.html
+$dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/removeCommand/#int#boolean/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove-command.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/removeMessage/#int/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove-message.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/removePathTarget/#net.minecraft.util.math.BlockPos/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove-path-target.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/removeProfession/#net.minecraft.util.Identifier/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/remove-profession.html
@@ -312,6 +323,11 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/wanderAroundFarGoal/#/Po
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/writeCustomDataToNbt/#net.minecraft.nbt.NbtCompound/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/write-custom-data-to-nbt.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/writeSkinToTag/#com.mojang.authlib.GameProfile/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/write-skin-to-tag.html
 $dokka.location:org.samo_lego.taterzens.storage////PointingToDeclaration/common/org.samo_lego.taterzens.storage/index.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/index.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/_comment_enableCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/_comment_enable-commands.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/_comment_servers/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/_comment_servers.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/enableCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/enable-commands.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/servers/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/servers.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Defaults///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-defaults/index.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Defaults/_comment_commandPermissionLevel/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-defaults/_comment_command-permission-level.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Defaults/_comment_invulnerable/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-defaults/_comment_invulnerable.html
@@ -363,6 +379,7 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_savePermsFi
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout1/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout1.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout2/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout2.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/_comment_taterzenTablistTimeout3/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/_comment_taterzen-tablist-timeout3.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig/bungee/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/bungee.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/defaults/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/defaults.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/disableRegistrySync/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/disable-registry-sync.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/fabricTailorAdvert/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/fabric-tailor-advert.html
