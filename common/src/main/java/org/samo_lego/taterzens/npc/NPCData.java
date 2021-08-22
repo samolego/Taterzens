@@ -1,12 +1,16 @@
 package org.samo_lego.taterzens.npc;
 
 import com.mojang.datafixers.util.Pair;
+import com.sun.jna.Structure;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
+import org.samo_lego.taterzens.compatibility.BungeeCommands;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -69,6 +73,7 @@ public class NPCData {
 
     public Follow follow = new Follow();
     public boolean allowSounds = !config.defaults.ambientSounds.isEmpty();
+    public ArrayList<Triple<BungeeCommands, String, String>> bungeeCommands = new ArrayList<>();
 
     public static class Follow {
         /**

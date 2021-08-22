@@ -72,6 +72,7 @@ public class TaterConfig {
     public Path path = new Path();
     public Messages messages = new Messages();
     public Permissions perms = new Permissions();
+    public Bungee bungee = new Bungee();
 
     /**
      * Some permission stuff.
@@ -189,7 +190,6 @@ public class TaterConfig {
         public String structure = "%s -> you: %s";
     }
 
-
     /**
      * Settings for path visualisation.
      */
@@ -205,6 +205,21 @@ public class TaterConfig {
             public float green = 255 ;
             public float blue = 255;
         }
+    }
+
+
+    /**
+     * Settings for proxy connections.
+     */
+    public static class Bungee {
+
+        @SerializedName("# Whether to enable bungee commands feature fo NPCs.")
+        public final String _comment_enableCommands = "#";
+        @SerializedName("enable_commands")
+        public boolean enableCommands = false;
+
+        public final String _comment_servers = "// Bungee servers to be listed in command suggestions.";
+        public ArrayList<String> servers = new ArrayList<>(Arrays.asList("lobby", "minigames", "factions"));
     }
 
 

@@ -1,10 +1,14 @@
 package org.samo_lego.taterzens.npc;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
+import io.netty.buffer.Unpooled;
+import kotlin.collections.ArraysKt;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.*;
@@ -25,6 +29,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -43,10 +49,13 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
+import org.samo_lego.taterzens.compatibility.BungeeCommands;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
@@ -178,24 +187,29 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @return array list of commands that will be executed on right click
      */
     public ArrayList<String> getCommands() {
-        return this.npcData.commands;
+        return new ArrayList<>(this.npcData.commands);
     }
 
     /**
      * Removes certain command from command list.
      * @param index index of where to remove command
+     * @param bungee whether command to remove is a bungee or normal one
      */
-    public void removeCommand(int index) {
-        if(index >= 0 && index < this.npcData.commands.size())
-            this.npcData.commands.remove(index);
+    public void removeCommand(int index, boolean bungee) {
+        ArrayList<?> cmds = bungee ? this.npcData.bungeeCommands : this.npcData.commands;
+        if(index >= 0 && index < cmds.size())
+            cmds.remove(index);
     }
 
     /**
      * Clears all the commands Taterzen
-     * executes on right-click
+     * executes on right-click.
+     *
+     * @param bungee whether to clear normal or bungee commands
      */
-    public void clearCommands() {
-        this.npcData.commands = new ArrayList<>();
+    public void clearCommands(boolean bungee) {
+        ArrayList<?> cmds = bungee ? this.npcData.bungeeCommands : this.npcData.commands;
+        cmds.clear();
     }
 
     @Override
@@ -577,10 +591,23 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         this.setSkinLayers(npcTag.getByte("SkinLayers"));
 
 
+
         // Multiple commands
         NbtList commands = (NbtList) npcTag.get("Commands");
         if(commands != null) {
             commands.forEach(cmdTag -> this.addCommand(cmdTag.asString()));
+        }
+
+        // Bungee commands
+        NbtList bungeeCommands = (NbtList) npcTag.get("BungeeCommands");
+        if(bungeeCommands != null) {
+            bungeeCommands.forEach(cmdTag -> {
+                NbtList cmdList = (NbtList) cmdTag;
+                String command = cmdList.get(0).asString();
+                String player = cmdList.get(1).asString();
+                String argument = cmdList.get(2).asString();
+                this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
+            });
         }
 
         NbtList pathTargets = (NbtList) npcTag.get("PathTargets");
@@ -691,6 +718,34 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         NbtList commands = new NbtList();
         this.npcData.commands.forEach(cmd -> commands.add(NbtString.of(cmd)));
         npcTag.put("Commands", commands);
+
+        // Bungee commands
+        NbtList bungee = new NbtList();
+        this.npcData.bungeeCommands.forEach(cmd -> {
+            String command = cmd.getLeft().toString();
+            String player = cmd.getMiddle();
+            String argument = cmd.getRight();
+
+            NbtList triple = new NbtList();
+            triple.add(NbtString.of(command));
+            triple.add(NbtString.of(player));
+            triple.add(NbtString.of(argument));
+
+            bungee.add(triple);
+        });
+        npcTag.put("BungeeCommands", bungee);
+
+        // Bungee commands
+        NbtList bungeeCommands = (NbtList) npcTag.get("BungeeCommands");
+        if(bungeeCommands != null) {
+            bungeeCommands.forEach(cmdTag -> {
+                NbtList cmdList = (NbtList) cmdTag;
+                String command = cmdList.get(0).asString();
+                String player = cmdList.get(1).asString();
+                String argument = cmdList.get(2).asString();
+                this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
+            });
+        }
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
@@ -810,6 +865,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             this.setBehaviour(this.npcData.behaviour);
             return ActionResult.PASS;
         }
+        String playername = player.getGameProfile().getName();
         if(!this.npcData.commands.isEmpty()) {
             // Saving commands to a new list in order
             // to allow commands to be modified via commands
@@ -817,9 +873,35 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
             for(String cmd : commands) {
                 if(cmd.contains("--clicker--")) {
-                    cmd = cmd.replaceAll("--clicker--", player.getGameProfile().getName());
+                    cmd = cmd.replaceAll("--clicker--", playername);
                 }
                 this.server.getCommandManager().execute(this.getCommandSource(), cmd);
+            }
+        }
+
+        if(!this.npcData.bungeeCommands.isEmpty()) {
+            for(Triple<BungeeCommands, String, String> cmd : this.npcData.bungeeCommands) {
+                String first = cmd.getLeft().getCommand();
+                String middle = cmd.getMiddle();
+                if(middle.equals("--clicker--"))
+                    middle = playername;
+
+                String argument = cmd.getRight();
+                if(argument.contains("--clicker--")) {
+                    argument = argument.replaceAll("--clicker--", playername);
+                }
+
+                // Sending command as CustomPayloadS2CPacket
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF(first);
+                out.writeUTF(middle);
+                out.writeUTF(argument);
+
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                buf.writeBytes(out.toByteArray());
+
+                CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(new Identifier("bungeecord", "main"), buf);
+                ((ServerPlayerEntity) player).networkHandler.sendPacket(packet);
             }
         }
 
@@ -1374,6 +1456,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     public UUID getFollowUuid() {
         return this.npcData.follow.targetUuid;
     }
+
     /**
      * Whether this Taterzen should make sound.
      * @param allowSounds whether to allow sounds or not.
@@ -1388,5 +1471,34 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setSkinLayers(Byte skinLayers) {
         this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), skinLayers);
+    }
+
+    /**
+     * Adds "bungee" command. It's not a standard command, executed by the server,
+     * but sent as {@link CustomPayloadS2CPacket} to player and caught by proxy.
+     *
+     * @see <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/#wikiPage">Spigot thread</a> on message channels.
+     * @see <a href="https://github.com/VelocityPowered/Velocity/blob/65db0fad6a221205ec001f1f68a032215da402d6/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/BungeeCordMessageResponder.java#L297">Proxy implementation</a> on GitHub.
+     *
+     * @param bungeeCommand bungee command to add, see {@link BungeeCommands} for supported commands.
+     * @param playername player to use when executing the command.
+     * @param argument argument for command above.
+     *
+     * @return true if command was added successfully (if enabled in config), otherwise false
+     */
+    public boolean addBungeeCommand(BungeeCommands bungeeCommand, String playername, String argument) {
+        if(config.bungee.enableCommands) {
+            Triple<BungeeCommands, String, String> command = new ImmutableTriple<>(bungeeCommand, playername, argument);
+            this.npcData.bungeeCommands.add(command);
+        }
+        return config.bungee.enableCommands;
+    }
+
+    /**
+     * Gets all "bungee" commands that Taterzen will execute when right-clicked upon.
+     * @return arraylist od triples that are constructed into bungee command
+     */
+    public ArrayList<Triple<BungeeCommands, String, String>> getBungeeCommands() {
+        return new ArrayList<>(this.npcData.bungeeCommands);
     }
 }

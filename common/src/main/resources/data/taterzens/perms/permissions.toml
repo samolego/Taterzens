@@ -48,10 +48,13 @@ permissions = [
    "taterzens.npc.edit.commands.remove",
    #  Add command to Taterzen.
    "taterzens.npc.edit.commands.add",
+   # Allows adding bungee commands (e.g. /server)
+   "taterzens.npc.edit.commands.addBungee",
    #  Clears all commands of Taterzen.
    "taterzens.npc.edit.commands.clear",
    #  List commands Taterzen.
    "taterzens.npc.edit.commands.list",
+
    #  Changes Taterzen's type to other entity type
    "taterzens.npc.edit.entity_type",
    #  Enters path edit mode for Taterzen.

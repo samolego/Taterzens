@@ -25,7 +25,9 @@
   "taterzens.command.equipment.exit": "You've exited the editor.",
   "taterzens.command.equipment.drop_mode.set": "Equipment drops have been set to %s.",
   "taterzens.command.commands.list": "Taterzen %s will execute the following commands on right-click.",
-  "taterzens.command.commands.set": "Command is now set to %s.",
+  "taterzens.command.commands.listBungee": "The following bungee commands are set as well.",
+  "taterzens.command.commands.set": "Successfully added command %s.",
+  "taterzens.command.commands.setBungee": "Bungee command %s has been added successfully.",
   "taterzens.command.commands.permission.set": "Permission level for command execution is now set to %s.",
   "taterzens.command.commands.cleared": "Commands for %s have been cleared.",
   "taterzens.command.commands.removed": "Command %s has been removed successfully.",
@@ -84,5 +86,6 @@
   "taterzens.error.404.detected": "No Taterzen was detected in front of you.",
   "taterzens.error.404.id": "No Taterzen with id %s was found.",
   "taterzens.error.select": "You have to select Taterzen first.",
-  "taterzens.error.permission": "Permission level %s is higher than your permission level."
+  "taterzens.error.permission": "Permission level %s is higher than your permission level.",
+  "taterzens.error.enableBungee": "Please enable bungee support in config for this to function."
 }
