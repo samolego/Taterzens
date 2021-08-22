@@ -19,7 +19,8 @@ public class TaterConfig {
             .disableHtmlEscaping()
             .create();
 
-    public final String _comment_language = "// Language file to use.";
+    @SerializedName("// Language file to use.")
+    public final String _comment_language = "";
     /**
      * Language file used by Taterzens.
      *
@@ -27,8 +28,10 @@ public class TaterConfig {
      */
     public String language = "en_us";
 
-    public final String _comment_disableRegistrySync1 = "// Whether to remove Taterzens from registry sync. Auto applied in Fabric";
-    public final String _comment_disableRegistrySync2 = "// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.";
+    @SerializedName("// Whether to remove Taterzens from registry sync. Auto applied in Fabric.")
+    public final String _comment_disableRegistrySync1 = "";
+    @SerializedName("// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.")
+    public final String _comment_disableRegistrySync2 = "";
     /**
      * Whether to disable Forge's registry sync.
      * (This marks mod as serverside.)
@@ -38,9 +41,12 @@ public class TaterConfig {
     @SerializedName("disable_registry_sync")
     public boolean disableRegistrySync = false;
 
-    public final String _comment_taterzenTablistTimeout1 = "// After how many ticks Taterzens should be cleared from tablist.";
-    public final String _comment_taterzenTablistTimeout2 = "// Some delay is needed, otherwise clients don't fetch their skins.";
-    public final String _comment_taterzenTablistTimeout3 = "// If you want them to stay on the tablist, set this to -1.";
+    @SerializedName("// After how many ticks Taterzens should be cleared from tablist.")
+    public final String _comment_taterzenTablistTimeout1 = "";
+    @SerializedName("// Some delay is needed, otherwise clients don't fetch their skins.")
+    public final String _comment_taterzenTablistTimeout2 = "";
+    @SerializedName("// If you want them to stay on the tablist, set this to -1.")
+    public final String _comment_taterzenTablistTimeout3 = "";
     /**
      * After how many ticks Taterzens should be cleared from tablist.
      * Some delay is needed, otherwise clients don't fetch their skins.
@@ -49,8 +55,10 @@ public class TaterConfig {
     public int taterzenTablistTimeout = 30;
 
 
-    public final String _comment_fabricTailorAdvert1 = "// Whether to remind you that if FabricTailor mod is installed,";
-    public final String _comment_fabricTailorAdvert2 = "// it has some built-in skin swapping functionality for Taterzens as well.";
+    @SerializedName("// Whether to remind you that if FabricTailor mod is installed,")
+    public final String _comment_fabricTailorAdvert1 = "";
+    @SerializedName("// it has some built-in skin swapping functionality for Taterzens as well.")
+    public final String _comment_fabricTailorAdvert2 = "";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -60,11 +68,13 @@ public class TaterConfig {
     @SerializedName("post_fabrictailor_advert")
     public boolean fabricTailorAdvert = false;
 
-    public final String _comment_savePermsFile = "// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.";
+    @SerializedName("// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.")
+    public final String _comment_savePermsFile = "";
     @SerializedName("save_permissions_file")
     public boolean savePermsFile = true;
 
-    public final String _comment_hideOpsMessage = "// Whether to cancel sending info that Taterzen has executed a command to ops.";
+    @SerializedName("// Whether to cancel sending info that Taterzen has executed a command to ops.")
+    public final String _comment_hideOpsMessage = "";
     @SerializedName("hide_ops_message")
     public boolean hideOpsMessage = true;
 
@@ -82,8 +92,10 @@ public class TaterConfig {
      * (You must have LuckPerms installed.)
      */
     public static class Permissions {
-        public final String _comment_npcCommandPermissionLevel1 = "// Permission level required to execute /npc command.";
-        public final String _comment_npcCommandPermissionLevel2 = "// Valid only if LuckPerms isn't present.";
+        @SerializedName("// Permission level required to execute /npc command.")
+        public final String _comment_npcCommandPermissionLevel1 = "";
+        @SerializedName("// Valid only if LuckPerms isn't present.")
+        public final String _comment_npcCommandPermissionLevel2 = "";
         /**
          * Permission level required to execute /npc command.
          * Valid only if LuckPerms isn't present.
@@ -92,8 +104,10 @@ public class TaterConfig {
         public int npcCommandPermissionLevel = 2;
 
 
-        public final String _comment_taterzensCommandPermissionLevel1 = "// Permission level required to execute /taterzens command.";
-        public final String _comment_taterzensCommandPermissionLevel2 = "// Valid only if LuckPerms isn't present.";
+        @SerializedName("// Permission level required to execute / taterzens command.")
+        public final String _comment_taterzensCommandPermissionLevel1 = "";
+        @SerializedName("// Again, valid only if LuckPerms isn't present.")
+        public final String _comment_taterzensCommandPermissionLevel2 = "";
         /**
          * Permission level required to execute /taterzens command.
          * Valid only if LuckPerms isn't present.
@@ -101,9 +115,12 @@ public class TaterConfig {
         @SerializedName("taterzens_command_permission_level")
         public int taterzensCommandPermissionLevel = 4;
 
-        public final String _comment_allowSettingHigherPermissionLevel1 = "// Whether to allow players to set the permission level";
-        public final String _comment_allowSettingHigherPermissionLevel2 = "// of Taterzen higher than their own. Careful! This could";
-        public final String _comment_allowSettingHigherPermissionLevel3 = "// enable players to bypass their permission level with NPC.";
+        @SerializedName("// Whether to allow players to set the permission level")
+        public final String _comment_allowSettingHigherPermissionLevel1 = "";
+        @SerializedName("// of Taterzen higher than their own. Careful! This could")
+        public final String _comment_allowSettingHigherPermissionLevel2 = "";
+        @SerializedName("// enable players to bypass their permission level with NPC.")
+        public final String _comment_allowSettingHigherPermissionLevel3 = "";
         @SerializedName("allow_setting_higher_perm_level")
         public boolean allowSettingHigherPermissionLevel = false;
     }
@@ -112,7 +129,8 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        public final String _comment_name = "// Default settings for new Taterzens.";
+        @SerializedName("// Default settings for new Taterzens.")
+        public final String _comment_name = "";
         /**
          * Default Taterzen name
          */
@@ -123,14 +141,16 @@ public class TaterConfig {
         public boolean leashable = false;
         public boolean pushable = false;
 
-        public final String _comment_commandPermissionLevel = "// Default command permission level of Taterzen.";
+        @SerializedName("// Default command permission level of Taterzen.")
+        public final String _comment_commandPermissionLevel = "";
         /**
          * Default command permission level of Taterzen.
          */
         @SerializedName("command_permission_level")
         public int commandPermissionLevel = 4;
 
-        public final String _comment_sounds = "// Default sounds for Taterzens. Set to [] to mute them.";
+        @SerializedName("// Default sounds for Taterzens. Set to [] to mute them.")
+        public final String _comment_sounds = "";
         /**
          * Default Taterzen death sound.
          * Can be null to not produce any sounds.
@@ -154,13 +174,15 @@ public class TaterConfig {
         @SerializedName("ambient_sounds")
         public ArrayList<String> ambientSounds = new ArrayList<>();
 
-        public final String _comment_invulnerable = "// Whether Taterzen is invulnerable by default.";
+        @SerializedName("// Whether Taterzen is invulnerable by default.")
+        public final String _comment_invulnerable = "";
         /**
          * Whether Taterzen is invulnerable by default.
          */
         public boolean invulnerable = true;
 
-        public final String _comment_jumpWhileAttacking = "// Enable jumps when Taterzen is in attack mode.";
+        @SerializedName("// Enable jumps when Taterzen is in attack mode.")
+        public final String _comment_jumpWhileAttacking = "";
         /**
          * Whether to enable jumps when Taterzen
          * is in attack mode.
@@ -173,20 +195,23 @@ public class TaterConfig {
      * Settings for Taterzen's messages
      */
     public static class Messages {
-        public final String _comment_messageDelay = "// Default delay between each message, in ticks.";
+        @SerializedName("// Default delay between each message, in ticks.")
+        public final String _comment_messageDelay = "";
         /**
          * Default delay between each message, in ticks.
          */
         @SerializedName("message_delay")
         public int messageDelay = 100;
-        public final String _comment_exitEditorAfterMsgEdit = "// Whether to exit message editor mode after editing a message.";
+        @SerializedName("// Whether to exit message editor mode after editing a message.")
+        public final String _comment_exitEditorAfterMsgEdit = "";
         /**
          * Whether to exit message editor mode after editing a message.
          */
         @SerializedName("exit_editor_after_msg_edit")
         public boolean exitEditorAfterMsgEdit = true;
 
-        public final String _comment_structure = "// Message format. First %s is replaced with name, second one with message.";
+        @SerializedName("// Message format. First %s is replaced with name, second one with message.")
+        public final String _comment_structure = "";
         public String structure = "%s -> you: %s";
     }
 
@@ -200,7 +225,8 @@ public class TaterConfig {
          * Accepts RGB values (0 - 255).
          */
         public static class Color {
-            public final String _comment = "// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).";
+            @SerializedName("// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).")
+            public final String _comment = "";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;
@@ -213,12 +239,13 @@ public class TaterConfig {
      */
     public static class Bungee {
 
-        @SerializedName("# Whether to enable bungee commands feature fo NPCs.")
-        public final String _comment_enableCommands = "#";
+        @SerializedName("// Whether to enable bungee commands feature fo NPCs.")
+        public final String _comment_enableCommands = "";
         @SerializedName("enable_commands")
         public boolean enableCommands = false;
 
-        public final String _comment_servers = "// Bungee servers to be listed in command suggestions.";
+        @SerializedName("// Bungee servers to be listed in command suggestions.")
+        public final String _comment_servers = "";
         public ArrayList<String> servers = new ArrayList<>(Arrays.asList("lobby", "minigames", "factions"));
     }
 
