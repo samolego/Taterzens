@@ -1,8 +1,6 @@
 package org.samo_lego.taterzens;
 
 import com.google.gson.JsonObject;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
@@ -14,6 +12,8 @@ import org.samo_lego.taterzens.util.PermissionExtractor;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 
 public class Taterzens {
 
@@ -34,7 +34,7 @@ public class Taterzens {
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
 
-    public static final HashMap<Identifier, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
+    public static final HashMap<ResourceLocation, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
 
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type

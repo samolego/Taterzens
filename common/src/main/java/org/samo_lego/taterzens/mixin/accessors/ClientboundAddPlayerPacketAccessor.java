@@ -1,23 +1,23 @@
 package org.samo_lego.taterzens.mixin.accessors;
 
-import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.UUID;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 
-@Mixin(PlayerSpawnS2CPacket.class)
-public interface PlayerSpawnS2CPacketAccessor {
+@Mixin(ClientboundAddPlayerPacket.class)
+public interface ClientboundAddPlayerPacketAccessor {
     @Mutable
-    @Accessor("id")
+    @Accessor("entityId")
     void setId(int id);
     @Mutable
-    @Accessor("id")
+    @Accessor("entityId")
     int getId();
 
     @Mutable
-    @Accessor("uuid")
+    @Accessor("playerId")
     void setUuid(UUID uuid);
 
     @Mutable
@@ -33,10 +33,10 @@ public interface PlayerSpawnS2CPacketAccessor {
     void setZ(double z);
 
     @Mutable
-    @Accessor("yaw")
-    void setYaw(byte yaw);
+    @Accessor("yRot")
+    void setYRot(byte yRot);
 
     @Mutable
-    @Accessor("pitch")
-    void setPitch(byte pitch);
+    @Accessor("xRot")
+    void setXRot(byte xRot);
 }

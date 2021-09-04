@@ -1,7 +1,7 @@
 package org.samo_lego.taterzens.compatibility;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 /**
  * Permission checker.
@@ -22,7 +22,7 @@ public class PermissionHelper {
      * @param fallbackLevel level to require if permission isn't set
      * @return true if commandSource has the permission, otherwise false
      */
-    public static boolean checkPermission(ServerCommandSource commandSource, String permission, int fallbackLevel) {
+    public static boolean checkPermission(CommandSourceStack commandSource, String permission, int fallbackLevel) {
         // Enable command blocks
         return commandSource.getEntity() == null || Permissions.check(commandSource, permission, fallbackLevel);
     }

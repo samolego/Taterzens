@@ -2,9 +2,6 @@ package org.samo_lego.taterzens.npc;
 
 import com.mojang.datafixers.util.Pair;
 import com.sun.jna.Structure;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.compatibility.BungeeCommands;
@@ -12,6 +9,9 @@ import org.samo_lego.taterzens.compatibility.BungeeCommands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
@@ -28,15 +28,15 @@ public class NPCData {
      * Current equipment editor for Taterzen.
      */
     @Nullable
-    public PlayerEntity equipmentEditor = null;
+    public Player equipmentEditor = null;
     /**
      * Default Taterzen movement.
      */
     public Movement movement = Movement.NONE;
     /**
      * Path nodes, used when movement
-     * is set to {@link NPCData.Movement#FORCED_PATH}
-     * or {@link NPCData.Movement#PATH}.
+     * is set to {@link Movement#FORCED_PATH}
+     * or {@link Movement#PATH}.
      */
     public ArrayList<BlockPos> pathTargets = new ArrayList<>();
     /**
@@ -52,7 +52,7 @@ public class NPCData {
      * Messages of Taterzen.
      * Saved as &lt;Message Text, Delay&gt;
      */
-    public ArrayList<Pair<Text, Integer>> messages = new ArrayList<>();
+    public ArrayList<Pair<Component, Integer>> messages = new ArrayList<>();
     /**
      * Permission level of Taterzen.
      */

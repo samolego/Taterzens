@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.mixin;
 
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,22 +11,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.UUID;
+import net.minecraft.server.level.ServerPlayer;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
 /**
  * Additional methods for players to track {@link TaterzenNPC}
  */
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixinCast_ITaterzenPlayer implements ITaterzenPlayer {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixinCast_ITaterzenPlayer implements ITaterzenPlayer {
 
     @Shadow public abstract void tick();
 
     /**
      * Stores last interaction time.
      * Used to prevent double interaction on single click
-     * if fake type of {@link TaterzenNPC} is {@link net.minecraft.entity.EntityType#PLAYER}
-     * or {@link net.minecraft.entity.EntityType#ARMOR_STAND}.
+     * if fake type of {@link TaterzenNPC} is {@link net.minecraft.world.entity.EntityType#PLAYER}
+     * or {@link net.minecraft.world.entity.EntityType#ARMOR_STAND}.
      */
     @Unique
     private long taterzens$lastNPCInteraction = 0;

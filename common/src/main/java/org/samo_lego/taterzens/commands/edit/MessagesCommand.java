@@ -5,26 +5,30 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class MessagesCommand {
 
-    public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
-        LiteralCommandNode<ServerCommandSource> messagesNode = literal("messages")
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
+        LiteralCommandNode<CommandSourceStack> messagesNode = literal("messages")
                 .then(literal("clear")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.clear", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::clearTaterzenMessages)
@@ -53,30 +57,30 @@ public class MessagesCommand {
         editNode.addChild(messagesNode);
     }
 
-    private static int deleteTaterzenMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+    private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
-                source.sendFeedback(
+                source.sendSuccess(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected)),
                         false
                 );
             } else {
-                source.sendFeedback(successText("taterzens.command.message.deleted", taterzen.getMessages().get(selected).getFirst().getString()), false);
+                source.sendSuccess(successText("taterzens.command.message.deleted", taterzen.getMessages().get(selected).getFirst().getString()), false);
                 taterzen.removeMessage(selected);
             }
         });
     }
 
-    private static int editMessageDelay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+    private static int editMessageDelay(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
-            ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
+            ArrayList<Pair<Component, Integer>> messages = taterzen.getMessages();
             int size = messages.size();
             if(selected >= size) {
-                source.sendFeedback(
+                source.sendSuccess(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected)),
                         false
                 );
@@ -86,25 +90,25 @@ public class MessagesCommand {
                 String first = messages.get(i < 0 ? size - 1 : i).getFirst().getString();
                 String second = messages.get(selected).getFirst().getString();
                 taterzen.setMessageDelay(selected, delay);
-                source.sendFeedback(successText("taterzens.command.message.delay", first, second, String.valueOf(delay)), false);
+                source.sendSuccess(successText("taterzens.command.message.delay", first, second, String.valueOf(delay)), false);
             }
         });
     }
 
-    private static int editMessage(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        ServerPlayerEntity player = source.getPlayer();
+    private static int editMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        ServerPlayer player = source.getPlayerOrException();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
             ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.MESSAGES);
             int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
             if(selected >= taterzen.getMessages().size()) {
-                source.sendFeedback(
+                source.sendSuccess(
                         successText("taterzens.command.message.list", String.valueOf(selected)),
                         false
                 );
             } else {
                 ((ITaterzenEditor) player).setEditingMessageIndex(selected);
-                source.sendFeedback(
+                source.sendSuccess(
                         successText("taterzens.command.message.editor.enter", taterzen.getMessages().get(selected).getFirst().getString()),
                         false)
                 ;
@@ -112,78 +116,78 @@ public class MessagesCommand {
         });
     }
 
-    private static int listTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
-            ArrayList<Pair<Text, Integer>> messages = taterzen.getMessages();
+    private static int listTaterzenMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            ArrayList<Pair<Component, Integer>> messages = taterzen.getMessages();
 
-            MutableText response = joinText("taterzens.command.message.list", Formatting.AQUA, Formatting.YELLOW, taterzen.getName().getString());
+            MutableComponent response = joinText("taterzens.command.message.list", ChatFormatting.AQUA, ChatFormatting.YELLOW, taterzen.getName().getString());
             AtomicInteger i = new AtomicInteger();
 
             messages.forEach(pair -> {
                 int index = i.get() + 1;
                 response.append(
-                        new LiteralText("\n" + index + "-> ")
-                                .formatted(index % 2 == 0 ? Formatting.YELLOW : Formatting.GOLD)
+                        new TextComponent("\n" + index + "-> ")
+                                .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
                                 .append(pair.getFirst())
-                                .styled(style -> style
+                                .withStyle(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages " + index))
                                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.edit", index))
                                         ))
                 )
                         .append("   ")
                         .append(
-                                new LiteralText("X")
-                                        .formatted(Formatting.RED)
-                                        .formatted(Formatting.BOLD)
-                                        .styled(style -> style
+                                new TextComponent("X")
+                                        .withStyle(ChatFormatting.RED)
+                                        .withStyle(ChatFormatting.BOLD)
+                                        .withStyle(style -> style
                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
                                                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages " + index + " delete"))
                                         )
                         );
                 i.incrementAndGet();
             });
-            source.sendFeedback(response, false);
+            source.sendSuccess(response, false);
         });
     }
 
-    private static int clearTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+    private static int clearTaterzenMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.clearMessages();
-            source.sendFeedback(successText("taterzens.command.message.clear", taterzen.getName().getString()), false);
+            source.sendSuccess(successText("taterzens.command.message.clear", taterzen.getName().getString()), false);
         });
     }
 
-    private static int editTaterzenMessages(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        ServerPlayerEntity player = source.getPlayer();
+    private static int editTaterzenMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        ServerPlayer player = source.getPlayerOrException();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
             if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES) {
                 // Exiting the message edit mode
                 ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                 ((ITaterzenEditor) player).setEditingMessageIndex(-1);
-                source.sendFeedback(
-                        translate("taterzens.command.equipment.exit").formatted(Formatting.LIGHT_PURPLE),
+                source.sendSuccess(
+                        translate("taterzens.command.equipment.exit").withStyle(ChatFormatting.LIGHT_PURPLE),
                         false
                 );
             } else {
                 // Entering the edit mode
                 ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.MESSAGES);
-                source.sendFeedback(
-                        joinText("taterzens.command.message.editor.enter", Formatting.LIGHT_PURPLE, Formatting.AQUA, taterzen.getName().getString())
-                                .formatted(Formatting.BOLD)
-                                .styled(style -> style
+                source.sendSuccess(
+                        joinText("taterzens.command.message.editor.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
+                                .withStyle(ChatFormatting.BOLD)
+                                .withStyle(style -> style
                                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").formatted(Formatting.RED)))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
                                 ),
                         false
                 );
-                source.sendFeedback(
+                source.sendSuccess(
                         successText("taterzens.command.message.editor.desc.1", taterzen.getName().getString())
                                 .append("\n")
                                 .append(translate("taterzens.command.message.editor.desc.2"))
-                                .formatted(Formatting.GREEN),
+                                .withStyle(ChatFormatting.GREEN),
                         false
                 );
             }

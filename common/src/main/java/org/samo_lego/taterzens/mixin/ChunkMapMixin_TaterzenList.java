@@ -1,7 +1,5 @@
 package org.samo_lego.taterzens.mixin;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,15 +8,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 
-@Mixin(ThreadedAnvilChunkStorage.class)
-public class ThreadedAnvilChunkStorageMixin_TaterzenList {
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.world.entity.Entity;
+
+@Mixin(ChunkMap.class)
+public class ChunkMapMixin_TaterzenList {
 
     /**
      * Sets Taterzen to {@link org.samo_lego.taterzens.Taterzens#TATERZEN_NPCS NPC list}.
      * @param entity entity being loaded
      */
-    @Inject(method = "loadEntity(Lnet/minecraft/entity/Entity;)V", at = @At("TAIL"))
-    private void onEntityLoad(Entity entity, CallbackInfo ci) {
+    @Inject(method = "addEntity(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
+    private void onEntityAdded(Entity entity, CallbackInfo ci) {
         if(entity instanceof TaterzenNPC)
             TATERZEN_NPCS.add((TaterzenNPC) entity);
     }
@@ -27,8 +28,8 @@ public class ThreadedAnvilChunkStorageMixin_TaterzenList {
      * Unloads Taterzen from {@link org.samo_lego.taterzens.Taterzens#TATERZEN_NPCS NPC list}.
      * @param entity entity being unloaded
      */
-    @Inject(method = "unloadEntity(Lnet/minecraft/entity/Entity;)V", at = @At("TAIL"))
-    private void onEntityUnload(Entity entity, CallbackInfo ci) {
+    @Inject(method = "removeEntity(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
+    private void onEntityRemoved(Entity entity, CallbackInfo ci) {
         if(entity instanceof TaterzenNPC)
             TATERZEN_NPCS.remove(entity);
     }

@@ -19,7 +19,7 @@ modify the payment item of our profession.
 ```java
 public class TraderCommand {
 
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
 		dispatcher.register(literal("trader")
 			.then(literal("changeCurrency")
 				.then(argument("currency item", ItemStackArgumentType.itemStack())
@@ -29,9 +29,9 @@ public class TraderCommand {
 		);
 	}
 	
-	private static int changeCurrency(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+	private static int changeCurrency(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
 		// Getting the selected Taterzen
-		ServerPlayerEntity player = context.getSource().getPlayer();
+		ServerPlayer player = context.getSource().getPlayer();
 		TaterzenNPC npc = ((TaterzenEditor) player).getNpc();
 		if(npc != null) {
 			// Getting the profession if NPC has it
@@ -42,7 +42,7 @@ public class TraderCommand {
 				return 1;
 			}
 			// Otherwise send error
-			player.sendMessage(new LiteralText("This npc doesn't have trader profession :'( ..."), false);
+			player.sendMessage(new TextComponent("This npc doesn't have trader profession :'( ..."), false);
 		} else
 			player.sendMessage(noSelectedTaterzenError(), false);
 		return 0;

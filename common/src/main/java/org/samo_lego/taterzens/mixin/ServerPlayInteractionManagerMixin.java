@@ -1,23 +1,26 @@
 package org.samo_lego.taterzens.mixin;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.level.block.Blocks;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerInteractionManager.class)
+@Mixin(ServerPlayerGameMode.class)
 public class ServerPlayInteractionManagerMixin {
 
-    @Shadow public ServerPlayerEntity player;
+    @Final
+    @Shadow
+    protected ServerPlayer player;
 
     /**
      * Used for detecting block breaking. Broken blocks count as new nodes
@@ -30,16 +33,16 @@ public class ServerPlayInteractionManagerMixin {
      * @param worldHeight world height
      */
     @Inject(
-            method = "processBlockBreakingAction(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/network/packet/c2s/play/PlayerActionC2SPacket$Action;Lnet/minecraft/util/math/Direction;I)V",
+            method = "handleBlockBreakAction(Lnet/minecraft/core/BlockPos;Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/Direction;I)V",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onAttackBlock(BlockPos blockPos, PlayerActionC2SPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (playerAction == PlayerActionC2SPacket.Action.START_DESTROY_BLOCK) {
+    private void onAttackBlock(BlockPos blockPos, ServerboundPlayerActionPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
+        if (playerAction == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
             ITaterzenEditor player = (ITaterzenEditor) this.player;
             if(player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
                 player.getNpc().addPathTarget(blockPos);
-                ((ServerPlayerEntity) player).networkHandler.sendPacket(new BlockUpdateS2CPacket(blockPos, Blocks.REDSTONE_BLOCK.getDefaultState()));
+                ((ServerPlayer) player).connection.send(new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState()));
                 ci.cancel();
             }
         }

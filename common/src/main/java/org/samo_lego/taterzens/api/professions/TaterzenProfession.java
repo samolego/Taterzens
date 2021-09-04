@@ -1,13 +1,13 @@
 package org.samo_lego.taterzens.api.professions;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -24,32 +24,32 @@ public interface TaterzenProfession {
      * Called on Taterzen entity tick.
      * Returning different action results has different meanings:
      * <ul>
-     *     <li>{@link ActionResult#PASS} - Default; continues ticking other professions.</li>
-     *     <li>{@link ActionResult#CONSUME} - Stops processing others, but continues with base Taterzen tick.</li>
-     *     <li>{@link ActionResult#FAIL} - Stops whole movement tick.</li>
-     *     <li>{@link ActionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's tick.</li>
+     *     <li>{@link InteractionResult#PASS} - Default; continues ticking other professions.</li>
+     *     <li>{@link InteractionResult#CONSUME} - Stops processing others, but continues with base Taterzen tick.</li>
+     *     <li>{@link InteractionResult#FAIL} - Stops whole movement tick.</li>
+     *     <li>{@link InteractionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's tick.</li>
      * </ul>
      *
      * @return true if you want to cancel the default Taterzen ticking.
      */
-    default ActionResult tick() {
-        return ActionResult.PASS;
+    default InteractionResult tick() {
+        return InteractionResult.PASS;
     }
 
     /**
      * Called on movement tick.
      * Returning different action results has different meanings:
      * <ul>
-     *     <li>{@link ActionResult#PASS} - Default; continues ticking other professions.</li>
-     *     <li>{@link ActionResult#CONSUME} - Stops processing others, but continues with base Taterzen movement tick.</li>
-     *     <li>{@link ActionResult#FAIL} - Stops whole movement tick.</li>
-     *     <li>{@link ActionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's movement tick.</li>
+     *     <li>{@link InteractionResult#PASS} - Default; continues ticking other professions.</li>
+     *     <li>{@link InteractionResult#CONSUME} - Stops processing others, but continues with base Taterzen movement tick.</li>
+     *     <li>{@link InteractionResult#FAIL} - Stops whole movement tick.</li>
+     *     <li>{@link InteractionResult#SUCCESS} - Continues with super.tickMovement(), but skips Taterzen's movement tick.</li>
      * </ul>
      *
      * @return action result which determines further execution
      */
-    default ActionResult tickMovement() {
-        return ActionResult.PASS;
+    default InteractionResult tickMovement() {
+        return InteractionResult.PASS;
     }
 
     /**
@@ -59,8 +59,8 @@ public interface TaterzenProfession {
      * @param hand player's hand
      * @return PASS to continue with default interaction, SUCCESS or FAIL to stop.
      */
-    default ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
-        return ActionResult.PASS;
+    default InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
+        return InteractionResult.PASS;
     }
 
     /**
@@ -79,17 +79,17 @@ public interface TaterzenProfession {
     }
 
     /**
-     * Called on parsing Taterzen data from {@link NbtCompound}.
+     * Called on parsing Taterzen data from {@link CompoundTag}.
      * @param tag tag to load profession data from.
      */
-    default void readNbt(NbtCompound tag) {
+    default void readNbt(CompoundTag tag) {
     }
 
     /**
-     * Called on saving Taterzen data to {@link NbtCompound}.
+     * Called on saving Taterzen data to {@link CompoundTag}.
      * @param tag tag to save profession data to.
      */
-    default void saveNbt(NbtCompound tag) {
+    default void saveNbt(CompoundTag tag) {
     }
 
     /**

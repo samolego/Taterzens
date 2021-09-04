@@ -1,11 +1,11 @@
 package org.samo_lego.taterzens.event;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class BlockInteractEvent implements UseBlockCallback {
 
@@ -23,7 +23,7 @@ public class BlockInteractEvent implements UseBlockCallback {
      * @return FAIL if player has selected NPC and is in path edit mode, otherwise PASS.
      */
     @Override
-    public ActionResult interact(PlayerEntity player, World world, Hand hand, BlockHitResult blockHitResult) {
+    public InteractionResult interact(Player player, Level world, InteractionHand hand, BlockHitResult blockHitResult) {
         return BlockEvent.onBlockInteract(player, world, blockHitResult.getBlockPos());
     }
 }
