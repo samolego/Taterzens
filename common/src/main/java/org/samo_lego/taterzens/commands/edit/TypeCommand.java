@@ -3,22 +3,22 @@ package org.samo_lego.taterzens.commands.edit;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.argument.EntitySummonArgumentType;
-import net.minecraft.command.argument.NbtCompoundArgumentType;
-import net.minecraft.entity.EntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.CompoundTagArgument;
+import net.minecraft.commands.arguments.EntitySummonArgument;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 
-import static net.minecraft.command.suggestion.SuggestionProviders.SUMMONABLE_ENTITIES;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
@@ -26,13 +26,13 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class TypeCommand {
-    public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
-        LiteralCommandNode<ServerCommandSource> typeNode = literal("type")
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
+        LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
-                .then(argument("entity type", EntitySummonArgumentType.entitySummon())
+                .then(argument("entity type", EntitySummonArgument.id())
                         .suggests(SUMMONABLE_ENTITIES)
                         .executes(TypeCommand::changeType)
-                        .then(argument("nbt", NbtCompoundArgumentType.nbtCompound())
+                        .then(argument("nbt", CompoundTagArgument.compoundTag())
                                 .executes(TypeCommand::changeType)
                         )
                 )
@@ -53,12 +53,12 @@ public class TypeCommand {
         editNode.addChild(typeNode);
     }
 
-    private static int changeType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private static int changeType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
         if(!DISGUISELIB_LOADED) {
-            source.sendError(translate("advert.disguiselib.required")
-                    .formatted(Formatting.RED)
-                    .styled(style -> style
+            source.sendFailure(translate("advert.disguiselib.required")
+                    .withStyle(ChatFormatting.RED)
+                    .withStyle(style -> style
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
                             .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
                     )
@@ -66,23 +66,23 @@ public class TypeCommand {
             return -1;
         }
 
-        Identifier disguise = EntitySummonArgumentType.getEntitySummon(context, "entity type");
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
-            NbtCompound nbt;
+        ResourceLocation disguise = EntitySummonArgument.getSummonableEntity(context, "entity type");
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            CompoundTag nbt;
             try {
-                nbt = NbtCompoundArgumentType.getNbtCompound(context, "nbt").copy();
+                nbt = CompoundTagArgument.getCompoundTag(context, "nbt").copy();
             } catch(IllegalArgumentException ignored) {
-                nbt = new NbtCompound();
+                nbt = new CompoundTag();
             }
             nbt.putString("id", disguise.toString());
 
-            EntityType.loadEntityWithPassengers(nbt, source.getWorld(), (entityx) -> {
+            EntityType.loadEntityRecursive(nbt, source.getLevel(), (entityx) -> {
                 DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
-                source.sendFeedback(
+                source.sendSuccess(
                         translate(
                                 "taterzens.command.entity_type.set",
-                                new TranslatableText(entityx.getType().getTranslationKey()).formatted(Formatting.YELLOW)
-                        ).formatted(Formatting.GREEN),
+                                new TranslatableComponent(entityx.getType().getDescriptionId()).withStyle(ChatFormatting.YELLOW)
+                        ).withStyle(ChatFormatting.GREEN),
                         false
                 );
                 return entityx;
@@ -90,21 +90,21 @@ public class TypeCommand {
         });
     }
 
-    private static int resetType(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
+    private static int resetType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
         if(!DISGUISELIB_LOADED) {
-            source.sendError(translate("advert.disguiselib.required")
-                    .formatted(Formatting.RED)
-                    .styled(style -> style
+            source.sendFailure(translate("advert.disguiselib.required")
+                    .withStyle(ChatFormatting.RED)
+                    .withStyle(style -> style
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
                             .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
                     )
             );
             return -1;
         }
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             DisguiseLibCompatibility.clearDisguise(taterzen);
-            source.sendFeedback(
+            source.sendSuccess(
                     successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
                     false
             );

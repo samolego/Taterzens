@@ -10,7 +10,7 @@ title: Movement
 
 ## Taking care of fitness
 
-Since Taterzens extend the Minecraft's vanilla `PathAwareEntity`, they can
+Since Taterzens extend the Minecraft's vanilla `PathfinderMob`, they can
 perform pathfinding.
 
 Movement of Taterzens could be divided in 3 categories:

@@ -194,7 +194,7 @@ public class TaterConfig {
      * Settings for path visualisation.
      */
     public static class Path {
-        public Path.Color color = new Path.Color();
+        public Color color = new Color();
         /**
          * Color of particles used in path editor.
          * Accepts RGB values (0 - 255).

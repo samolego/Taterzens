@@ -1,7 +1,7 @@
 package org.samo_lego.taterzens.compatibility;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
 /**
  * Methods that are further redirected to forge / fabric implementations.
@@ -9,7 +9,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class LoaderSpecific {
 
     @ExpectPlatform
-    public static boolean permissions$checkPermission(ServerCommandSource source, String permissionNode, int fallbackLevel) {
+    public static boolean permissions$checkPermission(CommandSourceStack source, String permissionNode, int fallbackLevel) {
         throw new AssertionError();
     }
 }

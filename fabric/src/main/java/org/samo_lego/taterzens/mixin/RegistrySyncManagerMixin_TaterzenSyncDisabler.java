@@ -1,7 +1,7 @@
 package org.samo_lego.taterzens.mixin;
 
 import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,9 +24,9 @@ public class RegistrySyncManagerMixin_TaterzenSyncDisabler {
             locals = LocalCapture.CAPTURE_FAILHARD,
             remap = false
     )
-    private static void removeTaterzenFromSync(boolean isClientSync, NbtCompound activeTag, CallbackInfoReturnable<NbtCompound> cir, NbtCompound mainTag, NbtCompound tag) {
-        NbtCompound registries = tag.getCompound("registries");
-        NbtCompound entityTypes = registries.getCompound("minecraft:entity_type");
+    private static void removeTaterzenFromSync(boolean isClientSync, CompoundTag activeTag, CallbackInfoReturnable<CompoundTag> cir, CompoundTag mainTag, CompoundTag tag) {
+        CompoundTag registries = tag.getCompound("registries");
+        CompoundTag entityTypes = registries.getCompound("minecraft:entity_type");
         if(entityTypes != null) {
             entityTypes.remove(MODID + ":npc");
         }

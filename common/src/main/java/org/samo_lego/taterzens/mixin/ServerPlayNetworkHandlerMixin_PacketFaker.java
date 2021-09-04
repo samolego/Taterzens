@@ -4,27 +4,22 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.s2c.play.EntitySetHeadYawS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityTrackerUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.World;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.EntityAccessor;
-import org.samo_lego.taterzens.mixin.accessors.EntityTrackerUpdateS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundSetEntityDataPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,27 +34,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.ADD_PLAYER;
-import static net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.REMOVE_PLAYER;
+import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
+import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.mixin.accessors.EntityAccessor.getFLAGS;
-import static org.samo_lego.taterzens.mixin.accessors.EntityAccessor.getGLOWING_FLAG_INDEX;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
  */
-@Mixin(value = ServerPlayNetworkHandler.class, priority = 900)
+@Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
 public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
-    @Shadow public ServerPlayerEntity player;
+    @Shadow public ServerPlayer player;
 
-    @Shadow public abstract void sendPacket(Packet<?> packet);
+    @Final
+    @Shadow
+    public Connection connection;
 
-    @Shadow @Final public ClientConnection connection;
+    @Shadow public abstract void send(Packet<?> packet);
+
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
-    private final List<Pair<GameProfile, Text>> taterzens$tablistQueue = new ArrayList<>();
+    private final List<Pair<GameProfile, Component>> taterzens$tablistQueue = new ArrayList<>();
     @Unique
     private int taterzens$queueTimer;
 
@@ -70,29 +66,29 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
      * @param listener
      */
     @Inject(
-            method = "sendPacket(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
+            method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/network/ClientConnection;send(Lnet/minecraft/network/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"
+                    target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"
             ),
             cancellable = true
     )
     private void changeEntityType(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
-        World world = player.getEntityWorld();
-        if(packet instanceof PlayerSpawnS2CPacket && !this.taterzens$skipCheck) {
-            Entity entity = world.getEntityById(((PlayerSpawnS2CPacketAccessor) packet).getId());
+        Level world = player.getLevel();
+        if(packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
+            Entity entity = world.getEntity(((ClientboundAddPlayerPacketAccessor) packet).getId());
 
             if(!(entity instanceof TaterzenNPC npc))
                 return;
 
             GameProfile profile = npc.getGameProfile();
 
-            PlayerListS2CPacket playerAddPacket = new PlayerListS2CPacket(ADD_PLAYER);
+            ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
-                    Arrays.asList(new PlayerListS2CPacket.Entry(profile, 0, GameMode.SURVIVAL, npc.getName()))
+                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getName()))
             );
-            this.sendPacket(playerAddPacket);
+            this.send(playerAddPacket);
 
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't
@@ -108,29 +104,29 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             if(this.taterzens$queueTimer != -1)
                 this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
 
-            this.connection.send(new EntitySetHeadYawS2CPacket(entity, (byte)((int)(entity.getHeadYaw() * 256.0F / 360.0F))), listener);
+            this.connection.send(new ClientboundRotateHeadPacket(entity, (byte)((int)(entity.getYHeadRot() * 256.0F / 360.0F))), listener);
 
             ci.cancel();
-        } else if(packet instanceof EntityTrackerUpdateS2CPacket) {
-            Entity entity = world.getEntityById(((EntityTrackerUpdateS2CPacketAccessor) packet).getEntityId());
+        } else if(packet instanceof ClientboundSetEntityDataPacket) {
+            Entity entity = world.getEntity(((ClientboundSetEntityDataPacketAccessor) packet).getEntityId());
 
             if(!(entity instanceof TaterzenNPC taterzen))
                 return;
-            PlayerEntity fakePlayer = taterzen.getFakePlayer();
-            List<DataTracker.Entry<?>> trackedValues = fakePlayer.getDataTracker().getAllEntries();
+            Player fakePlayer = taterzen.getFakePlayer();
+            List<SynchedEntityData.DataItem<?>> trackedValues = fakePlayer.getEntityData().getAll();
 
             if(taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null) {
-                trackedValues.removeIf(value -> value.getData().getId() == 0);
-                Byte flags = fakePlayer.getDataTracker().get(EntityAccessor.getFLAGS());
+                trackedValues.removeIf(value -> value.getAccessor().getId() == 0);
+                Byte flags = fakePlayer.getEntityData().get(EntityAccessor.getFLAGS());
                 // Modify Taterzen to have fake glowing effect for the player
-                flags = (byte)(flags | 1 << EntityAccessor.getGLOWING_FLAG_INDEX());
+                flags = (byte)(flags | 1 << EntityAccessor.getFLAG_GLOWING());
 
-                DataTracker.Entry<Byte> glowingTag = new DataTracker.Entry<>(EntityAccessor.getFLAGS(), flags);
+                SynchedEntityData.DataItem<Byte> glowingTag = new SynchedEntityData.DataItem<>(EntityAccessor.getFLAGS(), flags);
                 trackedValues.add(glowingTag);
             }
 
-            ((EntityTrackerUpdateS2CPacketAccessor) packet).setTrackedValues(trackedValues);
-        } else if(packet instanceof PlayerListS2CPacket && !this.taterzens$skipCheck) {
+            ((ClientboundSetEntityDataPacketAccessor) packet).setPackedItems(trackedValues);
+        } else if(packet instanceof ClientboundPlayerInfoPacket && !this.taterzens$skipCheck) {
             this.taterzens$skipCheck = true;
 
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
@@ -145,25 +141,25 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
         }
     }
 
-    @Inject(method = "onPlayerMove(Lnet/minecraft/network/packet/c2s/play/PlayerMoveC2SPacket;)V", at = @At("RETURN"))
-    private void removeTaterzenFromTablist(PlayerMoveC2SPacket packet, CallbackInfo ci) {
+    @Inject(method = "handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V", at = @At("RETURN"))
+    private void removeTaterzenFromTablist(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
         if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer <= 0) {
             this.taterzens$skipCheck = true;
 
-            PlayerListS2CPacket taterzensRemovePacket = new PlayerListS2CPacket(REMOVE_PLAYER);
-            List<PlayerListS2CPacket.Entry> taterzenList = this.taterzens$tablistQueue
+            ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
+            List<ClientboundPlayerInfoPacket.PlayerUpdate> taterzenList = this.taterzens$tablistQueue
                     .stream()
-                    .map(pair -> new PlayerListS2CPacket.Entry(
+                    .map(pair -> new ClientboundPlayerInfoPacket.PlayerUpdate(
                                     pair.getFirst(),
                                     0,
-                                    GameMode.SURVIVAL,
+                                    GameType.SURVIVAL,
                                     pair.getSecond()
                             )
                     )
                     .collect(Collectors.toList());
             //noinspection ConstantConditions
             ((PlayerListS2CPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
-            this.sendPacket(taterzensRemovePacket);
+            this.send(taterzensRemovePacket);
 
             this.taterzens$tablistQueue.clear();
 

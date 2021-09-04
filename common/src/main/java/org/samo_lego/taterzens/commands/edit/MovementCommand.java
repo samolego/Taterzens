@@ -5,21 +5,21 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.suggestion.SuggestionProviders;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Identifier;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.NPCData;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.resources.ResourceLocation;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.MODID;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
@@ -28,18 +28,18 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class MovementCommand {
 
-    private static final SuggestionProvider<ServerCommandSource> MOVEMENT_TYPES;
-    private static final SuggestionProvider<ServerCommandSource> FOLLOW_TYPES;
+    private static final SuggestionProvider<CommandSourceStack> MOVEMENT_TYPES;
+    private static final SuggestionProvider<CommandSourceStack> FOLLOW_TYPES;
 
-    public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
-        LiteralCommandNode<ServerCommandSource> movementNode = literal("movement")
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
+        LiteralCommandNode<CommandSourceStack> movementNode = literal("movement")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .then(literal("FOLLOW")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement.follow", config.perms.npcCommandPermissionLevel))
                         .then(argument("follow type", word())
                                 .suggests(FOLLOW_TYPES)
                                 .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
-                                .then(argument("uuid", EntityArgumentType.entity())
+                                .then(argument("uuid", EntityArgument.entity())
                                         .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
                                 )
                         )
@@ -51,7 +51,7 @@ public class MovementCommand {
                 .build();
 
 
-        LiteralCommandNode<ServerCommandSource> lookNode = literal("look")
+        LiteralCommandNode<CommandSourceStack> lookNode = literal("look")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .executes(context -> changeMovement(context, "FORCED_LOOK"))
                 .build();
@@ -60,45 +60,45 @@ public class MovementCommand {
         editNode.addChild(lookNode);
     }
 
-    private static int changeMovement(CommandContext<ServerCommandSource> context, String movement) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+    private static int changeMovement(CommandContext<CommandSourceStack> context, String movement) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.setMovement(NPCData.Movement.valueOf(movement));
-            source.sendFeedback(
+            source.sendSuccess(
                     successText("taterzens.command.movement.set", movement),
                     false
             );
         });
     }
 
-    private static int setFollowType(CommandContext<ServerCommandSource> context, NPCData.FollowTypes followType) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+    private static int setFollowType(CommandContext<CommandSourceStack> context, NPCData.FollowTypes followType) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.setFollowType(followType);
             if(followType == NPCData.FollowTypes.UUID) {
                 try {
-                    UUID uuid = EntityArgumentType.getEntity(context, "uuid").getUuid();
+                    UUID uuid = EntityArgument.getEntity(context, "uuid").getUUID();
                     taterzen.setFollowUuid(uuid);
                 } catch(CommandSyntaxException ignored) {
-                    source.sendError(errorText("taterzens.command.movement.follow.error.uuid", followType.toString()));
+                    source.sendFailure(errorText("taterzens.command.movement.follow.error.uuid", followType.toString()));
                 }
             }
 
-            source.sendFeedback(successText("taterzens.command.movement.follow.set", followType.toString()), false);
+            source.sendSuccess(successText("taterzens.command.movement.follow.set", followType.toString()), false);
         });
     }
 
     static {
         MOVEMENT_TYPES = SuggestionProviders.register(
-                new Identifier(MODID, "movement_types"),
+                new ResourceLocation(MODID, "movement_types"),
                 (context, builder) ->
-                        CommandSource.suggestMatching(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
+                        SharedSuggestionProvider.suggest(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
 
         FOLLOW_TYPES = SuggestionProviders.register(
-                new Identifier(MODID, "follow_types"),
+                new ResourceLocation(MODID, "follow_types"),
                 (context, builder) ->
-                        CommandSource.suggestMatching(Stream.of(NPCData.FollowTypes.values()).map(Enum::name).collect(Collectors.toList()), builder)
+                        SharedSuggestionProvider.suggest(Stream.of(NPCData.FollowTypes.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
     }
 }

@@ -3,22 +3,22 @@ package org.samo_lego.taterzens.commands.edit;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.command.argument.MessageArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.MessageArgument;
+import net.minecraft.network.chat.Component;
 import org.samo_lego.taterzens.commands.NpcCommand;
 
-import static net.minecraft.command.argument.MessageArgumentType.message;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.arguments.MessageArgument.message;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class NameCommand {
 
-    public static void registerNode(LiteralCommandNode<ServerCommandSource> editNode) {
-        LiteralCommandNode<ServerCommandSource> nameNode = literal("name")
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
+        LiteralCommandNode<CommandSourceStack> nameNode = literal("name")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.name", config.perms.npcCommandPermissionLevel))
                 .then(argument("new name", message()).executes(NameCommand::renameTaterzen))
                 .build();
@@ -26,13 +26,13 @@ public class NameCommand {
         editNode.addChild(nameNode);
     }
 
-    private static int renameTaterzen(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerCommandSource source = context.getSource();
-        Text newName = MessageArgumentType.getMessage(context, "new name");
+    private static int renameTaterzen(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        Component newName = MessageArgument.getMessage(context, "new name");
 
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrThrow(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.setCustomName(newName);
-            context.getSource().sendFeedback(
+            context.getSource().sendSuccess(
                     successText("taterzens.command.rename.success", newName.getString()),
                     false
             );

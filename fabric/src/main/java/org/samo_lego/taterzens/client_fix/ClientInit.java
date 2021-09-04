@@ -4,11 +4,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.client.util.DefaultSkinHelper;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.resources.ResourceLocation;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -17,10 +17,10 @@ public class ClientInit implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         // We just do this to avoid client crashes
-        EntityRendererRegistry.INSTANCE.register(Taterzens.TATERZEN_TYPE, context -> new MobEntityRenderer<TaterzenNPC, PlayerEntityModel<TaterzenNPC>>(context, new PlayerEntityModel<>(context.getPart(EntityModelLayers.PLAYER), false), 1.0F) {
+        EntityRendererRegistry.INSTANCE.register(Taterzens.TATERZEN_TYPE, context -> new MobRenderer<>(context, new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER), false), 1.0F) {
             @Override
-            public Identifier getTexture(TaterzenNPC entity) {
-                return DefaultSkinHelper.getTexture(entity.getUuid());
+            public ResourceLocation getTextureLocation(TaterzenNPC entity) {
+                return DefaultPlayerSkin.getDefaultSkin(entity.getUUID());
             }
         });
     }

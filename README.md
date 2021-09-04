@@ -26,6 +26,8 @@ A fabric / forge citizens like NPC mod.
 
 ## Developers
 
+***Taterzens uses ParchmentMC mappings.***
+
 Add `jitpack.io` maven repository.
 ```gradle
 repositories {

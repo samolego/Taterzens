@@ -1,8 +1,8 @@
 package org.samo_lego.taterzens.compatibility;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import xyz.nucleoid.disguiselib.casts.EntityDisguise;
 

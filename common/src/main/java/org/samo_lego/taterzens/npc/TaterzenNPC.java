@@ -7,48 +7,55 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Vector3f;
 import io.netty.buffer.Unpooled;
-import kotlin.collections.ArraysKt;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.RangedAttackMob;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.MobNavigation;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.RangedWeaponItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerSpawnS2CPacket;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.*;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.CrossbowAttackMob;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
@@ -60,20 +67,20 @@ import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
-import org.samo_lego.taterzens.mixin.accessors.PlayerSpawnS2CPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.ThreadedAnvilChunkStorageAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
 
 import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.mixin.accessors.PlayerEntityAccessor.getPLAYER_MODEL_PARTS;
+import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 
 /**
  * The NPC itself.
  */
-public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, RangedAttackMob {
+public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, RangedAttackMob {
 
     /**
      * Data of the NPC.
@@ -81,43 +88,43 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     private final NPCData npcData = new NPCData();
 
     private final MinecraftServer server;
-    private final PlayerEntity fakePlayer;
-    private final LinkedHashMap<Identifier, TaterzenProfession> professions = new LinkedHashMap<>();
+    private final Player fakePlayer;
+    private final LinkedHashMap<ResourceLocation, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
 
     /**
      * Goals
      * Public so they can be accessed from professions.
      */
-    public final LookAtEntityGoal lookPlayerGoal = new LookAtEntityGoal(this, PlayerEntity.class, 8.0F);
-    public final LookAroundGoal lookAroundGoal = new LookAroundGoal(this);
-    public final WanderAroundGoal wanderAroundFarGoal = new WanderAroundGoal(this, 1.0D, 30);
+    public final LookAtPlayerGoal lookPlayerGoal = new LookAtPlayerGoal(this, Player.class, 8.0F);
+    public final RandomLookAroundGoal lookAroundGoal = new RandomLookAroundGoal(this);
+    public final RandomStrollGoal wanderAroundFarGoal = new RandomStrollGoal(this, 1.0D, 30);
 
     /**
      * Target selectors.
      */
-    public final FollowTargetGoal<LivingEntity> followTargetGoal = new FollowTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isTeammate(target));
-    public final FollowTargetGoal<HostileEntity> followMonstersGoal = new FollowTargetGoal<>(this, HostileEntity.class, 100,false, true, target -> !this.isTeammate(target));
-    public final FollowTargetGoal<PlayerEntity> followPlayersGoal = new FollowTargetGoal<>(this, PlayerEntity.class, 100,false, true, target -> !this.isTeammate(target));
+    public final NearestAttackableTargetGoal<LivingEntity> followTargetGoal = new NearestAttackableTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isAlliedTo(target));
+    public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100,false, true, target -> !this.isAlliedTo(target));
+    public final NearestAttackableTargetGoal<Player> followPlayersGoal = new NearestAttackableTargetGoal<>(this, Player.class, 100,false, true, target -> !this.isAlliedTo(target));
 
     /**
      * Tracking movement
      */
-    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> !(target instanceof ServerPlayerEntity) && target.isAlive());
-    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, PlayerEntity.class, target -> !((ServerPlayerEntity) target).isDisconnected());
-    public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUuid().equals(this.npcData.follow.targetUuid));
+    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> !(target instanceof ServerPlayer) && target.isAlive());
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, Player.class, target -> !((ServerPlayer) target).hasDisconnected());
+    public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUUID().equals(this.npcData.follow.targetUuid));
 
 
     /**
      * Used for {@link NPCData.Movement#PATH}.
      */
-    public final GoToWalkTargetGoal pathGoal = new GoToWalkTargetGoal(this, 1.0D);
+    public final MoveTowardsRestrictionGoal pathGoal = new MoveTowardsRestrictionGoal(this, 1.0D);
     public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
 
     /**
      * Attack-based goals
      */
-    public final ProjectileAttackGoal projectileAttackGoal = new ProjectileAttackGoal(this, 1.2D, 40, 40.0F);
+    public final RangedAttackGoal projectileAttackGoal = new RangedAttackGoal(this, 1.2D, 40, 40.0F);
     public final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
     public final TeamRevengeGoal revengeGoal = new TeamRevengeGoal(this);
     public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
@@ -125,32 +132,32 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     /**
      * Creates a TaterzenNPC.
      * You'd probably want to use
-     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerWorld, String, Vec3d, float[])} or
-     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerPlayerEntity, String)}
+     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerLevel, String, Vec3, float[])} or
+     * {@link org.samo_lego.taterzens.api.TaterzensAPI#createTaterzen(ServerPlayer, String)}
      * instead, as this one doesn't set the position and custom name.
      *
      * @param entityType Taterzen entity type
      * @param world Taterzen's world
      */
-    public TaterzenNPC(EntityType<? extends PathAwareEntity> entityType, World world) {
+    public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
-        this.stepHeight = 0.6F;
+        this.maxUpStep = 0.6F;
         this.setCanPickUpLoot(false);
         this.setCustomNameVisible(true);
         this.setCustomName(this.getName());
         this.setInvulnerable(config.defaults.invulnerable);
-        this.setPersistent();
-        this.experiencePoints = 0;
-        this.setMovementSpeed(0.4F);
-        ((MobNavigation) this.getNavigation()).setCanPathThroughDoors(true);
+        this.setPersistenceRequired();
+        this.xpReward = 0;
+        this.setSpeed(0.4F);
+        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
 
-        this.gameProfile = new GameProfile(this.getUuid(), this.getName().asString());
+        this.gameProfile = new GameProfile(this.getUUID(), this.getName().getString());
         if(DISGUISELIB_LOADED) {
             DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         }
         this.server = world.getServer();
 
-        this.fakePlayer = new PlayerEntity(world, this.getBlockPos(), this.headYaw, new GameProfile(this.uuid, null)) {
+        this.fakePlayer = new Player(world, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -161,15 +168,15 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 return false;
             }
         };
-        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), (byte) 0x7f);
+        this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
 
         TATERZEN_NPCS.add(this);
     }
 
-    public static DefaultAttributeContainer.Builder createTaterzenAttributes() {
-        return HostileEntity.createHostileAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2505D)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 35.0D);
+    public static AttributeSupplier.Builder createTaterzenAttributes() {
+        return Monster.createMonsterAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.2505D)
+                .add(Attributes.FOLLOW_RANGE, 35.0D);
     }
 
     /**
@@ -229,16 +236,16 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setMovement(NPCData.Movement movement) {
         this.npcData.movement = movement;
-        this.goalSelector.remove(this.wanderAroundFarGoal);
-        this.goalSelector.remove(this.directPathGoal);
-        this.goalSelector.remove(this.pathGoal);
-        this.goalSelector.remove(this.lookPlayerGoal);
-        this.goalSelector.remove(this.lookAroundGoal);
+        this.goalSelector.removeGoal(this.wanderAroundFarGoal);
+        this.goalSelector.removeGoal(this.directPathGoal);
+        this.goalSelector.removeGoal(this.pathGoal);
+        this.goalSelector.removeGoal(this.lookPlayerGoal);
+        this.goalSelector.removeGoal(this.lookAroundGoal);
 
         // Follow types
-        this.goalSelector.remove(this.trackLivingGoal);
-        this.goalSelector.remove(this.trackUuidGoal);
-        this.goalSelector.remove(this.trackPlayersGoal);
+        this.goalSelector.removeGoal(this.trackLivingGoal);
+        this.goalSelector.removeGoal(this.trackUuidGoal);
+        this.goalSelector.removeGoal(this.trackPlayersGoal);
 
         this.npcData.follow.targetUuid = null;
         this.npcData.follow.type = NPCData.FollowTypes.NONE;
@@ -252,14 +259,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
         if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
             if(movement == NPCData.Movement.FORCED_PATH) {
-                this.goalSelector.add(4, directPathGoal);
+                this.goalSelector.addGoal(4, directPathGoal);
             } else {
-                this.goalSelector.add(8, lookPlayerGoal);
-                this.goalSelector.add(9, lookAroundGoal);
+                this.goalSelector.addGoal(8, lookPlayerGoal);
+                this.goalSelector.addGoal(9, lookAroundGoal);
                 if(movement == NPCData.Movement.PATH)
-                    this.goalSelector.add(4, pathGoal);
+                    this.goalSelector.addGoal(4, pathGoal);
                 else if(movement == NPCData.Movement.FREE)
-                    this.goalSelector.add(6, wanderAroundFarGoal);
+                    this.goalSelector.addGoal(6, wanderAroundFarGoal);
             }
         }
     }
@@ -278,7 +285,12 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void addPathTarget(BlockPos blockPos) {
         this.npcData.pathTargets.add(blockPos);
-        this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
+        this.restrictTo(this.npcData.pathTargets.get(0), 1);
+    }
+
+    @Override
+    public SynchedEntityData getEntityData() {
+        return this.fakePlayer.getEntityData();
     }
 
     /**
@@ -286,9 +298,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param sneaking whether npc's name should look like on sneaking.
      */
     @Override
-    public void setSneaking(boolean sneaking) {
-        this.fakePlayer.setSneaking(sneaking);
-        super.setSneaking(sneaking);
+    public void setShiftKeyDown(boolean sneaking) {
+        this.fakePlayer.setShiftKeyDown(sneaking);
+        super.setShiftKeyDown(sneaking);
     }
 
     /**
@@ -296,9 +308,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param pose entity pose.
      */
     @Override
-    public void setPose(EntityPose pose) {
+    public void setPose(Pose pose) {
         this.fakePlayer.setPose(pose);
-        this.dataTracker.set(POSE, pose);
+        this.getEntityData().set(DATA_POSE, pose);
     }
 
     /**
@@ -329,21 +341,21 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Ticks the movement depending on {@link org.samo_lego.taterzens.npc.NPCData.Movement} type
      */
     @Override
-    public void tickMovement() {
+    public void aiStep() {
         if(this.npcData.equipmentEditor != null)
             return;
 
         // Profession event
         professionLoop:
         for(TaterzenProfession profession : this.professions.values()) {
-            ActionResult result = profession.tickMovement();
+            InteractionResult result = profession.tickMovement();
             switch(result) {
                 case CONSUME: // Stop processing others, but continue with base Taterzen movement tick
                     break professionLoop;
                 case FAIL: // Stop whole movement tick
                     return;
                 case SUCCESS: // Continue with super, but skip Taterzen's movement tick
-                    super.tickMovement();
+                    super.aiStep();
                     return;
                 default: // Continue with other professions
                     break;
@@ -351,47 +363,47 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         }
 
         if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-            Box box = this.getBoundingBox().expand(4.0D);
-            this.world.getOtherEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity) {
-                    this.lookAtEntity(entity, 60.0F, 60.0F);
-                    this.setHeadYaw(this.getYaw());
+            AABB box = this.getBoundingBox().inflate(4.0D);
+            this.level.getEntities(this, box, entity -> {
+                if(entity instanceof ServerPlayer) {
+                    this.lookAt(entity, 60.0F, 60.0F);
+                    this.setYHeadRot(this.getYHeadRot());
                     return true;
                 }
                 return false;
             });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
-            this.setYaw(this.headYaw); // Rotates body as well
+            this.setYHeadRot(this.yHeadRot); // Rotates body as well
             LivingEntity target = this.getTarget();
 
-            if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isNavigating()) {
+            if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isPathFinding()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
-                if(this.getPositionTarget().getSquaredDistance(this.getPos(), true) < 5.0D) {
+                if(this.getRestrictCenter().distSqr(this.position(), true) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
                     // New target
-                    this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
+                    this.restrictTo(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
-            } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.shouldContinue() && !this.npcData.pathTargets.isEmpty()) {
+            } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.canContinueToUse() && !this.npcData.pathTargets.isEmpty()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
-                if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).getSquaredDistance(this.getPos(), true) < 5.0D) {
+                if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).distSqr(this.position(), true) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
                     // New target
-                    this.setPositionTarget(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
+                    this.restrictTo(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
             }
-            super.tickMovement();
-            if(this.isAttacking() && this.npcData.jumpWhileAttacking && this.onGround && target != null && this.squaredDistanceTo(target) < 4.0D && this.random.nextInt(5) == 0)
-                this.jump();
+            super.aiStep();
+            if(this.isAggressive() && this.npcData.jumpWhileAttacking && this.onGround && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
+                this.jumpFromGround();
         }
     }
 
@@ -406,14 +418,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         // Profession event
         professionLoop:
         for(TaterzenProfession profession : this.professions.values()) {
-            ActionResult result = profession.tickMovement();
+            InteractionResult result = profession.tickMovement();
             switch(result) {
                 case CONSUME: // Stop processing others, but continue with base Taterzen tick
                     break professionLoop;
                 case FAIL: // Stop whole movement tick
                     return;
                 case SUCCESS: // Continue with super, but skip Taterzen's tick
-                    super.tickMovement();
+                    super.aiStep();
                     return;
                 default: // Continue with other professions
                     break;
@@ -421,24 +433,24 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         }
 
         if(!this.npcData.messages.isEmpty()) {
-            Box box = this.getBoundingBox().expand(2.0D, 1.0D, 2.0D);
-            this.world.getOtherEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayerEntity && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES) {
+            AABB box = this.getBoundingBox().expandTowards(2.0D, 1.0D, 2.0D);
+            this.level.getEntities(this, box, entity -> {
+                if(entity instanceof ServerPlayer && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES) {
                     ITaterzenPlayer pl = (ITaterzenPlayer) entity;
-                    int msgPos = pl.getLastMsgPos(this.getUuid());
+                    int msgPos = pl.getLastMsgPos(this.getUUID());
                     if(msgPos >= this.npcData.messages.size())
                         msgPos = 0;
-                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUuid())) {
-                        entity.sendSystemMessage(
-                                new TranslatableText(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
+                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
+                        entity.sendMessage(
+                                new TranslatableComponent(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
                                 this.uuid
                         );
                         // Resetting message counter
-                        pl.resetMessageTicks(this.getUuid());
+                        pl.resetMessageTicks(this.getUUID());
 
                         ++msgPos;
                         // Setting new message position
-                        pl.setLastMsgPos(this.getUuid(), msgPos);
+                        pl.setLastMsgPos(this.getUUID(), msgPos);
                     }
                     return true;
                 }
@@ -448,19 +460,19 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    public Packet<?> createSpawnPacket() {
-        PlayerSpawnS2CPacket playerSpawnS2CPacket = new PlayerSpawnS2CPacket(this.fakePlayer);
+    public Packet<?> getAddEntityPacket() {
+        ClientboundAddPlayerPacket ClientboundAddPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
         //noinspection ConstantConditions
-        PlayerSpawnS2CPacketAccessor spawnS2CPacketAccessor = (PlayerSpawnS2CPacketAccessor) playerSpawnS2CPacket;
+        ClientboundAddPlayerPacketAccessor spawnS2CPacketAccessor = (ClientboundAddPlayerPacketAccessor) ClientboundAddPlayerPacket;
         spawnS2CPacketAccessor.setId(this.getId());
-        spawnS2CPacketAccessor.setUuid(this.getUuid());
+        spawnS2CPacketAccessor.setUuid(this.getUUID());
         spawnS2CPacketAccessor.setX(this.getX());
         spawnS2CPacketAccessor.setY(this.getY());
         spawnS2CPacketAccessor.setZ(this.getZ());
-        spawnS2CPacketAccessor.setYaw((byte)((int)(this.getYaw() * 256.0F / 360.0F)));
-        spawnS2CPacketAccessor.setPitch((byte)((int)(this.getPitch() * 256.0F / 360.0F)));
+        spawnS2CPacketAccessor.setYRot((byte)((int)(this.getYHeadRot() * 256.0F / 360.0F)));
+        spawnS2CPacketAccessor.setXRot((byte)((int)(this.getXRot() * 256.0F / 360.0F)));
 
-        return playerSpawnS2CPacket;
+        return ClientboundAddPlayerPacket;
     }
 
     public GameProfile getGameProfile() {
@@ -472,7 +484,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param name new name to be set.
      */
     @Override
-    public void setCustomName(Text name) {
+    public void setCustomName(Component name) {
         super.setCustomName(name);
         String profileName = "Taterzen";
         if(name != null) {
@@ -482,10 +494,10 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 profileName = name.getString().substring(0, 16);
             }
         }
-        NbtCompound skin = null;
+        CompoundTag skin = null;
         if(this.gameProfile != null)
             skin = this.writeSkinToTag(this.gameProfile);
-        this.gameProfile = new GameProfile(this.getUuid(), profileName);
+        this.gameProfile = new GameProfile(this.getUUID(), profileName);
         if(skin != null) {
             this.setSkinFromTag(skin);
             this.sendProfileUpdates();
@@ -499,11 +511,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         if(DISGUISELIB_LOADED)
             DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         else {
-            ServerChunkManager manager = (ServerChunkManager) this.world.getChunkManager();
-            ThreadedAnvilChunkStorage storage = manager.threadedAnvilChunkStorage;
-            EntityTrackerEntryAccessor trackerEntry = ((ThreadedAnvilChunkStorageAccessor) storage).getEntityTrackers().get(this.getId());
+            ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
+            ChunkMap storage = manager.chunkMap;
+            EntityTrackerEntryAccessor trackerEntry = ((ChunkMapAccessor) storage).getEntityMap().get(this.getId());
             if(trackerEntry != null)
-                trackerEntry.getListeners().forEach(tracking -> trackerEntry.getEntry().startTracking(tracking.getPlayer()));
+                trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
         }
     }
 
@@ -532,7 +544,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Sets the Taterzen skin from tag
      * @param tag compound tag containing the skin
      */
-    public void setSkinFromTag(NbtCompound tag) {
+    public void setSkinFromTag(CompoundTag tag) {
         // Clearing current skin
         try {
             PropertyMap map = this.gameProfile.getProperties();
@@ -558,8 +570,8 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      *
      * @return compound tag with skin values
      */
-    public NbtCompound writeSkinToTag(GameProfile profile) {
-        NbtCompound skinTag = new NbtCompound();
+    public CompoundTag writeSkinToTag(GameProfile profile) {
+        CompoundTag skinTag = new CompoundTag();
         try {
             PropertyMap propertyMap = profile.getProperties();
             Property skin = propertyMap.get("textures").iterator().next();
@@ -571,20 +583,20 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         return skinTag;
     }
     /**
-     * Loads Taterzen from {@link NbtCompound}.
+     * Loads Taterzen from {@link CompoundTag}.
      * @param tag tag to load Taterzen from.
      */
     @Override
-    public void readCustomDataFromNbt(NbtCompound tag) {
-        super.readCustomDataFromNbt(tag);
-        NbtCompound npcTag = tag.getCompound("TaterzenNPCTag");
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
-        NbtCompound tags = npcTag.getCompound("Tags");
+        CompoundTag tags = npcTag.getCompound("Tags");
         this.setLeashable(tags.getBoolean("Leashable"));
         this.setPushable(tags.getBoolean("Pushable"));
         this.setPerformAttackJumps(tags.getBoolean("JumpAttack"));
         this.allowEquipmentDrops(tags.getBoolean("DropsAllowed"));
-        this.setSneaking(tags.getBoolean("SneakNameType"));
+        this.setShiftKeyDown(tags.getBoolean("SneakNameType"));
         this.setAllowSounds(tags.getBoolean("AllowSounds"));
 
         // Skin layers
@@ -593,40 +605,40 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
 
         // Multiple commands
-        NbtList commands = (NbtList) npcTag.get("Commands");
+        ListTag commands = (ListTag) npcTag.get("Commands");
         if(commands != null) {
-            commands.forEach(cmdTag -> this.addCommand(cmdTag.asString()));
+            commands.forEach(cmdTag -> this.addCommand(cmdTag.getAsString()));
         }
 
         // Bungee commands
-        NbtList bungeeCommands = (NbtList) npcTag.get("BungeeCommands");
+        ListTag bungeeCommands = (ListTag) npcTag.get("BungeeCommands");
         if(bungeeCommands != null) {
             bungeeCommands.forEach(cmdTag -> {
-                NbtList cmdList = (NbtList) cmdTag;
-                String command = cmdList.get(0).asString();
-                String player = cmdList.get(1).asString();
-                String argument = cmdList.get(2).asString();
+                ListTag cmdList = (ListTag) cmdTag;
+                String command = cmdList.get(0).getAsString();
+                String player = cmdList.get(1).getAsString();
+                String argument = cmdList.get(2).getAsString();
                 this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
             });
         }
 
-        NbtList pathTargets = (NbtList) npcTag.get("PathTargets");
+        ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
         if(pathTargets != null) {
             if(pathTargets.size() > 0) {
                 pathTargets.forEach(posTag -> {
-                    if(posTag instanceof NbtCompound pos) {
+                    if(posTag instanceof CompoundTag pos) {
                         BlockPos target = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
                         this.addPathTarget(target);
                     }
                 });
-                this.setPositionTarget(this.npcData.pathTargets.get(0), 1);
+                this.restrictTo(this.npcData.pathTargets.get(0), 1);
             }
         }
 
-        NbtList messages = (NbtList) npcTag.get("Messages");
+        ListTag messages = (ListTag) npcTag.get("Messages");
         if(messages != null && messages.size() > 0) {
             messages.forEach(msgTag -> {
-                NbtCompound msgCompound = (NbtCompound) msgTag;
+                CompoundTag msgCompound = (CompoundTag) msgTag;
                 this.addMessage(TextUtil.fromNbtElement(msgCompound.get("Message")), msgCompound.getInt("Delay"));
             });
         }
@@ -640,22 +652,22 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             profileName = profileName.substring(0, 16);
         }
 
-        this.gameProfile = new GameProfile(this.getUuid(), profileName);
+        this.gameProfile = new GameProfile(this.getUUID(), profileName);
         if(DISGUISELIB_LOADED) {
             DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         }
 
         // Skin is cached
-        NbtCompound skinTag = npcTag.getCompound("skin");
+        CompoundTag skinTag = npcTag.getCompound("skin");
         this.setSkinFromTag(skinTag);
 
         // Profession initialising
-        NbtList professions = (NbtList) npcTag.get("Professions");
+        ListTag professions = (ListTag) npcTag.get("Professions");
         if(professions != null && professions.size() > 0) {
             professions.forEach(professionTag -> {
-                NbtCompound professionCompound = (NbtCompound) professionTag;
+                CompoundTag professionCompound = (CompoundTag) professionTag;
 
-                Identifier professionId = new Identifier(professionCompound.getString("ProfessionType"));
+                ResourceLocation professionId = new ResourceLocation(professionCompound.getString("ProfessionType"));
                 if(PROFESSION_TYPES.containsKey(professionId)) {
                     TaterzenProfession profession = PROFESSION_TYPES.get(professionId).create(this);
                     this.addProfession(professionId, profession);
@@ -664,94 +676,94 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                     profession.readNbt(professionCompound.getCompound("ProfessionData"));
                 }
                 else
-                    Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mods provides it.", this.getName().asString(), professionId);
+                    Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mods provides it.", this.getName().getString(), professionId);
             });
         }
 
         // Follow targets
-        NbtCompound followTag = npcTag.getCompound("Follow");
+        CompoundTag followTag = npcTag.getCompound("Follow");
         if(followTag.contains("Type"))
             this.setFollowType(NPCData.FollowTypes.valueOf(followTag.getString("Type")));
 
         if(followTag.contains("UUID"))
-            this.setFollowUuid(followTag.getUuid("UUID"));
+            this.setFollowUuid(followTag.getUUID("UUID"));
 
         if(npcTag.contains("Pose"))
-            this.setPose(EntityPose.valueOf(npcTag.getString("Pose")));
+            this.setPose(Pose.valueOf(npcTag.getString("Pose")));
         else
-            this.setPose(EntityPose.STANDING);
+            this.setPose(Pose.STANDING);
 
         this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
     }
 
     /**
-     * Saves Taterzen to {@link NbtCompound tag}.
+     * Saves Taterzen to {@link CompoundTag tag}.
      *
      * @param tag tag to save Taterzen to.
      */
     @Override
-    public void writeCustomDataToNbt(NbtCompound tag) {
-        super.writeCustomDataToNbt(tag);
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
 
-        NbtCompound npcTag = new NbtCompound();
+        CompoundTag npcTag = new CompoundTag();
 
         // Vanilla saves CustomNameVisible only if set to true
         super.setCustomNameVisible(tag.contains("CustomNameVisible"));
 
         npcTag.putString("movement", this.npcData.movement.toString());
 
-        NbtCompound tags = new NbtCompound();
+        CompoundTag tags = new CompoundTag();
 
         tags.putBoolean("Leashable", this.npcData.leashable);
         tags.putBoolean("Pushable", this.npcData.pushable);
         tags.putBoolean("JumpAttack", this.npcData.jumpWhileAttacking);
         tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
-        tags.putBoolean("SneakNameType", this.isSneaking());
+        tags.putBoolean("SneakNameType", this.isShiftKeyDown());
         tags.putBoolean("AllowSounds", this.npcData.allowSounds);
 
         npcTag.put("Tags", tags);
 
 
-        npcTag.putByte("SkinLayers", this.fakePlayer.getDataTracker().get(getPLAYER_MODEL_PARTS()));
+        npcTag.putByte("SkinLayers", this.fakePlayer.getEntityData().get(getPLAYER_MODE_CUSTOMISATION()));
 
         // Commands
-        NbtList commands = new NbtList();
-        this.npcData.commands.forEach(cmd -> commands.add(NbtString.of(cmd)));
+        ListTag commands = new ListTag();
+        this.npcData.commands.forEach(cmd -> commands.add(StringTag.valueOf(cmd)));
         npcTag.put("Commands", commands);
 
         // Bungee commands
-        NbtList bungee = new NbtList();
+        ListTag bungee = new ListTag();
         this.npcData.bungeeCommands.forEach(cmd -> {
             String command = cmd.getLeft().toString();
             String player = cmd.getMiddle();
             String argument = cmd.getRight();
 
-            NbtList triple = new NbtList();
-            triple.add(NbtString.of(command));
-            triple.add(NbtString.of(player));
-            triple.add(NbtString.of(argument));
+            ListTag triple = new ListTag();
+            triple.add(StringTag.valueOf(command));
+            triple.add(StringTag.valueOf(player));
+            triple.add(StringTag.valueOf(argument));
 
             bungee.add(triple);
         });
         npcTag.put("BungeeCommands", bungee);
 
         // Bungee commands
-        NbtList bungeeCommands = (NbtList) npcTag.get("BungeeCommands");
+        ListTag bungeeCommands = (ListTag) npcTag.get("BungeeCommands");
         if(bungeeCommands != null) {
             bungeeCommands.forEach(cmdTag -> {
-                NbtList cmdList = (NbtList) cmdTag;
-                String command = cmdList.get(0).asString();
-                String player = cmdList.get(1).asString();
-                String argument = cmdList.get(2).asString();
+                ListTag cmdList = (ListTag) cmdTag;
+                String command = cmdList.get(0).getAsString();
+                String player = cmdList.get(1).getAsString();
+                String argument = cmdList.get(2).getAsString();
                 this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
             });
         }
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
-        NbtList pathTargets = new NbtList();
+        ListTag pathTargets = new ListTag();
         this.npcData.pathTargets.forEach(blockPos -> {
-            NbtCompound pos = new NbtCompound();
+            CompoundTag pos = new CompoundTag();
             pos.putInt("x", blockPos.getX());
             pos.putInt("y", blockPos.getY());
             pos.putInt("z", blockPos.getZ());
@@ -760,9 +772,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         npcTag.put("PathTargets", pathTargets);
 
         // Messages
-        NbtList messages = new NbtList();
+        ListTag messages = new ListTag();
         this.npcData.messages.forEach(pair -> {
-            NbtCompound msg = new NbtCompound();
+            CompoundTag msg = new CompoundTag();
             msg.put("Message", TextUtil.toNbtElement(pair.getFirst()));
             msg.putInt("Delay", pair.getSecond());
             messages.add(msg);
@@ -773,13 +785,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         npcTag.putString("Behaviour", this.npcData.behaviour.toString());
 
         // Profession initialising
-        NbtList professions = new NbtList();
+        ListTag professions = new ListTag();
         this.professions.forEach((id, profession) -> {
-            NbtCompound professionCompound = new NbtCompound();
+            CompoundTag professionCompound = new CompoundTag();
 
             professionCompound.putString("ProfessionType", id.toString());
 
-            NbtCompound professionData = new NbtCompound();
+            CompoundTag professionData = new CompoundTag();
             profession.saveNbt(professionData);
             professionCompound.put("ProfessionData", professionData);
 
@@ -787,11 +799,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         });
         npcTag.put("Professions", professions);
 
-        NbtCompound followTag = new NbtCompound();
+        CompoundTag followTag = new CompoundTag();
         followTag.putString("Type", this.npcData.follow.type.toString());
 
         if(this.npcData.follow.targetUuid != null)
-            followTag.putUuid("UUID", this.npcData.follow.targetUuid);
+            followTag.putUUID("UUID", this.npcData.follow.targetUuid);
 
         npcTag.put("Follow", followTag);
 
@@ -805,7 +817,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Sets player as equipment editor.
      * @param player player that will be marked as equipment editor.
      */
-    public void setEquipmentEditor(@Nullable PlayerEntity player) {
+    public void setEquipmentEditor(@Nullable Player player) {
         this.npcData.equipmentEditor = player;
     }
 
@@ -814,7 +826,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param player player to check.
      * @return true if player is equipment editor of the NPC, otherwise false.
      */
-    public boolean isEquipmentEditor(@NotNull PlayerEntity player) {
+    public boolean isEquipmentEditor(@NotNull Player player) {
         return player.equals(this.npcData.equipmentEditor);
     }
 
@@ -823,47 +835,47 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param player player interacting with NPC
      * @param pos interaction pos
      * @param hand player's interacting hand
-     * @return {@link ActionResult#PASS} if NPC has a right click action, otherwise {@link ActionResult#FAIL}
+     * @return {@link InteractionResult#PASS} if NPC has a right click action, otherwise {@link InteractionResult#FAIL}
      */
     @Override
-    public ActionResult interactAt(PlayerEntity player, Vec3d pos, Hand hand) {
-        long lastAction = ((ServerPlayerEntity) player).getLastActionTime();
+    public InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
+        long lastAction = ((ServerPlayer) player).getLastActionTime();
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
         if(lastAction - ((ITaterzenPlayer) player).getLastInteractionTime() < 50)
-            return ActionResult.FAIL;
+            return InteractionResult.FAIL;
         ((ITaterzenPlayer) player).setLastInteraction(lastAction);
 
 
         for(TaterzenProfession profession : this.professions.values()) {
-            ActionResult professionResult = profession.interactAt(player, pos, hand);
-            if(professionResult != ActionResult.PASS)
+            InteractionResult professionResult = profession.interactAt(player, pos, hand);
+            if(professionResult != InteractionResult.PASS)
                 return professionResult;
         }
 
         if(this.isEquipmentEditor(player)) {
-            ItemStack stack = player.getStackInHand(hand).copy();
+            ItemStack stack = player.getItemInHand(hand).copy();
 
-            if (stack.isEmpty() && player.isSneaking()) {
-                this.dropEquipment(DamageSource.player(player), 1, this.npcData.allowEquipmentDrops);
+            if (stack.isEmpty() && player.isShiftKeyDown()) {
+                this.dropCustomDeathLoot(DamageSource.playerAttack(player), 1, this.npcData.allowEquipmentDrops);
                 for(EquipmentSlot slot : EquipmentSlot.values()) {
-                    this.fakePlayer.equipStack(slot, ItemStack.EMPTY);
+                    this.fakePlayer.setItemSlot(slot, ItemStack.EMPTY);
                 }
             }
-            else if(player.isSneaking()) {
-                this.equipStack(EquipmentSlot.MAINHAND, stack);
-                this.fakePlayer.equipStack(EquipmentSlot.MAINHAND, stack);
+            else if(player.isShiftKeyDown()) {
+                this.setItemSlot(EquipmentSlot.MAINHAND, stack);
+                this.fakePlayer.setItemSlot(EquipmentSlot.MAINHAND, stack);
             }
             else {
-                EquipmentSlot slot = getPreferredEquipmentSlot(stack);
-                this.equipLootStack(slot, stack);
-                this.fakePlayer.equipStack(slot, stack);
+                EquipmentSlot slot = getEquipmentSlotForItem(stack);
+                this.setItemSlotAndDropWhenKilled(slot, stack);
+                this.fakePlayer.setItemSlot(slot, stack);
             }
             // Updating behaviour (if npc had a sword and now has a bow, it won't
             // be able to attack otherwise.)
             this.setBehaviour(this.npcData.behaviour);
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
         String playername = player.getGameProfile().getName();
         if(!this.npcData.commands.isEmpty()) {
@@ -875,7 +887,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 if(cmd.contains("--clicker--")) {
                     cmd = cmd.replaceAll("--clicker--", playername);
                 }
-                this.server.getCommandManager().execute(this.getCommandSource(), cmd);
+                this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
             }
         }
 
@@ -897,11 +909,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
                 out.writeUTF(middle);
                 out.writeUTF(argument);
 
-                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
                 buf.writeBytes(out.toByteArray());
 
-                CustomPayloadS2CPacket packet = new CustomPayloadS2CPacket(new Identifier("bungeecord", "main"), buf);
-                ((ServerPlayerEntity) player).networkHandler.sendPacket(packet);
+                ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation("bungeecord", "main"), buf);
+                ((ServerPlayer) player).connection.send(packet);
             }
         }
 
@@ -909,13 +921,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
+    protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
         // Additional drop check
         if(this.npcData.allowEquipmentDrops)
-            super.dropEquipment(source, lootingMultiplier, allowDrops);
+            super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
         else {
             for(EquipmentSlot slot : EquipmentSlot.values()) {
-                this.equipStack(slot, ItemStack.EMPTY);
+                this.setItemSlot(slot, ItemStack.EMPTY);
             }
         }
     }
@@ -926,7 +938,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    protected boolean shouldDropXp() {
+    protected boolean shouldDropExperience() {
         return this.npcData.allowEquipmentDrops;
     }
 
@@ -934,7 +946,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Adds the message to taterzen's message list.
      * @param text message to add
      */
-    public void addMessage(Text text) {
+    public void addMessage(Component text) {
         this.npcData.messages.add(new Pair<>(text, config.messages.messageDelay));
     }
 
@@ -943,7 +955,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param text message to add
      * @param delay message delay, in ticks
      */
-    public void addMessage(Text text, int delay) {
+    public void addMessage(Component text, int delay) {
         this.npcData.messages.add(new Pair<>(text, delay));
     }
 
@@ -952,7 +964,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param index index of the message to edit
      * @param text new text message
      */
-    public void editMessage(int index, Text text) {
+    public void editMessage(int index, Component text) {
         if(index >= 0 && index < this.npcData.messages.size())
             this.npcData.messages.set(index, new Pair<>(text, config.messages.messageDelay));
     }
@@ -974,7 +986,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      */
     public void setMessageDelay(int index, int delay) {
         if(index < this.npcData.messages.size()) {
-            Pair<Text, Integer> newMsg = this.npcData.messages.get(index).mapSecond(previous -> delay);
+            Pair<Component, Integer> newMsg = this.npcData.messages.get(index).mapSecond(previous -> delay);
             this.npcData.messages.set(index, newMsg);
         }
     }
@@ -987,7 +999,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Gets {@link ArrayList} of {@link Pair}s of messages and their delays.
      * @return arraylist of pairs with texts and delays.
      */
-    public ArrayList<Pair<Text, Integer>> getMessages() {
+    public ArrayList<Pair<Component, Integer>> getMessages() {
         return this.npcData.messages;
     }
 
@@ -996,9 +1008,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param entity colliding entity
      */
     @Override
-    public void pushAwayFrom(Entity entity) {
+    public void push(Entity entity) {
         if(this.npcData.pushable) {
-            super.pushAwayFrom(entity);
+            super.push(entity);
         }
     }
 
@@ -1007,9 +1019,9 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param entity colliding entity
      */
     @Override
-    protected void pushAway(Entity entity) {
+    protected void doPush(Entity entity) {
         if(this.npcData.pushable) {
-            super.pushAway(entity);
+            super.doPush(entity);
         }
     }
 
@@ -1028,11 +1040,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @return true if attack should be cancelled.
      */
     @Override
-    public boolean handleAttack(Entity attacker) {
-        if(attacker instanceof PlayerEntity && this.isEquipmentEditor((PlayerEntity) attacker)) {
-            ItemStack main = this.getMainHandStack();
-            this.setStackInHand(Hand.MAIN_HAND, this.getOffHandStack());
-            this.setStackInHand(Hand.OFF_HAND, main);
+    public boolean skipAttackInteraction(Entity attacker) {
+        if(attacker instanceof Player && this.isEquipmentEditor((Player) attacker)) {
+            ItemStack main = this.getMainHandItem();
+            this.setItemInHand(InteractionHand.MAIN_HAND, this.getOffhandItem());
+            this.setItemInHand(InteractionHand.OFF_HAND, main);
             return true;
         }
         for(TaterzenProfession profession : this.professions.values()) {
@@ -1048,22 +1060,17 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
+    protected void defineSynchedData() {
+        super.defineSynchedData();
     }
 
     @Override
-    protected boolean isAffectedByDaylight() {
+    protected boolean isSunBurnTick() {
         return false;
     }
 
     @Override
-    protected boolean isDisallowedInPeaceful() {
-        return false;
-    }
-
-    @Override
-    public boolean canBeLeashedBy(PlayerEntity player) {
+    public boolean canBeLeashed(Player player) {
         return !this.isLeashed() && this.npcData.leashable;
     }
 
@@ -1076,14 +1083,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    public void attachLeash(Entity entityIn, boolean sendAttachNotification) {
-        super.attachLeash(entityIn, sendAttachNotification);
+    public void setLeashedTo(Entity entityIn, boolean sendAttachNotification) {
+        super.setLeashedTo(entityIn, sendAttachNotification);
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(2, new LongDoorInteractGoal(this, true));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new OpenDoorGoal(this, true));
     }
 
     /**
@@ -1091,8 +1098,8 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param source damage source responsible for death.
      */
     @Override
-    public void onDeath(DamageSource source) {
-        super.onDeath(source);
+    public void die(DamageSource source) {
+        super.die(source);
         TATERZEN_NPCS.remove(this);
 
         for(TaterzenProfession profession : this.professions.values()) {
@@ -1117,13 +1124,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     public void setBehaviour(NPCData.Behaviour level) {
         this.npcData.behaviour = level;
 
-        this.goalSelector.remove(reachMeleeAttackGoal);
-        this.goalSelector.remove(projectileAttackGoal);
-        this.goalSelector.remove(attackMonstersGoal);
+        this.goalSelector.removeGoal(reachMeleeAttackGoal);
+        this.goalSelector.removeGoal(projectileAttackGoal);
+        this.goalSelector.removeGoal(attackMonstersGoal);
 
-        this.targetSelector.remove(followTargetGoal);
-        this.targetSelector.remove(revengeGoal);
-        this.targetSelector.remove(followMonstersGoal);
+        this.targetSelector.removeGoal(followTargetGoal);
+        this.targetSelector.removeGoal(revengeGoal);
+        this.targetSelector.removeGoal(followMonstersGoal);
 
         for(TaterzenProfession profession : this.professions.values()) {
             profession.onBehaviourSet(level);
@@ -1135,17 +1142,17 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
         switch(level) {
             case DEFENSIVE:
-                this.targetSelector.add(2, revengeGoal);
+                this.targetSelector.addGoal(2, revengeGoal);
                 this.setAttackGoal();
                 break;
             case FRIENDLY:
-                this.targetSelector.add(2, revengeGoal);
-                this.targetSelector.add(3, followMonstersGoal);
-                this.goalSelector.add(3, attackMonstersGoal);
+                this.targetSelector.addGoal(2, revengeGoal);
+                this.targetSelector.addGoal(3, followMonstersGoal);
+                this.goalSelector.addGoal(3, attackMonstersGoal);
                 break;
             case HOSTILE:
-                this.targetSelector.add(2, revengeGoal);
-                this.targetSelector.add(3, followTargetGoal);
+                this.targetSelector.addGoal(2, revengeGoal);
+                this.targetSelector.addGoal(3, followTargetGoal);
                 this.setAttackGoal();
                 break;
             default:
@@ -1157,12 +1164,12 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Sets proper attack goal, based on hand item stack.
      */
     private void setAttackGoal() {
-        ItemStack mainHandStack = this.getMainHandStack();
-        ItemStack offHandStack = this.getOffHandStack();
-        if(mainHandStack.getItem() instanceof RangedWeaponItem || offHandStack.getItem() instanceof RangedWeaponItem) {
-            this.goalSelector.add(3, projectileAttackGoal);
+        ItemStack mainHandStack = this.getMainHandItem();
+        ItemStack offHandStack = this.getOffhandItem();
+        if(mainHandStack.getItem() instanceof ProjectileWeaponItem || offHandStack.getItem() instanceof ProjectileWeaponItem) {
+            this.goalSelector.addGoal(3, projectileAttackGoal);
         } else {
-            this.goalSelector.add(3, reachMeleeAttackGoal);
+            this.goalSelector.addGoal(3, reachMeleeAttackGoal);
         }
     }
 
@@ -1183,26 +1190,26 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
     }
 
     @Override
-    public boolean canUseRangedWeapon(RangedWeaponItem weapon) {
+    public boolean canFireProjectileWeapon(ProjectileWeaponItem weapon) {
         return this.npcData.behaviour != NPCData.Behaviour.PASSIVE;
     }
 
     @Override
-    public void setCharging(boolean charging) {
+    public void setChargingCrossbow(boolean charging) {
     }
 
     @Override
-    public void shoot(LivingEntity target, ItemStack crossbow, ProjectileEntity projectile, float multiShotSpray) {
+    public void shootCrossbowProjectile(LivingEntity target, ItemStack crossbow, Projectile projectile, float multiShotSpray) {
         // Crossbow attack
         this.shootProjectile(target, projectile, multiShotSpray);
     }
 
     @Override
-    public void postShoot() {
+    public void onCrossbowAttackPerformed() {
     }
 
     @Override
-    public void attack(LivingEntity target, float pullProgress) {
+    public void performRangedAttack(LivingEntity target, float pullProgress) {
 
         for(TaterzenProfession profession : this.professions.values()) {
             if(profession.cancelRangedAttack(target))
@@ -1210,37 +1217,37 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
         }
 
         // Ranged attack
-        ItemStack arrowType = this.getArrowType(this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.BOW)));
+        ItemStack arrowType = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
         if(arrowType.isEmpty())
-            arrowType = this.getArrowType(this.getStackInHand(ProjectileUtil.getHandPossiblyHolding(this, Items.CROSSBOW)));
+            arrowType = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.CROSSBOW)));
 
-        PersistentProjectileEntity projectile = ProjectileUtil.createArrowProjectile(this, arrowType.copy(), pullProgress);
+        AbstractArrow projectile = ProjectileUtil.getMobArrow(this, arrowType.copy(), pullProgress);
 
         this.shootProjectile(target, projectile, 0.0F);
 
 
     }
 
-    private void shootProjectile(LivingEntity target, ProjectileEntity projectile, float multishotSpray) {
+    private void shootProjectile(LivingEntity target, Projectile projectile, float multishotSpray) {
         double deltaX = target.getX() - this.getX();
-        double y = target.getBodyY(0.3333333333333333D) - projectile.getY();
+        double y = target.getY(0.3333333333333333D) - projectile.getY();
         double deltaZ = target.getZ() - this.getZ();
-        double planeDistance = MathHelper.sqrt((float) (deltaX * deltaX + deltaZ * deltaZ));
-        Vec3f launchVelocity = this.getProjectileLaunchVelocity(this, new Vec3d(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
+        double planeDistance = Mth.sqrt((float) (deltaX * deltaX + deltaZ * deltaZ));
+        Vector3f launchVelocity = this.getProjectileShotVector(this, new Vec3(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
 
-        projectile.setVelocity(launchVelocity.getX(), launchVelocity.getY(), launchVelocity.getZ(), 1.6F, 0);
+        projectile.shoot(launchVelocity.x(), launchVelocity.y(), launchVelocity.z(), 1.6F, 0);
 
-        this.playSound(SoundEvents.ENTITY_ARROW_SHOOT, 1.0F, 0.125F);
-        this.world.spawnEntity(projectile);
+        this.playSound(SoundEvents.ARROW_SHOOT, 1.0F, 0.125F);
+        this.level.addFreshEntity(projectile);
     }
 
     @Override
-    public boolean tryAttack(Entity target) {
+    public boolean doHurtTarget(Entity target) {
         for(TaterzenProfession profession : this.professions.values()) {
             if(profession.cancelMeleeAttack(target))
                 return false;
         }
-        return super.tryAttack(target);
+        return super.doHurtTarget(target);
     }
 
     @Override
@@ -1249,7 +1256,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             return null;
 
         int rnd = this.random.nextInt(config.defaults.ambientSounds.size());
-        Identifier sound = new Identifier(config.defaults.ambientSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(config.defaults.ambientSounds.get(rnd));
 
         return new SoundEvent(sound);
     }
@@ -1260,7 +1267,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             return null;
 
         int rnd = this.random.nextInt(config.defaults.hurtSounds.size());
-        Identifier sound = new Identifier(config.defaults.hurtSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(config.defaults.hurtSounds.get(rnd));
 
         return new SoundEvent(sound);
     }
@@ -1271,22 +1278,22 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
             return null;
 
         int rnd = this.random.nextInt(config.defaults.deathSounds.size());
-        Identifier sound = new Identifier(config.defaults.deathSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(config.defaults.deathSounds.get(rnd));
 
         return new SoundEvent(sound);
     }
 
     @Override
-    public float getPathfindingFavor(BlockPos pos, WorldView world) {
+    public float getWalkTargetValue(BlockPos pos, LevelReader world) {
         return 0.0F;
     }
 
     @Override
-    protected Text getDefaultName() {
-        return new LiteralText("-" + config.defaults.name + "-");
+    protected Component getTypeName() {
+        return new TextComponent("-" + config.defaults.name + "-");
     }
 
-    public PlayerEntity getFakePlayer() {
+    public Player getFakePlayer() {
         return this.fakePlayer;
     }
 
@@ -1300,22 +1307,22 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
     /**
      * Adds {@link TaterzenProfession} to Taterzen.
-     * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(Identifier, TaterzenProfession)}.
-     * @param professionId identifier of the profession
+     * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(ResourceLocation, TaterzenProfession)}.
+     * @param professionId ResourceLocation of the profession
      */
-    public void addProfession(Identifier professionId) {
+    public void addProfession(ResourceLocation professionId) {
         if(PROFESSION_TYPES.containsKey(professionId)) {
             this.addProfession(professionId, PROFESSION_TYPES.get(professionId).create(this));
         } else
-            Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().asString());
+            Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().getString());
     }
 
     /**
      * Adds {@link TaterzenProfession} to Taterzen.
-     * @param professionId identifier of the profession
+     * @param professionId ResourceLocation of the profession
      * @param profession profession object (implementing {@link TaterzenProfession})
      */
-    public void addProfession(Identifier professionId, TaterzenProfession profession) {
+    public void addProfession(ResourceLocation professionId, TaterzenProfession profession) {
         this.professions.put(professionId, profession);
     }
 
@@ -1323,7 +1330,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * GetsTaterzen's professions.
      * @return all professions ids of Taterzen's professions.
      */
-    public Collection<Identifier> getProfessionIds() {
+    public Collection<ResourceLocation> getProfessionIds() {
         return this.professions.keySet();
     }
 
@@ -1331,7 +1338,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * Removes Taterzen's profession.
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
-    public void removeProfession(Identifier professionId) {
+    public void removeProfession(ResourceLocation professionId) {
         this.professions.remove(professionId);
     }
 
@@ -1340,7 +1347,7 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
     @Nullable
-    public TaterzenProfession getProfession(Identifier professionId) {
+    public TaterzenProfession getProfession(ResourceLocation professionId) {
         return this.professions.getOrDefault(professionId, null);
     }
 
@@ -1349,21 +1356,21 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param item item to pick up.
      */
     @Override
-    protected void loot(ItemEntity item) {
+    public void onItemPickup(ItemEntity item) {
         // Profession event
-        ItemStack stack = item.getStack();
+        ItemStack stack = item.getItem();
         ItemStack copiedStack = stack.copy();
         for(TaterzenProfession profession : this.professions.values()) {
             if(profession.tryPickupItem(copiedStack)) {
-                this.triggerItemPickedUpByEntityCriteria(item);
-                this.sendPickup(item, stack.getCount());
+                this.onItemPickup(item);
+                this.take(item, stack.getCount());
                 stack.setCount(0);
                 item.remove(null);
                 return;
             }
         }
 
-        super.loot(item);
+        super.onItemPickup(item);
     }
 
     /**
@@ -1373,11 +1380,11 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @return true if interaction was successfull, otherwise false.
      */
     public boolean interact(BlockPos pos) {
-        if(this.getPos().distanceTo(Vec3d.ofCenter(pos)) < 4.0D && !this.world.isClient()) {
+        if(this.position().distanceTo(Vec3.atCenterOf(pos)) < 4.0D && !this.level.isClientSide()) {
             this.lookAt(pos);
-            this.swingHand(Hand.MAIN_HAND);
-            this.world.getBlockState(pos).onUse(this.world, this.fakePlayer, Hand.MAIN_HAND, new BlockHitResult(Vec3d.ofCenter(pos), Direction.DOWN, pos, false));
-            this.getMainHandStack().use(this.world, this.fakePlayer, Hand.MAIN_HAND);
+            this.swing(InteractionHand.MAIN_HAND);
+            this.level.getBlockState(pos).use(this.level, this.fakePlayer, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.DOWN, pos, false));
+            this.getMainHandItem().use(this.level, this.fakePlayer, InteractionHand.MAIN_HAND);
             return true;
         }
         return false;
@@ -1388,14 +1395,14 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param target target block to look at.
      */
     public void lookAt(BlockPos target) {
-        Vec3d vec3d = this.getPos();
+        Vec3 vec3d = this.position();
         double d = target.getX() - vec3d.x;
         double e = target.getY() - vec3d.y;
         double f = target.getZ() - vec3d.z;
         double g = Math.sqrt(d * d + f * f);
-        this.setPitch(MathHelper.wrapDegrees((float)(-(MathHelper.atan2(e, g) * 57.2957763671875D))));
-        this.setYaw(MathHelper.wrapDegrees((float)(MathHelper.atan2(f, d) * 57.2957763671875D) - 90.0F));
-        this.setHeadYaw(this.getYaw());
+        this.setXRot(Mth.wrapDegrees((float)(-(Mth.atan2(e, g) * 57.2957763671875D))));
+        this.setYBodyRot(Mth.wrapDegrees((float)(Mth.atan2(f, d) * 57.2957763671875D) - 90.0F));
+        this.setYHeadRot(this.getYHeadRot());
     }
 
     /**
@@ -1419,13 +1426,13 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
 
         switch(followType) {
             case MOBS:
-                this.goalSelector.add(4, trackLivingGoal);
+                this.goalSelector.addGoal(4, trackLivingGoal);
                 break;
             case PLAYERS:
-                this.goalSelector.add(4, trackPlayersGoal);
+                this.goalSelector.addGoal(4, trackPlayersGoal);
                 break;
             case UUID:
-                this.goalSelector.add(4, trackUuidGoal);
+                this.goalSelector.addGoal(4, trackUuidGoal);
                 break;
             default:
                 break;
@@ -1470,12 +1477,12 @@ public class TaterzenNPC extends PathAwareEntity implements CrossbowUser, Ranged
      * @param skinLayers byte of skin layers, see wiki.wg for more info.
      */
     public void setSkinLayers(Byte skinLayers) {
-        this.fakePlayer.getDataTracker().set(getPLAYER_MODEL_PARTS(), skinLayers);
+        this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), skinLayers);
     }
 
     /**
      * Adds "bungee" command. It's not a standard command, executed by the server,
-     * but sent as {@link CustomPayloadS2CPacket} to player and caught by proxy.
+     * but sent as {@link net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket} to player and caught by proxy.
      *
      * @see <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/#wikiPage">Spigot thread</a> on message channels.
      * @see <a href="https://github.com/VelocityPowered/Velocity/blob/65db0fad6a221205ec001f1f68a032215da402d6/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/BungeeCordMessageResponder.java#L297">Proxy implementation</a> on GitHub.
