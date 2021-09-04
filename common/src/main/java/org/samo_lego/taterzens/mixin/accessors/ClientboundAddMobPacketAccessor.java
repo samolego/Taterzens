@@ -5,9 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientboundAddMobPacket.class)
-public interface MobSpawnS2CPacketAccessor {
-
+public interface ClientboundAddMobPacketAccessor {
     @Accessor("id")
     int getId();
-
 }

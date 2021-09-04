@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.EntityAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundSetEntityDataPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.PlayerListS2CPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Final;
@@ -42,7 +42,7 @@ import static org.samo_lego.taterzens.Taterzens.config;
  * Used to "fake" the TaterzenNPC entity type.
  */
 @Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
-public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
+public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
     @Shadow public ServerPlayer player;
 
@@ -85,7 +85,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
 
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
-            ((PlayerListS2CPacketAccessor) playerAddPacket).setEntries(
+            ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
                     Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getName()))
             );
             this.send(playerAddPacket);
@@ -130,7 +130,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
             this.taterzens$skipCheck = true;
 
             this.taterzens$queueTimer = config.taterzenTablistTimeout;
-            ((PlayerListS2CPacketAccessor) packet).getEntries().forEach(entry -> {
+            ((ClientboundPlayerInfoPacketAccessor) packet).getEntries().forEach(entry -> {
                 if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
                     // Fixes unloaded taterzens showing in tablist (disguiselib)
                     this.taterzens$tablistQueue.add(new Pair<>(entry.getProfile(), entry.getDisplayName()));
@@ -158,7 +158,7 @@ public abstract class ServerPlayNetworkHandlerMixin_PacketFaker {
                     )
                     .collect(Collectors.toList());
             //noinspection ConstantConditions
-            ((PlayerListS2CPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
+            ((ClientboundPlayerInfoPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
             this.send(taterzensRemovePacket);
 
             this.taterzens$tablistQueue.clear();

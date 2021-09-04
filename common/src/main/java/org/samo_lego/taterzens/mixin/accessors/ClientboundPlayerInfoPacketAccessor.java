@@ -8,7 +8,7 @@ import java.util.List;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 
 @Mixin(ClientboundPlayerInfoPacket.class)
-public interface PlayerListS2CPacketAccessor {
+public interface ClientboundPlayerInfoPacketAccessor {
     @Accessor("action")
     void setAction(ClientboundPlayerInfoPacket.Action action);
 

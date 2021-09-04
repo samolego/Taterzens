@@ -21,7 +21,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public class ServerPlayNetworkHandlerMixin_MsgEditor {
+public class ServerGamePacketListenerImplMixin_MsgEditor {
     @Shadow public ServerPlayer player;
 
     /**
