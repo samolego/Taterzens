@@ -2,7 +2,7 @@ $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:org.samo_lego.taterzens.compatibility.forge////PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/index.html
 $dokka.location:org.samo_lego.taterzens.compatibility.forge/LoaderSpecificImpl///PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/-loader-specific-impl/index.html
-$dokka.location:org.samo_lego.taterzens.compatibility.forge/LoaderSpecificImpl/permissions$checkPermission/#net.minecraft.server.command.ServerCommandSource#java.lang.String#int/PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/-loader-specific-impl/permissions$check-permission.html
+$dokka.location:org.samo_lego.taterzens.compatibility.forge/LoaderSpecificImpl/permissions$checkPermission/#net.minecraft.commands.CommandSourceStack#java.lang.String#int/PointingToDeclaration/forge/org.samo_lego.taterzens.compatibility.forge/-loader-specific-impl/permissions$check-permission.html
 $dokka.location:org.samo_lego.taterzens.event////PointingToDeclaration/forge/org.samo_lego.taterzens.event/index.html
 $dokka.location:org.samo_lego.taterzens.event/EventHandler///PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/index.html
 $dokka.location:org.samo_lego.taterzens.event/EventHandler/EventHandler/#/PointingToDeclaration/forge/org.samo_lego.taterzens.event/-event-handler/-event-handler.html
@@ -18,7 +18,7 @@ $dokka.location:org.samo_lego.taterzens////PointingToDeclaration/forge/org.samo
 $dokka.location:org.samo_lego.taterzens/TaterzensForge///PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/index.html
 $dokka.location:org.samo_lego.taterzens/TaterzensForge/TaterzensForge/#/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/-taterzens-forge.html
 $dokka.location:org.samo_lego.taterzens/TaterzensForge/entityAttributes/#net.minecraftforge.event.entity.EntityAttributeCreationEvent/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/entity-attributes.html
-$dokka.location:org.samo_lego.taterzens/TaterzensForge/registerEntities/#net.minecraftforge.event.RegistryEvent.Register<net.minecraft.entity.EntityType<?>>/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/register-entities.html
+$dokka.location:org.samo_lego.taterzens/TaterzensForge/registerEntities/#net.minecraftforge.event.RegistryEvent.Register<net.minecraft.world.entity.EntityType<?>>/PointingToDeclaration/forge/org.samo_lego.taterzens/-taterzens-forge/register-entities.html
 org.samo_lego.taterzens
 org.samo_lego.taterzens.compatibility.forge
 org.samo_lego.taterzens.event
