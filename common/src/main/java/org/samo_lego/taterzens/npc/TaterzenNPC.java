@@ -1060,11 +1060,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-    }
-
-    @Override
     protected boolean isSunBurnTick() {
         return false;
     }

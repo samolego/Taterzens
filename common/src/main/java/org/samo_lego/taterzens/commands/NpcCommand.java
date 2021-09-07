@@ -203,7 +203,7 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
 
-        AABB box = player.getBoundingBox().move(Vec3.directionFromRotation(player.getRotationVector().scale(2.0F))).inflate(0.3D);
+        AABB box = player.getBoundingBox().move(player.getLookAngle().scale(2.0F)).inflate(0.3D);
 
         TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
         if(npc != null) {

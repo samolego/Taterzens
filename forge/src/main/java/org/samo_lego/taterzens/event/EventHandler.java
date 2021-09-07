@@ -21,7 +21,7 @@ public class EventHandler {
     @SubscribeEvent
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getPlayer();
-        if(BlockEvent.onBlockInteract(player, player.getCommandSenderLevel(), event.getPos()) == InteractionResult.FAIL) {
+        if(BlockEvent.onBlockInteract(player, player.getCommandSenderWorld(), event.getPos()) == InteractionResult.FAIL) {
             event.setCanceled(true);
         }
     }

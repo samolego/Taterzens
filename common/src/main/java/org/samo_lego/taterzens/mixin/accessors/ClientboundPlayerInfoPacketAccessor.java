@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 
 @Mixin(ClientboundPlayerInfoPacket.class)
 public interface ClientboundPlayerInfoPacketAccessor {
+    @Mutable
     @Accessor("action")
     void setAction(ClientboundPlayerInfoPacket.Action action);
 
