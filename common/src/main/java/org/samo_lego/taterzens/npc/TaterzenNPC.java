@@ -463,14 +463,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public Packet<?> getAddEntityPacket() {
         ClientboundAddPlayerPacket ClientboundAddPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
         //noinspection ConstantConditions
-        ClientboundAddPlayerPacketAccessor spawnS2CPacketAccessor = (ClientboundAddPlayerPacketAccessor) ClientboundAddPlayerPacket;
-        spawnS2CPacketAccessor.setId(this.getId());
-        spawnS2CPacketAccessor.setUuid(this.getUUID());
-        spawnS2CPacketAccessor.setX(this.getX());
-        spawnS2CPacketAccessor.setY(this.getY());
-        spawnS2CPacketAccessor.setZ(this.getZ());
-        spawnS2CPacketAccessor.setYRot((byte)((int)(this.getYHeadRot() * 256.0F / 360.0F)));
-        spawnS2CPacketAccessor.setXRot((byte)((int)(this.getXRot() * 256.0F / 360.0F)));
+        ClientboundAddPlayerPacketAccessor addPlayerPacketAccessor = (ClientboundAddPlayerPacketAccessor) ClientboundAddPlayerPacket;
+        addPlayerPacketAccessor.setId(this.getId());
+        addPlayerPacketAccessor.setUuid(this.getUUID());
+        addPlayerPacketAccessor.setX(this.getX());
+        addPlayerPacketAccessor.setY(this.getY());
+        addPlayerPacketAccessor.setZ(this.getZ());
+        addPlayerPacketAccessor.setYRot((byte)((int)(this.getYHeadRot() * 256.0F / 360.0F)));
+        addPlayerPacketAccessor.setXRot((byte)((int)(this.getXRot() * 256.0F / 360.0F)));
 
         return ClientboundAddPlayerPacket;
     }

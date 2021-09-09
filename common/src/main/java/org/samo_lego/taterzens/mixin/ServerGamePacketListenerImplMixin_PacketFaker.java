@@ -93,7 +93,9 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't
             // show it ... :mojank:
-            this.connection.send(packet, listener);
+            this.taterzens$skipCheck = true;
+            this.send(packet);
+            this.taterzens$skipCheck = false;
 
             // And now we can remove it from tablist
             // we must delay the tablist packet so as to allow
