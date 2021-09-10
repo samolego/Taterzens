@@ -1,4 +1,4 @@
-[![Taterzens logo](https://samolego.github.io/Taterzens/latest/assets/img/banner.svg)](https://samolego.github.io/Taterzens/latest)
+[![Taterzens logo](https://raw.githubusercontent.com/samolego/Taterzens/master/docs/assets/img/banner.svg)](https://samolego.github.io/Taterzens/latest)
 
 [![Discord](https://img.shields.io/discord/797713290545332235?logo=discord&style=flat-square)](https://discord.gg/9PAesuHFnp)
 [![GitHub license](https://img.shields.io/github/license/samolego/Taterzens?style=flat-square)](https://github.com/samolego/Taterzens/blob/master/LICENSE)
