@@ -19,7 +19,7 @@ public class RegistrySyncManagerMixin_TaterzenSyncDisabler {
      * Prevents client from being kicked if using FAPI.
      */
     @Inject(
-            method = "toTag(ZLnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;",
+            method = "toTag",
             at = @At("TAIL"),
             locals = LocalCapture.CAPTURE_FAILHARD,
             remap = false
