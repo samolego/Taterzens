@@ -121,7 +121,13 @@ public class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
 
     @Override
     public void selectNpc(@Nullable TaterzenNPC npc) {
+        TaterzenNPC selectedNpc = this.taterzens$selectedNpc;
         this.taterzens$selectedNpc = npc;
+
+        if(npc != null)
+            npc.sendProfileUpdates();
+        if(selectedNpc != null)
+            selectedNpc.sendProfileUpdates();
     }
 
     @Override

@@ -51,7 +51,6 @@ public class PresetCommand {
         String filename = StringArgumentType.getString(context, "preset name") + ".json";
         File preset = new File(presetsDir + "/" + filename);
         CommandSourceStack source = context.getSource();
-        ServerPlayer player = source.getPlayerOrException();
 
         if(preset.exists()) {
             TaterzenNPC taterzenNPC = TaterzensAPI.loadTaterzenFromPreset(preset, source.getLevel());
@@ -62,6 +61,9 @@ public class PresetCommand {
                 source.getLevel().addFreshEntity(taterzenNPC);
 
                 ((ITaterzenEditor) source.getPlayerOrException()).selectNpc(taterzenNPC);
+
+                taterzenNPC.sendProfileUpdates();
+
                 source.sendSuccess(
                         successText("taterzens.command.preset.import.success", filename),
                         false

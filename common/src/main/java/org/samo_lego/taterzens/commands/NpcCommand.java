@@ -112,7 +112,8 @@ public class NpcCommand {
 
     private static int deselectTaterzen(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        ((ITaterzenEditor) source.getPlayerOrException()).selectNpc(null);
+        ServerPlayer player = source.getPlayerOrException();
+        ((ITaterzenEditor) player).selectNpc(null);
         source.sendSuccess(translate("taterzens.command.deselect").withStyle(ChatFormatting.GREEN), false);
         return 0;
     }
@@ -173,10 +174,8 @@ public class NpcCommand {
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
             if(npc != null) {
                 ((ITaterzenEditor) player).selectNpc(null);
-                npc.sendProfileUpdates();
             }
             ((ITaterzenEditor) player).selectNpc(taterzen);
-            taterzen.sendProfileUpdates();
             source.sendSuccess(
                     successText("taterzens.command.select", taterzen.getName().getString()),
                     false
@@ -208,14 +207,12 @@ public class NpcCommand {
         TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
         if(npc != null) {
             ((ITaterzenEditor) player).selectNpc(null);
-            npc.sendProfileUpdates();
         }
 
         player.getLevel().getEntities(player, box, entity -> {
             // null check in order to select first one colliding
             if(entity instanceof TaterzenNPC taterzen && ((ITaterzenEditor) player).getNpc() == null) {
                 ((ITaterzenEditor) player).selectNpc(taterzen);
-                taterzen.sendProfileUpdates();
                 source.sendSuccess(
                         successText("taterzens.command.select", entity.getName().getString()),
                         false
@@ -254,7 +251,6 @@ public class NpcCommand {
         TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
         if(npc != null) {
             ((ITaterzenEditor) player).selectNpc(null);
-            npc.sendProfileUpdates();
         }
 
         String taterzenName;
