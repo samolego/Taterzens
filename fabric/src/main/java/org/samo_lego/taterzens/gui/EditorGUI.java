@@ -25,11 +25,10 @@ public class EditorGUI extends SimpleGui {
 
     private static final ItemStack YES_BUTTON = new ItemStack(Items.GREEN_STAINED_GLASS_PANE);
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
-    private static HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
+    private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
     public EditorGUI(CommandContext<CommandSourceStack> context, ServerPlayer player, EditorGUI previousScreen, List<CommandNode<CommandSourceStack>> parentNodes) {
         super(MenuType.GENERIC_9x6, player, true);
-        System.out.println(parentNodes);
         CommandNode<CommandSourceStack> parentNode = parentNodes.get(parentNodes.size() - 1);
 
         this.setTitle(new TextComponent(parentNodes.stream().map(n -> n.getName() + " ").collect(Collectors.joining())));
@@ -64,14 +63,11 @@ public class EditorGUI extends SimpleGui {
             ArrayList<CommandNode<CommandSourceStack>> parents = new ArrayList<>(parentNodes);
             parents.add(node);
 
-
             ItemStack stack = itemCommandMap.getOrDefault(node.getName(), new ItemStack(Items.ITEM_FRAME));
             stack.setHoverName(new TextComponent(node.getName()));
 
 
             this.setSlot(i.getAndAdd(3), new GuiElement(stack, (index, clickType, slotActionType) -> {
-
-                ItemStack item = this.getSlot(index).getItemStack();
                 Command<CommandSourceStack> command = node.getCommand();
 
                 if (clickType == ClickType.MOUSE_LEFT) {
@@ -105,7 +101,6 @@ public class EditorGUI extends SimpleGui {
                                             builder.append(nd.getName()).append(" ");
                                     });
                                     builder.append(arg);
-                                    System.out.println(builder);
 
                                     player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
                                     player.closeContainer();
@@ -142,7 +137,6 @@ public class EditorGUI extends SimpleGui {
                         player.sendMessage(new TextComponent(e.getMessage()), player.getUUID());
                     }
                 }
-                this.setSlot(index, item);
             }));
         }
     }
@@ -186,7 +180,7 @@ public class EditorGUI extends SimpleGui {
 
 
         itemCommandMap.put("action", new ItemStack(Items.CHAIN_COMMAND_BLOCK));
-        itemCommandMap.put("goto", new ItemStack(Items.ENDER_PEARL));
+        itemCommandMap.put("goto", new ItemStack(Items.MINECART));
         itemCommandMap.put("interact", new ItemStack(Items.REDSTONE_TORCH));
     }
 }
