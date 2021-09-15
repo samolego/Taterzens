@@ -121,7 +121,7 @@ public class EditorGUI extends SimpleGui {
                                 });
 
                                 inputGui.setSlot(2, confirmButton);
-                                inputGui.setSlot(1, cancelButton);
+                                inputGui.setSlot(1, backScreenButton);
 
                                 // Default input value
                                 Optional<String> example = argNode.getExamples().stream().findFirst();
