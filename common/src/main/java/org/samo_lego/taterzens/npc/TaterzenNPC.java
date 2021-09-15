@@ -602,8 +602,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Skin layers
         this.setSkinLayers(npcTag.getByte("SkinLayers"));
 
-
-
         // Multiple commands
         ListTag commands = (ListTag) npcTag.get("Commands");
         if(commands != null) {
@@ -747,18 +745,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         });
         npcTag.put("BungeeCommands", bungee);
 
-        // Bungee commands
-        ListTag bungeeCommands = (ListTag) npcTag.get("BungeeCommands");
-        if(bungeeCommands != null) {
-            bungeeCommands.forEach(cmdTag -> {
-                ListTag cmdList = (ListTag) cmdTag;
-                String command = cmdList.get(0).getAsString();
-                String player = cmdList.get(1).getAsString();
-                String argument = cmdList.get(2).getAsString();
-                this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
-            });
-        }
-
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
         ListTag pathTargets = new ListTag();
@@ -891,30 +877,28 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
         }
 
-        if(!this.npcData.bungeeCommands.isEmpty()) {
-            for(Triple<BungeeCommands, String, String> cmd : this.npcData.bungeeCommands) {
-                String first = cmd.getLeft().getCommand();
-                String middle = cmd.getMiddle();
-                if(middle.equals("--clicker--"))
-                    middle = playername;
+        for(Triple<BungeeCommands, String, String> cmd : this.npcData.bungeeCommands) {
+            String first = cmd.getLeft().getCommand();
+            String middle = cmd.getMiddle();
+            if(middle.equals("--clicker--"))
+                middle = playername;
 
-                String argument = cmd.getRight();
-                if(argument.contains("--clicker--")) {
-                    argument = argument.replaceAll("--clicker--", playername);
-                }
-
-                // Sending command as CustomPayloadS2CPacket
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF(first);
-                out.writeUTF(middle);
-                out.writeUTF(argument);
-
-                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                buf.writeBytes(out.toByteArray());
-
-                ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation("bungeecord", "main"), buf);
-                ((ServerPlayer) player).connection.send(packet);
+            String argument = cmd.getRight();
+            if(argument.contains("--clicker--")) {
+                argument = argument.replaceAll("--clicker--", playername);
             }
+
+            // Sending command as CustomPayloadS2CPacket
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF(first);
+            out.writeUTF(middle);
+            out.writeUTF(argument);
+
+            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+            buf.writeBytes(out.toByteArray());
+
+            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation("bungeecord", "main"), buf);
+            ((ServerPlayer) player).connection.send(packet);
         }
 
         return this.interact(player, hand);
