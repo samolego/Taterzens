@@ -71,6 +71,8 @@
   "taterzens.command.language.server_translations_hint.2": "unless you change your client language.",
   "taterzens.command.language.error": "An error occurred when trying to fetch language %s.",
   "taterzens.command.language.404": "Language %s isn't available. Would you like to help with translations? Visit %s for more info.",
+  "taterzens.command.config.edit.success": "Config option %s was successfully set to %s.",
+  "taterzens.command.config.edit.failure": "Couldn't change config option %s. This is probably a bug.",
   "taterzens.command.wiki": "Visit %s for documentation.",
   "taterzens.tooltip.current_editor": "Current editor: %s.",
   "taterzens.tooltip.see_docs": "Navigate to documentation site.",
