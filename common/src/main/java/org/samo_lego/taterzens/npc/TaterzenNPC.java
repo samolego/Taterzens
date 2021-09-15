@@ -310,7 +310,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void setPose(Pose pose) {
         this.fakePlayer.setPose(pose);
-        this.getEntityData().set(DATA_POSE, pose);
+        super.setPose(pose);
     }
 
     /**
@@ -373,7 +373,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 return false;
             });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
-            this.setYRot(this.yHeadRot); // Rotates body as well
+            this.setYHeadRot(this.yHeadRot); // Rotates body as well
             LivingEntity target = this.getTarget();
 
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isPathFinding()) {
@@ -418,7 +418,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Profession event
         professionLoop:
         for(TaterzenProfession profession : this.professions.values()) {
-            InteractionResult result = profession.tickMovement();
+            InteractionResult result = profession.tick();
             switch(result) {
                 case CONSUME: // Stop processing others, but continue with base Taterzen tick
                     break professionLoop;
