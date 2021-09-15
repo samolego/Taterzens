@@ -45,6 +45,9 @@ dependencies {
     // Permission API
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
+    // Server GUI
+    modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
+
     // Serverside translations
     modCompileOnly("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
 
