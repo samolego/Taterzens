@@ -260,7 +260,7 @@ public class TaterConfig {
      * @return TaterzenLanguage object
      */
     public static TaterConfig loadConfigFile(File file) {
-        TaterConfig config = new TaterConfig();
+        TaterConfig config = null;
         if (file.exists()) {
             try (BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
@@ -270,6 +270,8 @@ public class TaterConfig {
                 throw new RuntimeException(MODID + " Problem occurred when trying to load config: ", e);
             }
         }
+        if(config == null)
+            config = new TaterConfig();
 
         config.saveConfigFile(file);
 
