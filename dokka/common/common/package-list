@@ -63,6 +63,7 @@ $dokka.location:org.samo_lego.taterzens.commands/NpcCommand/selectedTaterzenExec
 $dokka.location:org.samo_lego.taterzens.commands/PresetCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-preset-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands/PresetCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.commands.CommandSourceStack>/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-preset-command/register-node.html
 $dokka.location:org.samo_lego.taterzens.commands/TaterzensCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-taterzens-command/index.html
+$dokka.location:org.samo_lego.taterzens.commands/TaterzensCommand/editConfigAttribute/#com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack>#java.lang.Object#java.lang.reflect.Field#java.lang.Object#java.util.function.Predicate<java.lang.reflect.Field>/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-taterzens-command/edit-config-attribute.html
 $dokka.location:org.samo_lego.taterzens.commands/TaterzensCommand/register/#com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack>#boolean/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-taterzens-command/register.html
 $dokka.location:org.samo_lego.taterzens.commands/TeleportCommand///PointingToDeclaration/common/org.samo_lego.taterzens.commands/-teleport-command/index.html
 $dokka.location:org.samo_lego.taterzens.commands/TeleportCommand/registerNode/#com.mojang.brigadier.tree.LiteralCommandNode<net.minecraft.commands.CommandSourceStack>/PointingToDeclaration/common/org.samo_lego.taterzens.commands/-teleport-command/register-node.html
@@ -324,6 +325,16 @@ $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/trackUuidGoal/#/Pointing
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/wanderAroundFarGoal/#/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/wander-around-far-goal.html
 $dokka.location:org.samo_lego.taterzens.npc/TaterzenNPC/writeSkinToTag/#com.mojang.authlib.GameProfile/PointingToDeclaration/common/org.samo_lego.taterzens.npc/-taterzen-n-p-c/write-skin-to-tag.html
 $dokka.location:org.samo_lego.taterzens.storage////PointingToDeclaration/common/org.samo_lego.taterzens.storage/index.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/index.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/ConfigFieldList/#java.lang.String#java.lang.Object#java.util.List<java.lang.reflect.Field>#java.util.List<java.lang.reflect.Field>#java.util.List<java.lang.reflect.Field>#java.util.List<java.lang.reflect.Field>#java.util.List<org.samo_lego.taterzens.storage.ConfigFieldList>/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/-config-field-list.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/booleans/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/booleans.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/floats/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/floats.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/integers/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/integers.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/nestedFields/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/nested-fields.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/nodeName/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/node-name.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/parent/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/parent.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/populateFields/#java.lang.Object#java.lang.String/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/populate-fields.html
+$dokka.location:org.samo_lego.taterzens.storage/ConfigFieldList/strings/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-config-field-list/strings.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee///PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/index.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/_comment_enableCommands/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/_comment_enable-commands.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig.Bungee/_comment_servers/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/-bungee/_comment_servers.html
@@ -390,6 +401,7 @@ $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/loadConfigFile/#java
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/messages/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/messages.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/path/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/path.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/perms/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/perms.html
+$dokka.location:org.samo_lego.taterzens.storage/TaterConfig/reload/#java.io.File/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/reload.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/saveConfigFile/#java.io.File/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/save-config-file.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/savePermsFile/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/save-perms-file.html
 $dokka.location:org.samo_lego.taterzens.storage/TaterConfig/taterzenTablistTimeout/#/PointingToDeclaration/common/org.samo_lego.taterzens.storage/-tater-config/taterzen-tablist-timeout.html
