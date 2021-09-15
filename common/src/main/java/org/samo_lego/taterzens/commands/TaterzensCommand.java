@@ -16,6 +16,10 @@ import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 
 import net.minecraft.ChatFormatting;
@@ -29,6 +33,7 @@ import net.minecraft.resources.ResourceLocation;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+import static org.apache.logging.log4j.core.impl.ThreadContextDataInjector.copyProperties;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.storage.ConfigFieldList.populateFields;
@@ -210,7 +215,7 @@ public class TaterzensCommand {
     }
 
     private static void reloadConfig() {
-        config = TaterConfig.loadConfigFile(CONFIG_FILE);
+        config.reload(CONFIG_FILE);
         LanguageUtil.setupLanguage();
     }
 

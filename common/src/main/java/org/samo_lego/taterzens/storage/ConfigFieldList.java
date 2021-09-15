@@ -24,14 +24,13 @@ public class ConfigFieldList {
     }
 
     public static ConfigFieldList populateFields(Object parent, String nodeName) {
-        Field[] attributes = parent.getClass().getFields();
         ArrayList<Field> bools = new ArrayList<>();
         ArrayList<Field> ints = new ArrayList<>();
         ArrayList<Field> floats = new ArrayList<>();
         ArrayList<Field> strings = new ArrayList<>();
         List<ConfigFieldList> nested = new ArrayList<>();
 
-        for(Field attribute : attributes) {
+        for(Field attribute : parent.getClass().getFields()) {
             Class<?> type = attribute.getType();
 
             if(type.equals(boolean.class)) {
@@ -58,4 +57,5 @@ public class ConfigFieldList {
 
         return new ConfigFieldList(nodeName, parent, bools, ints, floats, strings, nested);
     }
+
 }

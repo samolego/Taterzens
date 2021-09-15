@@ -5,9 +5,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MODID;
@@ -257,7 +260,7 @@ public class TaterConfig {
      * @return TaterzenLanguage object
      */
     public static TaterConfig loadConfigFile(File file) {
-        TaterConfig config;
+        TaterConfig config = new TaterConfig();
         if (file.exists()) {
             try (BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
@@ -267,9 +270,7 @@ public class TaterConfig {
                 throw new RuntimeException(MODID + " Problem occurred when trying to load config: ", e);
             }
         }
-        else {
-            config = new TaterConfig();
-        }
+
         config.saveConfigFile(file);
 
         return config;
@@ -285,6 +286,42 @@ public class TaterConfig {
             gson.toJson(this, writer);
         } catch (IOException e) {
             LOGGER.error("Problem occurred when saving config: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Changes values of current object with reflection,
+     * in order to keep the same object.
+     * (that still allows in-game editing)
+     *
+     * @param file file to read new config from
+     */
+    public void reload(File file) {
+        TaterConfig newConfig = loadConfigFile(file);
+        this.refreshFields(this, newConfig);
+    }
+
+    private void refreshFields(Object oldConfig, Object newConfig) {
+        try {
+            for(Field field : oldConfig.getClass().getFields()) {
+                Class<?> type = field.getType();
+
+                if(Modifier.isFinal(type.getModifiers()) && !type.isPrimitive())
+                    continue;
+
+                field.setAccessible(true);
+                Object value = field.get(newConfig);
+
+                // We overwrite primitives and strings
+                if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
+                    field.set(oldConfig, value);
+                } else {
+                    // Recursion
+                    this.refreshFields(field.get(oldConfig), value);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 }
