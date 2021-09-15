@@ -64,6 +64,8 @@
   "taterzens.command.language.success": "Jezik je bil uspešno nastavljen na %s.",
   "taterzens.command.language.error": "Prišlo je do napake pri prehajanju na jezik %s.",
   "taterzens.command.language.404": "Jezik %s žal ni na voljo. Bi rad pomagal pri prevajanju? Obišči %s za več informacij.",
+  "taterzens.command.config.edit.success": "Nastavitev %s je bila uspešno nastavljena na %s.",
+  "taterzens.command.config.edit.failure": "Nastavitve %s ni bilo mogoče spremeniti. Prišlo je do napake.",
   "taterzens.command.wiki": "Obišči %s za priročnik.",
   "taterzens.tooltip.current_editor": "Trenutni urejevalnik: %s.",
   "taterzens.tooltip.see_docs": "Obišči spletni priročnik.",
