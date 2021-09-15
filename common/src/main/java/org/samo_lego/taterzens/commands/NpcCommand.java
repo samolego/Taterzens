@@ -37,9 +37,9 @@ import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$c
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
-
+    public static LiteralCommandNode<CommandSourceStack> npcNode;
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
-        LiteralCommandNode<CommandSourceStack> npcNode = dispatcher.register(literal("npc")
+        npcNode = dispatcher.register(literal("npc")
                 .requires(src -> permissions$checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.create", config.perms.npcCommandPermissionLevel))

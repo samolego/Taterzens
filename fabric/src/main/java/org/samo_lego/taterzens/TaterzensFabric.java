@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.commands.NpcGUICommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.event.BlockInteractEvent;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -51,8 +52,11 @@ public class TaterzensFabric implements ModInitializer {
         Taterzens.onInitialize();
 
         // Events
-        CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
-        CommandRegistrationCallback.EVENT.register(NpcCommand::register);
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            TaterzensCommand.register(dispatcher,dedicated);
+            NpcCommand.register(dispatcher,dedicated);
+            NpcGUICommand.register(dispatcher, dedicated);
+        });
         UseBlockCallback.EVENT.register(new BlockInteractEvent());
     }
 }
