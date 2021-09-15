@@ -367,13 +367,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.level.getEntities(this, box, entity -> {
                 if(entity instanceof ServerPlayer) {
                     this.lookAt(entity, 60.0F, 60.0F);
-                    this.setYHeadRot(this.getYHeadRot());
+                    this.setYHeadRot(this.getYRot());
                     return true;
                 }
                 return false;
             });
         } else if(this.npcData.movement != NPCData.Movement.NONE) {
-            this.setYHeadRot(this.yHeadRot); // Rotates body as well
+            this.setYRot(this.yHeadRot); // Rotates body as well
             LivingEntity target = this.getTarget();
 
             if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isPathFinding()) {
