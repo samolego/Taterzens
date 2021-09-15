@@ -9,13 +9,15 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import joptsimple.internal.Strings;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,12 +28,18 @@ public class EditorGUI extends SimpleGui {
     private static final ItemStack YES_BUTTON = new ItemStack(Items.GREEN_STAINED_GLASS_PANE);
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
+    private static final String backgroundGUI = "\uEff1";
+    private static final String inputGUI = "\uEff2";
 
     public EditorGUI(CommandContext<CommandSourceStack> context, ServerPlayer player, EditorGUI previousScreen, List<CommandNode<CommandSourceStack>> parentNodes) {
         super(MenuType.GENERIC_9x6, player, true);
         CommandNode<CommandSourceStack> parentNode = parentNodes.get(parentNodes.size() - 1);
 
-        this.setTitle(new TextComponent(parentNodes.stream().map(n -> n.getName() + " ").collect(Collectors.joining())));
+        String title = parentNodes.stream().map(n -> n.getName() + " ").collect(Collectors.joining());
+        TextComponent titleBackground = new TextComponent("\uF808" + backgroundGUI);
+        TextComponent title1 = new TextComponent(title);
+
+        this.setTitle(titleBackground.withStyle(ChatFormatting.DARK_GRAY).append(title1.withStyle(ChatFormatting.YELLOW)));
         this.setAutoUpdate(true);
 
 
@@ -89,7 +97,9 @@ public class EditorGUI extends SimpleGui {
                             if (commandNode instanceof ArgumentCommandNode<?, ?> argNode) {
                                 // this node requires argument after it
                                 AnvilInputGui inputGui = new AnvilInputGui(player, false);
-                                inputGui.setTitle(new TextComponent(argNode.getName()));
+                                TextComponent argGui = new TextComponent("\uF80B\uF824" + inputGUI);
+                                MutableComponent argTitle = new TextComponent(argNode.getName()).withStyle(ChatFormatting.YELLOW);
+                                inputGui.setTitle(argGui.append(argTitle));
 
                                 GuiElement confirmButton = new GuiElement(YES_BUTTON, (index1, type1, action) -> {
                                     String arg = inputGui.getInput();

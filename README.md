@@ -15,6 +15,10 @@ A fabric / forge citizens like NPC mod.
 
 # **-> *[Documentation](https://samolego.github.io/Taterzens/)* <-**
 
+## Thanks
+* https://github.com/AmberWat/NegativeSpaceFont
+* https://github.com/Patbox/sgui
+
 ## Translation contributions
 1. Fork the repository
 2. Add [language file](https://github.com/samolego/Taterzens/tree/master/common/src/main/resources/data/taterzens/lang) (make sure to follow the [Minecraft language codes](https://minecraft.gamepedia.com/Language)) as json.
