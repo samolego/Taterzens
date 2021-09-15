@@ -48,11 +48,8 @@ public class ConfigFieldList {
                 // a subclass in our config
                 try {
                     attribute.setAccessible(true);
-                    Object o = attribute.get(parent);
-                    System.out.println("o:" + o);
-                    System.out.println("p:" + parent);
-                    System.out.println(o.getClass());
-                    nested.add(populateFields(o, attribute.getName()));
+                    Object childAttribute = attribute.get(parent);
+                    nested.add(populateFields(childAttribute, attribute.getName()));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
