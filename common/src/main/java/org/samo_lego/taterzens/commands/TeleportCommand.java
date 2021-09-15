@@ -19,11 +19,11 @@ public class TeleportCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
         LiteralCommandNode<CommandSourceStack> tpNode = literal("tp")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.tp", config.perms.npcCommandPermissionLevel))
-                .then(argument("destination", EntityArgument.entity())
-                        .executes(context -> teleportTaterzen(context, EntityArgument.getEntity(context, "destination").position()))
+                .then(argument("entity", EntityArgument.entity())
+                        .executes(context -> teleportTaterzen(context, EntityArgument.getEntity(context, "entity").position()))
                 )
-                .then(argument("position", Vec3Argument.vec3())
-                        .executes(context -> teleportTaterzen(context, Vec3Argument.getCoordinates(context, "position").getPosition(context.getSource())))
+                .then(argument("location", Vec3Argument.vec3())
+                        .executes(context -> teleportTaterzen(context, Vec3Argument.getCoordinates(context, "location").getPosition(context.getSource())))
                 )
                 .build();
 
