@@ -1,6 +1,6 @@
 # Taken from Leuokcyte (https://github.com/NucleoidMC/leukocyte/blob/main/.github/workflows/release.yml)
 
-name: Release
+name: Forge Release
 
 on:
   release:
