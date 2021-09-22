@@ -64,7 +64,7 @@ async function fetchNewestConfig(version) {
             let configText = xhttp.responseText;
             let i = j = 0;
             let level = -1;
-            let nextLine = "";
+            let previousLine = "";
 
             // Reading by lines
             while ((j = configText.indexOf("\n", i)) !== -1) {
@@ -77,8 +77,16 @@ async function fetchNewestConfig(version) {
                         const start = line.lastIndexOf(" = \"");
                         // + 7 to not include String & space
                         const COMMENT = document.createElement("SPAN");
-                        COMMENT.style = "color: lightgreen;";
-                        COMMENT.innerHTML = "    ".repeat(level) + line.substring(start + 4, line.length - 2);
+                        COMMENT.style = "color: #6a8759;";
+                        
+                        // Getting name from @SerializedName
+                        if(previousLine != "") {
+                            COMMENT.innerHTML = "    ".repeat(level) + previousLine;
+                            previousLine = "";
+                        } else {
+                            COMMENT.innerHTML = "    ".repeat(level) + line.substring(start + 4, line.length - 2);
+                        }
+
                         CONFIG.appendChild(COMMENT);
                         CONFIG.innerHTML += "\n";
                     } else if(line.includes("public static class ")) {
@@ -100,7 +108,7 @@ async function fetchNewestConfig(version) {
                         start = option.indexOf(" ");
 
                         const TYPE = document.createElement("SPAN");
-                        TYPE.style = "color:yellow;";
+                        TYPE.style = "color: orange;";
                         TYPE.innerHTML = option.substring(0, start);
 
                         option = option.substring(start + 1, option.length);
@@ -109,12 +117,12 @@ async function fetchNewestConfig(version) {
 
                         const KEY = document.createElement("SPAN");
                         KEY.innerHTML = "    ".repeat(level) + option.substring(0, spaceIndex);
-                        KEY.style = "color: cyan;";
+                        KEY.style = "color: red;";
 
                         // Getting name from @SerializedName
-                        if(nextLine != "") {
-                            KEY.innerHTML = "    ".repeat(level) + nextLine;
-                            nextLine = "";
+                        if(previousLine != "") {
+                            KEY.innerHTML = "    ".repeat(level) + previousLine;
+                            previousLine = "";
                         }
 
 
@@ -124,11 +132,10 @@ async function fetchNewestConfig(version) {
                         CONFIG.innerHTML += ": ";
                         CONFIG.appendChild(TYPE);
                         CONFIG.innerHTML += value + "\n";
-                        console.log(level + " " + KEY.innerHTML);
                     } else if(line.includes("@SerializedName")) {
                         let start = line.indexOf("\"") + 1;
                         let end = line.lastIndexOf("\"");
-                        nextLine = line.substring(start, end);
+                        previousLine = line.substring(start, end);
                     }
                     level -= (line.match(/\}/g)  || []).length;
 
