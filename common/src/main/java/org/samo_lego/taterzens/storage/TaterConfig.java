@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.storage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -10,7 +11,6 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MODID;
@@ -305,19 +305,19 @@ public class TaterConfig {
         this.refreshFields(this, newConfig);
     }
 
-    private void refreshFields(Object oldConfig, Object newConfig) {
+    private void refreshFields(@NotNull Object oldConfig, Object newConfig) {
         try {
             for(Field field : oldConfig.getClass().getFields()) {
                 Class<?> type = field.getType();
 
-                if(Modifier.isFinal(type.getModifiers()) && !type.isPrimitive())
+                if(Modifier.isFinal(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
                     continue;
+
 
                 field.setAccessible(true);
                 Object value = field.get(newConfig);
 
                 // We overwrite primitives and strings
-                // fixme strings are not reloaded
                 if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
                     field.set(oldConfig, value);
                 } else {
