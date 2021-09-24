@@ -175,6 +175,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     public static AttributeSupplier.Builder createTaterzenAttributes() {
         return Monster.createMonsterAttributes()
+                .add(Attributes.ATTACK_DAMAGE, 3.25D)
+                .add(Attributes.ARMOR, 2.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2505D)
                 .add(Attributes.FOLLOW_RANGE, 35.0D);
     }
