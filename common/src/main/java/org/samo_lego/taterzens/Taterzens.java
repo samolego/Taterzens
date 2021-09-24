@@ -67,7 +67,7 @@ public class Taterzens {
 
         LanguageUtil.setupLanguage();
 
-        if(LUCKPERMS_LOADED && config.savePermsFile) {
+        if(LUCKPERMS_LOADED && config.perms.savePermsFile) {
             PermissionExtractor.extractPermissionsFile(new File(taterDir + "/permissions.toml"));
         }
     }

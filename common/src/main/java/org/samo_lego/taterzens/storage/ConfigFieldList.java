@@ -1,29 +1,28 @@
 package org.samo_lego.taterzens.storage;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ConfigFieldList {
-    public final String nodeName;
-    public Object parent;
-    public final List<Field> booleans;
-    public final List<Field> integers;
-    public final List<Field> floats;
-    public final List<Field> strings;
-    public final List<ConfigFieldList> nestedFields;
+import static org.samo_lego.taterzens.storage.TaterConfig.COMMENT_PREFIX;
 
-    public ConfigFieldList(String nodeName, Object parent, List<Field> booleans, List<Field> integers, List<Field> floats, List<Field> strings, List<ConfigFieldList> nestedFields) {
-        this.floats = floats;
-        this.nodeName = nodeName;
-        this.parent = parent;
-        this.booleans = booleans;
-        this.integers = integers;
-        this.strings = strings;
-        this.nestedFields = nestedFields;
-    }
+/**
+ * Creates an object containing lists with primitives, {@link String}s and nested {@link ConfigFieldList}s.
+ */
+public record ConfigFieldList(Field parentField, Object parent, List<Field> booleans, List<Field> integers, List<Field> floats, List<Field> strings, List<ConfigFieldList> nestedFields) {
 
-    public static ConfigFieldList populateFields(Object parent, String nodeName) {
+    /**
+     * Generates a {@link ConfigFieldList} for selected object with recursion.
+     * Supports nested values as well.
+     *
+     * @param parentField - field whose name will be used for the command node. If null, it will default to "edit",
+     *                    as the only config object that doesn't have a field is object itself, as it's a class.
+     * @param parent - object to generate {@link ConfigFieldList} for
+     */
+    public static ConfigFieldList populateFields(@Nullable Field parentField, Object parent) {
         ArrayList<Field> bools = new ArrayList<>();
         ArrayList<Field> ints = new ArrayList<>();
         ArrayList<Field> floats = new ArrayList<>();
@@ -41,21 +40,29 @@ public class ConfigFieldList {
                 floats.add(attribute);
             } else if(type.equals(String.class)) {
                 String name = attribute.getName();
-                if (!name.startsWith("_comment") && !name.equals("language"))
+                if(!name.startsWith(COMMENT_PREFIX) && !name.equals("language"))
                     strings.add(attribute);
             } else if(!type.equals(ArrayList.class)) {
                 // a subclass in our config
                 try {
                     attribute.setAccessible(true);
                     Object childAttribute = attribute.get(parent);
-                    nested.add(populateFields(childAttribute, attribute.getName()));
+                    nested.add(populateFields(attribute, childAttribute));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        return new ConfigFieldList(nodeName, parent, bools, ints, floats, strings, nested);
+        return new ConfigFieldList(
+            parentField,
+            parent,
+            Collections.unmodifiableList(bools),
+            Collections.unmodifiableList(ints),
+            Collections.unmodifiableList(floats),
+            Collections.unmodifiableList(strings),
+            Collections.unmodifiableList(nested)
+        );
     }
 
 }
