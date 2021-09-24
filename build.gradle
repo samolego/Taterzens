@@ -1,12 +1,12 @@
 plugins {
-	id "architectury-plugin" version "3.3-SNAPSHOT"
+	id "architectury-plugin" version "3.4-SNAPSHOT"
 	id "dev.architectury.loom" version "0.7.4-SNAPSHOT" apply false
 
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id "com.modrinth.minotaur" version "1.1.0"
 	// Dokka docs
-	id "org.jetbrains.kotlin.jvm" version "1.4.30-RC"
-	id("org.jetbrains.dokka") version "1.4.30"
+	id "org.jetbrains.kotlin.jvm" version "1.5.31"
+	id("org.jetbrains.dokka") version "1.5.30"
 }
 
 repositories {
@@ -36,7 +36,7 @@ subprojects {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 		mappings loom.layered() {
 			officialMojangMappings()
-			parchment("org.parchmentmc.data:parchment-1.17.1:2021.08.23-nightly-SNAPSHOT@zip")
+			parchment("org.parchmentmc.data:parchment-1.17.1:2021.09.05-nightly-SNAPSHOT@zip")
 		}
 
 		// Thanks Shedaniel :)
