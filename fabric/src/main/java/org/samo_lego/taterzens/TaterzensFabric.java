@@ -3,6 +3,7 @@ package org.samo_lego.taterzens;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
@@ -12,7 +13,8 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
-import org.samo_lego.taterzens.event.BlockInteractEvent;
+import org.samo_lego.taterzens.event.BlockInteractEventImpl;
+import org.samo_lego.taterzens.event.PlayerJoinEventImpl;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.io.File;
@@ -53,6 +55,7 @@ public class TaterzensFabric implements ModInitializer {
         // Events
         CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);
         CommandRegistrationCallback.EVENT.register(NpcCommand::register);
-        UseBlockCallback.EVENT.register(new BlockInteractEvent());
+        UseBlockCallback.EVENT.register(new BlockInteractEventImpl());
+        ServerPlayConnectionEvents.JOIN.register(new PlayerJoinEventImpl());
     }
 }
