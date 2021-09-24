@@ -317,7 +317,7 @@ public class TaterConfig {
                 Object value = field.get(newConfig);
 
                 // We overwrite primitives and strings
-                //todo strings are not reloaded
+                // fixme strings are not reloaded
                 if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
                     field.set(oldConfig, value);
                 } else {
