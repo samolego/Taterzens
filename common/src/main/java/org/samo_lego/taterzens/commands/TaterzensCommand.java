@@ -7,15 +7,19 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.network.chat.*;
-import org.apache.commons.lang3.StringUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.storage.ConfigFieldList;
-import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
@@ -24,12 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.resources.ResourceLocation;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;

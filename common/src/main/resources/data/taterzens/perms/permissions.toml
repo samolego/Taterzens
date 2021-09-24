@@ -9,7 +9,6 @@ permissions = [
    #  Enables editing Taterzens config in-game.
    "taterzens.config.edit",
    "taterzens.config.edit.language",
-   "taterzens.config.edit.booleans",
    #  Enables reloading the config file.
    "taterzens.config.reload",
 
