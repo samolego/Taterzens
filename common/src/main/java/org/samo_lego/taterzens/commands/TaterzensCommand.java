@@ -1,42 +1,43 @@
 package org.samo_lego.taterzens.commands;
 
+import com.google.gson.annotations.SerializedName;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import net.minecraft.util.StringUtil;
+import net.minecraft.network.chat.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.storage.ConfigFieldList;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.apache.logging.log4j.core.impl.ThreadContextDataInjector.copyProperties;
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.storage.ConfigFieldList.populateFields;
+import static org.samo_lego.taterzens.storage.TaterConfig.COMMENT_PREFIX;
 import static org.samo_lego.taterzens.util.LanguageUtil.LANG_LIST;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
@@ -87,10 +88,9 @@ public class TaterzensCommand {
         attribute.setAccessible(true);
         boolean result = fieldConsumer.test(attribute);
 
-        String option = StringUtils.difference(TaterConfig.class.getName(), parent.getClass().getName());
+        String option = parent.getClass().getSimpleName();
 
         if(!option.isEmpty()) {
-            option = option.substring(1);
             option = option.replaceAll("\\$", ".") + ".";
         }
         option += attribute.getName();
@@ -162,6 +162,60 @@ public class TaterzensCommand {
         });
     }
 
+    private static int printFieldDescription(CommandContext<CommandSourceStack> context, Object parent, Field attribute) {
+        TextComponent fieldDesc = new TextComponent("");
+        String attributeName = attribute.getName();
+
+        // Filters out relevant comment fields
+        Field[] fields = parent.getClass().getFields();
+        List<Field> descriptions = Arrays.stream(fields).filter(field -> {
+            String name = field.getName();
+            return name.startsWith(COMMENT_PREFIX) && name.contains(attributeName) && field.isAnnotationPresent(SerializedName.class);
+        }).collect(Collectors.toList());
+
+        int size = descriptions.size();
+        if(size > 0) {
+            String[] descs = new String[size];
+            descriptions.forEach(field -> {
+                int index = NumberUtils.toInt(field.getName().replaceAll("\\D+", ""), 0);
+
+                SerializedName serializedName = field.getAnnotation(SerializedName.class);
+                String description = serializedName.value().substring("// ".length());
+
+                descs[index] = description;
+            });
+
+            for (String desc : descs) {
+                // Adding descriptions
+                fieldDesc.append(new TextComponent(desc + "\n"));
+            }
+        } else {
+            // This field has no comments describing it
+            MutableComponent feedback = errorText("taterzens.command.config.edit.no_description_found", attributeName).append("\n");
+            fieldDesc.append(feedback);
+        }
+
+        try {
+            Object value = attribute.get(parent);
+
+            String val = value.toString();
+            // Ugly check if it's not an object
+            if(!val.contains("@")) {
+                MutableComponent valueComponent = new TextComponent(val + "\n").withStyle(ChatFormatting.AQUA);
+                fieldDesc.append(translate("taterzens.misc.current_value", valueComponent).withStyle(ChatFormatting.GRAY));
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        MutableComponent type = new TextComponent(attribute.getType().getSimpleName()).withStyle(ChatFormatting.AQUA);
+        fieldDesc.append(translate("taterzens.misc.type", type).withStyle(ChatFormatting.GRAY));
+
+        context.getSource().sendSuccess(fieldDesc.withStyle(ChatFormatting.GOLD), false);
+
+        return 1;
+    }
+
 
     private static int setLang(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
@@ -201,7 +255,7 @@ public class TaterzensCommand {
                         ),
                 false
         );
-        return 0;
+        return 1;
     }
 
     private static int reloadConfig(CommandContext<CommandSourceStack> context) {
@@ -211,53 +265,84 @@ public class TaterzensCommand {
                 translate("taterzens.command.config.success").withStyle(ChatFormatting.GREEN),
                 false
         );
-        return 0;
+        return 1;
     }
 
+    /**
+     * Reloads the config and language objects.
+     */
     private static void reloadConfig() {
         config.reload(CONFIG_FILE);
         LanguageUtil.setupLanguage();
     }
 
+    /**
+     * Generates a command tree for selected {@link ConfigFieldList} and attaches it
+     * to {@link LiteralCommandNode<CommandSourceStack>}. As attributes have different
+     * types and therefore should accept different paramters as values, this goes
+     * through all needed primitives and then recursively repeats for nested {@link ConfigFieldList}s.
+     */
     private static void generateNestedCommand(LiteralCommandNode<CommandSourceStack> root, ConfigFieldList fields) {
-        fields.booleans.forEach(attribute -> {
+        fields.booleans().forEach(attribute -> {
             LiteralCommandNode<CommandSourceStack> node = literal(attribute.getName())
                     .then(argument("value", BoolArgumentType.bool())
-                            .executes(context -> editConfigBoolean(context, fields.parent, attribute))
+                            .executes(context -> editConfigBoolean(context, fields.parent(), attribute))
                     )
+                    .executes(context -> printFieldDescription(context, fields.parent(), attribute))
                     .build();
             root.addChild(node);
         });
 
-        fields.integers.forEach(attribute -> {
+        fields.integers().forEach(attribute -> {
             LiteralCommandNode<CommandSourceStack> node = literal(attribute.getName())
                     .then(argument("value", IntegerArgumentType.integer())
-                            .executes(context -> editConfigInt(context, fields.parent, attribute))
+                            .executes(context -> editConfigInt(context, fields.parent(), attribute))
                     )
+                    .executes(context -> printFieldDescription(context, fields.parent(), attribute))
                     .build();
             root.addChild(node);
         });
 
-        fields.floats.forEach(attribute -> {
+        fields.floats().forEach(attribute -> {
             LiteralCommandNode<CommandSourceStack> node = literal(attribute.getName())
                     .then(argument("value", FloatArgumentType.floatArg())
-                            .executes(context -> editConfigFloat(context, fields.parent, attribute))
+                            .executes(context -> editConfigFloat(context, fields.parent(), attribute))
                     )
+                    .executes(context -> printFieldDescription(context, fields.parent(), attribute))
                     .build();
             root.addChild(node);
         });
 
-        fields.strings.forEach(attribute -> {
+        fields.strings().forEach(attribute -> {
             LiteralCommandNode<CommandSourceStack> node = literal(attribute.getName())
                     .then(argument("value", StringArgumentType.greedyString())
-                            .executes(context -> editConfigObject(context, fields.parent, attribute))
+                            .executes(context -> editConfigObject(context, fields.parent(), attribute))
                     )
+                    .executes(context -> printFieldDescription(context, fields.parent(), attribute))
                     .build();
             root.addChild(node);
         });
 
-        fields.nestedFields.forEach(generator -> {
-            LiteralCommandNode<CommandSourceStack> node = literal(generator.nodeName).build();
+        fields.nestedFields().forEach(generator -> {
+            Field parentField = generator.parentField();
+
+            String nodeName;
+
+            // Root node doesn't have a name
+            if(parentField == null)
+                nodeName = "edit";
+            else
+                nodeName = parentField.getName();
+
+            LiteralCommandNode<CommandSourceStack> node = literal(nodeName)
+                    .executes(context -> {
+                        if(parentField != null)
+                            return printFieldDescription(context, fields.parent(), parentField);
+
+                        // Root node cannot be executed
+                        return -1;
+                    })
+                    .build();
             generateNestedCommand(node, generator);
             root.addChild(node);
         });
@@ -265,7 +350,7 @@ public class TaterzensCommand {
 
 
     static {
-        FIELDS = populateFields(config, "edit");
+        FIELDS = populateFields(null, config);
 
         AVAILABLE_LANGUAGES = SuggestionProviders.register(
                 new ResourceLocation(MODID, "languages"),

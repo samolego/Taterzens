@@ -22,6 +22,8 @@ public class TaterConfig {
             .disableHtmlEscaping()
             .create();
 
+    public static final String COMMENT_PREFIX = "_comment";
+
     @SerializedName("// Language file to use.")
     public final String _comment_language = "";
     /**
@@ -32,9 +34,9 @@ public class TaterConfig {
     public String language = "en_us";
 
     @SerializedName("// Whether to remove Taterzens from registry sync. Auto applied in Fabric.")
-    public final String _comment_disableRegistrySync1 = "";
+    public final String _comment_disableRegistrySync0 = "";
     @SerializedName("// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.")
-    public final String _comment_disableRegistrySync2 = "";
+    public final String _comment_disableRegistrySync1 = "";
     /**
      * Whether to disable Forge's registry sync.
      * (This marks mod as serverside.)
@@ -43,13 +45,12 @@ public class TaterConfig {
      */
     @SerializedName("disable_registry_sync")
     public boolean disableRegistrySync = false;
-
     @SerializedName("// After how many ticks Taterzens should be cleared from tablist.")
-    public final String _comment_taterzenTablistTimeout1 = "";
+    public final String _comment_taterzenTablistTimeout0 = "";
     @SerializedName("// Some delay is needed, otherwise clients don't fetch their skins.")
-    public final String _comment_taterzenTablistTimeout2 = "";
+    public final String _comment_taterzenTablistTimeout1 = "";
     @SerializedName("// If you want them to stay on the tablist, set this to -1.")
-    public final String _comment_taterzenTablistTimeout3 = "";
+    public final String _comment_taterzenTablistTimeout2 = "";
     /**
      * After how many ticks Taterzens should be cleared from tablist.
      * Some delay is needed, otherwise clients don't fetch their skins.
@@ -59,9 +60,9 @@ public class TaterConfig {
 
 
     @SerializedName("// Whether to remind you that if FabricTailor mod is installed,")
-    public final String _comment_fabricTailorAdvert1 = "";
+    public final String _comment_fabricTailorAdvert0 = "";
     @SerializedName("// it has some built-in skin swapping functionality for Taterzens as well.")
-    public final String _comment_fabricTailorAdvert2 = "";
+    public final String _comment_fabricTailorAdvert1 = "";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -71,17 +72,15 @@ public class TaterConfig {
     @SerializedName("post_fabrictailor_advert")
     public boolean fabricTailorAdvert = false;
 
-    @SerializedName("// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.")
-    public final String _comment_savePermsFile = "";
-    @SerializedName("save_permissions_file")
-    public boolean savePermsFile = true;
-
     @SerializedName("// Whether to cancel sending info that Taterzen has executed a command to ops.")
     public final String _comment_hideOpsMessage = "";
     @SerializedName("hide_ops_message")
     public boolean hideOpsMessage = true;
 
+    @SerializedName("// Default settings for new Taterzens.")
+    public final String _comment_defaults = "";
     public Defaults defaults = new Defaults();
+
     public Path path = new Path();
     public Messages messages = new Messages();
     public Permissions perms = new Permissions();
@@ -90,15 +89,20 @@ public class TaterConfig {
     /**
      * Some permission stuff.
      * If you are looking for permission nodes,
-     * see the generated permission.json file.
+     * see the generated permission.toml file.
      *
-     * (You must have LuckPerms installed.)
+     * (You must have LuckPerms installed for it to generate.)
      */
     public static class Permissions {
+        @SerializedName("// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.")
+        public final String _comment_savePermsFile = "";
+        @SerializedName("save_permissions_file")
+        public boolean savePermsFile = true;
+
         @SerializedName("// Permission level required to execute /npc command.")
-        public final String _comment_npcCommandPermissionLevel1 = "";
+        public final String _comment_npcCommandPermissionLevel0 = "";
         @SerializedName("// Valid only if LuckPerms isn't present.")
-        public final String _comment_npcCommandPermissionLevel2 = "";
+        public final String _comment_npcCommandPermissionLevel1 = "";
         /**
          * Permission level required to execute /npc command.
          * Valid only if LuckPerms isn't present.
@@ -108,9 +112,9 @@ public class TaterConfig {
 
 
         @SerializedName("// Permission level required to execute / taterzens command.")
-        public final String _comment_taterzensCommandPermissionLevel1 = "";
+        public final String _comment_taterzensCommandPermissionLevel0 = "";
         @SerializedName("// Again, valid only if LuckPerms isn't present.")
-        public final String _comment_taterzensCommandPermissionLevel2 = "";
+        public final String _comment_taterzensCommandPermissionLevel1 = "";
         /**
          * Permission level required to execute /taterzens command.
          * Valid only if LuckPerms isn't present.
@@ -119,11 +123,11 @@ public class TaterConfig {
         public int taterzensCommandPermissionLevel = 4;
 
         @SerializedName("// Whether to allow players to set the permission level")
-        public final String _comment_allowSettingHigherPermissionLevel1 = "";
+        public final String _comment_allowSettingHigherPermissionLevel0 = "";
         @SerializedName("// of Taterzen higher than their own. Careful! This could")
-        public final String _comment_allowSettingHigherPermissionLevel2 = "";
+        public final String _comment_allowSettingHigherPermissionLevel1 = "";
         @SerializedName("// enable players to bypass their permission level with NPC.")
-        public final String _comment_allowSettingHigherPermissionLevel3 = "";
+        public final String _comment_allowSettingHigherPermissionLevel2 = "";
         @SerializedName("allow_setting_higher_perm_level")
         public boolean allowSettingHigherPermissionLevel = false;
     }
@@ -132,8 +136,6 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        @SerializedName("// Default settings for new Taterzens.")
-        public final String _comment_name = "";
         /**
          * Default Taterzen name
          */
@@ -222,14 +224,14 @@ public class TaterConfig {
      * Settings for path visualisation.
      */
     public static class Path {
+        @SerializedName("// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).")
+        public final String _comment_color = "";
         public Color color = new Color();
         /**
          * Color of particles used in path editor.
          * Accepts RGB values (0 - 255).
          */
         public static class Color {
-            @SerializedName("// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).")
-            public final String _comment = "";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;
@@ -315,6 +317,7 @@ public class TaterConfig {
                 Object value = field.get(newConfig);
 
                 // We overwrite primitives and strings
+                //todo strings are not reloaded
                 if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
                     field.set(oldConfig, value);
                 } else {
