@@ -244,14 +244,10 @@ public class TaterConfig {
      */
     public static class Bungee {
 
-        @SerializedName("// Whether to enable bungee commands feature fo NPCs.")
+        @SerializedName("// Whether to enable bungee commands feature for NPCs.")
         public final String _comment_enableCommands = "";
         @SerializedName("enable_commands")
         public boolean enableCommands = false;
-
-        @SerializedName("// Bungee servers to be listed in command suggestions.")
-        public final String _comment_servers = "";
-        public ArrayList<String> servers = new ArrayList<>(Arrays.asList("lobby", "minigames", "factions"));
     }
 
 
@@ -318,6 +314,7 @@ public class TaterConfig {
                 Object value = field.get(newConfig);
 
                 // We overwrite primitives and strings
+                // fixme strings are not reloaded
                 if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
                     field.set(oldConfig, value);
                 } else {

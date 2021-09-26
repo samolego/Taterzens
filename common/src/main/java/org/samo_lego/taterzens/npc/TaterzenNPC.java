@@ -56,13 +56,12 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
-import org.samo_lego.taterzens.compatibility.BungeeCommands;
+import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
@@ -618,7 +617,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 String command = cmdList.get(0).getAsString();
                 String player = cmdList.get(1).getAsString();
                 String argument = cmdList.get(2).getAsString();
-                this.addBungeeCommand(BungeeCommands.valueOf(command), player, argument);
+                this.addBungeeCommand(BungeeCompatibility.valueOf(command), player, argument);
             });
         }
 
@@ -879,8 +878,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
         }
 
-        for(Triple<BungeeCommands, String, String> cmd : this.npcData.bungeeCommands) {
-            String first = cmd.getLeft().getCommand();
+        for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
+            String first = cmd.getLeft().getSubchannel();
             String middle = cmd.getMiddle();
             if(middle.equals("--clicker--"))
                 middle = playername;
@@ -899,7 +898,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
             buf.writeBytes(out.toByteArray());
 
-            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation("bungeecord", "main"), buf);
+            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
             ((ServerPlayer) player).connection.send(packet);
         }
 
@@ -1468,15 +1467,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @see <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/#wikiPage">Spigot thread</a> on message channels.
      * @see <a href="https://github.com/VelocityPowered/Velocity/blob/65db0fad6a221205ec001f1f68a032215da402d6/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/BungeeCordMessageResponder.java#L297">Proxy implementation</a> on GitHub.
      *
-     * @param bungeeCommand bungee command to add, see {@link BungeeCommands} for supported commands.
+     * @param bungeeCommand bungee command to add, see {@link BungeeCompatibility} for supported commands.
      * @param playername player to use when executing the command.
      * @param argument argument for command above.
      *
      * @return true if command was added successfully (if enabled in config), otherwise false
      */
-    public boolean addBungeeCommand(BungeeCommands bungeeCommand, String playername, String argument) {
+    public boolean addBungeeCommand(BungeeCompatibility bungeeCommand, String playername, String argument) {
         if(config.bungee.enableCommands) {
-            Triple<BungeeCommands, String, String> command = new ImmutableTriple<>(bungeeCommand, playername, argument);
+            Triple<BungeeCompatibility, String, String> command = new BungeeCompatibility.BungeeCommand(bungeeCommand, playername, argument);
             this.npcData.bungeeCommands.add(command);
         }
         return config.bungee.enableCommands;
@@ -1486,7 +1485,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * Gets all "bungee" commands that Taterzen will execute when right-clicked upon.
      * @return arraylist od triples that are constructed into bungee command
      */
-    public ArrayList<Triple<BungeeCommands, String, String>> getBungeeCommands() {
+    public ArrayList<Triple<BungeeCompatibility, String, String>> getBungeeCommands() {
         return new ArrayList<>(this.npcData.bungeeCommands);
     }
 }
