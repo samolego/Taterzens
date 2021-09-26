@@ -23,3 +23,8 @@ org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.compatibility.fabric
 org.samo_lego.taterzens.event
 org.samo_lego.taterzens.mixin
+module:forge
+org.samo_lego.taterzens
+org.samo_lego.taterzens.compatibility.forge
+org.samo_lego.taterzens.event
+org.samo_lego.taterzens.mixin
