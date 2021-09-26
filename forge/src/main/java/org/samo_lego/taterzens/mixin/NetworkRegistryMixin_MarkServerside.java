@@ -1,10 +1,8 @@
 package org.samo_lego.taterzens.mixin;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkInstance;
-import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.NetworkInstance;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -12,15 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
 @Mixin(value = NetworkRegistry.class, remap = false)
 public class NetworkRegistryMixin_MarkServerside {
-
-    @Shadow(remap = false) private static Map<ResourceLocation, NetworkInstance> instances;
 
     /**
      * Extremely cursed. I know. I shouldn't be doing this.

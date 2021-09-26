@@ -20,7 +20,7 @@ architectury {
 
 loom {
     forge {
-        mixinConfig "taterzens.mixins.json", "taterzens.common.mixins.json"
+        mixinConfigs "taterzens.mixins.json", "taterzens.common.mixins.json"
     }
     //mixinConfig = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
     //useFabricMixin = true
