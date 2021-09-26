@@ -19,8 +19,11 @@ architectury {
 }
 
 loom {
-    mixinConfigs = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
-    useFabricMixin = true
+    forge {
+        mixinConfig "taterzens.mixins.json", "taterzens.common.mixins.json"
+    }
+    //mixinConfig = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
+    //useFabricMixin = true
 }
 
 def ENV = System.getenv();
