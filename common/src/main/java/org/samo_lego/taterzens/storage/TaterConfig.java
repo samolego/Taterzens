@@ -10,7 +10,6 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MODID;
@@ -244,14 +243,10 @@ public class TaterConfig {
      */
     public static class Bungee {
 
-        @SerializedName("// Whether to enable bungee commands feature fo NPCs.")
+        @SerializedName("// Whether to enable bungee commands feature for NPCs.")
         public final String _comment_enableCommands = "";
         @SerializedName("enable_commands")
         public boolean enableCommands = false;
-
-        @SerializedName("// Bungee servers to be listed in command suggestions.")
-        public final String _comment_servers = "";
-        public ArrayList<String> servers = new ArrayList<>(Arrays.asList("lobby", "minigames", "factions"));
     }
 
 
