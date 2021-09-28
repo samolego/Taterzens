@@ -1,20 +1,9 @@
 package org.samo_lego.taterzens.forge.mixin;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.NetworkInstance;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
-import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.function.BiFunction;
-
-import static org.samo_lego.taterzens.Taterzens.config;
 
 @Mixin(value = NetworkRegistry.class, remap = false)
 public class NetworkRegistryMixin_MarkServerside {
@@ -23,12 +12,11 @@ public class NetworkRegistryMixin_MarkServerside {
      * Extremely cursed. I know. I shouldn't be doing this.
      * But Forge doesn't allow server-only-registries.
      */
-    @Inject(
+    /*@Inject(
             method = "listRejectedVanillaMods(Ljava/util/function/BiFunction;)Ljava/util/List;",
             at = @At(
-                    value = "INVOKE",
-                    target = "Ljava/util/Map;values()Ljava/util/Collection;",
-                    shift = At.Shift.AFTER
+                    value = "INVOKE_ASSIGN",
+                    target = "Ljava/util/Map;values()Ljava/util/Lis;"
             ),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
@@ -46,5 +34,5 @@ public class NetworkRegistryMixin_MarkServerside {
             });*/
             cir.setReturnValue(Collections.emptyList());
         }
-    }
+    }*/
 }
