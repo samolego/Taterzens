@@ -3,8 +3,6 @@ package org.samo_lego.taterzens.forge.mixin;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
 import org.spongepowered.asm.mixin.Mixin;
 
-import java.util.Collections;
-
 @Mixin(value = NetworkRegistry.class, remap = false)
 public class NetworkRegistryMixin_MarkServerside {
 
@@ -32,7 +30,7 @@ public class NetworkRegistryMixin_MarkServerside {
                 System.out.println(((NetworkInstanceAccessor) networkInstance).clientAcceptedVersions());
                 System.out.println(((NetworkInstanceAccessor) networkInstance).getServerAcceptedVersions());
             });*/
-            cir.setReturnValue(Collections.emptyList());
+            /*cir.setReturnValue(Collections.emptyList());
         }
     }*/
 }
