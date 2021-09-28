@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens;
+package org.samo_lego.taterzens.forge;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.forge.event.EventHandler;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
