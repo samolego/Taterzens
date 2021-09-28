@@ -17,14 +17,14 @@ org.samo_lego.taterzens.npc.ai.goal
 org.samo_lego.taterzens.storage
 org.samo_lego.taterzens.util
 module:fabric
-org.samo_lego.taterzens
 org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.compatibility.fabric
+org.samo_lego.taterzens.fabric
 org.samo_lego.taterzens.fabric.client_fix
 org.samo_lego.taterzens.fabric.event
 org.samo_lego.taterzens.fabric.mixin
 module:forge
-org.samo_lego.taterzens
 org.samo_lego.taterzens.compatibility.forge
+org.samo_lego.taterzens.forge
 org.samo_lego.taterzens.forge.event
 org.samo_lego.taterzens.forge.mixin
