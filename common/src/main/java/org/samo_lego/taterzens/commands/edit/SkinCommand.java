@@ -4,9 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.samo_lego.taterzens.commands.NpcCommand;
-
-import javax.net.ssl.HttpsURLConnection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -15,6 +12,9 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
+import org.samo_lego.taterzens.commands.NpcCommand;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +24,9 @@ import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.minecraft.commands.arguments.MessageArgument.message;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.FABRICTAILOR_LOADED;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;

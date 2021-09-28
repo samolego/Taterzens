@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.event;
+package org.samo_lego.taterzens.forge.event;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
@@ -10,6 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.event.BlockEvent;
 
 import static org.samo_lego.taterzens.Taterzens.MODID;
 

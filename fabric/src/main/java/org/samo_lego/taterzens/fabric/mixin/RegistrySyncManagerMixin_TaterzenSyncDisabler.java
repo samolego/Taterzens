@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.fabric.mixin;
 
 import net.fabricmc.fabric.impl.registry.sync.RegistrySyncManager;
 import net.minecraft.nbt.CompoundTag;

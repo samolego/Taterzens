@@ -1,5 +1,6 @@
 package org.samo_lego.taterzens.mixin;
 
+import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.UUID;
-import net.minecraft.server.level.ServerPlayer;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 

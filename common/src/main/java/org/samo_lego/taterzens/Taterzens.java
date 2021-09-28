@@ -1,6 +1,8 @@
 package org.samo_lego.taterzens;
 
 import com.google.gson.JsonObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
@@ -12,8 +14,6 @@ import org.samo_lego.taterzens.util.PermissionExtractor;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 
 public class Taterzens {
 
@@ -41,6 +41,7 @@ public class Taterzens {
      * when packets are sent.
      */
     public static EntityType<TaterzenNPC> TATERZEN_TYPE;
+    public static ResourceLocation NPC_ID = new ResourceLocation(MODID, "npc");
 
     public static File taterDir;
     public static File presetsDir;

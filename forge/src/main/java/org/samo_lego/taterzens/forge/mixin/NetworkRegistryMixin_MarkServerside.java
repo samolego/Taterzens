@@ -1,7 +1,9 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.forge.mixin;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fmllegacy.network.NetworkInstance;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,13 +27,14 @@ public class NetworkRegistryMixin_MarkServerside {
             method = "listRejectedVanillaMods(Ljava/util/function/BiFunction;)Ljava/util/List;",
             at = @At(
                     value = "INVOKE",
-                    target = "Ljava/util/List;isEmpty()Z"
+                    target = "Ljava/util/Map;values()Ljava/util/Collection;",
+                    shift = At.Shift.AFTER
             ),
             locals = LocalCapture.CAPTURE_FAILHARD,
-            remap = false,
             cancellable = true
     )
-    private static void taterzens$removeTaterzensFromRegistrySync(BiFunction<NetworkInstance, String, Boolean> testFunction, CallbackInfoReturnable<List<String>> cir, List<String> results) {
+    private static void taterzens$removeTaterzensFromRegistrySync(BiFunction<NetworkInstance, String, Boolean> testFunction, CallbackInfoReturnable<List<String>> cir, List<Pair<ResourceLocation, Boolean>> results) {
+        System.out.println(results);
         //results.remove("taterzens");
         if(config.disableRegistrySync) {
             /*System.out.println(results);

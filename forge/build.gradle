@@ -1,7 +1,7 @@
 import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
     // Dokka docs
@@ -22,8 +22,6 @@ loom {
     forge {
         mixinConfigs "taterzens.mixins.json", "taterzens.common.mixins.json"
     }
-    //mixinConfig = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
-    //useFabricMixin = true
 }
 
 def ENV = System.getenv();
@@ -31,10 +29,10 @@ def ENV = System.getenv();
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
-    implementation(project(path: ":common")) {
+    implementation(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
-    developmentForge(project(path: ":common")) {
+    developmentForge(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
@@ -65,10 +63,6 @@ remapJar {
 
 jar {
     classifier "dev"
-}
-
-java {
-    withSourcesJar()
 }
 
 sourcesJar {

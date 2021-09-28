@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.client_fix;
+package org.samo_lego.taterzens.fabric.client_fix;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;

@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.forge.mixin;
 
 import net.minecraftforge.fmllegacy.network.NetworkInstance;
 import org.spongepowered.asm.mixin.Mixin;

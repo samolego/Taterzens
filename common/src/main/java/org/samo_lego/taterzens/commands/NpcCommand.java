@@ -16,7 +16,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.edit.EditCommand;

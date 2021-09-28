@@ -65,9 +65,9 @@ import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
-import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
-import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.util.TextUtil;
 
@@ -1120,23 +1120,23 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(this.npcData.movement == NPCData.Movement.NONE)
             this.setMovement(NPCData.Movement.TICK);
 
-        switch(level) {
-            case DEFENSIVE:
+        switch (level) {
+            case DEFENSIVE -> {
                 this.targetSelector.addGoal(2, revengeGoal);
                 this.setAttackGoal();
-                break;
-            case FRIENDLY:
+            }
+            case FRIENDLY -> {
                 this.targetSelector.addGoal(2, revengeGoal);
                 this.targetSelector.addGoal(3, followMonstersGoal);
                 this.goalSelector.addGoal(3, attackMonstersGoal);
-                break;
-            case HOSTILE:
+            }
+            case HOSTILE -> {
                 this.targetSelector.addGoal(2, revengeGoal);
                 this.targetSelector.addGoal(3, followTargetGoal);
                 this.setAttackGoal();
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
     }
 
@@ -1404,18 +1404,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setMovement(NPCData.Movement.TICK);
         this.npcData.follow.type = followType;
 
-        switch(followType) {
-            case MOBS:
-                this.goalSelector.addGoal(4, trackLivingGoal);
-                break;
-            case PLAYERS:
-                this.goalSelector.addGoal(4, trackPlayersGoal);
-                break;
-            case UUID:
-                this.goalSelector.addGoal(4, trackUuidGoal);
-                break;
-            default:
-                break;
+        switch (followType) {
+            case MOBS -> this.goalSelector.addGoal(4, trackLivingGoal);
+            case PLAYERS -> this.goalSelector.addGoal(4, trackPlayersGoal);
+            case UUID -> this.goalSelector.addGoal(4, trackUuidGoal);
+            default -> {
+            }
         }
     }
 

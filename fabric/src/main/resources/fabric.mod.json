@@ -22,7 +22,7 @@
       "org.samo_lego.taterzens.TaterzensFabric"
     ],
     "client": [
-      "org.samo_lego.taterzens.client_fix.ClientInit"
+      "org.samo_lego.taterzens.fabric.client_fix.ClientInit"
     ]
   },
   "mixins": [
