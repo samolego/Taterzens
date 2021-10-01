@@ -20,7 +20,7 @@ architectury {
 
 loom {
     forge {
-        mixinConfigs "taterzens.mixins.json", "taterzens.common.mixins.json"
+        mixinConfigs "taterzens.common.mixins.json"
     }
 }
 
