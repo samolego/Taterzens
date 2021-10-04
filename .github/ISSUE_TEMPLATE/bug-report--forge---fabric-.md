@@ -6,13 +6,13 @@ labels: ''
 assignees: ''
 
 ---
-
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**Platform**
-[ * ] Fabric
-[ * ] Forge
+**Platform(s)**
+
+- [x] Fabric
+- [x] Forge
 
 **Versions**
 * Minecraft X.Y.Z
@@ -20,9 +20,9 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+1. Launch server '...'
+2. Run '....'
+3. Right-click '....'
 4. See error
 
 **Expected behavior**
@@ -32,8 +32,7 @@ A clear and concise description of what you expected to happen.
 
 <details>
   <summary>Logs</summary>
-  Please paste your [log](https://fabricmc.net/wiki/player:tutorials:logs_ml:windows) here or include a 
-  link to a third party site
+Please paste your <a href="https://fabricmc.net/wiki/player:tutorials:logs_ml:windows">log</a> here or include a link to a third party site.
 </details>
 
 **Additional context**
