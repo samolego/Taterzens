@@ -10,8 +10,10 @@ plugins {
 }
 
 configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom shadowCommon
+    runtimeClasspath.extendsFrom shadowCommon
 }
+
 
 architectury {
     platformSetupLoomIde()
@@ -29,9 +31,6 @@ def ENV = System.getenv();
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
-    implementation(project(path: ":common", configuration: "dev")) {
-        transitive = false
-    }
     developmentForge(project(path: ":common", configuration: "dev")) {
         transitive = false
     }

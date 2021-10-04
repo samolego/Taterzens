@@ -32,8 +32,10 @@ repositories {
 
 
 configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom shadowCommon
+    runtimeClasspath.extendsFrom shadowCommon
 }
+
 
 architectury {
     platformSetupLoomIde()
@@ -67,9 +69,6 @@ dependencies {
 
     //modRuntime 'com.github.TheOneTrueZandra:Figura:0.0.5'
 
-    implementation(project(path: ":common", configuration: "dev")) {
-        transitive = false
-    }
     developmentFabric(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
