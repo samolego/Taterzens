@@ -27,4 +27,3 @@ module:forge
 org.samo_lego.taterzens.compatibility.forge
 org.samo_lego.taterzens.forge
 org.samo_lego.taterzens.forge.event
-org.samo_lego.taterzens.forge.mixin
