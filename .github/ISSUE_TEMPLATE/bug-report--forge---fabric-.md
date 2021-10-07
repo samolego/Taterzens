@@ -14,6 +14,12 @@ A clear and concise description of what the bug is.
 - [x] Fabric
 - [x] Forge
 
+**Environment(s)**
+
+
+- [x] Singleplayer
+- [x] Server
+
 **Versions**
 * Minecraft X.Y.Z
 * Taterzens A.B.C
