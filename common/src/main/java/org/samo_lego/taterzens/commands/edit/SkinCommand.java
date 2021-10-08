@@ -35,7 +35,7 @@ import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class SkinCommand {
 
-    private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/id/";
+    private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
     private static final ExecutorService THREADPOOL = Executors.newCachedThreadPool();
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
@@ -81,7 +81,7 @@ public class SkinCommand {
 
             if(id.contains(":") ) {
                 THREADPOOL.submit(() -> {
-                    String param = id.replaceAll("[^0-9]", "");
+                    String param = id.substring(id.lastIndexOf('/'));
                     String mineskinUrl = MINESKIN_API_URL + param;
                     try {
                         URL url = new URL(mineskinUrl);
