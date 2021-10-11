@@ -55,6 +55,7 @@
   "taterzens.command.behaviour.set": "Behaviour is now set to %s.",
   "taterzens.command.behaviour.suggest.invulnerable.false": "Click here to set invulnerability to false as well.",
   "taterzens.command.skin.fetched": "Skin of Taterzen was fetched from %s.",
+  "taterzens.command.skin.error": "Couldn't fetch skin from %s.",
   "taterzens.command.skin.mirrored": "Skin layers for %s were mirrored from you successfully.",
   "taterzens.command.select": "You have selected %s.",
   "taterzens.command.deselect": "You now don't have any taterzens selected.",

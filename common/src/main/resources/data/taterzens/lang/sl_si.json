@@ -52,6 +52,7 @@
   "taterzens.command.behaviour.set": "Obnašanje je bilo nastavljeno na %s.",
   "taterzens.command.behaviour.suggest.invulnerable.false": "Klikni semkaj za onemogočenje neuničljivosti.",
   "taterzens.command.skin.fetched": "Skin krompirjevca je bil pridobljen od %s.",
+  "taterzens.command.skin.error": "Skina %s ni bilo mogoče pridobiti.",
   "taterzens.command.skin.mirrored": "Plasti skina krompirjevca %s so bile izenačene s tvojimi nastavitvami plasti za skin.",
   "taterzens.command.select": "Izbral si krompirjevca %s.",
   "taterzens.command.deselect": "Izbranega nimaš nobenega krompirjevca.",
