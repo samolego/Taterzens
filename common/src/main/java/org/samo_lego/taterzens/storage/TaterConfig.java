@@ -1,26 +1,18 @@
 package org.samo_lego.taterzens.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import org.jetbrains.annotations.NotNull;
+import org.samo_lego.config2brigadier.IBrigadierConfigurator;
+import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.samo_lego.taterzens.Taterzens.LOGGER;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.*;
 
-public class TaterConfig {
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .create();
+public class TaterConfig implements IBrigadierConfigurator {
 
     public static final String COMMENT_PREFIX = "_comment";
 
@@ -31,6 +23,7 @@ public class TaterConfig {
      *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
+    @BrigadierExcluded
     public String language = "en_us";
 
     @SerializedName("// Whether to remove Taterzens from registry sync. Auto applied in Fabric.")
@@ -85,6 +78,11 @@ public class TaterConfig {
     public Messages messages = new Messages();
     public Permissions perms = new Permissions();
     public Bungee bungee = new Bungee();
+
+    @Override
+    public void save() {
+        this.saveConfigFile(CONFIG_FILE);
+    }
 
     /**
      * Some permission stuff.
@@ -161,7 +159,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("death_sounds")
-        public ArrayList<String> deathSounds = new ArrayList<>(Arrays.asList(
+        public List<String> deathSounds = new ArrayList<>(Arrays.asList(
                 "entity.player.death"
         ));
         /**
@@ -169,7 +167,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("hurt_sounds")
-        public ArrayList<String> hurtSounds = new ArrayList<>(Arrays.asList(
+        public List<String> hurtSounds = new ArrayList<>(Arrays.asList(
                 "entity.player.hurt"
         ));
         /**
@@ -177,7 +175,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("ambient_sounds")
-        public ArrayList<String> ambientSounds = new ArrayList<>();
+        public List<String> ambientSounds = new ArrayList<>();
 
         @SerializedName("// Whether Taterzen is invulnerable by default.")
         public final String _comment_invulnerable = "";
@@ -263,7 +261,7 @@ public class TaterConfig {
             try (BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
             )) {
-                config = gson.fromJson(fileReader, TaterConfig.class);
+                config = GSON.fromJson(fileReader, TaterConfig.class);
             } catch (IOException e) {
                 throw new RuntimeException(MODID + " Problem occurred when trying to load config: ", e);
             }
@@ -283,7 +281,7 @@ public class TaterConfig {
      */
     public void saveConfigFile(File file) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            gson.toJson(this, writer);
+            GSON.toJson(this, writer);
         } catch (IOException e) {
             LOGGER.error("Problem occurred when saving config: " + e.getMessage());
         }
@@ -298,32 +296,6 @@ public class TaterConfig {
      */
     public void reload(File file) {
         TaterConfig newConfig = loadConfigFile(file);
-        this.refreshFields(this, newConfig);
-    }
-
-    private void refreshFields(@NotNull Object oldConfig, Object newConfig) {
-        try {
-            for(Field field : oldConfig.getClass().getFields()) {
-                Class<?> type = field.getType();
-
-                if(Modifier.isFinal(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
-                    continue;
-
-
-                field.setAccessible(true);
-                Object value = field.get(newConfig);
-
-                // We overwrite primitives and strings
-                // fixme strings are not reloaded
-                if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
-                    field.set(oldConfig, value);
-                } else {
-                    // Recursion
-                    this.refreshFields(field.get(oldConfig), value);
-                }
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        this.reload(newConfig);
     }
 }

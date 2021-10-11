@@ -32,6 +32,10 @@ def ENV = System.getenv();
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
+    // Libs
+    modImplementation "com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}"
+    shadow("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}")
+
     developmentForge(project(path: ":common", configuration: "dev")) {
         transitive = false
     }

@@ -1,6 +1,8 @@
 package org.samo_lego.taterzens.util;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.samo_lego.taterzens.Taterzens;
 
@@ -16,11 +18,6 @@ import static org.apache.logging.log4j.LogManager.getLogger;
 import static org.samo_lego.taterzens.Taterzens.*;
 
 public class LanguageUtil {
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .create();
 
     public static final InputStream DEFAULT_LANG_STREAM = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
     public static List<String> LANG_LIST = new ArrayList<>();
@@ -71,7 +68,7 @@ public class LanguageUtil {
      */
     public static JsonObject loadLanguageFile(InputStream inputStream) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            return gson.fromJson(reader, JsonObject.class);
+            return GSON.fromJson(reader, JsonObject.class);
         } catch (IOException e) {
             getLogger("Taterzens").error("[Taterzens]: Problem occurred when trying to load language: ", e);
         }
@@ -86,7 +83,7 @@ public class LanguageUtil {
             HttpsURLConnection conn = (HttpsURLConnection) REPO_API_URL.openConnection();
             if(conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 String reply = IOUtils.toString(new InputStreamReader(conn.getInputStream()));
-                JsonArray json = gson.fromJson(reply, JsonArray.class);
+                JsonArray json = GSON.fromJson(reply, JsonArray.class);
 
                 for(JsonElement element : json) {
                     JsonObject file = element.getAsJsonObject();

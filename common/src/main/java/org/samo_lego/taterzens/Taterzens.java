@@ -1,5 +1,7 @@
 package org.samo_lego.taterzens;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -36,6 +38,13 @@ public class Taterzens {
 
     public static final HashMap<ResourceLocation, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
 
+
+    public static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .disableHtmlEscaping()
+            .create();
+
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
      * when packets are sent.
@@ -45,6 +54,7 @@ public class Taterzens {
 
     public static File taterDir;
     public static File presetsDir;
+    public static File CONFIG_FILE;
 
 
     /**
@@ -63,8 +73,8 @@ public class Taterzens {
             throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
         presetsDir = taterDir;
         taterDir = taterDir.getParentFile();
-        File configFile = new File(taterDir + "/config.json");
-        config = TaterConfig.loadConfigFile(configFile);
+        CONFIG_FILE = new File(taterDir + "/config.json");
+        config = TaterConfig.loadConfigFile(CONFIG_FILE);
 
         LanguageUtil.setupLanguage();
 
