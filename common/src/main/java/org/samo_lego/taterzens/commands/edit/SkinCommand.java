@@ -80,7 +80,8 @@ public class SkinCommand {
             THREADPOOL.submit(() -> {
                 URL url = null;
                 if(id.contains(":") ) {
-                    String param = id.substring(id.lastIndexOf('/'));
+                    // Mineskin
+                    String param = id.substring(id.lastIndexOf('/') + 1);  // + 1 so as to not include "/"
                     String mineskinUrl = MINESKIN_API_URL + param;
                     try {
                         url = new URL(mineskinUrl);
@@ -106,12 +107,9 @@ public class SkinCommand {
                     try {
                         String reply = urlRequest(url);
                         if(reply != null && !reply.contains("error") && !reply.isEmpty()) {
-                            JsonObject replyJson = GSON.fromJson(reply, JsonObject.class)
-                                    .get("properties")
-                                    .getAsJsonArray().get(0)
-                                    .getAsJsonObject();
-                            String value = replyJson.get("value").getAsString();
-                            String signature = replyJson.get("signature").getAsString();
+
+                            String value = reply.split("\"value\":\"")[1].split("\"")[0];
+                            String signature = reply.split("\"signature\":\"")[1].split("\"")[0];
 
                             // Setting the skin
                             if(!value.isEmpty() && !signature.isEmpty()) {

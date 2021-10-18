@@ -15,6 +15,13 @@ import java.util.Scanner;
  */
 public class WebUtil {
 
+    /**
+     * Gets content of a webpage as string. Used for API calls.
+     *
+     * @param url url to connect to.
+     * @return reply string
+     * @throws IOException if exception occurred.
+     */
     @Nullable
     public static String urlRequest(URL url) throws IOException {
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();

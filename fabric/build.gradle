@@ -30,18 +30,20 @@ repositories {
     }
 }
 
-
-configurations {
-    shadowCommon
-    compileClasspath.extendsFrom shadowCommon
-    runtimeClasspath.extendsFrom shadowCommon
-}
-
-
 architectury {
     platformSetupLoomIde()
     fabric()
 }
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+
+}
+
 def ENV = System.getenv();
 
 dependencies {
@@ -72,7 +74,7 @@ dependencies {
 
     //modRuntime 'com.github.TheOneTrueZandra:Figura:0.0.5'
 
-    developmentFabric(project(path: ":common", configuration: "dev")) {
+    common(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) {
@@ -96,7 +98,7 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier "fabric"
+    classifier null
 }
 
 jar {
@@ -109,17 +111,17 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 publishing {
     publications {
         mavenFabric(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
         mavenJava(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
@@ -190,9 +192,9 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
 
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
-    versionNumber = version
-    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
-    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    versionNumber = project.minecraft_version + "+" + version + "-fabric"
+    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
     releaseType = "release"
 
     uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")

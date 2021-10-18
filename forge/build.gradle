@@ -9,16 +9,18 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-configurations {
-    shadowCommon
-    compileClasspath.extendsFrom shadowCommon
-    runtimeClasspath.extendsFrom shadowCommon
-}
-
-
 architectury {
     platformSetupLoomIde()
     forge()
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+
 }
 
 loom {
@@ -36,7 +38,7 @@ dependencies {
     modImplementation "com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}"
     shadow("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}")
 
-    developmentForge(project(path: ":common", configuration: "dev")) {
+    common(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
@@ -62,7 +64,7 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier "forge"
+    classifier null
 }
 
 jar {
@@ -75,17 +77,17 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 publishing {
     publications {
         mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
     }
 
@@ -118,7 +120,7 @@ curseforge {
 
     project {
         id = "473071"
-        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
         releaseType = "release"
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Forge"
@@ -144,11 +146,12 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
 
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
-    versionNumber = version
-    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    versionNumber = project.minecraft_version + "+" + version + "-forge"
+    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    versionName = "[${project.minecraft_version}] Taterzens ${version} [Forge]"
     releaseType = "release"
 
-    addFile(file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar"))
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar")
 
     addGameVersion("${project.minecraft_version}")
     addLoader('forge')
