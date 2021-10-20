@@ -98,7 +98,7 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    classifier "fabric"
 }
 
 jar {
@@ -166,7 +166,7 @@ curseforge {
 
     project {
         id = "446499"
-        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
         releaseType = "release"
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Fabric"

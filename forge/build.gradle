@@ -20,7 +20,6 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
-
 }
 
 loom {
@@ -36,7 +35,9 @@ dependencies {
 
     // Libs
     modImplementation "com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}"
-    shadow("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}")
+    shadowCommon("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}") {
+        transitive = false
+    }
 
     common(project(path: ":common", configuration: "dev")) {
         transitive = false
@@ -48,9 +49,10 @@ dependencies {
 
 processResources {
     inputs.property "version", project.version
+    inputs.property "c2b_version", rootProject.c2b_version
 
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand("version": project.version, "c2b_version": rootProject.c2b_version)
     }
 }
 
@@ -64,7 +66,7 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    classifier "forge"
 }
 
 jar {
