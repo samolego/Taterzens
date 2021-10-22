@@ -7,11 +7,14 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.compatibility.carpet.ScarpetProfession;
 import org.samo_lego.taterzens.fabric.event.BlockInteractEventImpl;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -49,6 +52,16 @@ public class TaterzensFabric implements ModInitializer {
 
         // Common initialization
         Taterzens.onInitialize();
+
+
+        // CarpetMod
+        boolean isCarpetPresent = FabricLoader.getInstance().isModLoaded("carpet");
+        if (isCarpetPresent) {
+            TaterzensAPI.registerProfession(
+                    new ResourceLocation(MODID, "scarpet_profession"),
+                    new ScarpetProfession(new ResourceLocation("test", "event_sl"))
+            );
+        }
 
         // Events
         CommandRegistrationCallback.EVENT.register(TaterzensCommand::register);

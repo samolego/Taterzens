@@ -416,33 +416,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public void tick() {
         super.tick();
 
-        // Profession event
-        professionLoop:
-        for(TaterzenProfession profession : this.professions.values()) {
-            InteractionResult result = profession.tick();
-            switch(result) {
-                case CONSUME: // Stop processing others, but continue with base Taterzen tick
-                    break professionLoop;
-                case FAIL: // Stop whole movement tick
-                    return;
-                case SUCCESS: // Continue with super, but skip Taterzen's tick
-                    super.aiStep();
-                    return;
-                default: // Continue with other professions
-                    break;
-            }
-        }
-
-        if(!this.npcData.messages.isEmpty()) {
+        if(!this.npcData.messages.isEmpty() || !this.professions.isEmpty()) {
             AABB box = this.getBoundingBox().expandTowards(2.0D, 1.0D, 2.0D);
-            this.level.getEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayer && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES) {
-                    ITaterzenPlayer pl = (ITaterzenPlayer) entity;
+            List<Entity> players = this.level.getEntities(this, box, entity -> entity instanceof ServerPlayer && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES);
+
+            if(this.npcData.messages.isEmpty()) {
+                for(Entity player: players) {
+                    ITaterzenPlayer pl = (ITaterzenPlayer) player;
                     int msgPos = pl.getLastMsgPos(this.getUUID());
-                    if(msgPos >= this.npcData.messages.size())
+                    if (msgPos >= this.npcData.messages.size())
                         msgPos = 0;
-                    if(this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
-                        entity.sendMessage(
+                    if (this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
+                        player.sendMessage(
                                 new TranslatableComponent(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
                                 this.uuid
                         );
@@ -453,10 +438,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                         // Setting new message position
                         pl.setLastMsgPos(this.getUUID(), msgPos);
                     }
-                    return true;
                 }
-                return false;
-            });
+            }
+            if(!players.isEmpty()) {
+                for(TaterzenProfession profession : this.professions.values()) {
+                    profession.onPlayersNearby(players);
+                }
+            }
         }
     }
 

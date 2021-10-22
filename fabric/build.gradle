@@ -14,19 +14,7 @@ repositories {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
     maven {
-        name = "AperLambda"
-        url = 'https://aperlambda.github.io/maven'
-    }
-    maven {
-        name = "entity reach"
-        url = "https://maven.jamieswhiteshirt.com/libs-release/"
-    }
-    maven {
-        name = "TomTheGeek-repo"
-        url = "https://maven.tomthegeek.ml/releases/"
-    }
-    maven {
-        url 'https://maven.bymartrixx.me'
+        url 'https://masa.dy.fi/maven'
     }
 }
 
@@ -56,23 +44,8 @@ dependencies {
     // Permission API
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
-    // Serverside translations
-    modCompileOnly("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
-
-    // DisguiseLib
-    //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
-    modRuntime "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
-
-    //modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.17.1-v0.3.1"
-    modRuntime "com.github.astei:lazydfu:0.1.2"
-
-    modRuntime 'me.bymartrixx:wdmcf:1.0.2'
-    modRuntime "com.github.tom_the_geek:wdmnf:1.0.0+mc.1.17"
-
-    //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
-    //modRuntime 'com.github.Virtuoel:Pehkui:2.0.0'
-
-    //modRuntime 'com.github.TheOneTrueZandra:Figura:0.0.5'
+    // Carpet
+    modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")
 
     common(project(path: ":common", configuration: "dev")) {
         transitive = false

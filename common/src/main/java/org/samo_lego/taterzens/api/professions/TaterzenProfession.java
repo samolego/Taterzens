@@ -11,6 +11,8 @@ import net.minecraft.world.phys.Vec3;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
+import java.util.List;
+
 /**
  * Profession interface, providing hooks
  * for Taterzen's behaviour.
@@ -31,7 +33,11 @@ public interface TaterzenProfession {
      * </ul>
      *
      * @return true if you want to cancel the default Taterzen ticking.
+     *
+     * @deprecated - you can still use {@link TaterzenProfession#tickMovement()} or new event {@link TaterzenProfession#onPlayersNearby(List)}
+     * for interactions with players.
      */
+    @Deprecated
     default InteractionResult tick() {
         return InteractionResult.PASS;
     }
@@ -49,6 +55,7 @@ public interface TaterzenProfession {
      * @return action result which determines further execution
      */
     default InteractionResult tickMovement() {
+        this.tick();
         return InteractionResult.PASS;
     }
 
@@ -142,5 +149,12 @@ public interface TaterzenProfession {
      */
     default boolean cancelMeleeAttack(Entity target) {
         return false;
+    }
+
+    /**
+     * Called every tick if players are nearby.
+     * @param players players that are in talking range of taterzen.
+     */
+    default void onPlayersNearby(List<Entity> players) {
     }
 }
