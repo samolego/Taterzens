@@ -14,8 +14,6 @@ import static org.samo_lego.taterzens.Taterzens.*;
 
 public class TaterConfig implements IBrigadierConfigurator {
 
-    public static final String COMMENT_PREFIX = "_comment";
-
     @SerializedName("// Language file to use.")
     public final String _comment_language = "";
     /**
@@ -216,6 +214,11 @@ public class TaterConfig implements IBrigadierConfigurator {
         @SerializedName("// Message format. First %s is replaced with name, second one with message.")
         public final String _comment_structure = "";
         public String structure = "%s -> you: %s";
+
+        @SerializedName("// How far can player be for messages start appearing.")
+        public final String _comment_speakDistance = "(default: 3.0f)";
+        @SerializedName("speak_distance")
+        public float speakDistance = 3.0f;
     }
 
     /**

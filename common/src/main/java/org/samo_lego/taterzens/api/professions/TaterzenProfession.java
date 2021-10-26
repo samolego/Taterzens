@@ -1,10 +1,12 @@
 package org.samo_lego.taterzens.api.professions;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -113,8 +115,23 @@ public interface TaterzenProfession {
      *
      * @param groundStack stack to be picked up
      * @return true if item should be picked up, otherwise false.
+     *
+     * @deprecated use {@link #tryPickupItem(ItemEntity)} instead.
      */
+    @Deprecated
     default boolean tryPickupItem(ItemStack groundStack) {
+        return false;
+    }
+
+    /**
+     * Called when Taterzen has a chance to pickup an item.
+     * You can create a local inventory in the profession and save it there.
+     *
+     * @param item item entity to be picked up
+     * @return true if item should be picked up, otherwise false.
+
+     */
+    default boolean tryPickupItem(ItemEntity item) {
         return false;
     }
 
@@ -155,6 +172,6 @@ public interface TaterzenProfession {
      * Called every tick if players are nearby.
      * @param players players that are in talking range of taterzen.
      */
-    default void onPlayersNearby(List<Entity> players) {
+    default void onPlayersNearby(List<ServerPlayer> players) {
     }
 }

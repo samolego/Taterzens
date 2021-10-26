@@ -141,7 +141,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
         this.maxUpStep = 0.6F;
-        this.setCanPickUpLoot(false);
+        this.setCanPickUpLoot(true);
         this.setCustomNameVisible(true);
         this.setCustomName(this.getName());
         this.setInvulnerable(config.defaults.invulnerable);
@@ -363,17 +363,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
         }
 
-        if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-            AABB box = this.getBoundingBox().inflate(4.0D);
-            this.level.getEntities(this, box, entity -> {
-                if(entity instanceof ServerPlayer) {
-                    this.lookAt(entity, 60.0F, 60.0F);
-                    this.setYHeadRot(this.getYRot());
-                    return true;
-                }
-                return false;
-            });
-        } else if(this.npcData.movement != NPCData.Movement.NONE) {
+        // FORCED_LOOK is processed in tick(), as we get nearby players there
+        if(this.npcData.movement != NPCData.Movement.NONE && this.npcData.movement != NPCData.Movement.FORCED_LOOK) {
             this.setYRot(this.yHeadRot); // Rotates body as well
             LivingEntity target = this.getTarget();
 
@@ -402,9 +393,21 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                     this.restrictTo(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
                 }
             }
+
             super.aiStep();
             if(this.isAggressive() && this.npcData.jumpWhileAttacking && this.onGround && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
                 this.jumpFromGround();
+        } else {
+            // As super.aiStep() isn't executed, we check for items that are available to be picked up
+            if (this.isAlive() && !this.dead) {
+                List<ItemEntity> list = this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D));
+
+                for (ItemEntity itemEntity : list) {
+                    if (!itemEntity.isRemoved() && !itemEntity.getItem().isEmpty() && !itemEntity.hasPickUpDelay() && this.wantsToPickUp(itemEntity.getItem())) {
+                        this.pickUpItem(itemEntity);
+                    }
+                }
+            }
         }
     }
 
@@ -416,34 +419,43 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public void tick() {
         super.tick();
 
-        if(!this.npcData.messages.isEmpty() || !this.professions.isEmpty()) {
-            AABB box = this.getBoundingBox().expandTowards(2.0D, 1.0D, 2.0D);
-            List<Entity> players = this.level.getEntities(this, box, entity -> entity instanceof ServerPlayer && ((ITaterzenEditor) entity).getEditorMode() != ITaterzenEditor.EditorMode.MESSAGES);
+        AABB box = this.getBoundingBox().inflate(4.0D);
+        List<ServerPlayer> players = this.level.getEntitiesOfClass(ServerPlayer.class, box);
 
-            if(this.npcData.messages.isEmpty()) {
-                for(Entity player: players) {
-                    ITaterzenPlayer pl = (ITaterzenPlayer) player;
-                    int msgPos = pl.getLastMsgPos(this.getUUID());
-                    if (msgPos >= this.npcData.messages.size())
-                        msgPos = 0;
-                    if (this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
-                        player.sendMessage(
-                                new TranslatableComponent(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
-                                this.uuid
-                        );
-                        // Resetting message counter
-                        pl.resetMessageTicks(this.getUUID());
+        if(!this.npcData.messages.isEmpty()) {
+            for(ServerPlayer player: players) {
+                if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES || this.distanceTo(player) > config.messages.speakDistance)
+                    continue;
 
-                        ++msgPos;
-                        // Setting new message position
-                        pl.setLastMsgPos(this.getUUID(), msgPos);
-                    }
+                ITaterzenPlayer pl = (ITaterzenPlayer) player;
+                int msgPos = pl.getLastMsgPos(this.getUUID());
+                if (msgPos >= this.npcData.messages.size())
+                    msgPos = 0;
+                if (this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
+                    player.sendMessage(
+                            new TranslatableComponent(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
+                            this.uuid
+                    );
+                    // Resetting message counter
+                    pl.resetMessageTicks(this.getUUID());
+
+                    ++msgPos;
+                    // Setting new message position
+                    pl.setLastMsgPos(this.getUUID(), msgPos);
                 }
             }
-            if(!players.isEmpty()) {
-                for(TaterzenProfession profession : this.professions.values()) {
-                    profession.onPlayersNearby(players);
-                }
+        }
+        if(!players.isEmpty()) {
+            // We tick forced look here, as we already have players list.
+            if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
+                ServerPlayer player = players.get(this.random.nextInt(players.size()));
+
+                this.lookAt(player, 60.0F, 60.0F);
+                this.setYHeadRot(this.getYRot());
+            }
+            // Tick profession
+            for(TaterzenProfession profession : this.professions.values()) {
+                profession.onPlayersNearby(players);
             }
         }
     }
@@ -1330,26 +1342,28 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         return this.professions.getOrDefault(professionId, null);
     }
 
+    @Override
+    public boolean canPickUpLoot() {
+        return true;
+    }
+
     /**
      * Manages item pickup.
      * @param item item to pick up.
      */
     @Override
-    public void onItemPickup(ItemEntity item) {
+    protected void pickUpItem(ItemEntity item) {
         // Profession event
         ItemStack stack = item.getItem();
-        ItemStack copiedStack = stack.copy();
         for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.tryPickupItem(copiedStack)) {
+            if(profession.tryPickupItem(item) || profession.tryPickupItem(stack)) {
                 this.onItemPickup(item);
                 this.take(item, stack.getCount());
                 stack.setCount(0);
-                item.remove(null);
+                item.discard();
                 return;
             }
         }
-
-        super.onItemPickup(item);
     }
 
     /**
