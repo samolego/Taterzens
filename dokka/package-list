@@ -18,6 +18,7 @@ org.samo_lego.taterzens.storage
 org.samo_lego.taterzens.util
 module:fabric
 org.samo_lego.taterzens.compatibility
+org.samo_lego.taterzens.compatibility.carpet
 org.samo_lego.taterzens.compatibility.fabric
 org.samo_lego.taterzens.fabric
 org.samo_lego.taterzens.fabric.client_fix
