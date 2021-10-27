@@ -26,6 +26,8 @@ For more information, please refer to <http://unlicense.org/>
  */
 
 const CONFIG = document.getElementById("config");
+const LANGS = document.getElementById("languages");
+const CUSTOM_LANG = document.getElementById("custom_language");
 
 // Checks the latest version of Taterzens
 const versionCheck = new XMLHttpRequest();
@@ -43,113 +45,164 @@ versionCheck.send();
 
 
 async function checkCache(version) {
-    let cache = JSON.parse(localStorage.getItem("ConfigCache"));
+    let configCache = JSON.parse(localStorage.getItem("ConfigCache"));
+    let langCache = JSON.parse(localStorage.getItem("LangsCache"));
     let CACHED_VERSION = JSON.parse(localStorage.getItem("TaterzensVersion"));
-    if(cache == null || CACHED_VERSION != version) {
-        fetchNewestConfig(version);
+
+    if(configCache == null || langCache == null || CACHED_VERSION != version) {
+        fetchNewData(version);
     } else {
-        CONFIG.innerHTML = cache;
+        CONFIG.innerHTML = configCache;
+        setLangs(langCache);
     }
 }
 
-async function fetchNewestConfig(version) {
-    const xhttp = new XMLHttpRequest();
-    let processed = false;
+async function fetchNewData(version) {
+    const xhttpConfig = new XMLHttpRequest();
+    let processedConfig = false;
 
-    xhttp.onreadystatechange = () => {
-        if(xhttp.responseText != "" && !processed) {
-            processed = true;
-            CONFIG.innerHTML = "";
+    xhttpConfig.onreadystatechange = () => {
+        if(xhttpConfig.responseText != "" && !processedConfig) {
+            processedConfig = true;
 
-            let configText = xhttp.responseText;
-            let i = j = 0;
-            let level = -1;
-            let previousLine = "";
-
-            // Reading by lines
-            while ((j = configText.indexOf("\n", i)) !== -1) {
-                let line = configText.substring(i, j);
-
-                if(line != "" && !line.startsWith("i")) {
-                    level += (line.match(/\{/g)  || []).length;
-                    if(line.includes("public final String _comment")) {
-                        // Comment line
-                        const start = line.lastIndexOf(" = \"");
-                        // + 7 to not include String & space
-                        const COMMENT = document.createElement("SPAN");
-                        COMMENT.style = "color: #6a8759;";
-                        
-                        // Getting name from @SerializedName
-                        if(previousLine != "") {
-                            COMMENT.innerHTML = "    ".repeat(level) + previousLine;
-                            previousLine = "";
-                        } else {
-                            COMMENT.innerHTML = "    ".repeat(level) + line.substring(start + 4, line.length - 2);
-                        }
-
-                        CONFIG.appendChild(COMMENT);
-                        CONFIG.innerHTML += "\n";
-                    } else if(line.includes("public static class ")) {
-                        const SECTION = document.createElement("SPAN");
-                        SECTION.style = "color: #2c84fa; font-size: large;";
-
-                        let start = line.indexOf("public static class ");
-                        let option = line.substring(start + 20, line.indexOf(" {")).toUpperCase();
-
-                        SECTION.innerHTML = "    ".repeat(level - 1) + option;
-
-                        CONFIG.innerHTML += "\n";
-                        CONFIG.appendChild(SECTION);
-                        CONFIG.innerHTML += "\n";
-                    } else if(line.includes("public ") && line.includes("=") && line.includes(";") && !line.includes("new")) {
-                        // Option line
-                        let start = line.indexOf("public ");
-                        let option = line.substring(start + 7, line.length - 1);
-                        start = option.indexOf(" ");
-
-                        const TYPE = document.createElement("SPAN");
-                        TYPE.style = "color: orange;";
-                        TYPE.innerHTML = option.substring(0, start);
-
-                        option = option.substring(start + 1, option.length);
-
-                        let spaceIndex = option.indexOf(" ");
-
-                        const KEY = document.createElement("SPAN");
-                        KEY.innerHTML = "    ".repeat(level) + option.substring(0, spaceIndex);
-                        KEY.style = "color: red;";
-
-                        // Getting name from @SerializedName
-                        if(previousLine != "") {
-                            KEY.innerHTML = "    ".repeat(level) + previousLine;
-                            previousLine = "";
-                        }
-
-
-                        let value = option.substring(spaceIndex, option.length);
-
-                        CONFIG.appendChild(KEY);
-                        CONFIG.innerHTML += ": ";
-                        CONFIG.appendChild(TYPE);
-                        CONFIG.innerHTML += value + "\n";
-                    } else if(line.includes("@SerializedName")) {
-                        let start = line.indexOf("\"") + 1;
-                        let end = line.lastIndexOf("\"");
-                        previousLine = line.substring(start, end);
-                    }
-                    level -= (line.match(/\}/g)  || []).length;
-
-                }
-                i = j + 1;
-            }
+            // Sets the config
+            setConfig(xhttpConfig.responseText);
 
             localStorage.setItem("ConfigCache", JSON.stringify(CONFIG.innerHTML));
             localStorage.setItem("TaterzensVersion", JSON.stringify(version));
         }
     };
 
-    xhttp.open("GET", `https://raw.githubusercontent.com/samolego/Taterzens/${version}/common/src/main/java/org/samo_lego/taterzens/storage/TaterConfig.java`, true);
-    xhttp.send();
+    xhttpConfig.open("GET", `https://raw.githubusercontent.com/samolego/Taterzens/${version}/common/src/main/java/org/samo_lego/taterzens/storage/TaterConfig.java`, true);
+    xhttpConfig.send();
 
+
+    const xhttpLangs = new XMLHttpRequest();
+    let processedLangs = false;
+
+    xhttpLangs.onreadystatechange = () => {
+        if(xhttpLangs.responseText != "" && !processedLangs) {
+            processedLangs = true;
+            // Sets the langs
+            const langs = JSON.parse(xhttpLangs.responseText);
+            let parsed = [];
+
+            langs.forEach((l) => {
+                parsed.push(l.name.substring(0, ".json".length));
+            });
+            localStorage.setItem("LangsCache", JSON.stringify(parsed));
+
+            setLangs(parsed);
+        }
+    };
+
+    xhttpLangs.open("GET", `https://api.github.com/repos/samolego/taterzens/contents/common/src/main/resources/data/taterzens/lang`, true);
+    xhttpLangs.send();
+}
+
+async function setLangs(langs) {
+    LANGS.innerHTML = "";
+    langs.forEach((l) => {
+        const LI = document.createElement("LI");
+        LI.innerHTML = l;
+
+        LANGS.appendChild(LI);
+    });
+    const lang_count = langs.length;
+    document.getElementById("lang_count").innerHTML = `Available languages (${lang_count})`;
+    setRandomLang(langs);
+}
+
+async function setRandomLang(langJsons) {
+    const en_us = langJsons.indexOf("en_us");
+    langJsons.splice(en_us, 1);
+    const rnd = Math.floor(Math.random() * langJsons.length);
+    const rndLang = langJsons[rnd];
+    console.log(rndLang);
+    CUSTOM_LANG.innerHTML = `+  "language": "${rndLang}"`;
+}
+
+async function setConfig(configText) {
+    CONFIG.innerHTML = "";
+    let i = j = 0;
+    let level = -1;
+    let previousLine = "";
+
+    // Reading by lines
+    while ((j = configText.indexOf("\n", i)) !== -1) {
+        let line = configText.substring(i, j);
+
+        if(line != "" && !line.startsWith("i")) {
+            level += (line.match(/\{/g)  || []).length;
+            if(line.includes("public final String _comment")) {
+                // Comment line
+                const start = line.lastIndexOf(" = \"");
+                // + 7 to not include String & space
+                const COMMENT = document.createElement("SPAN");
+                COMMENT.style = "color: #6a8759;";
+
+                // Getting name from @SerializedName
+                if(previousLine != "") {
+                    COMMENT.innerHTML = "    ".repeat(level) + previousLine;
+                    previousLine = "";
+                } else {
+                    COMMENT.innerHTML = "    ".repeat(level) + line.substring(start + 4, line.length - 2);
+                }
+
+                CONFIG.appendChild(COMMENT);
+                CONFIG.innerHTML += "\n";
+            } else if(line.includes("public static class ")) {
+                const SECTION = document.createElement("SPAN");
+                SECTION.style = "color: #2c84fa; font-size: large;";
+
+                let start = line.indexOf("public static class ");
+                let option = line.substring(start + 20, line.indexOf(" {")).toUpperCase();
+
+                SECTION.innerHTML = "    ".repeat(level - 1) + option;
+
+                CONFIG.innerHTML += "\n";
+                CONFIG.appendChild(SECTION);
+                CONFIG.innerHTML += "\n";
+            } else if(line.includes("public ") && line.includes("=") && line.includes(";") && !line.includes("new")) {
+                // Option line
+                let start = line.indexOf("public ");
+                let option = line.substring(start + 7, line.length - 1);
+                start = option.indexOf(" ");
+
+                const TYPE = document.createElement("SPAN");
+                TYPE.style = "color: orange;";
+                TYPE.innerHTML = option.substring(0, start);
+
+                option = option.substring(start + 1, option.length);
+
+                let spaceIndex = option.indexOf(" ");
+
+                const KEY = document.createElement("SPAN");
+                KEY.innerHTML = "    ".repeat(level) + option.substring(0, spaceIndex);
+                KEY.style = "color: red;";
+
+                // Getting name from @SerializedName
+                if(previousLine != "") {
+                    KEY.innerHTML = "    ".repeat(level) + previousLine;
+                    previousLine = "";
+                }
+
+
+                let value = option.substring(spaceIndex, option.length);
+
+                CONFIG.appendChild(KEY);
+                CONFIG.innerHTML += ": ";
+                CONFIG.appendChild(TYPE);
+                CONFIG.innerHTML += value + "\n";
+            } else if(line.includes("@SerializedName")) {
+                let start = line.indexOf("\"") + 1;
+                let end = line.lastIndexOf("\"");
+                previousLine = line.substring(start, end);
+            }
+            level -= (line.match(/\}/g)  || []).length;
+
+        }
+        i = j + 1;
+    }
 }
 

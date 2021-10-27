@@ -8,7 +8,10 @@ title: Bungee Actions
 
 ## Setup
 
-1. Make sure that `"bungee" -> "enable_commands"` is set to `true` in [config](../config.md)
+1. Make sure that `"bungee" -> "enable_commands"` is set to `true` in [config](../config.md).
+   
+    (`/taterzens config edit bungee enableCommands true`)
+
 2. You can now add a bungee / velovity command via
 ```
 /npc edit commands addBungee <cmd> <player> <parameter>
