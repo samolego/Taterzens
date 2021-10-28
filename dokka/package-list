@@ -9,6 +9,7 @@ org.samo_lego.taterzens.commands
 org.samo_lego.taterzens.commands.edit
 org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.event
+org.samo_lego.taterzens.gui
 org.samo_lego.taterzens.interfaces
 org.samo_lego.taterzens.mixin
 org.samo_lego.taterzens.mixin.accessors
