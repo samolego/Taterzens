@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -203,7 +202,7 @@ static {
 
         // Messages
         itemCommandMap.put("message id", new ItemStack(Items.KNOWLEDGE_BOOK));
-        itemCommandMap.put("clear", new ItemStack(Blocks.LAVA));
+        itemCommandMap.put("clear", new ItemStack(Items.LAVA_BUCKET));
 
 
         // Presets
