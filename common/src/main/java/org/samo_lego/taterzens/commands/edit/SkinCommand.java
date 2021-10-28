@@ -1,12 +1,9 @@
 package org.samo_lego.taterzens.commands.edit;
 
-import com.mojang.authlib.GameProfile;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.samo_lego.taterzens.commands.NpcCommand;
-
-import javax.net.ssl.HttpsURLConnection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -14,28 +11,29 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import java.io.BufferedReader;
+import net.minecraft.world.entity.Entity;
+import org.samo_lego.taterzens.commands.NpcCommand;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static net.minecraft.commands.arguments.MessageArgument.message;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.FABRICTAILOR_LOADED;
-import static org.samo_lego.taterzens.Taterzens.config;
+import static net.minecraft.commands.arguments.MessageArgument.message;
+import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.WebUtil.urlRequest;
 
 public class SkinCommand {
 
-    private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/id/";
+    private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
+    private static final String MOJANG_NAME2UUID = "https://api.mojang.com/users/profiles/minecraft/";
+    private static final String MOJANG_UUID2SKIN = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
     private static final ExecutorService THREADPOOL = Executors.newCachedThreadPool();
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
@@ -53,8 +51,9 @@ public class SkinCommand {
     private static int setCustomSkin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         String id = MessageArgument.getMessage(context, "mineskin URL | playername").getString();
+        Entity entity = source.getEntityOrException();
 
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+        return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             // Shameless self-promotion
             if(config.fabricTailorAdvert) {
                 if(FABRICTAILOR_LOADED) {
@@ -78,55 +77,63 @@ public class SkinCommand {
                 }
 
             }
-
-            if(id.contains(":") ) {
-                THREADPOOL.submit(() -> {
-                    String param = id.replaceAll("[^0-9]", "");
+            THREADPOOL.submit(() -> {
+                URL url = null;
+                if(id.contains(":") ) {
+                    // Mineskin
+                    String param = id.substring(id.lastIndexOf('/') + 1);  // + 1 so as to not include "/"
                     String mineskinUrl = MINESKIN_API_URL + param;
                     try {
-                        URL url = new URL(mineskinUrl);
-                        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-                        connection.setUseCaches(false);
-                        connection.setDoOutput(true);
-                        connection.setRequestProperty("Content-Type", "application/json");
-                        connection.setRequestMethod("GET");
-
-                        try (
-                                InputStream is = connection.getInputStream();
-                                InputStreamReader isr = new InputStreamReader(is);
-                                BufferedReader br = new BufferedReader(isr)
-                        ) {
-                            String response = br.readLine();
-                            String value = response.split("\"value\":\"")[1].split("\"")[0];
-                            String signature = response.split("\"signature\":\"")[1].split("\"")[0];
-
-                            CompoundTag skinTag = new CompoundTag();
-                            skinTag.putString("value", value);
-                            skinTag.putString("signature", signature);
-
-                            taterzen.setSkinFromTag(skinTag);
-                            taterzen.sendProfileUpdates();
-
-                            source.sendSuccess(
-                                    successText("taterzens.command.skin.fetched", id),
-                                    false
-                            );
-                        }
+                        url = new URL(mineskinUrl);
                     } catch(MalformedURLException e) {
                         source.sendFailure(errorText("taterzens.error.invalid.url", mineskinUrl));
-                    } catch(IOException e) {
+                    }
+                } else {
+                    // Get skin by player's name
+                    try {
+                        String uuidReply = urlRequest(new URL(MOJANG_NAME2UUID + id));
+                        if(uuidReply != null) {
+                            JsonObject replyJson = GSON.fromJson(uuidReply, JsonObject.class);
+                            String uuid = replyJson.get("id").getAsString();
+
+                            url = new URL(String.format(MOJANG_UUID2SKIN, uuid));
+                        }
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
-                });
-            } else {
-                // Player's name
-                GameProfile skinProfile = new GameProfile(null, id);
-                SkullBlockEntity.updateGameprofile(skinProfile, taterzen::applySkin);
-                context.getSource().sendSuccess(
-                        successText("taterzens.command.skin.fetched", id),
-                        false
-                );
-            }
+                }
+
+                if(url != null) {
+                    try {
+                        String reply = urlRequest(url);
+                        if(reply != null && !reply.contains("error") && !reply.isEmpty()) {
+
+                            String value = reply.split("\"value\":\"")[1].split("\"")[0];
+                            String signature = reply.split("\"signature\":\"")[1].split("\"")[0];
+
+                            // Setting the skin
+                            if(!value.isEmpty() && !signature.isEmpty()) {
+                                CompoundTag skinTag = new CompoundTag();
+                                skinTag.putString("value", value);
+                                skinTag.putString("signature", signature);
+
+                                taterzen.setSkinFromTag(skinTag);
+                                taterzen.sendProfileUpdates();
+
+
+                                context.getSource().sendSuccess(
+                                        successText("taterzens.command.skin.fetched", id),
+                                        false
+                                );
+                            }
+                        } else {
+                            context.getSource().sendFailure(errorText("taterzens.command.skin.error", id));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         });
     }
 
@@ -145,4 +152,6 @@ public class SkinCommand {
             );
         });
     }
+
+
 }

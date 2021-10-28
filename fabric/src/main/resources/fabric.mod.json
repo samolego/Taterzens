@@ -19,10 +19,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "org.samo_lego.taterzens.TaterzensFabric"
+      "org.samo_lego.taterzens.fabric.TaterzensFabric"
     ],
     "client": [
-      "org.samo_lego.taterzens.client_fix.ClientInit"
+      "org.samo_lego.taterzens.fabric.client_fix.ClientInit"
     ]
   },
   "mixins": [

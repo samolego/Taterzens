@@ -29,3 +29,9 @@ jobs:
         REPO_NAME: ${{ github.repository }}
         USERNAME: ${{ github.ACTOR }}
         PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Delete Package Versions
+      uses: actions/delete-package-versions@v1.0.3
+      with:
+        num-old-versions-to-delete: 1
+

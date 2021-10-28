@@ -16,7 +16,7 @@ import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Triple;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.compatibility.BungeeCommands;
+import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,12 +31,12 @@ import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.MODID;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.noSelectedTaterzenError;
+import static org.samo_lego.taterzens.compatibility.BungeeCompatibility.AVAILABLE_SERVERS;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class CommandsCommand {
     private static final SuggestionProvider<CommandSourceStack> BUNGEE_COMMANDS;
-    private static final SuggestionProvider<CommandSourceStack> BUNGEE_SERVERS;
     private static final SuggestionProvider<CommandSourceStack> PLAYERS;
 
     public static void registerNode(CommandDispatcher<CommandSourceStack> dispatcher, LiteralCommandNode<CommandSourceStack> editNode) {
@@ -70,7 +70,7 @@ public class CommandsCommand {
                             .then(argument("player", string())
                                 .suggests(PLAYERS)
                                 .then(argument("argument", string())
-                                    .suggests(BUNGEE_SERVERS)
+                                    .suggests((context, builder) -> SharedSuggestionProvider.suggest(AVAILABLE_SERVERS, builder))
                                     .executes(CommandsCommand::addBungeeCommand)
                                 )
                             )
@@ -133,7 +133,7 @@ public class CommandsCommand {
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             ArrayList<String> commands = taterzen.getCommands();
-            ArrayList<Triple<BungeeCommands, String, String>> bungeeCommands = taterzen.getBungeeCommands();
+            ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = taterzen.getBungeeCommands();
             final String separator = "\n-------------------------------------------------";
 
             MutableComponent response = joinText("taterzens.command.commands.list", ChatFormatting.AQUA, ChatFormatting.YELLOW, taterzen.getName().getString());
@@ -225,7 +225,7 @@ public class CommandsCommand {
 
         String finalArgument = argument;
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            boolean added = taterzen.addBungeeCommand(BungeeCommands.valueOf(command.toUpperCase()), player, finalArgument);
+            boolean added = taterzen.addBungeeCommand(BungeeCompatibility.valueOf(command.toUpperCase()), player, finalArgument);
             Component text;
             if(added)
                 text = joinText("taterzens.command.commands.setBungee",
@@ -258,21 +258,7 @@ public class CommandsCommand {
         BUNGEE_COMMANDS = SuggestionProviders.register(
                 new ResourceLocation(MODID, "bungee_commands"),
                 (context, builder) ->
-                        SharedSuggestionProvider.suggest(Stream.of(BungeeCommands.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
-        );
-
-        BUNGEE_SERVERS = SuggestionProviders.register(
-                new ResourceLocation(MODID, "bungee_servers"),
-                (context, builder) -> {
-                    try {
-                        String command = StringArgumentType.getString(context, "command");
-                        if(BungeeCommands.valueOf(command.toUpperCase()) != BungeeCommands.SERVER)
-                            return builder.buildFuture();
-                    } catch (IllegalArgumentException ignored) {
-                    }
-
-                    return SharedSuggestionProvider.suggest(config.bungee.servers, builder);
-                }
+                        SharedSuggestionProvider.suggest(Stream.of(BungeeCompatibility.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
         );
         PLAYERS = SuggestionProviders.register(
                 new ResourceLocation(MODID, "players"),

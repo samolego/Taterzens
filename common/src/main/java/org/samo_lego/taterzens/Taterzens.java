@@ -1,6 +1,10 @@
 package org.samo_lego.taterzens;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
@@ -12,8 +16,6 @@ import org.samo_lego.taterzens.util.PermissionExtractor;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 
 public class Taterzens {
 
@@ -36,14 +38,23 @@ public class Taterzens {
 
     public static final HashMap<ResourceLocation, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
 
+
+    public static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .serializeNulls()
+            .disableHtmlEscaping()
+            .create();
+
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
      * when packets are sent.
      */
     public static EntityType<TaterzenNPC> TATERZEN_TYPE;
+    public static ResourceLocation NPC_ID = new ResourceLocation(MODID, "npc");
 
     public static File taterDir;
     public static File presetsDir;
+    public static File CONFIG_FILE;
 
 
     /**
@@ -62,12 +73,12 @@ public class Taterzens {
             throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
         presetsDir = taterDir;
         taterDir = taterDir.getParentFile();
-        File configFile = new File(taterDir + "/config.json");
-        config = TaterConfig.loadConfigFile(configFile);
+        CONFIG_FILE = new File(taterDir + "/config.json");
+        config = TaterConfig.loadConfigFile(CONFIG_FILE);
 
         LanguageUtil.setupLanguage();
 
-        if(LUCKPERMS_LOADED && config.savePermsFile) {
+        if(LUCKPERMS_LOADED && config.perms.savePermsFile) {
             PermissionExtractor.extractPermissionsFile(new File(taterDir + "/permissions.toml"));
         }
     }

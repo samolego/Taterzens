@@ -1,7 +1,7 @@
 import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
     // Dokka docs
@@ -9,18 +9,23 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-}
-
 architectury {
     platformSetupLoomIde()
     forge()
 }
 
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
 loom {
-    mixinConfigs = ["taterzens.mixins.json", "taterzens.common.mixins.json"]
-    useFabricMixin = true
+    forge {
+        mixinConfigs "taterzens.common.mixins.json"
+    }
 }
 
 def ENV = System.getenv();
@@ -28,10 +33,13 @@ def ENV = System.getenv();
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
 
-    implementation(project(path: ":common")) {
+    // Libs
+    modImplementation "com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}"
+    shadowCommon("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}") {
         transitive = false
     }
-    developmentForge(project(path: ":common")) {
+
+    common(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) {
@@ -41,9 +49,10 @@ dependencies {
 
 processResources {
     inputs.property "version", project.version
+    inputs.property "c2b_version", rootProject.c2b_version
 
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand("version": project.version, "c2b_version": rootProject.c2b_version)
     }
 }
 
@@ -64,27 +73,23 @@ jar {
     classifier "dev"
 }
 
-java {
-    withSourcesJar()
-}
-
 sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 publishing {
     publications {
         mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
     }
 
@@ -117,7 +122,7 @@ curseforge {
 
     project {
         id = "473071"
-        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
         releaseType = "release"
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Forge"
@@ -143,11 +148,12 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
 
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
-    versionNumber = version
-    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    versionNumber = project.minecraft_version + "+" + version + "-forge"
+    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    versionName = "[${project.minecraft_version}] Taterzens ${version} [Forge]"
     releaseType = "release"
 
-    addFile(file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar"))
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar")
 
     addGameVersion("${project.minecraft_version}")
     addLoader('forge')

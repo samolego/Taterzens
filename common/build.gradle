@@ -10,16 +10,21 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
 
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
+    modCompileOnly "com.github.samolego.Config2Brigadier:config2brigadier:${rootProject.c2b_version}"
 }
 
 def ENV = System.getenv();
 
 architectury {
-    common(false)
+    common()
 }
 
-java {
-    withSourcesJar()
+configurations {
+    dev
+}
+
+artifacts {
+    dev(jar)
 }
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {

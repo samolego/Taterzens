@@ -1,7 +1,7 @@
 import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
     // Dokka docs
@@ -14,61 +14,43 @@ repositories {
         url 'https://oss.sonatype.org/content/repositories/snapshots'
     }
     maven {
-        name = "AperLambda"
-        url = 'https://aperlambda.github.io/maven'
+        url 'https://masa.dy.fi/maven'
     }
-    maven {
-        name = "entity reach"
-        url = "https://maven.jamieswhiteshirt.com/libs-release/"
-    }
-    maven {
-        name = "TomTheGeek-repo"
-        url = "https://maven.tomthegeek.ml/releases/"
-    }
-}
-
-configurations {
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
 }
 
 architectury {
     platformSetupLoomIde()
     fabric()
 }
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+
+}
+
 def ENV = System.getenv();
 
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 
+    // C2B
+    modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
 
     // Permission API
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
-    // Server GUI
+    // SGUI
     modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
 
-    // Serverside translations
-    modCompileOnly("fr.catcore:server-translations-api:${rootProject.server_translations_api}")
+    // Carpet
+    modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")
 
-    // DisguiseLib
-    //modRuntime "com.github.NucleoidMC:DisguiseLib:${rootProject.disguiselib_version}"
-    modRuntime "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
-
-    //modRuntime "com.github.CaffeineMC:hydrogen-fabric:mc1.17.1-v0.3.1"
-    modRuntime "com.github.astei:lazydfu:0.1.2"
-
-    //modImplementation("com.github.tom_the_geek:wdmnf:1.0.0+mc.1.17")
-
-    //modRuntime 'com.github.lucko.LuckPerms:fabric:v5.3'
-    //modRuntime 'com.github.Virtuoel:Pehkui:2.0.0'
-
-    //modRuntime 'com.github.TheOneTrueZandra:Figura:0.0.5'
-
-    implementation(project(path: ":common")) {
-        transitive = false
-    }
-    developmentFabric(project(path: ":common")) {
+    common(project(path: ":common", configuration: "dev")) {
         transitive = false
     }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) {
@@ -99,27 +81,23 @@ jar {
     classifier "dev"
 }
 
-java {
-    withSourcesJar()
-}
-
 sourcesJar {
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
 publishing {
     publications {
         mavenFabric(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+            from components.java
         }
         mavenJava(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
@@ -164,7 +142,7 @@ curseforge {
 
     project {
         id = "446499"
-        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
+        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
         releaseType = "release"
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Fabric"
@@ -190,9 +168,9 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
 
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
-    versionNumber = version
-    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/latest"
-    versionName = "[${project.minecraft_version}] Taterzens ${version}"
+    versionNumber = project.minecraft_version + "+" + version + "-fabric"
+    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
     releaseType = "release"
 
     uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")

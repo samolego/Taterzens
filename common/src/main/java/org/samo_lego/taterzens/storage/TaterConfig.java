@@ -1,26 +1,18 @@
 package org.samo_lego.taterzens.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
+import org.samo_lego.config2brigadier.IBrigadierConfigurator;
+import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.samo_lego.taterzens.Taterzens.LOGGER;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.*;
 
-public class TaterConfig {
-    private static final Gson gson = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .create();
+public class TaterConfig implements IBrigadierConfigurator {
 
     @SerializedName("// Language file to use.")
     public final String _comment_language = "";
@@ -29,12 +21,13 @@ public class TaterConfig {
      *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
+    @BrigadierExcluded
     public String language = "en_us";
 
     @SerializedName("// Whether to remove Taterzens from registry sync. Auto applied in Fabric.")
-    public final String _comment_disableRegistrySync1 = "";
+    public final String _comment_disableRegistrySync0 = "";
     @SerializedName("// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.")
-    public final String _comment_disableRegistrySync2 = "";
+    public final String _comment_disableRegistrySync1 = "";
     /**
      * Whether to disable Forge's registry sync.
      * (This marks mod as serverside.)
@@ -43,13 +36,12 @@ public class TaterConfig {
      */
     @SerializedName("disable_registry_sync")
     public boolean disableRegistrySync = false;
-
     @SerializedName("// After how many ticks Taterzens should be cleared from tablist.")
-    public final String _comment_taterzenTablistTimeout1 = "";
+    public final String _comment_taterzenTablistTimeout0 = "";
     @SerializedName("// Some delay is needed, otherwise clients don't fetch their skins.")
-    public final String _comment_taterzenTablistTimeout2 = "";
+    public final String _comment_taterzenTablistTimeout1 = "";
     @SerializedName("// If you want them to stay on the tablist, set this to -1.")
-    public final String _comment_taterzenTablistTimeout3 = "";
+    public final String _comment_taterzenTablistTimeout2 = "";
     /**
      * After how many ticks Taterzens should be cleared from tablist.
      * Some delay is needed, otherwise clients don't fetch their skins.
@@ -59,9 +51,9 @@ public class TaterConfig {
 
 
     @SerializedName("// Whether to remind you that if FabricTailor mod is installed,")
-    public final String _comment_fabricTailorAdvert1 = "";
+    public final String _comment_fabricTailorAdvert0 = "";
     @SerializedName("// it has some built-in skin swapping functionality for Taterzens as well.")
-    public final String _comment_fabricTailorAdvert2 = "";
+    public final String _comment_fabricTailorAdvert1 = "";
     /**
      * Whether to remind you that if FabricTailor
      * mod is installed, it has some more skin functionality.
@@ -71,34 +63,42 @@ public class TaterConfig {
     @SerializedName("post_fabrictailor_advert")
     public boolean fabricTailorAdvert = false;
 
-    @SerializedName("// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.")
-    public final String _comment_savePermsFile = "";
-    @SerializedName("save_permissions_file")
-    public boolean savePermsFile = true;
-
     @SerializedName("// Whether to cancel sending info that Taterzen has executed a command to ops.")
     public final String _comment_hideOpsMessage = "";
     @SerializedName("hide_ops_message")
     public boolean hideOpsMessage = true;
 
+    @SerializedName("// Default settings for new Taterzens.")
+    public final String _comment_defaults = "";
     public Defaults defaults = new Defaults();
+
     public Path path = new Path();
     public Messages messages = new Messages();
     public Permissions perms = new Permissions();
     public Bungee bungee = new Bungee();
 
+    @Override
+    public void save() {
+        this.saveConfigFile(CONFIG_FILE);
+    }
+
     /**
      * Some permission stuff.
      * If you are looking for permission nodes,
-     * see the generated permission.json file.
+     * see the generated permission.toml file.
      *
-     * (You must have LuckPerms installed.)
+     * (You must have LuckPerms installed for it to generate.)
      */
     public static class Permissions {
+        @SerializedName("// Whether to save all permissions into permissions.toml file if LuckPerms is loaded.")
+        public final String _comment_savePermsFile = "";
+        @SerializedName("save_permissions_file")
+        public boolean savePermsFile = true;
+
         @SerializedName("// Permission level required to execute /npc command.")
-        public final String _comment_npcCommandPermissionLevel1 = "";
+        public final String _comment_npcCommandPermissionLevel0 = "";
         @SerializedName("// Valid only if LuckPerms isn't present.")
-        public final String _comment_npcCommandPermissionLevel2 = "";
+        public final String _comment_npcCommandPermissionLevel1 = "";
         /**
          * Permission level required to execute /npc command.
          * Valid only if LuckPerms isn't present.
@@ -108,9 +108,9 @@ public class TaterConfig {
 
 
         @SerializedName("// Permission level required to execute / taterzens command.")
-        public final String _comment_taterzensCommandPermissionLevel1 = "";
+        public final String _comment_taterzensCommandPermissionLevel0 = "";
         @SerializedName("// Again, valid only if LuckPerms isn't present.")
-        public final String _comment_taterzensCommandPermissionLevel2 = "";
+        public final String _comment_taterzensCommandPermissionLevel1 = "";
         /**
          * Permission level required to execute /taterzens command.
          * Valid only if LuckPerms isn't present.
@@ -119,11 +119,11 @@ public class TaterConfig {
         public int taterzensCommandPermissionLevel = 4;
 
         @SerializedName("// Whether to allow players to set the permission level")
-        public final String _comment_allowSettingHigherPermissionLevel1 = "";
+        public final String _comment_allowSettingHigherPermissionLevel0 = "";
         @SerializedName("// of Taterzen higher than their own. Careful! This could")
-        public final String _comment_allowSettingHigherPermissionLevel2 = "";
+        public final String _comment_allowSettingHigherPermissionLevel1 = "";
         @SerializedName("// enable players to bypass their permission level with NPC.")
-        public final String _comment_allowSettingHigherPermissionLevel3 = "";
+        public final String _comment_allowSettingHigherPermissionLevel2 = "";
         @SerializedName("allow_setting_higher_perm_level")
         public boolean allowSettingHigherPermissionLevel = false;
     }
@@ -132,8 +132,6 @@ public class TaterConfig {
      * Default {@link org.samo_lego.taterzens.npc.TaterzenNPC} settings.
      */
     public static class Defaults {
-        @SerializedName("// Default settings for new Taterzens.")
-        public final String _comment_name = "";
         /**
          * Default Taterzen name
          */
@@ -159,7 +157,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("death_sounds")
-        public ArrayList<String> deathSounds = new ArrayList<>(Arrays.asList(
+        public List<String> deathSounds = new ArrayList<>(Arrays.asList(
                 "entity.player.death"
         ));
         /**
@@ -167,7 +165,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("hurt_sounds")
-        public ArrayList<String> hurtSounds = new ArrayList<>(Arrays.asList(
+        public List<String> hurtSounds = new ArrayList<>(Arrays.asList(
                 "entity.player.hurt"
         ));
         /**
@@ -175,7 +173,7 @@ public class TaterConfig {
          * Can be null to not produce any sounds.
          */
         @SerializedName("ambient_sounds")
-        public ArrayList<String> ambientSounds = new ArrayList<>();
+        public List<String> ambientSounds = new ArrayList<>();
 
         @SerializedName("// Whether Taterzen is invulnerable by default.")
         public final String _comment_invulnerable = "";
@@ -216,20 +214,25 @@ public class TaterConfig {
         @SerializedName("// Message format. First %s is replaced with name, second one with message.")
         public final String _comment_structure = "";
         public String structure = "%s -> you: %s";
+
+        @SerializedName("// How far can player be for messages start appearing.")
+        public final String _comment_speakDistance = "(default: 3.0f)";
+        @SerializedName("speak_distance")
+        public float speakDistance = 3.0f;
     }
 
     /**
      * Settings for path visualisation.
      */
     public static class Path {
+        @SerializedName("// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).")
+        public final String _comment_color = "";
         public Color color = new Color();
         /**
          * Color of particles used in path editor.
          * Accepts RGB values (0 - 255).
          */
         public static class Color {
-            @SerializedName("// Which color of particles to use in path editor. Use RGB values ( 0 - 255 ).")
-            public final String _comment = "";
             public float red = 0;
             public float green = 255 ;
             public float blue = 255;
@@ -242,14 +245,10 @@ public class TaterConfig {
      */
     public static class Bungee {
 
-        @SerializedName("// Whether to enable bungee commands feature fo NPCs.")
+        @SerializedName("// Whether to enable bungee commands feature for NPCs.")
         public final String _comment_enableCommands = "";
         @SerializedName("enable_commands")
         public boolean enableCommands = false;
-
-        @SerializedName("// Bungee servers to be listed in command suggestions.")
-        public final String _comment_servers = "";
-        public ArrayList<String> servers = new ArrayList<>(Arrays.asList("lobby", "minigames", "factions"));
     }
 
 
@@ -265,7 +264,7 @@ public class TaterConfig {
             try (BufferedReader fileReader = new BufferedReader(
                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)
             )) {
-                config = gson.fromJson(fileReader, TaterConfig.class);
+                config = GSON.fromJson(fileReader, TaterConfig.class);
             } catch (IOException e) {
                 throw new RuntimeException(MODID + " Problem occurred when trying to load config: ", e);
             }
@@ -285,7 +284,7 @@ public class TaterConfig {
      */
     public void saveConfigFile(File file) {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-            gson.toJson(this, writer);
+            GSON.toJson(this, writer);
         } catch (IOException e) {
             LOGGER.error("Problem occurred when saving config: " + e.getMessage());
         }
@@ -300,30 +299,6 @@ public class TaterConfig {
      */
     public void reload(File file) {
         TaterConfig newConfig = loadConfigFile(file);
-        this.refreshFields(this, newConfig);
-    }
-
-    private void refreshFields(Object oldConfig, Object newConfig) {
-        try {
-            for(Field field : oldConfig.getClass().getFields()) {
-                Class<?> type = field.getType();
-
-                if(Modifier.isFinal(type.getModifiers()) && !type.isPrimitive())
-                    continue;
-
-                field.setAccessible(true);
-                Object value = field.get(newConfig);
-
-                // We overwrite primitives and strings
-                if (type.isPrimitive() || type.equals(String.class) || type.equals(ArrayList.class)) {
-                    field.set(oldConfig, value);
-                } else {
-                    // Recursion
-                    this.refreshFields(field.get(oldConfig), value);
-                }
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        this.reload(newConfig);
     }
 }

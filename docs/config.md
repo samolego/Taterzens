@@ -16,7 +16,15 @@ newly created Taterzens. Find all the settings below.
 
 ## Changing language
 
-The default provided language file is `en_us`. All available languages can be found on [GitHub](https://github.com/samolego/Taterzens/tree/master/common/src/main/resources/data/taterzens/lang).
+The default provided language file is `en_us`.
+All available languages can also be found on [GitHub](https://github.com/samolego/Taterzens/tree/master/common/src/main/resources/data/taterzens/lang).
+
+<details>
+  <summary id="lang_count">All languages</summary>
+    <ul id="languages">
+        <li>en_us</li>
+    </ul>
+</details>
 
 
 If you are already running Minecraft, you can use a command
@@ -26,12 +34,16 @@ to change language. Supported languages will show up in suggestions.
 ```
 
 Otherwise, open up the config file and change the following line
-```diff
-{
--  "language": "en_us"
-+  "language": "custom_language"
+
+<!--Ugly but works :/-->
+<div class="highlight"><pre id="__code_1">
+<span></span><button class="md-clipboard md-icon" title="Copy to clipboard" data-clipboard-target="#__code_1 > code"></button><code>{
+<span class="gd">-  "language": "en_us"</span>
+<span class="gi" id="custom_language">+  "language": "custom_language"</span>
 }
-```
+</code></pre></div>
+
+
 
 ### Translations
 
@@ -46,7 +58,9 @@ Missing a language? Feel free to [translate Taterzens](https://github.com/samole
 This represents the latest config file, generated automatically.
 Look at the `_comment` fields to get better explanation of the option.
 
-<button class="btn btn-blue" onclick="fetchNewestConfig(JSON.parse(localStorage.getItem('TaterzensVersion')))">Refresh</button>
+<button class="md-button" onclick="fetchNewData(JSON.parse(localStorage.getItem('TaterzensVersion')))">
+    Refresh
+</button>
 
 <div class="language-plaintext highlighter-rouge highlight">
     <pre><code id="config">Loading ... </code></pre>

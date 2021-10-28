@@ -42,6 +42,10 @@ Add `jitpack.io` maven repository.
 ```gradle
 repositories {
     maven { url 'https://jitpack.io' }
+    maven {
+        // LuckPerms maven
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
 }
 ```
 

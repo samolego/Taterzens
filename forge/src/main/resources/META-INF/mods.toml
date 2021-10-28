@@ -27,3 +27,33 @@ mandatory = true
 versionRange = "[1.17.1,)"
 ordering = "NONE"
 side = "SERVER"
+
+# C2B Lib
+modLoader = "javafml"
+loaderVersion = "[37,)"
+#issueTrackerURL = ""
+license = "LGPL-v3.0"
+
+[[mods]]
+modId = "config2brigadier"
+version = "${c2b_version}"
+displayName = "Config to Brigadier"
+authors = "samo_lego"
+description = '''
+A library to automagically generate in-game command for config editing.
+'''
+#logoFile = ""
+
+[[dependencies.config2brigadier]]
+modId = "forge"
+mandatory = true
+versionRange = "[37,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.config2brigadier]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.17.1,)"
+ordering = "NONE"
+side = "BOTH"

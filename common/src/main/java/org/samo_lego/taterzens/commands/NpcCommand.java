@@ -16,7 +16,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.edit.EditCommand;
@@ -26,6 +25,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static net.minecraft.commands.Commands.argument;
@@ -209,28 +209,22 @@ public class NpcCommand {
             ((ITaterzenEditor) player).selectNpc(null);
         }
 
-        player.getLevel().getEntities(player, box, entity -> {
-            // null check in order to select first one colliding
-            if(entity instanceof TaterzenNPC taterzen && ((ITaterzenEditor) player).getNpc() == null) {
-                ((ITaterzenEditor) player).selectNpc(taterzen);
-                source.sendSuccess(
-                        successText("taterzens.command.select", entity.getName().getString()),
-                        false
-                );
-                return false;
-            }
-            return true;
-        });
-
-        if(((ITaterzenEditor) player).getNpc() == null) {
+        List<TaterzenNPC> detectedTaterzens = player.getLevel().getEntitiesOfClass(TaterzenNPC.class, box);
+        if(!detectedTaterzens.isEmpty()) {
+            TaterzenNPC taterzen = detectedTaterzens.get(0);
+            ((ITaterzenEditor) player).selectNpc(taterzen);
+            source.sendSuccess(
+                    successText("taterzens.command.select", taterzen.getName().getString()),
+                    false
+            );
+        } else {
             source.sendFailure(
                     translate("taterzens.error.404.detected")
-                        .withStyle(ChatFormatting.RED)
-                        .append("\n")
-                        .append(translate("taterzens.command.deselect").withStyle(ChatFormatting.GOLD))
+                            .withStyle(ChatFormatting.RED)
+                            .append("\n")
+                            .append(translate("taterzens.command.deselect").withStyle(ChatFormatting.GOLD))
             );
         }
-
         return 0;
     }
 

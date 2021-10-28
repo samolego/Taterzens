@@ -1,15 +1,19 @@
 package org.samo_lego.taterzens.api.professions;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+
+import java.util.List;
 
 /**
  * Profession interface, providing hooks
@@ -31,7 +35,11 @@ public interface TaterzenProfession {
      * </ul>
      *
      * @return true if you want to cancel the default Taterzen ticking.
+     *
+     * @deprecated - you can still use {@link TaterzenProfession#tickMovement()} or new event {@link TaterzenProfession#onPlayersNearby(List)}
+     * for interactions with players.
      */
+    @Deprecated
     default InteractionResult tick() {
         return InteractionResult.PASS;
     }
@@ -49,6 +57,7 @@ public interface TaterzenProfession {
      * @return action result which determines further execution
      */
     default InteractionResult tickMovement() {
+        this.tick();
         return InteractionResult.PASS;
     }
 
@@ -106,8 +115,23 @@ public interface TaterzenProfession {
      *
      * @param groundStack stack to be picked up
      * @return true if item should be picked up, otherwise false.
+     *
+     * @deprecated use {@link #tryPickupItem(ItemEntity)} instead.
      */
+    @Deprecated
     default boolean tryPickupItem(ItemStack groundStack) {
+        return false;
+    }
+
+    /**
+     * Called when Taterzen has a chance to pickup an item.
+     * You can create a local inventory in the profession and save it there.
+     *
+     * @param item item entity to be picked up
+     * @return true if item should be picked up, otherwise false.
+
+     */
+    default boolean tryPickupItem(ItemEntity item) {
         return false;
     }
 
@@ -142,5 +166,12 @@ public interface TaterzenProfession {
      */
     default boolean cancelMeleeAttack(Entity target) {
         return false;
+    }
+
+    /**
+     * Called every tick if players are nearby.
+     * @param players players that are in talking range of taterzen.
+     */
+    default void onPlayersNearby(List<ServerPlayer> players) {
     }
 }
