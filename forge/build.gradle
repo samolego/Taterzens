@@ -39,6 +39,13 @@ dependencies {
         transitive = false
     }
 
+    // SGUI
+    modImplementation "com.github.samolego:forgified-sgui:${project.fsgui_version}"
+    shadowCommon("com.github.samolego:forgified-sgui:${project.fsgui_version}") {
+        transitive = false
+    }
+
+
     common(project(path: ":common", configuration: "dev")) {
         transitive = false
     }

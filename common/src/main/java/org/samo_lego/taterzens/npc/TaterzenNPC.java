@@ -74,7 +74,9 @@ import org.samo_lego.taterzens.util.TextUtil;
 import java.util.*;
 
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 /**
  * The NPC itself.
@@ -874,7 +876,22 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             // be able to attack otherwise.)
             this.setBehaviour(this.npcData.behaviour);
             return InteractionResult.PASS;
+        } else if(
+                player.getItemInHand(hand).getItem().equals(Items.POTATO) &&
+                player.isShiftKeyDown() &&
+                permissions$checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
+        ) {
+            // Select this taterzen
+            ((ITaterzenEditor) player).selectNpc(this);
+
+            player.sendMessage(
+                    successText("taterzens.command.select", this.getName().getString()),
+                    this.getUUID()
+            );
+
+            return InteractionResult.PASS;
         }
+
         String playername = player.getGameProfile().getName();
         if(!this.npcData.commands.isEmpty()) {
             // Saving commands to a new list in order

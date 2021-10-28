@@ -11,6 +11,7 @@ dependencies {
 
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
     modCompileOnly "com.github.samolego.Config2Brigadier:config2brigadier:${rootProject.c2b_version}"
+    modCompileOnly "eu.pb4:sgui:${rootProject.sgui_version}"
 }
 
 def ENV = System.getenv();

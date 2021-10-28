@@ -45,7 +45,7 @@ dependencies {
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // SGUI
-    modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
+    modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
 
     // Carpet
     modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")

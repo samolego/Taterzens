@@ -19,7 +19,8 @@ public class NpcGUICommand {
 
     private static int openGUI(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayerOrException();
-        new EditorGUI(context, player,null, Collections.singletonList(npcNode)).open();
+        EditorGUI editorGUI = new EditorGUI(context, player, null, npcNode, Collections.singletonList("npc"));
+        editorGUI.open();
         return 0;
     }
 }
