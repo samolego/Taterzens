@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.storage;
 
 import com.google.gson.annotations.SerializedName;
 import org.samo_lego.config2brigadier.IBrigadierConfigurator;
+import org.samo_lego.config2brigadier.annotation.BrigadierDescription;
 import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
 
 import java.io.*;
@@ -76,6 +77,12 @@ public class TaterConfig implements IBrigadierConfigurator {
     public Messages messages = new Messages();
     public Permissions perms = new Permissions();
     public Bungee bungee = new Bungee();
+
+    @SerializedName("// Custom model data number that items in GUI should use.")
+    public final String _commment_guiItemModelData = "";
+    @BrigadierDescription(defaultOption = "257")
+    @SerializedName("gui_item_model_data")
+    public int guiItemModelData = 257;
 
     @Override
     public void save() {

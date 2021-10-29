@@ -12,7 +12,7 @@ authors = "samo_lego"
 description = '''
 A citizens like mod.
 '''
-logoFile = "icon.png"
+logoFile = "taterzens_icon.png"
 
 [[dependencies.taterzens]]
 modId = "forge"
@@ -42,7 +42,6 @@ authors = "samo_lego"
 description = '''
 A library to automagically generate in-game command for config editing.
 '''
-#logoFile = ""
 
 [[dependencies.config2brigadier]]
 modId = "forge"

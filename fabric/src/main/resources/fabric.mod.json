@@ -14,7 +14,7 @@
   },
 
   "license": "MIT",
-  "icon": "icon.png",
+  "icon": "taterzens_icon.png",
 
   "environment": "*",
   "entrypoints": {

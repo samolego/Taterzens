@@ -9,6 +9,7 @@ import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -20,6 +21,8 @@ import net.minecraft.world.item.Items;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static org.samo_lego.taterzens.Taterzens.config;
 
 public class EditorGUI extends SimpleGui {
 
@@ -173,35 +176,99 @@ public class EditorGUI extends SimpleGui {
     }
 
 
-static {
+    static {
+        final CompoundTag customData = new CompoundTag();
+        customData.putInt("CustomModelData", config.guiItemModelData);
+
         YES_BUTTON.setHoverName(new TranslatableComponent("gui.done"));
         NO_BUTTON.setHoverName(new TranslatableComponent("gui.cancel"));
 
-        itemCommandMap.put("create", new ItemStack(Items.PLAYER_HEAD));
-        itemCommandMap.put("select", new ItemStack(Items.SPECTRAL_ARROW));
-        itemCommandMap.put("deselect", new ItemStack(Items.ARROW));
-        itemCommandMap.put("list", new ItemStack(Items.PAPER));
-        itemCommandMap.put("remove", new ItemStack(Items.BARRIER));
+        ItemStack create = new ItemStack(Items.PLAYER_HEAD);
+        create.setTag(customData.copy());
+        itemCommandMap.put("create", create);
+
+        ItemStack select = new ItemStack(Items.SPECTRAL_ARROW);
+        select.setTag(customData.copy());
+        itemCommandMap.put("select", select);
+
+        ItemStack deselect = new ItemStack(Items.ARROW);
+        deselect.setTag(customData.copy());
+        itemCommandMap.put("deselect", deselect);
+
+        ItemStack list = new ItemStack(Items.PAPER);
+        list.setTag(customData.copy());
+        itemCommandMap.put("list", list);
+
+        ItemStack remove = new ItemStack(Items.BARRIER);
+        remove.setTag(customData.copy());
+        itemCommandMap.put("remove", remove);
 
         // Edit
-        itemCommandMap.put("edit", new ItemStack(Items.TRIDENT));
-        itemCommandMap.put("behaviour", new ItemStack(Items.CREEPER_HEAD));
-        itemCommandMap.put("commands", new ItemStack(Items.COMMAND_BLOCK));
-        itemCommandMap.put("equipment", new ItemStack(Items.IRON_CHESTPLATE));
-        itemCommandMap.put("messages", new ItemStack(Items.WRITABLE_BOOK));
-        itemCommandMap.put("movement", new ItemStack(Items.MINECART));
-        itemCommandMap.put("look", new ItemStack(Items.ENDER_EYE));
-        itemCommandMap.put("name", new ItemStack(Items.NAME_TAG));
-        itemCommandMap.put("path", new ItemStack(Items.POWERED_RAIL));
-        itemCommandMap.put("pose", new ItemStack(Items.ARMOR_STAND));
-        itemCommandMap.put("mount", new ItemStack(Items.SADDLE));
-        itemCommandMap.put("professions", new ItemStack(Items.DIAMOND_PICKAXE));
-        itemCommandMap.put("skin", new ItemStack(Items.PLAYER_HEAD));
-        itemCommandMap.put("tags", new ItemStack(Items.ITEM_FRAME));
-        itemCommandMap.put("type", new ItemStack(Items.SHEEP_SPAWN_EGG));
+        ItemStack edit = new ItemStack(Items.TRIDENT);
+        edit.setTag(customData.copy());
+        itemCommandMap.put("edit", edit);
+
+        ItemStack behaviour = new ItemStack(Items.CREEPER_HEAD);
+        behaviour.setTag(customData.copy());
+        itemCommandMap.put("behaviour", behaviour);
+
+        ItemStack commands = new ItemStack(Items.COMMAND_BLOCK);
+        commands.setTag(customData.copy());
+        itemCommandMap.put("commands", commands);
+
+        ItemStack equipment = new ItemStack(Items.IRON_CHESTPLATE);
+        equipment.setTag(customData.copy());
+        itemCommandMap.put("equipment", equipment);
+
+        ItemStack messages = new ItemStack(Items.WRITABLE_BOOK);
+        messages.setTag(customData.copy());
+        itemCommandMap.put("messages", messages);
+
+        ItemStack movement = new ItemStack(Items.MINECART);
+        movement.setTag(customData.copy());
+        itemCommandMap.put("movement", movement);
+
+        ItemStack look = new ItemStack(Items.ENDER_EYE);
+        look.setTag(customData.copy());
+        itemCommandMap.put("look", look);
+
+        ItemStack name = new ItemStack(Items.NAME_TAG);
+        name.setTag(customData.copy());
+        itemCommandMap.put("name", name);
+
+        ItemStack path = new ItemStack(Items.POWERED_RAIL);
+        path.setTag(customData.copy());
+        itemCommandMap.put("path", path);
+
+
+        ItemStack pose = new ItemStack(Items.ARMOR_STAND);
+        pose.setTag(customData.copy());
+        itemCommandMap.put("pose", pose);
+
+        ItemStack mount = new ItemStack(Items.SADDLE);
+        mount.setTag(customData.copy());
+        itemCommandMap.put("mount", mount);
+
+        ItemStack professions = new ItemStack(Items.DIAMOND_PICKAXE);
+        professions.setTag(customData.copy());
+        itemCommandMap.put("professions", professions);
+
+        ItemStack skin = new ItemStack(Items.PLAYER_HEAD);
+        skin.setTag(customData.copy());
+        itemCommandMap.put("skin", skin);
+
+        ItemStack tags = new ItemStack(Items.GLOW_ITEM_FRAME);
+        tags.setTag(customData.copy());
+        itemCommandMap.put("tags", tags);
+
+        ItemStack type = new ItemStack(Items.SHEEP_SPAWN_EGG);
+        type.setTag(customData.copy());
+        itemCommandMap.put("type", tags);
 
         // Messages
-        itemCommandMap.put("message id", new ItemStack(Items.KNOWLEDGE_BOOK));
+        ItemStack messageId = new ItemStack(Items.KNOWLEDGE_BOOK);
+        messageId.setTag(customData.copy());
+        itemCommandMap.put("message id", messageId);
         itemCommandMap.put("clear", new ItemStack(Items.LAVA_BUCKET));
 
 
