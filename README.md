@@ -16,8 +16,7 @@ A fabric / forge citizens like NPC mod.
 # **-> *[Documentation](https://samolego.github.io/Taterzens/)* <-**
 
 ## Thanks
-* https://github.com/AmberWat/NegativeSpaceFont
-* https://github.com/Patbox/sgui
+* [SGUI mod by Patbox](https://github.com/Patbox/sgui) (<- make sure to give this a star!)
 
 ## Translation contributions
 1. Fork the repository

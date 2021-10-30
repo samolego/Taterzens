@@ -31,7 +31,6 @@ side = "SERVER"
 # C2B Lib
 modLoader = "javafml"
 loaderVersion = "[37,)"
-#issueTrackerURL = ""
 license = "LGPL-v3.0"
 
 [[mods]]
@@ -51,6 +50,37 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.config2brigadier]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.17.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+# Forgified SGUI
+modLoader = "javafml"
+loaderVersion = "[35,)"
+source="https://github.com/samolego/forgified-sgui"
+issueTrackerURL = "https://github.com/samolego/forgified-sgui/issues"
+license = "LGPL-v3.0"
+
+[[mods]]
+modId = "sgui"
+version = "${sgui_version}"
+displayName = "Server GUI lib"
+authors = "patbox"
+contributors="aws404, samo_lego"
+description = '''
+Library for creating server side guis!
+'''
+
+[[dependencies.sgui]]
+modId = "forge"
+mandatory = true
+versionRange = "[35,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.sgui]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.17.1,)"

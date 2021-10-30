@@ -1,6 +1,8 @@
 package org.samo_lego.taterzens.gui;
 
-import com.mojang.brigadier.context.CommandContext;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.CommandNode;
 import eu.pb4.sgui.api.ClickType;
@@ -10,6 +12,7 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -20,27 +23,98 @@ import net.minecraft.world.item.Items;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
-public class EditorGUI extends SimpleGui {
+public class EditorGUI {
 
     private static final ItemStack YES_BUTTON = new ItemStack(Items.GREEN_STAINED_GLASS_PANE);
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
-    public EditorGUI(CommandContext<CommandSourceStack> context, ServerPlayer player, EditorGUI previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath) {
-        // Creates the biggest possible container
-        super(MenuType.GENERIC_9x6, player, true);
+    public static SimpleGui createCommandGui(ServerPlayer player, SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
+        // If node is not an argument, we skip to first child node that is an argument or has more than 1 child node
+        while (parentNode.getChildren().size() == 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
+            CommandNode<CommandSourceStack> childNode = (CommandNode<CommandSourceStack>) parentNode.getChildren().toArray()[0];
+            if (childNode instanceof ArgumentCommandNode) {
+                //currentCommandPath.add(parentNode.getName());
+                parentNode = childNode;
+                givenInput = false;
+            }
+        }
 
-        // GUI Title - each node adds to it
-        String title = currentCommandPath.stream().map(n -> n + " ").collect(Collectors.joining());
-        TextComponent textTitle = new TextComponent(title);
+        Collection<CommandNode<CommandSourceStack>> childNodes = parentNode.getChildren();
+        boolean argumentNode = parentNode instanceof ArgumentCommandNode<?, ?>;
 
-        this.setTitle(textTitle.withStyle(ChatFormatting.YELLOW));
-        this.setAutoUpdate(true);
+        SimpleGui constructedGui;
+        if(argumentNode && !givenInput) {
+            constructedGui = new AnvilInputGui(player, true);
 
+            if (childNodes.size() == 1) {
+                parentNode = (CommandNode<CommandSourceStack>) childNodes.toArray()[0];
+            }
+
+            CommandNode<CommandSourceStack> finalCommandNode = parentNode;
+            GuiElement confirmButton = new GuiElement(YES_BUTTON, (index, clickType, slotActionType) -> {
+                String arg = ((AnvilInputGui) constructedGui).getInput();
+                // We "set" the argument to overwrite parent node (arg name)
+                currentCommandPath.add(arg);
+
+                proccessClick(clickType, finalCommandNode, constructedGui, currentCommandPath, player, true);
+            });
+
+            // Pre-written  text
+            MutableComponent argTitle = new TextComponent(parentNode.getName()).withStyle(ChatFormatting.YELLOW);
+            ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
+            nameStack.setHoverName(argTitle);
+
+            GuiElement name = new GuiElement(nameStack, (index1, type1, action) -> {});
+
+            // Buttons
+            constructedGui.setSlot(2, confirmButton);
+            constructedGui.setSlot(0, name);
+
+            // Default input value
+            Optional<String> example = parentNode.getExamples().stream().findFirst();
+            example.ifPresent(s -> nameStack.setHoverName(new TextComponent(s)));
+
+            constructedGui.open();
+        } else {
+            // Creates the biggest possible container
+            constructedGui = new SimpleGui(MenuType.GENERIC_9x6, player, true);
+
+            // Close screen button
+            ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
+            close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
+
+            GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> {
+                player.closeContainer();
+            });
+            constructedGui.setSlot(8, closeScreenButton);
+
+            // Integer to track item positions
+            AtomicInteger i = new AtomicInteger(10);
+
+            // Looping through command node, 8 * 9 being the available inventory space
+            int addedSpace = (childNodes.size() < 8 * 9 / 3) ? (3) : (8 * 9 / childNodes.size());
+            for (CommandNode<CommandSourceStack> node : childNodes) {
+                // Tracking current command "path"
+                // after each menu is opened, we add a node to queue
+                ArrayList<String> parents = new ArrayList<>(currentCommandPath);
+                if(!(node instanceof ArgumentCommandNode<?, ?>))
+                    parents.add(node.getName());
+
+                // Set stack "icon"
+                ItemStack stack = itemCommandMap.getOrDefault(node.getName(), new ItemStack(Items.ITEM_FRAME)).copy();
+                stack.setHoverName(new TextComponent(node.getName()));
+
+                // Recursively adding the command nodes
+                constructedGui.setSlot(i.getAndAdd(addedSpace), new GuiElement(stack, (index, clickType, slotActionType) -> {
+                    // Different action happens on right or left click
+                    proccessClick(clickType, node, constructedGui, parents, player, false);
+                }));
+            }
+        }
 
         // Back button
         ItemStack back = new ItemStack(Items.MAGENTA_GLAZED_TERRACOTTA);
@@ -52,111 +126,31 @@ public class EditorGUI extends SimpleGui {
             } else
                 previousScreen.open();
         });
-        this.setSlot(0, backScreenButton);
+        constructedGui.setSlot(argumentNode && !givenInput ? 1 : 0, backScreenButton);
 
-        // Close menu button
-        ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
-        close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
+        // GUI Title - each node adds to it
+        StringBuilder title = new StringBuilder();
+        for (String s : currentCommandPath) {
+            title.append(s).append(" ");
+        }
+        TextComponent textTitle = new TextComponent(title.toString());
 
-        GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> {
-            player.closeContainer();
-        });
-        this.setSlot(8, closeScreenButton);
+        constructedGui.setTitle(textTitle.withStyle(ChatFormatting.YELLOW));
+        constructedGui.setAutoUpdate(true);
 
+        return constructedGui;
+    }
 
-        // Integer to track item positions
-        AtomicInteger i = new AtomicInteger(10);
-
-        // Looping through command node
-        for (CommandNode<CommandSourceStack> node : parentNode.getChildren()) {
-            // Tracking current command "path"
-            // after each menu is opened, we add a node to queue
-            ArrayList<String> parents = new ArrayList<>(currentCommandPath);
-            parents.add(node.getName());
-
-            // Set stack "icon"
-            ItemStack stack = itemCommandMap.getOrDefault(node.getName(), new ItemStack(Items.ITEM_FRAME));
-            stack.setHoverName(new TextComponent(node.getName()));
-
-            // Recursively adding the command nodes
-            this.setSlot(i.getAndAdd(3), new GuiElement(stack, (index, clickType, slotActionType) -> {
-                // Different action happens on right or left click
-                if (clickType == ClickType.MOUSE_LEFT) {
-                    generateChildNodes(context, player, node, parents, backScreenButton);
-                } else if (clickType == ClickType.MOUSE_RIGHT) {
-                    execute(player, parents);
-                }
-            }));
+    private static void proccessClick(ClickType clickType, CommandNode<CommandSourceStack> node, SimpleGui gui, List<String> currentCommandPath, ServerPlayer player, boolean givenInput) {
+        if (clickType == ClickType.MOUSE_LEFT && (node.getChildren().size() > 0 || (node instanceof ArgumentCommandNode<?, ?> && !givenInput))) {
+            createCommandGui(player, gui, node, currentCommandPath, givenInput).open();
+            gui.close();
+        } else {
+            execute(player, currentCommandPath, gui);
         }
     }
 
-
-    private void generateChildNodes(CommandContext<CommandSourceStack> context, ServerPlayer player, CommandNode<CommandSourceStack> parentNode, ArrayList<String> currentCommand, GuiElement backScreenButton) {
-        Collection<CommandNode<CommandSourceStack>> children = parentNode.getChildren();
-
-        // Has children, navigate to new instance of GUI
-        if (children.size() > 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
-            EditorGUI childGUI = new EditorGUI(context, player, this, parentNode, currentCommand);
-            this.close();
-            childGUI.open();
-        } else {  // Is an argument node / node with one child
-
-            boolean skipped = false;
-            // If there's one child which is an argument type, skip to it
-            if (children.size() == 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
-                skipped = true;
-                parentNode = (CommandNode<CommandSourceStack>) children.toArray()[0];
-            }
-            if (parentNode instanceof ArgumentCommandNode<?, ?> argNode) {
-                // this node requires argument after it, we use anvil gui
-                AnvilInputGui inputGui = new AnvilInputGui(player, false);
-
-                CommandNode<CommandSourceStack> finalCommandNode = parentNode;
-                boolean finalSkipped = skipped;
-                GuiElement confirmButton = new GuiElement(YES_BUTTON, (index, clickType, slotActionType) -> {
-                    String arg = inputGui.getInput();
-
-                    if(clickType.equals(ClickType.MOUSE_LEFT) && finalCommandNode.getChildren().size() > 0) {
-                        currentCommand.set(currentCommand.size() - 1, arg);
-                        EditorGUI childGUI = new EditorGUI(context, player, this, finalCommandNode, currentCommand);
-                        this.close();
-                        childGUI.open();
-                    } else {
-                        if(finalSkipped) {
-                            currentCommand.add(arg);
-                        } else {
-                            currentCommand.set(currentCommand.size() - 1, arg);
-                        }
-                        execute(player, currentCommand);
-                    }
-                });
-
-                // Pre-written  text
-                TextComponent argGui = new TextComponent(inputGui.getInput());
-                MutableComponent argTitle = new TextComponent(argNode.getName()).withStyle(ChatFormatting.YELLOW);
-                ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
-                nameStack.setHoverName(argGui.append(argTitle));
-
-                GuiElement name = new GuiElement(nameStack, (index1, type1, action) -> {
-                });
-
-                // Buttons
-                inputGui.setSlot(2, confirmButton);
-                inputGui.setSlot(1, backScreenButton);
-                inputGui.setSlot(0, name);
-
-                // Default input value
-                Optional<String> example = argNode.getExamples().stream().findFirst();
-                example.ifPresent(s -> nameStack.setHoverName(new TextComponent(s)));
-
-                inputGui.open();
-            } else {
-                execute(player, currentCommand);
-            }
-        }
-    }
-
-    private void execute(ServerPlayer player, ArrayList<String> parents) {
+    private static void execute(ServerPlayer player, List<String> parents, SimpleGui currentGui) {
         try {
             // Execute
             // we "fake" the command
@@ -168,7 +162,7 @@ public class EditorGUI extends SimpleGui {
 
             player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
             player.closeContainer();
-            this.onClose();
+            currentGui.close();
 
         } catch (IllegalArgumentException e) {
             player.sendMessage(new TextComponent(e.getMessage()), player.getUUID());
@@ -263,33 +257,70 @@ public class EditorGUI extends SimpleGui {
 
         ItemStack type = new ItemStack(Items.SHEEP_SPAWN_EGG);
         type.setTag(customData.copy());
-        itemCommandMap.put("type", tags);
+        itemCommandMap.put("type", type);
 
         // Messages
         ItemStack messageId = new ItemStack(Items.KNOWLEDGE_BOOK);
         messageId.setTag(customData.copy());
         itemCommandMap.put("message id", messageId);
-        itemCommandMap.put("clear", new ItemStack(Items.LAVA_BUCKET));
+
+
+        ItemStack clear = new ItemStack(Items.LAVA_BUCKET);
+        clear.setTag(customData.copy());
+        itemCommandMap.put("clear", clear);
 
 
         // Presets
-        itemCommandMap.put("preset", new ItemStack(Items.CREEPER_HEAD));
-        itemCommandMap.put("save", new ItemStack(Items.CAULDRON));
-        itemCommandMap.put("load", new ItemStack(Items.GLOW_SQUID_SPAWN_EGG));
+        ItemStack preset = new ItemStack(Items.CREEPER_HEAD);
+        preset.setTag(customData.copy());
+        itemCommandMap.put("preset", preset);
+
+        ItemStack save = new ItemStack(Items.CAULDRON);
+        save.setTag(customData.copy());
+        itemCommandMap.put("save", save);
+
+        ItemStack load = new ItemStack(Items.GLOW_SQUID_SPAWN_EGG);
+        load.setTag(customData.copy());
+        itemCommandMap.put("load", load);
 
 
-        itemCommandMap.put("tp", new ItemStack(Items.ENDER_PEARL));
-        itemCommandMap.put("entity", new ItemStack(Items.ZOMBIE_HEAD));
-        itemCommandMap.put("location", new ItemStack(Items.TRIPWIRE_HOOK));
+        ItemStack tp = new ItemStack(Items.ENDER_PEARL);
+        tp.setTag(customData.copy());
+        itemCommandMap.put("tp", tp);
+
+        ItemStack entity = new ItemStack(Items.ZOMBIE_HEAD);
+        entity.setTag(customData.copy());
+        itemCommandMap.put("entity", entity);
+
+        ItemStack location = new ItemStack(Items.TRIPWIRE_HOOK);
+        location.setTag(customData.copy());
+        itemCommandMap.put("location", location);
 
 
-        itemCommandMap.put("action", new ItemStack(Items.CHAIN_COMMAND_BLOCK));
-        itemCommandMap.put("goto", new ItemStack(Items.MINECART));
-        itemCommandMap.put("interact", new ItemStack(Items.REDSTONE_TORCH));
+        ItemStack action = new ItemStack(Items.CHAIN_COMMAND_BLOCK);
+        action.setTag(customData.copy());
+        itemCommandMap.put("action", action);
+
+        ItemStack goTo = new ItemStack(Items.MINECART);
+        goTo.setTag(customData.copy());
+        itemCommandMap.put("goto", goTo);
+
+        ItemStack interact = new ItemStack(Items.REDSTONE_TORCH);
+        interact.setTag(customData.copy());
+        itemCommandMap.put("interact", interact);
 
         // Types
-        itemCommandMap.put("minecraft:player", new ItemStack(Items.PLAYER_HEAD));
-        itemCommandMap.put("player", new ItemStack(Items.PLAYER_HEAD));
-        itemCommandMap.put("reset", new ItemStack(Items.PLAYER_HEAD));
+        ItemStack player = new ItemStack(Items.PLAYER_HEAD);
+        GameProfile texturesProfile = new GameProfile(null, "taterzen");
+        PropertyMap properties = texturesProfile.getProperties();
+        properties.put("textures", new Property("ewogICJ0aW1lc3RhbXAiIDogMTYwNjIyODAxMzY0NCwKICAicHJvZmlsZUlkIiA6ICJiMGQ0YjI4YmMxZDc0ODg5YWYwZTg2NjFjZWU5NmFhYiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaW5lU2tpbl9vcmciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTczNTE0YTIzMjQ1ZjE1ZGJhZDVmYjRlNjIyMTYzMDIwODY0Y2NlNGMxNWQ1NmRlM2FkYjkwZmE1YTcxMzdmZCIKICAgIH0KICB9Cn0=", "T4Mifh5Yr/+jjAe6y+Ai7d1BPIWQGXc6vwtDL9GgxvQFYtxeD2VuSMNniLoSkP5koBDyHE9ZLgzE2GGAbBSGFgdEKBK7stUPEaUhCET6NKQGli369my3t4Z/4fTkFd9lJmMjP84xIo33E69umQLRZN6MfxmAFXdAl0fkjBdpVi3zLsTdgyu01PhlF9/P4TMXJmNjeiUDt6IjdHgWN1UVFYfAMr9UnCvBNQ/Z4MzxXEm8lGrhq0u7piZqJZ4hb15vHVfixXwtJQkJSBxyzry2W9ZZ2l4xReYX4LbBxU2mRVY5ylRbbolpDuMjXJ6vcg+hRQ9c5HhKkYLm/GOloYEHF/LA5FjGD0QGPW/+uzPfFc9b9swdTUXrJS18/d0dYUDvnHWacDuSoQDfb9eszvs4p6JW04Kd/fPAjLrHm36itVgmrkGa4+fA0Sd/3qo3JaRN6rkbzvppc9s7T2jrhz2+h+hSiiXdRv7v1vMhHVFaOayzBmckL+aKcq7HEsDg1MMauoA/OzkWekuk4FqbgZz49nylOcCHVfd7X1SO7D1BicTgdvGGTOVZtYCyfMKCxcxXFgcqQe88BcLujYWsWafO+VPer9RykXAStb80L020KA0FsQ3zOIC0SBgGlTH5E2Z66AyBEcevYqfIUu1G6Gq4uWINrMae4ZKAABOhtoWH+1Y="));
+        player.setTag(customData.copy());
+        CompoundTag skinTag = new CompoundTag();
+        NbtUtils.writeGameProfile(skinTag, texturesProfile);
+        player.setTag(skinTag);
+
+        itemCommandMap.put("minecraft:player", player);
+        itemCommandMap.put("player", player);
+        itemCommandMap.put("reset", player);
     }
 }
