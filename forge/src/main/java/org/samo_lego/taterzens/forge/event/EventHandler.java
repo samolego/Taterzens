@@ -8,8 +8,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.event.BlockEvent;
 
 import static org.samo_lego.taterzens.Taterzens.MODID;
@@ -30,8 +29,6 @@ public class EventHandler {
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-
-        NpcCommand.register(dispatcher, false);
-        TaterzensCommand.register(dispatcher, false);
+        Taterzens.registerCommands(dispatcher, false);
     }
 }

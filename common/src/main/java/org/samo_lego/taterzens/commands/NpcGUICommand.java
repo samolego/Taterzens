@@ -22,6 +22,6 @@ public class NpcGUICommand {
         ServerPlayer player = context.getSource().getPlayerOrException();
         SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
         editorGUI.open();
-        return 0;
+        return 1;
     }
 }

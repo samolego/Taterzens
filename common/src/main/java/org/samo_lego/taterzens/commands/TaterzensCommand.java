@@ -94,7 +94,7 @@ public class TaterzensCommand {
             );
         }
 
-        return 0;
+        return 1;
     }
 
     private static int wikiInfo(CommandContext<CommandSourceStack> context) {

@@ -3,11 +3,17 @@ package org.samo_lego.taterzens;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
+import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.commands.NpcGUICommand;
+import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.commands.TraitCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
@@ -67,6 +73,8 @@ public class Taterzens {
 
     public static boolean FABRICTAILOR_LOADED;
 
+    public static boolean CARPETMOD_LOADED;
+
 
     public static void onInitialize() {
         if (!taterDir.exists() && !taterDir.mkdirs())
@@ -81,5 +89,13 @@ public class Taterzens {
         if(LUCKPERMS_LOADED && config.perms.savePermsFile) {
             PermissionExtractor.extractPermissionsFile(new File(taterDir + "/permissions.toml"));
         }
+    }
+
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+        NpcCommand.register(dispatcher, dedicated);
+        TaterzensCommand.register(dispatcher, dedicated);
+        NpcGUICommand.register(dispatcher, dedicated);
+
+        TraitCommand.register(dispatcher, dedicated);
     }
 }

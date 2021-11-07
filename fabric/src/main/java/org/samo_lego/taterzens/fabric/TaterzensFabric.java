@@ -7,15 +7,12 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.commands.NpcGUICommand;
-import org.samo_lego.taterzens.commands.TaterzensCommand;
 import org.samo_lego.taterzens.compatibility.carpet.ScarpetProfession;
+import org.samo_lego.taterzens.compatibility.carpet.ScarpetTraitCommand;
 import org.samo_lego.taterzens.fabric.event.BlockInteractEventImpl;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -56,19 +53,15 @@ public class TaterzensFabric implements ModInitializer {
 
 
         // CarpetMod
-        boolean isCarpetPresent = FabricLoader.getInstance().isModLoaded("carpet");
-        if (isCarpetPresent) {
-            TaterzensAPI.registerProfession(
-                    new ResourceLocation(MODID, "scarpet_profession"),
-                    new ScarpetProfession(new ResourceLocation("test", "event_sl"))
-            );
+        CARPETMOD_LOADED = FabricLoader.getInstance().isModLoaded("carpet");
+        if (CARPETMOD_LOADED) {
+            TaterzensAPI.registerProfession(ScarpetProfession.ID, new ScarpetProfession());
         }
 
         // Events
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            TaterzensCommand.register(dispatcher,dedicated);
-            NpcCommand.register(dispatcher,dedicated);
-            NpcGUICommand.register(dispatcher, dedicated);
+            Taterzens.registerCommands(dispatcher, dedicated);
+            ScarpetTraitCommand.register(dispatcher, dedicated);
         });
         UseBlockCallback.EVENT.register(new BlockInteractEventImpl());
     }

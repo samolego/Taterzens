@@ -4,6 +4,7 @@ import carpet.CarpetServer;
 import carpet.script.CarpetEventServer;
 import carpet.script.exception.InternalExpressionException;
 import carpet.script.value.EntityValue;
+import carpet.script.value.ListValue;
 import carpet.script.value.Value;
 import carpet.script.value.ValueConversions;
 import net.minecraft.server.level.ServerLevel;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class TaterzenScarpetEvent extends CarpetEventServer.Event {
@@ -18,14 +20,15 @@ public class TaterzenScarpetEvent extends CarpetEventServer.Event {
         super(name, reqArgs, true);
     }
 
-    public void triggerCustomEvent(@NotNull TaterzenNPC taterzen, Object... args) {
-        if (handler.reqArgs != args.length + 1)
-            throw new InternalExpressionException("Expected " + handler.reqArgs + " arguments for " + name + ", got " + args.length + 1);
+    public void triggerCustomEvent(@NotNull TaterzenNPC taterzen, HashSet<Value> traits, Object... args) {
+        if (handler.reqArgs != args.length + 2)
+            throw new InternalExpressionException("Expected " + handler.reqArgs + " arguments for " + name + ", got " + (args.length + 1));
 
         handler.call(
                 () -> {
                     List<Value> valArgs = new ArrayList<>();
-                    valArgs.add(new EntityValue(taterzen));
+                    valArgs.add(EntityValue.of(taterzen));
+                    valArgs.add(ListValue.wrap(traits.stream()));
                     for (Object o: args) {
                         valArgs.add(ValueConversions.guess((ServerLevel) taterzen.level, o));
                     }
