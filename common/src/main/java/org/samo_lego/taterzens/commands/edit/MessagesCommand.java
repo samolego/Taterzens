@@ -7,16 +7,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.commands.Commands.argument;
@@ -37,14 +34,14 @@ public class MessagesCommand {
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::listTaterzenMessages)
                 )
-                .then(argument("message id", IntegerArgumentType.integer(0))
+                .then(argument("message id", IntegerArgumentType.integer())
                         .then(literal("delete")
                                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delete", config.perms.npcCommandPermissionLevel))
                                 .executes(MessagesCommand::deleteTaterzenMessage)
                         )
                         .then(literal("setDelay")
                                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delay", config.perms.npcCommandPermissionLevel))
-                                .then(argument("delay", IntegerArgumentType.integer())
+                                .then(argument("delay", IntegerArgumentType.integer(0))
                                         .executes(MessagesCommand::editMessageDelay)
                                 )
                         )
@@ -60,15 +57,18 @@ public class MessagesCommand {
     private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
-            if(selected >= taterzen.getMessages().size()) {
-                source.sendSuccess(
-                        errorText("taterzens.command.message.error.404", String.valueOf(selected)),
-                        false
+            int selected = IntegerArgumentType.getInteger(context, "message id");
+            List<Pair<Component, Integer>> messages = taterzen.getMessages();
+            if(selected >= messages.size()) {
+                source.sendFailure(
+                        errorText("taterzens.command.message.error.404", String.valueOf(selected))
                 );
             } else {
-                source.sendSuccess(successText("taterzens.command.message.deleted", taterzen.getMessages().get(selected).getFirst().getString()), false);
-                taterzen.removeMessage(selected);
+                int i = selected - 1;
+                if (i < 0)
+                    i = messages.size() - 1;  // Delete last message
+                source.sendSuccess(successText("taterzens.command.message.deleted", messages.get(i).getFirst().getString()), false);
+                taterzen.removeMessage(i);
             }
         });
     }
@@ -76,13 +76,12 @@ public class MessagesCommand {
     private static int editMessageDelay(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            int selected = IntegerArgumentType.getInteger(context, "message id") - 1;
-            ArrayList<Pair<Component, Integer>> messages = taterzen.getMessages();
+            int selected = IntegerArgumentType.getInteger(context, "message id");
+            List<Pair<Component, Integer>> messages = taterzen.getMessages();
             int size = messages.size();
             if(selected >= size) {
-                source.sendSuccess(
-                        errorText("taterzens.command.message.error.404", String.valueOf(selected)),
-                        false
+                source.sendFailure(
+                        errorText("taterzens.command.message.error.404", String.valueOf(selected))
                 );
             } else {
                 int delay = IntegerArgumentType.getInteger(context, "delay");

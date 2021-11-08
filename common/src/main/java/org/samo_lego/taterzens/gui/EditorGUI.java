@@ -21,7 +21,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -37,10 +40,11 @@ public class EditorGUI {
         while (parentNode.getChildren().size() == 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
             CommandNode<CommandSourceStack> childNode = (CommandNode<CommandSourceStack>) parentNode.getChildren().toArray()[0];
             if (childNode instanceof ArgumentCommandNode) {
-                //currentCommandPath.add(parentNode.getName());
-                parentNode = childNode;
                 givenInput = false;
+            } else {
+                currentCommandPath.add(parentNode.getName());
             }
+            parentNode = childNode;
         }
 
         Collection<CommandNode<CommandSourceStack>> childNodes = parentNode.getChildren();
@@ -50,17 +54,17 @@ public class EditorGUI {
         if(argumentNode && !givenInput) {
             constructedGui = new AnvilInputGui(player, true);
 
-            if (childNodes.size() == 1) {
-                parentNode = (CommandNode<CommandSourceStack>) childNodes.toArray()[0];
-            }
-
-            CommandNode<CommandSourceStack> finalCommandNode = parentNode;
+            final CommandNode<CommandSourceStack> finalParentNode = parentNode;
             GuiElement confirmButton = new GuiElement(YES_BUTTON, (index, clickType, slotActionType) -> {
                 String arg = ((AnvilInputGui) constructedGui).getInput();
                 // We "set" the argument to overwrite parent node (arg name)
                 currentCommandPath.add(arg);
 
-                proccessClick(clickType, finalCommandNode, constructedGui, currentCommandPath, player, true);
+                CommandNode<CommandSourceStack> newNode = finalParentNode;
+                if (childNodes.size() == 1)
+                    newNode = (CommandNode<CommandSourceStack>) childNodes.toArray()[0];
+
+                proccessClick(clickType, newNode, constructedGui, currentCommandPath, player, childNodes.size() != 1);
             });
 
             // Pre-written  text
@@ -68,15 +72,26 @@ public class EditorGUI {
             ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
             nameStack.setHoverName(argTitle);
 
-            GuiElement name = new GuiElement(nameStack, (index1, type1, action) -> {});
-
             // Buttons
             constructedGui.setSlot(2, confirmButton);
-            constructedGui.setSlot(0, name);
+            constructedGui.setSlot(0, nameStack);
 
             // Default input value
-            Optional<String> example = parentNode.getExamples().stream().findFirst();
-            example.ifPresent(s -> nameStack.setHoverName(new TextComponent(s)));
+            String[] examples = parentNode.getExamples().toArray(new String[0]);
+            //System.out.println(Arrays.toString(examples));
+            if (examples.length > 0)
+                nameStack.setHoverName(new TextComponent(examples[0]));
+            for (int i = 1; i < examples.length; ++i) {
+                ItemStack exampleStack = new ItemStack(Items.PAPER);
+                exampleStack.setHoverName(new TranslatableComponent("options.autoSuggestCommands")
+                        .append(": ")
+                        .append(new TextComponent(examples[i]))
+                );
+
+                constructedGui.setSlot(2 + i, exampleStack);  // 2 being the last slot index in anvil inventory
+                System.out.println("Setting index " + (2 + i) + " in " + constructedGui.getVirtualSize());
+            }
+            //constructedGui.setSlot(29, new ItemStack(Items.REDSTONE_TORCH));
 
             constructedGui.open();
         } else {
@@ -158,6 +173,7 @@ public class EditorGUI {
 
             // Builds the command from parents
             parents.forEach(nd -> builder.append(nd).append(" "));
+            // Delete last space
             builder.deleteCharAt(builder.length() - 1);
 
             player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
@@ -173,6 +189,7 @@ public class EditorGUI {
     static {
         final CompoundTag customData = new CompoundTag();
         customData.putInt("CustomModelData", config.guiItemModelData);
+        customData.putInt("HideFlags", 127);
 
         YES_BUTTON.setHoverName(new TranslatableComponent("gui.done"));
         NO_BUTTON.setHoverName(new TranslatableComponent("gui.cancel"));

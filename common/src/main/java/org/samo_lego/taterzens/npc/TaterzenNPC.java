@@ -426,6 +426,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         if(!this.npcData.messages.isEmpty()) {
             for(ServerPlayer player: players) {
+                // Filter them here (not use a predicate above)
+                // as we need the original list below
                 if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES || this.distanceTo(player) > config.messages.speakDistance)
                     continue;
 
