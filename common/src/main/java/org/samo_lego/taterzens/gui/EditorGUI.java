@@ -21,10 +21,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -78,7 +75,7 @@ public class EditorGUI {
 
             // Default input value
             String[] examples = parentNode.getExamples().toArray(new String[0]);
-            //System.out.println(Arrays.toString(examples));
+            System.out.println(Arrays.toString(examples));
             if (examples.length > 0)
                 nameStack.setHoverName(new TextComponent(examples[0]));
             for (int i = 1; i < examples.length; ++i) {
@@ -91,7 +88,7 @@ public class EditorGUI {
                 constructedGui.setSlot(2 + i, exampleStack);  // 2 being the last slot index in anvil inventory
                 System.out.println("Setting index " + (2 + i) + " in " + constructedGui.getVirtualSize());
             }
-            //constructedGui.setSlot(29, new ItemStack(Items.REDSTONE_TORCH));
+            constructedGui.setSlot(29, new ItemStack(Items.REDSTONE_TORCH));
 
             constructedGui.open();
         } else {

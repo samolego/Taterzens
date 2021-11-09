@@ -70,7 +70,8 @@ public class TaterzensAPI {
                         if (npcTag != null) {
                             String savedTeam = npcTag.getString("SavedTeam");
                             PlayerTeam team = world.getScoreboard().getPlayerTeam(savedTeam);
-                            world.getScoreboard().addPlayerToTeam(taterzenNPC.getScoreboardName(), team);
+                            if (team != null)
+                                world.getScoreboard().addPlayerToTeam(taterzenNPC.getScoreboardName(), team);
                         }
 
                         return taterzenNPC;
