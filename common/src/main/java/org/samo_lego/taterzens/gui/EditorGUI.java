@@ -21,7 +21,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -75,9 +78,9 @@ public class EditorGUI {
 
             // Default input value
             String[] examples = parentNode.getExamples().toArray(new String[0]);
-            System.out.println(Arrays.toString(examples));
             if (examples.length > 0)
                 nameStack.setHoverName(new TextComponent(examples[0]));
+
             for (int i = 1; i < examples.length; ++i) {
                 ItemStack exampleStack = new ItemStack(Items.PAPER);
                 exampleStack.setHoverName(new TranslatableComponent("options.autoSuggestCommands")
@@ -85,12 +88,8 @@ public class EditorGUI {
                         .append(new TextComponent(examples[i]))
                 );
 
-                constructedGui.setSlot(2 + i, exampleStack);  // 2 being the last slot index in anvil inventory
-                System.out.println("Setting index " + (2 + i) + " in " + constructedGui.getVirtualSize());
+                constructedGui.setSlot(i * 2 + 1, exampleStack);  // 2 being the last slot index in anvil inventory
             }
-            constructedGui.setSlot(29, new ItemStack(Items.REDSTONE_TORCH));
-
-            constructedGui.open();
         } else {
             // Creates the biggest possible container
             constructedGui = new SimpleGui(MenuType.GENERIC_9x6, player, true);
@@ -135,8 +134,10 @@ public class EditorGUI {
         GuiElement backScreenButton = new GuiElement(back, (i, clickType, slotActionType) -> {
             if (previousScreen == null) {
                 player.closeContainer();
-            } else
+            } else {
+                constructedGui.close();
                 previousScreen.open();
+            }
         });
         constructedGui.setSlot(argumentNode && !givenInput ? 1 : 0, backScreenButton);
 
@@ -155,8 +156,8 @@ public class EditorGUI {
 
     private static void proccessClick(ClickType clickType, CommandNode<CommandSourceStack> node, SimpleGui gui, List<String> currentCommandPath, ServerPlayer player, boolean givenInput) {
         if (clickType == ClickType.MOUSE_LEFT && (node.getChildren().size() > 0 || (node instanceof ArgumentCommandNode<?, ?> && !givenInput))) {
-            createCommandGui(player, gui, node, currentCommandPath, givenInput).open();
             gui.close();
+            createCommandGui(player, gui, node, currentCommandPath, givenInput).open();
         } else {
             execute(player, currentCommandPath, gui);
         }
