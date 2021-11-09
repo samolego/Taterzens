@@ -14,6 +14,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
@@ -52,17 +54,24 @@ public class TaterzensAPI {
             )
             ) {
                 element = parser.parse(fileReader).getAsJsonObject();
-            } catch(IOException e) { //todo
+            } catch(IOException e) {
                 LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
             }
             if(element != null) {
                 try {
                     Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
-                    if(tag instanceof CompoundTag) {
-                        CompoundTag CompoundTag = (CompoundTag) tag;
+                    if(tag instanceof CompoundTag saveTag) {
                         TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
-                        CompoundTag.putUUID("UUID", taterzenNPC.getUUID());
-                        taterzenNPC.load(CompoundTag);
+                        saveTag.putUUID("UUID", taterzenNPC.getUUID());
+                        taterzenNPC.load(saveTag);
+
+                        // Team stuff
+                        CompoundTag npcTag = (CompoundTag) saveTag.get("TaterzenNPCTag");
+                        if (npcTag != null) {
+                            String savedTeam = npcTag.getString("SavedTeam");
+                            PlayerTeam team = world.getScoreboard().getPlayerTeam(savedTeam);
+                            world.getScoreboard().addPlayerToTeam(taterzenNPC.getScoreboardName(), team);
+                        }
 
                         return taterzenNPC;
                     }
@@ -83,15 +92,24 @@ public class TaterzensAPI {
         CompoundTag saveTag = new CompoundTag();
         taterzen.saveWithoutId(saveTag);
 
-        //todo Weird as it is, those cannot be read back :(
+        // Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
         saveTag.remove("HandDropChances");
 
-
+        // We want a new UUID and other stuff below
         saveTag.remove("UUID");
         saveTag.remove("Pos");
         saveTag.remove("Motion");
         saveTag.remove("Rotation");
+
+        // Saving team
+        Team team = taterzen.getTeam();
+        if (team != null) {
+            String teamName = team.getName();
+            CompoundTag npcTag = (CompoundTag) saveTag.get("TaterzenNPCTag");
+            if (npcTag != null)
+                npcTag.putString("SavedTeam", teamName);
+        }
 
         JsonElement element = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, saveTag);
 
