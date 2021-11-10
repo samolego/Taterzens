@@ -61,9 +61,7 @@ public class MessagesCommand {
     private static int reorderMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
-        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
-            new MessageReorderGUI(player, taterzen).open();
-        });
+        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> new MessageReorderGUI(player, taterzen).open());
     }
 
     private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

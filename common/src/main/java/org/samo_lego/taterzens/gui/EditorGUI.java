@@ -174,10 +174,10 @@ public class EditorGUI {
             // Delete last space
             builder.deleteCharAt(builder.length() - 1);
 
-            player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
             player.closeContainer();
             currentGui.close();
 
+            player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
         } catch (IllegalArgumentException e) {
             player.sendMessage(new TextComponent(e.getMessage()), player.getUUID());
         }
