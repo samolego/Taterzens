@@ -10,6 +10,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.gui.MessageReorderGUI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class MessagesCommand {
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::listTaterzenMessages)
                 )
+                .then(literal("reorder")
+                        .executes(MessagesCommand::reorderMessages)
+                )
                 .then(argument("message id", IntegerArgumentType.integer())
                         .then(literal("delete")
                                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delete", config.perms.npcCommandPermissionLevel))
@@ -52,6 +56,14 @@ public class MessagesCommand {
                 .executes(MessagesCommand::editTaterzenMessages).build();
         
         editNode.addChild(messagesNode);
+    }
+
+    private static int reorderMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        ServerPlayer player = source.getPlayerOrException();
+        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
+            new MessageReorderGUI(player, taterzen).open();
+        });
     }
 
     private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
