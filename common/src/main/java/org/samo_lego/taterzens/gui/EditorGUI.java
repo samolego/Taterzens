@@ -293,6 +293,10 @@ public class EditorGUI {
         itemCommandMap.put("message id", messageId);
 
 
+        ItemStack messageSwap = new ItemStack(Items.WEEPING_VINES);
+        messageSwap.setTag(customData.copy());
+        itemCommandMap.put("swap", messageSwap);
+
         ItemStack clear = new ItemStack(Items.LAVA_BUCKET);
         clear.setTag(customData.copy());
         itemCommandMap.put("clear", clear);
