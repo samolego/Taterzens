@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.gui;
 
-import com.mojang.datafixers.util.Pair;
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
@@ -16,34 +15,42 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.samo_lego.taterzens.mixin.accessors.MappedRegistryAccessor;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
-public class MessageReorderGUI extends SimpleGui implements Container {
+public class ListItemsGUI<T> extends SimpleGui implements Container {
     private static final CompoundTag customData = new CompoundTag();
     private static final int registryItemsSize = ((MappedRegistryAccessor) Registry.ITEM).getById().size();
-    private final List<Pair<Component, Integer>> messages;
+    private final List<T> items;
     private final int maxPages;
     private final boolean needsPages;
+    private final Function<T, Component> getItemName;
+    private final Function<Component, T> createItem;
     private int currentPage = 0;
 
     /**
      * Constructs a new simple container gui for the supplied player.
      *
-     * @param player the player to server this gui to
-     * @param npc player's taterzen.
+     * @param player the player to server this gui to.
+     * @param npcName player's taterzen.
+     * @param titleTranslationKey title translation key for gui.
+     * @param items array to create items for.
+     * @param getItemName gets item name from items type.
+     * @param itemCreator creates a new element for items array.
      */
-    public MessageReorderGUI(ServerPlayer player, TaterzenNPC npc) {
+    public ListItemsGUI(ServerPlayer player, Component npcName, String titleTranslationKey, List<T> items, Function<T, Component> getItemName, Function<Component, T> itemCreator) {
         super(MenuType.GENERIC_9x6, player, false);
 
-        this.messages = npc.getMessages();
-        this.maxPages = this.messages.size() / this.getSize();
-        this.setTitle(new TranslatableComponent("chat_screen.title").append(": ").withStyle(ChatFormatting.YELLOW).append(npc.getName().copy()));
+        this.items = items;
+        this.getItemName = getItemName;
+        this.createItem = itemCreator;
+        this.maxPages = this.items.size() / this.getSize();
+        this.setTitle(new TranslatableComponent(titleTranslationKey).append(": ").withStyle(ChatFormatting.YELLOW).append(npcName.copy()));
 
-        this.needsPages = this.messages.size() > this.getSize();
+        this.needsPages = this.items.size() > this.getSize();
 
         int i = needsPages ? 9 : 0;
 
@@ -118,7 +125,7 @@ public class MessageReorderGUI extends SimpleGui implements Container {
 
     @Override
     public boolean isEmpty() {
-        return this.messages.isEmpty();
+        return this.items.isEmpty();
     }
 
     private int getSlot2MessageIndex(int slotIndex) {
@@ -129,8 +136,8 @@ public class MessageReorderGUI extends SimpleGui implements Container {
     public ItemStack getItem(int index) {
         ItemStack itemStack;
         index = getSlot2MessageIndex(index);
-        if(index < this.messages.size()) {
-            Component message = this.messages.get(index).getFirst();
+        if(index < this.items.size()) {
+            Component message = getItemName.apply(this.items.get(index));
 
             // Gets an item from registry depending on message string hash
             int i = Math.abs(message.getString().hashCode());
@@ -156,9 +163,9 @@ public class MessageReorderGUI extends SimpleGui implements Container {
     public ItemStack removeItemNoUpdate(int index) {
         ItemStack itemStack = this.getItem(index);
         index = getSlot2MessageIndex(index);
-        if(index < this.messages.size()) {
-            Pair<Component, Integer> removed = this.messages.remove(index);
-            itemStack.setHoverName(removed.getFirst());
+        if(index < this.items.size()) {
+            T removed = this.items.remove(index);
+            itemStack.setHoverName(this.getItemName.apply(removed));
         }
 
         return itemStack;
@@ -168,9 +175,9 @@ public class MessageReorderGUI extends SimpleGui implements Container {
     public void setItem(int index, ItemStack stack) {
         if (!stack.isEmpty()) {
             index = getSlot2MessageIndex(index);
-            if (index > messages.size())
-                index = messages.size();
-            this.messages.add(index, new Pair<>(stack.getHoverName(), config.messages.messageDelay));
+            if (index > items.size())
+                index = items.size();
+            this.items.add(index, this.createItem.apply(stack.getHoverName()));
             stack.setCount(0);
         }
     }
@@ -187,7 +194,7 @@ public class MessageReorderGUI extends SimpleGui implements Container {
 
     @Override
     public void clearContent() {
-        this.messages.clear();
+        this.items.clear();
     }
 
     static {
