@@ -16,6 +16,7 @@
   "taterzens.command.message.changed": "Sporočilo je bilo spremenjeno na %s.",
   "taterzens.command.message.deleted": "Sporočilo %s je bilo odstranjeno.",
   "taterzens.command.message.error.404": "Nobeno izmed sporočil nima id-ja %s.",
+  "taterzens.command.message.swapped": "Sporočili %s in %s sta bili uspešno zamenjani.",
   "taterzens.command.equipment.enter": "Sedaj si v urejevalniku opreme krompirjevca %s. Vnesi enak ukaz za izstop.",
   "taterzens.command.equipment.desc.1": "Uporabi desni klik za opremitev krompirjevca.",
   "taterzens.command.equipment.desc.2": "Če želiš. da nosi opremo v rokah, uporabi shift in desni klik.",

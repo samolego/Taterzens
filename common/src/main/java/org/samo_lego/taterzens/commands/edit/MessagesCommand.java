@@ -35,7 +35,14 @@ public class MessagesCommand {
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::listTaterzenMessages)
                 )
-                .then(literal("reorder")
+                .then(literal("swap")
+                        .then(argument("id 1", IntegerArgumentType.integer())
+                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.swap", config.perms.npcCommandPermissionLevel))
+                                .then(argument("id 2", IntegerArgumentType.integer())
+                                        .executes(MessagesCommand::swapMessages)
+                                )
+                        )
+                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.reorder", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::reorderMessages)
                 )
                 .then(argument("message id", IntegerArgumentType.integer())
@@ -58,6 +65,44 @@ public class MessagesCommand {
         editNode.addChild(messagesNode);
     }
 
+    private static int swapMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        ServerPlayer player = source.getPlayerOrException();
+
+        return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
+            int firstId = IntegerArgumentType.getInteger(context, "id 1");
+            int secondId = IntegerArgumentType.getInteger(context, "id 2");
+
+            ArrayList<Pair<Component, Integer>> messages = taterzen.getMessages();
+            if (firstId < 0)
+                firstId = Math.abs(messages.size() - firstId);
+            if (secondId < 0)
+                secondId = Math.abs(messages.size() - secondId);
+
+            if(firstId > messages.size() || secondId > messages.size()) {
+                source.sendFailure(
+                        errorText("taterzens.command.message.error.404", firstId + " / " + secondId)
+                );
+                return;
+            }
+
+            --firstId;
+            --secondId;
+
+            Pair<Component, Integer> first = messages.remove(firstId);
+            // - 1 as we remove one element above
+            Pair<Component, Integer> second = messages.remove(secondId - 1);
+            messages.add(firstId, second);
+            messages.add(secondId, first);
+
+            source.sendSuccess(translate("taterzens.command.message.swapped",
+                    first.getFirst().copy().withStyle(ChatFormatting.YELLOW),
+                    second.getFirst().copy().withStyle(ChatFormatting.YELLOW)
+            ).withStyle(ChatFormatting.GREEN), false);
+        });
+
+    }
+
     private static int reorderMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
@@ -69,14 +114,17 @@ public class MessagesCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             int selected = IntegerArgumentType.getInteger(context, "message id");
             List<Pair<Component, Integer>> messages = taterzen.getMessages();
+
+            if (selected < 0)
+                selected = Math.abs(messages.size() - selected);  // Backwards index
+
             if(selected >= messages.size()) {
                 source.sendFailure(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected))
                 );
             } else {
                 int i = selected - 1;
-                if (i < 0)
-                    i = messages.size() - 1;  // Delete last message
+
                 source.sendSuccess(successText("taterzens.command.message.deleted", messages.get(i).getFirst().getString()), false);
                 taterzen.removeMessage(i);
             }

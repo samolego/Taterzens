@@ -97,6 +97,7 @@ public class EditorGUI {
             // Close screen button
             ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
             close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
+            close.enchant(null, 0);
 
             GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> {
                 player.closeContainer();
@@ -130,6 +131,7 @@ public class EditorGUI {
         // Back button
         ItemStack back = new ItemStack(Items.MAGENTA_GLAZED_TERRACOTTA);
         back.setHoverName(new TranslatableComponent("gui.back"));
+        back.enchant(null, 0);
 
         GuiElement backScreenButton = new GuiElement(back, (i, clickType, slotActionType) -> {
             if (previousScreen == null) {
@@ -155,7 +157,18 @@ public class EditorGUI {
     }
 
     private static void proccessClick(ClickType clickType, CommandNode<CommandSourceStack> node, SimpleGui gui, List<String> currentCommandPath, ServerPlayer player, boolean givenInput) {
-        if (clickType == ClickType.MOUSE_LEFT && (node.getChildren().size() > 0 || (node instanceof ArgumentCommandNode<?, ?> && !givenInput))) {
+        StringBuilder builder = new StringBuilder();
+        // Builds the command from parents
+        currentCommandPath.forEach(s -> builder.append(s).append(" "));
+        // Delete last space
+        builder.deleteCharAt(builder.length() - 1);
+
+        if (config.prefersExecution.contains(builder.toString())) {
+            // Swaps the click type
+           clickType = clickType == ClickType.MOUSE_LEFT ? ClickType.MOUSE_RIGHT : ClickType.MOUSE_LEFT;
+        }
+
+        if (clickType == ClickType.MOUSE_LEFT && node.getChildren().size() > 0 || (node instanceof ArgumentCommandNode<?, ?> && !givenInput)) {
             gui.close();
             createCommandGui(player, gui, node, currentCommandPath, givenInput).open();
         } else {

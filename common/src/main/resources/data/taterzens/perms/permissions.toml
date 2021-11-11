@@ -75,6 +75,10 @@ permissions = [
    "taterzens.npc.edit.messages.delay",
    #  Enables editing selected message.
    "taterzens.npc.edit.messages.edit",
+   # Enables message swapping
+   "taterzens.npc.edit.messages.swap",
+   # Allows total control of messages within gui
+   "taterzens.npc.edit.messages.reorder",
    #  Enables changing Taterzen's skin.
    "taterzens.npc.edit.skin",
    #  Enables changing Taterzen's equipment.

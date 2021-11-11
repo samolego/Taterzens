@@ -84,6 +84,13 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("gui_item_model_data")
     public int guiItemModelData = 257;
 
+    @SerializedName("// Nodes which prefer execution instead of going in submenus in `/npc` gui. (Swaps the right and left click function to these nodes)")
+    public final String _comment_prefersExecution = "";
+    @SerializedName("prefer_execution_nodes")
+    public List<String> prefersExecution = new ArrayList<>(Arrays.asList(
+            "npc edit messages swap"
+    ));
+
     @Override
     public void save() {
         this.saveConfigFile(CONFIG_FILE);

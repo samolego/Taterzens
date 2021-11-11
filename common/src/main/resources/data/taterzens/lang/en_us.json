@@ -19,6 +19,7 @@
   "taterzens.command.message.changed": "Message has been changed to %s.",
   "taterzens.command.message.deleted": "Message %s has been deleted successfully.",
   "taterzens.command.message.error.404": "No messages with id %s were found.",
+  "taterzens.command.message.swapped": "Messages %s and %s were swapped successfully.",
   "taterzens.command.equipment.enter": "You've entered equipment editor for %s. Enter same command to exit.",
   "taterzens.command.equipment.desc.1": "Right click the Taterzen to equip it.",
   "taterzens.command.equipment.desc.2": "To put armor in hand, use shift right click.",
