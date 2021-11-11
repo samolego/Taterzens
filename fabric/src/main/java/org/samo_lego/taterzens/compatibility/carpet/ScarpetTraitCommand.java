@@ -26,17 +26,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
+import static org.samo_lego.taterzens.Taterzens.CARPETMOD_LOADED;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.commands.TraitCommand.TRAIT_COMMAND_NODE;
+import static org.samo_lego.taterzens.commands.ProfessionCommand.PROFESSION_COMMAND_NODE;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class ScarpetTraitCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
-        LiteralCommandNode<CommandSourceStack> scarpet = literal("scarpet")
-                .requires(src -> permissions$checkPermission(src, "taterzens.trait.scarpet", config.perms.traitCommandPermissionLevel))
+        LiteralCommandNode<CommandSourceStack> scarpet = literal("scarpetTraits")
+                .requires(src -> CARPETMOD_LOADED && permissions$checkPermission(src, "taterzens.profession.scarpet", config.perms.traitCommandPermissionLevel))
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.trait.scarpet.add", config.perms.traitCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.add", config.perms.traitCommandPermissionLevel))
                         .then(argument("id", StringArgumentType.word())
                                 .executes(ScarpetTraitCommand::addTrait)
                         )
@@ -45,7 +46,7 @@ public class ScarpetTraitCommand {
                         .executes(ScarpetTraitCommand::listScarpetTraits)
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.trait.scarpet.remove", config.perms.traitCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.remove", config.perms.traitCommandPermissionLevel))
                         .then(argument("id", StringArgumentType.word())
                                 .suggests(ScarpetTraitCommand::suggestRemovableTraits)
                                 .executes(ScarpetTraitCommand::removeTrait)
@@ -55,7 +56,7 @@ public class ScarpetTraitCommand {
                 .build();
 
 
-        TRAIT_COMMAND_NODE.addChild(scarpet);
+        PROFESSION_COMMAND_NODE.addChild(scarpet);
     }
 
 

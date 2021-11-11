@@ -125,9 +125,9 @@ permissions = [
    # Interacting with block
    "taterzens.npc.action.interact",
 
-   # Permissions for `/trait` command
-   "taterzens.trait",
-   "taterzens.trait.scarpet",
-   "taterzens.trait.scarpet.add",
-   "taterzens.trait.scarpet.remove"
+   # Permissions for `/profession` command
+   "taterzens.profession",
+   "taterzens.profession.scarpet",
+   "taterzens.profession.scarpet.add",
+   "taterzens.profession.scarpet.remove"
 ]

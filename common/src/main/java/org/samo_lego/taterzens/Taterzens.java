@@ -12,8 +12,8 @@ import org.apache.logging.log4j.core.Logger;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.NpcGUICommand;
+import org.samo_lego.taterzens.commands.ProfessionCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
-import org.samo_lego.taterzens.commands.TraitCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
@@ -96,6 +96,6 @@ public class Taterzens {
         TaterzensCommand.register(dispatcher, dedicated);
         NpcGUICommand.register(dispatcher, dedicated);
 
-        TraitCommand.register(dispatcher, dedicated);
+        ProfessionCommand.register(dispatcher, dedicated);
     }
 }
