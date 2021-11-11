@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -22,12 +21,14 @@ import static org.samo_lego.taterzens.Taterzens.config;
 
 public class MessageReorderGUI extends SimpleGui implements Container {
     private static final CompoundTag customData = new CompoundTag();
+    private static final int registryItemsSize = ((MappedRegistryAccessor) Registry.ITEM).getById().size();
     private final List<Pair<Component, Integer>> messages;
 
     /**
      * Constructs a new simple container gui for the supplied player.
      *
-     * @param player                      the player to server this gui to
+     * @param player the player to server this gui to
+     * @param npc player's taterzen.
      */
     public MessageReorderGUI(ServerPlayer player, TaterzenNPC npc) {
         super(MenuType.GENERIC_9x6, player, false);
@@ -35,9 +36,11 @@ public class MessageReorderGUI extends SimpleGui implements Container {
         this.messages = npc.getMessages();
 
         for (int i = 0; i  < this.getSize(); ++i) {
-            this.setSlotRedirect(i, new Slot(this, i, 0, 0));
+            this.setSlotRedirect(i, new MessageSlot(this, i));
         }
     }
+
+
 
     @Override
     public int getContainerSize() {
@@ -57,7 +60,7 @@ public class MessageReorderGUI extends SimpleGui implements Container {
 
             // Gets an item from registry depending on message string hash
             int i = Math.abs(message.getString().hashCode());
-            Item item = Item.byId(i % ((MappedRegistryAccessor) Registry.ITEM).getById().size());
+            Item item = Item.byId(i % registryItemsSize);
             if (item.equals(Items.AIR))
                 item = Items.STONE;
 
@@ -72,7 +75,6 @@ public class MessageReorderGUI extends SimpleGui implements Container {
 
     @Override
     public ItemStack removeItem(int index, int count) {
-        System.out.println("NO UPDATE : " + index + " (was )");
         return this.removeItemNoUpdate(index);
     }
 
@@ -82,7 +84,6 @@ public class MessageReorderGUI extends SimpleGui implements Container {
         if(index < this.messages.size()) {
             Pair<Component, Integer> removed = this.messages.remove(index);
             itemStack.setHoverName(removed.getFirst());
-            System.out.println("Removing : " + index + " (was : " + removed.getFirst().getString() + ")");
         }
 
         return itemStack;
@@ -93,7 +94,6 @@ public class MessageReorderGUI extends SimpleGui implements Container {
         if (!stack.isEmpty()) {
             if (index > messages.size())
                 index = messages.size();
-            System.out.println("Setting : " + index + " to :: " + stack.getHoverName().getString());
             this.messages.add(index, new Pair<>(stack.getHoverName(), config.messages.messageDelay));
             stack.setCount(0);
         }
