@@ -10,7 +10,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.gui.ListItemsGUI;
+import org.samo_lego.taterzens.gui.MessagesEditGUI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
@@ -107,14 +107,7 @@ public class MessagesCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
         return NpcCommand.selectedTaterzenExecutor(player, taterzen ->
-                new ListItemsGUI<>(
-                        player,
-                        taterzen.getName(),
-                        "chat_screen.title",
-                        taterzen.getMessages(),
-                        Pair::getFirst,
-                        component -> new Pair<>(component, config.messages.messageDelay)
-                ).open()
+                new MessagesEditGUI(player, taterzen).open()
         );
     }
 
