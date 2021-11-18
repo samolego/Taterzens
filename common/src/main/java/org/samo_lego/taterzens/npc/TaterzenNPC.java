@@ -8,6 +8,7 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
+import eu.pb4.sgui.api.gui.SimpleGui;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -74,7 +75,9 @@ import org.samo_lego.taterzens.util.TextUtil;
 import java.util.*;
 
 import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
@@ -892,6 +895,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             );
 
             return InteractionResult.PASS;
+        } else if (((ITaterzenEditor) player).getNpc() == this) {
+            // Opens GUI for editing
+            SimpleGui editorGUI = createCommandGui((ServerPlayer) player, null, npcNode, Collections.singletonList("npc"), false);
+            editorGUI.open();
         }
 
         String playername = player.getGameProfile().getName();

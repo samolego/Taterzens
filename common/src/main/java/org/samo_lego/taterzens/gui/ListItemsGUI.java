@@ -13,14 +13,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import java.util.List;
-
 import static org.samo_lego.taterzens.Taterzens.config;
 
-public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
+public abstract class ListItemsGUI extends SimpleGui implements Container {
     protected static final CompoundTag customData = new CompoundTag();
-    protected final List<T> items;
-    private final int maxPages;
     private int currentPage = 0;
 
     /**
@@ -29,13 +25,10 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
      * @param player the player to server this gui to.
      * @param npcName player's taterzen.
      * @param titleTranslationKey title translation key for gui.
-     * @param items array to create items for.
      */
-    public ListItemsGUI(ServerPlayer player, Component npcName, String titleTranslationKey, List<T> items) {
+    public ListItemsGUI(ServerPlayer player, Component npcName, String titleTranslationKey) {
         super(MenuType.GENERIC_9x6, player, false);
 
-        this.items = items;
-        this.maxPages = this.items.size() / this.getSize();
         this.setTitle(new TranslatableComponent(titleTranslationKey).append(": ").withStyle(ChatFormatting.YELLOW).append(npcName.copy()));
 
         // Info (which page)
@@ -66,8 +59,8 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
         next.enchant(null, 0);
 
         GuiElement nextScreenButton = new GuiElement(next, (_i, _clickType, _slotActionType) -> {
-            if (++this.currentPage > this.maxPages)
-                this.currentPage = this.maxPages;
+            if (++this.currentPage > this.getMaxPages())
+                this.currentPage = this.getMaxPages();
             info.setHoverName(getCurrentPageMarker());
         });
         this.setSlot(1, nextScreenButton);
@@ -79,7 +72,10 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
         close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
         close.enchant(null, 0);
 
-        GuiElement closeScreenButton = new GuiElement(close, (_i, _clickType, _slotActionType) -> player.closeContainer());
+        GuiElement closeScreenButton = new GuiElement(close, (_i, _clickType, _slotActionType) -> {
+            this.close();
+            player.closeContainer();
+        });
         this.setSlot(8, closeScreenButton);
     }
 
@@ -88,7 +84,7 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
      * @return translated page info text.
      */
     private TranslatableComponent getCurrentPageMarker() {
-        return new TranslatableComponent("book.pageIndicator", this.currentPage + 1, this.maxPages + 1);
+        return new TranslatableComponent("book.pageIndicator", this.currentPage + 1, this.getMaxPages() + 1);
     }
 
 
@@ -102,16 +98,6 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
     }
 
     @Override
-    public boolean isEmpty() {
-        return this.items.isEmpty();
-    }
-
-    @Override
-    public void clearContent() {
-        this.items.clear();
-    }
-
-    @Override
     public void setChanged() {
     }
 
@@ -119,6 +105,8 @@ public abstract class ListItemsGUI<T> extends SimpleGui implements Container {
     public boolean stillValid(Player player) {
         return false;
     }
+
+    abstract int getMaxPages();
 
 
     static {

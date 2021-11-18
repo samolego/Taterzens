@@ -10,10 +10,13 @@ import net.minecraft.world.item.Items;
 import org.samo_lego.taterzens.mixin.accessors.MappedRegistryAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
+import java.util.List;
+
 import static org.samo_lego.taterzens.Taterzens.config;
 
-public class MessagesEditGUI extends ListItemsGUI<Pair<Component, Integer>> {
+public class MessagesEditGUI extends ListItemsGUI {
     private static final int REGISTRY_ITEMS_SIZE = ((MappedRegistryAccessor) Registry.ITEM).getById().size();
+    private final List<Pair<Component, Integer>> messages;
 
     /**
      * Constructs a new simple container gui for the supplied player.
@@ -22,7 +25,9 @@ public class MessagesEditGUI extends ListItemsGUI<Pair<Component, Integer>> {
      * @param taterzen             player's taterzen.
      */
     public MessagesEditGUI(ServerPlayer player, TaterzenNPC taterzen) {
-        super(player, taterzen.getName(), "chat_screen.title", taterzen.getMessages());
+        super(player, taterzen.getName(), "chat_screen.title");
+
+        this.messages = taterzen.getMessages();
 
         int i = 9;
         do {
@@ -52,8 +57,8 @@ public class MessagesEditGUI extends ListItemsGUI<Pair<Component, Integer>> {
         ItemStack itemStack;
         index = getSlot2MessageIndex(index);
 
-        if(index < this.items.size()) {
-            itemStack = getItem(this.items.get(index));
+        if(index < this.messages.size()) {
+            itemStack = getItem(this.messages.get(index));
         } else {
             itemStack = ItemStack.EMPTY;
         }
@@ -69,8 +74,8 @@ public class MessagesEditGUI extends ListItemsGUI<Pair<Component, Integer>> {
     public ItemStack removeItemNoUpdate(int index) {
         ItemStack itemStack = this.getItem(index);
         index = getSlot2MessageIndex(index);
-        if(index < this.items.size()) {
-            Pair<Component, Integer> removed = this.items.remove(index);
+        if(index < this.messages.size()) {
+            Pair<Component, Integer> removed = this.messages.remove(index);
             itemStack.setHoverName(this.getItem(removed).getHoverName());
         }
 
@@ -81,11 +86,25 @@ public class MessagesEditGUI extends ListItemsGUI<Pair<Component, Integer>> {
     public void setItem(int index, ItemStack stack) {
         if (!stack.isEmpty()) {
             index = getSlot2MessageIndex(index);
-            if (index > items.size())
-                index = items.size();
-            this.items.add(index, new Pair<>(stack.getHoverName(), config.messages.messageDelay));
+            if (index > messages.size())
+                index = messages.size();
+            this.messages.add(index, new Pair<>(stack.getHoverName(), config.messages.messageDelay));
             stack.setCount(0);
         }
     }
 
+    @Override
+    public boolean isEmpty() {
+        return this.messages.isEmpty();
+    }
+
+    @Override
+    public void clearContent() {
+        this.messages.clear();
+    }
+
+    @Override
+    int getMaxPages() {
+        return this.messages.size() / this.getSize();
+    }
 }
