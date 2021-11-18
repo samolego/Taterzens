@@ -38,13 +38,7 @@ public class MessagesEditGUI extends ListItemsGUI {
 
     private ItemStack getItem(Pair<Component, Integer> pair) {
         Component message = pair.getFirst();
-        // Gets an item from registry depending on message string hash
-        int i = Math.abs(message.getString().hashCode());
-        Item item = Item.byId(i % REGISTRY_ITEMS_SIZE);
-        if (item.equals(Items.AIR))
-            item = Items.STONE;
-
-        ItemStack itemStack = new ItemStack(item);
+        ItemStack itemStack = new ItemStack(getFromName(message.getString()));
         itemStack.setTag(customData.copy());
         itemStack.setHoverName(message);
 
@@ -105,6 +99,22 @@ public class MessagesEditGUI extends ListItemsGUI {
 
     @Override
     public int getMaxPages() {
+        if (this.messages == null)
+            return 0;
         return this.messages.size() / this.getSize();
+    }
+
+    /**
+     * Gets an item from registry by string hash.
+     * @param name string to convert into item
+     * @return item, converted from string hash. If air would be returned, it is switched top stone instead.
+     */
+    public static Item getFromName(String name) {
+        int i = Math.abs(name.hashCode());
+        Item item = Item.byId(i % REGISTRY_ITEMS_SIZE);
+        if (item.equals(Items.AIR))
+            item = Items.STONE;
+
+        return item;
     }
 }

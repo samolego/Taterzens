@@ -9,6 +9,8 @@ theme:
   features:
     - navigation.instant
     - navigation.top
+    - navigation.tabs
+
   icon:
     logo: fontawesome/solid/users
     repo: fontawesome/brands/github
@@ -34,6 +36,7 @@ plugins:
   - search
   - mike:
       version_selector: true   # set to false to leave out the version selector
+  - awesome-pages
 
 
 markdown_extensions:
@@ -46,3 +49,9 @@ markdown_extensions:
 extra:
   version:
     provider: mike
+
+
+nav:
+  - Home: index.md
+  - Getting started: getting_started
+  - ...

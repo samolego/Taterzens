@@ -994,10 +994,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Removes message at index.
      * @param index index of message to be removed.
+     * @return removed message
      */
-    public void removeMessage(int index) {
+    public Component removeMessage(int index) {
         if(index < this.npcData.messages.size())
-            this.npcData.messages.remove(index);
+            return this.npcData.messages.remove(index).getFirst();
+        return TextComponent.EMPTY;
     }
 
     /**
@@ -1014,7 +1016,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     public void clearMessages() {
-        this.npcData.messages = new ArrayList<>();
+        this.npcData.messages.clear();
     }
 
     /**

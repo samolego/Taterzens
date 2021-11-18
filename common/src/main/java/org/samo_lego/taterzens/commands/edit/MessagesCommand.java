@@ -74,12 +74,14 @@ public class MessagesCommand {
             int secondId = IntegerArgumentType.getInteger(context, "id 2");
 
             ArrayList<Pair<Component, Integer>> messages = taterzen.getMessages();
-            if (firstId < 0)
-                firstId = Math.abs(messages.size() - firstId);
-            if (secondId < 0)
-                secondId = Math.abs(messages.size() - secondId);
+            int size = messages.size();
 
-            if(firstId > messages.size() || secondId > messages.size()) {
+            if (firstId < 0)
+                firstId = Math.abs(size - firstId);
+            if (secondId < 0)
+                secondId = Math.abs(size - secondId);
+
+            if(firstId > size || secondId > size) {
                 source.sendFailure(
                         errorText("taterzens.command.message.error.404", firstId + " / " + secondId)
                 );
@@ -114,21 +116,22 @@ public class MessagesCommand {
     private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            int selected = IntegerArgumentType.getInteger(context, "message id");
+            int actual = IntegerArgumentType.getInteger(context, "message id");
+            final int selected = actual;
+
             List<Pair<Component, Integer>> messages = taterzen.getMessages();
+            int size = messages.size();
 
-            if (selected < 0)
-                selected = Math.abs(messages.size() - selected);  // Backwards index
+            actual = getMessageIndex(actual, size);
 
-            if(selected >= messages.size()) {
+            if(actual == -1) {
                 source.sendFailure(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected))
                 );
             } else {
-                int i = selected - 1;
+                int i = actual - 1;
 
-                source.sendSuccess(successText("taterzens.command.message.deleted", messages.get(i).getFirst().getString()), false);
-                taterzen.removeMessage(i);
+                source.sendSuccess(successText("taterzens.command.message.deleted", taterzen.removeMessage(i).getString()), false);
             }
         });
     }
@@ -136,22 +139,39 @@ public class MessagesCommand {
     private static int editMessageDelay(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            int selected = IntegerArgumentType.getInteger(context, "message id");
+            int actual = IntegerArgumentType.getInteger(context, "message id");
+            final int selected = actual;
+
             List<Pair<Component, Integer>> messages = taterzen.getMessages();
             int size = messages.size();
-            if(selected >= size) {
+
+            actual = getMessageIndex(actual, size);
+
+            if(actual == -1) {
                 source.sendFailure(
                         errorText("taterzens.command.message.error.404", String.valueOf(selected))
                 );
             } else {
                 int delay = IntegerArgumentType.getInteger(context, "delay");
-                int i = selected - 1;
-                String first = messages.get(i < 0 ? size - 1 : i).getFirst().getString();
-                String second = messages.get(selected).getFirst().getString();
-                taterzen.setMessageDelay(selected, delay);
+                int i = actual - 1;
+                String first = messages.get(i).getFirst().getString();
+                String second = messages.get(actual).getFirst().getString();
+                taterzen.setMessageDelay(actual, delay);
                 source.sendSuccess(successText("taterzens.command.message.delay", first, second, String.valueOf(delay)), false);
             }
         });
+    }
+
+    private static int getMessageIndex(int ix, int size) {
+        if (ix < 0)
+            ix = Math.abs(size + 1 + ix);  // Backwards index
+        else if (ix == 0)
+            ix = 1;  // Probably means first message
+
+        if (ix > size)
+            ix = -1;
+
+        return ix;
     }
 
     private static int editMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

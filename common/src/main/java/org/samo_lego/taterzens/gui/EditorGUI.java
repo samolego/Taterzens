@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.gui.MessagesEditGUI.getFromName;
 
 public class EditorGUI {
 
@@ -41,10 +42,13 @@ public class EditorGUI {
             CommandNode<CommandSourceStack> childNode = (CommandNode<CommandSourceStack>) parentNode.getChildren().toArray()[0];
             if (childNode instanceof ArgumentCommandNode) {
                 givenInput = false;
-            } else {
+            } else if (childNode.getChildren().size() > 0) {
                 currentCommandPath.add(parentNode.getName());
+            } else {
+                break;
             }
             parentNode = childNode;
+
         }
 
         Collection<CommandNode<CommandSourceStack>> childNodes = parentNode.getChildren();
@@ -113,12 +117,13 @@ public class EditorGUI {
                 // Tracking current command "path"
                 // after each menu is opened, we add a node to queue
                 ArrayList<String> parents = new ArrayList<>(currentCommandPath);
+                String nodeName = node.getName();
                 if(!(node instanceof ArgumentCommandNode<?, ?>))
-                    parents.add(node.getName());
+                    parents.add(nodeName);
 
                 // Set stack "icon"
-                ItemStack stack = itemCommandMap.getOrDefault(node.getName(), new ItemStack(Items.ITEM_FRAME)).copy();
-                stack.setHoverName(new TextComponent(node.getName()));
+                ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(getFromName(nodeName))).copy();
+                stack.setHoverName(new TextComponent(nodeName));
 
                 // Recursively adding the command nodes
                 constructedGui.setSlot(i.getAndAdd(addedSpace), new GuiElement(stack, (index, clickType, slotActionType) -> {
@@ -195,6 +200,7 @@ public class EditorGUI {
             player.sendMessage(new TextComponent(e.getMessage()), player.getUUID());
         }
     }
+
 
 
     static {
