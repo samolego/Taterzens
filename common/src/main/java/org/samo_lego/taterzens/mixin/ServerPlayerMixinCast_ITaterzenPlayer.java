@@ -4,7 +4,6 @@ import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,8 +19,6 @@ import static org.samo_lego.taterzens.Taterzens.config;
  */
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixinCast_ITaterzenPlayer implements ITaterzenPlayer {
-
-    @Shadow public abstract void tick();
 
     /**
      * Stores last interaction time.

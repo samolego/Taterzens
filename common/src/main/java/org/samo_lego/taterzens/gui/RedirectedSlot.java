@@ -5,8 +5,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class MessageSlot extends Slot {
-    public MessageSlot(Container container, int index) {
+public class RedirectedSlot extends Slot {
+    public RedirectedSlot(Container container, int index) {
         super(container, index, 0, 0);
     }
 
