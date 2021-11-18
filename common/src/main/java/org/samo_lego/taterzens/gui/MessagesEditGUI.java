@@ -104,7 +104,7 @@ public class MessagesEditGUI extends ListItemsGUI {
     }
 
     @Override
-    int getMaxPages() {
+    public int getMaxPages() {
         return this.messages.size() / this.getSize();
     }
 }

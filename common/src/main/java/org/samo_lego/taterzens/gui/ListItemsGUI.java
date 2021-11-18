@@ -106,7 +106,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         return false;
     }
 
-    abstract int getMaxPages();
+    public abstract int getMaxPages();
 
 
     static {
