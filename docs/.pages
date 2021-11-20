@@ -1,0 +1,5 @@
+nav:
+  - index.md
+  - ... | getting_started
+  - ... | installation
+  - ...
