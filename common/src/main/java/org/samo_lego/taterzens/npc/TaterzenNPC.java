@@ -57,10 +57,12 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
@@ -72,6 +74,7 @@ import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.util.TextUtil;
 
+import java.io.File;
 import java.util.*;
 
 import static org.samo_lego.taterzens.Taterzens.*;
@@ -597,6 +600,17 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+
+        // Has a "preset" tag
+        // We want to override other data
+        if (!tag.getString("PresetOverride").isEmpty()) {
+            System.out.println("Has additional save data!");
+            this.loadPresetTag(tag);
+            return;  // Other data doesn't need to be loaded as it will be handled by preset
+        }
+
+        System.out.println("Loading!");
+
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
         CompoundTag tags = npcTag.getCompound("Tags");
@@ -650,7 +664,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
 
         this.setPermissionLevel(npcTag.getInt("PermissionLevel"));
-        this.setBehaviour(NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")));
+
+        if (npcTag.contains("Behaviour"))
+            this.setBehaviour(NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")));
+        else
+            this.setBehaviour(NPCData.Behaviour.PASSIVE);
 
         String profileName = this.getName().getString();
         if(profileName.length() > 16) {
@@ -705,7 +723,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setYRot(bodyRotations.getFloat("YRot"));
         }
 
-        this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
+        if (npcTag.contains("movement"))
+            this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
+        else
+            this.setMovement(NPCData.Movement.NONE);
     }
 
     /**
@@ -816,6 +837,40 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         npcTag.put("BodyRotations", bodyRotations);
 
         tag.put("TaterzenNPCTag", npcTag);
+    }
+
+    /**
+     * Loads Taterzen data from preset file.
+     * @param tag tag containing preset name.
+     */
+    private void loadPresetTag(CompoundTag tag) {
+        String preset = tag.getString("PresetOverride") + ".json";
+        File presetFile = new File(presetsDir + "/" + preset);
+
+        System.out.println(presetFile.exists());
+
+        if (presetFile.exists())
+            this.loadFromPresetFile(presetFile);
+    }
+
+    /**
+     * Loads Taterzen data from preset file. Loads team data as well.
+     * @param presetFile file containing a taterzen preset.
+     */
+    public void loadFromPresetFile(File presetFile) {
+        CompoundTag saveTag = TaterzensAPI.loadPresetTag(presetFile);
+        saveTag.putString("UUID", this.getStringUUID());
+        saveTag.remove("PresetOverride");  // Avoid looping if user has messed with preset
+        this.load(saveTag);
+
+        CompoundTag npcTag = (CompoundTag) saveTag.get("TaterzenNPCTag");
+        if (npcTag != null) {
+            // Team stuff
+            String savedTeam = npcTag.getString("SavedTeam");
+            PlayerTeam team = this.getLevel().getScoreboard().getPlayerTeam(savedTeam);
+            if (team != null)
+                this.getLevel().getScoreboard().addPlayerToTeam(this.getScoreboardName(), team);
+        }
     }
 
     /**
