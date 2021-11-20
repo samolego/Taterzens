@@ -118,7 +118,6 @@ async function setRandomLang(langJsons) {
     langJsons.splice(en_us, 1);
     const rnd = Math.floor(Math.random() * langJsons.length);
     const rndLang = langJsons[rnd];
-    console.log(rndLang);
     CUSTOM_LANG.innerHTML = `+  "language": "${rndLang}"`;
 }
 

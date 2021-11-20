@@ -10,4 +10,4 @@ title: taterzens command
 
 This command is intended for admins-only.
 
-It allows to reload / edit the [config file](../../config.md).
+It allows to reload / edit the [config file](../../installation/config.md).

@@ -8,7 +8,7 @@ title: Bungee Actions
 
 ## Setup
 
-1. Make sure that `"bungee" -> "enable_commands"` is set to `true` in [config](../config.md).
+1. Make sure that `"bungee" -> "enable_commands"` is set to `true` in [config](../../installation/config.md).
    
     (`/taterzens config edit bungee enableCommands true`)
 

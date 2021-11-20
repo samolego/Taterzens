@@ -67,7 +67,7 @@ Taterzens also supports editing config in-game. See below video for example.
 This represents the latest config file, generated automatically.
 Look at the `_comment` fields to get better explanation of the option.
 
-<script src="../scripts/config.js"></script>
+
 
 <button class="md-button" onclick="fetchNewData(JSON.parse(localStorage.getItem('TaterzensVersion')))">
     Refresh
@@ -76,3 +76,5 @@ Look at the `_comment` fields to get better explanation of the option.
 <div class="language-plaintext highlighter-rouge highlight">
     <pre><code id="config">Loading ... </code></pre>
 </div>
+
+<script src="../../scripts/config.js"></script>
