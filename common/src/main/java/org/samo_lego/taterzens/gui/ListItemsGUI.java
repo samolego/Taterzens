@@ -87,6 +87,10 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         return new TranslatableComponent("book.pageIndicator", this.currentPage + 1, this.getMaxPages() + 1);
     }
 
+    public int getCurrentPage() {
+       return this.currentPage;
+    }
+
 
     @Override
     public int getContainerSize() {
@@ -94,7 +98,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
     }
 
     protected int getSlot2MessageIndex(int slotIndex) {
-        return this.currentPage * this.getSize() + slotIndex;
+        return this.getCurrentPage() * this.getSize() + slotIndex;
     }
 
     @Override
