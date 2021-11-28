@@ -18,6 +18,8 @@ A fabric / forge citizens like NPC mod.
 
 https://user-images.githubusercontent.com/34912839/142493879-6f642eb1-e226-4798-abfd-ef190f7fe4a8.mp4
 
+## Addons
+* [Traders](https://github.com/samolego/TraderNPCs)
 
 ## Thanks
 * [SGUI mod by Patbox](https://github.com/Patbox/sgui) (<- make sure to give this a star!)
