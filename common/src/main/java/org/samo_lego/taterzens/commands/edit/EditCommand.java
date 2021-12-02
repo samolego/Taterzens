@@ -28,5 +28,6 @@ public class EditCommand {
         SkinCommand.registerNode(editNode);
         TagsCommand.registerNode(editNode);
         TypeCommand.registerNode(editNode);
+        RespawnPointCommand.registerNode(editNode);
     }
 }

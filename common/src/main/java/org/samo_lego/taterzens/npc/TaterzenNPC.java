@@ -135,6 +135,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public final ReachMeleeAttackGoal reachMeleeAttackGoal = new ReachMeleeAttackGoal(this, 1.2D, false);
     public final TeamRevengeGoal revengeGoal = new TeamRevengeGoal(this);
     public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
+    private @Nullable Vec3 respawnPosition;
 
     /**
      * Creates a TaterzenNPC.
@@ -180,6 +181,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         TATERZEN_NPCS.add(this);
     }
 
+    /**
+     * Creates default taterzen attributes.
+     * @return attribute supplier builder.
+     */
     public static AttributeSupplier.Builder createTaterzenAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.ATTACK_DAMAGE, 3.25D)
@@ -1173,11 +1178,22 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public void die(DamageSource source) {
+        Pose pose = this.getPose();
         super.die(source);
-        TATERZEN_NPCS.remove(this);
+        if (this.respawnPosition != null) {
+            // Taterzen should be respawned instead
+            this.getLevel().broadcastEntityEvent(this, EntityEvent.DEATH);
+            this.dead = false;
+            this.setHealth(this.getMaxHealth());
+            this.setDeltaMovement(0.0D, 0.1D, 0.0D);
+            this.setPos(this.respawnPosition);
+            this.setPose(pose);
+        } else {
+            TATERZEN_NPCS.remove(this);
 
-        for(TaterzenProfession profession : this.professions.values()) {
-            profession.onRemove();
+            for(TaterzenProfession profession : this.professions.values()) {
+                profession.onRemove();
+            }
         }
     }
 
@@ -1577,5 +1593,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public ArrayList<Triple<BungeeCompatibility, String, String>> getBungeeCommands() {
         return new ArrayList<>(this.npcData.bungeeCommands);
+    }
+
+    /**
+     * Sets the respawn position for taterzen. Can be null to disable respawning.
+     * @param respawnPos new respawn position.
+     */
+    public void setRespawnPos(@Nullable Vec3 respawnPos) {
+        this.respawnPosition = respawnPos;
     }
 }
