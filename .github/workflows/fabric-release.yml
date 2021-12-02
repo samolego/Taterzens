@@ -36,6 +36,7 @@ jobs:
         env:
            CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
            MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
 
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0

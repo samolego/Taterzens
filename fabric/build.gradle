@@ -143,7 +143,7 @@ curseforge {
 
     project {
         id = "446499"
-        changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+        changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
         releaseType = "release"
         addGameVersion "${project.minecraft_version}"
         addGameVersion "Fabric"
@@ -170,7 +170,7 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
     versionNumber = project.minecraft_version + "+" + version + "-fabric"
-    changelog = "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
     versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
     releaseType = "release"
 
