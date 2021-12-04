@@ -12,4 +12,9 @@ public class LoaderSpecific {
     public static boolean permissions$checkPermission(CommandSourceStack source, String permissionNode, int fallbackLevel) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static int getItemRegistrySize() {
+        throw new AssertionError();
+    }
 }

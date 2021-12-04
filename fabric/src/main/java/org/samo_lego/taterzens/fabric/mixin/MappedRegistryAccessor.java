@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin.accessors;
+package org.samo_lego.taterzens.fabric.mixin;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.core.MappedRegistry;

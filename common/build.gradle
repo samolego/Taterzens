@@ -20,14 +20,6 @@ architectury {
     common()
 }
 
-configurations {
-    dev
-}
-
-artifacts {
-    dev(jar)
-}
-
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
     pluginsMapConfiguration.set(
             ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]

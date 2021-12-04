@@ -4,7 +4,8 @@
   "package": "org.samo_lego.taterzens.fabric.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "RegistrySyncManagerMixin_TaterzenSyncDisabler",
+    "MappedRegistryAccessor",
+    "RegistrySyncManagerMixin_TaterzenSyncDisabler"
   ],
   "client": [],
   "injectors": {
