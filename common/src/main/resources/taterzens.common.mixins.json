@@ -20,7 +20,6 @@
     "accessors.CommandSourceStackAccessor",
     "accessors.EntityAccessor",
     "accessors.EntityTrackerEntryAccessor",
-    "accessors.MappedRegistryAccessor",
     "accessors.PlayerAccessor"
   ],
   "client": [],

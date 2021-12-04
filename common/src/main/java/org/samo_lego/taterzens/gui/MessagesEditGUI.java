@@ -1,13 +1,9 @@
 package org.samo_lego.taterzens.gui;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import org.samo_lego.taterzens.mixin.accessors.MappedRegistryAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.List;
@@ -15,7 +11,6 @@ import java.util.List;
 import static org.samo_lego.taterzens.Taterzens.config;
 
 public class MessagesEditGUI extends ListItemsGUI {
-    private static final int REGISTRY_ITEMS_SIZE = ((MappedRegistryAccessor) Registry.ITEM).getById().size();
     private final List<Pair<Component, Integer>> messages;
 
     /**
@@ -102,19 +97,5 @@ public class MessagesEditGUI extends ListItemsGUI {
         if (this.messages == null)
             return 0;
         return this.messages.size() / this.getSize();
-    }
-
-    /**
-     * Gets an item from registry by string hash.
-     * @param name string to convert into item
-     * @return item, converted from string hash. If air would be returned, it is switched top stone instead.
-     */
-    public static Item getFromName(String name) {
-        int i = Math.abs(name.hashCode());
-        Item item = Item.byId(i % REGISTRY_ITEMS_SIZE);
-        if (item.equals(Items.AIR))
-            item = Items.STONE;
-
-        return item;
     }
 }

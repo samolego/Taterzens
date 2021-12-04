@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.gui.MessagesEditGUI.getFromName;
+import static org.samo_lego.taterzens.gui.ListItemsGUI.getFromName;
 
 public class EditorGUI {
 
@@ -87,12 +87,15 @@ public class EditorGUI {
 
             for (int i = 1; i < examples.length; ++i) {
                 ItemStack exampleStack = new ItemStack(Items.PAPER);
-                exampleStack.setHoverName(new TranslatableComponent("options.autoSuggestCommands")
-                        .append(": ")
-                        .append(new TextComponent(examples[i]))
-                );
+                String example = examples[i];
+                exampleStack.setHoverName(new TextComponent(example));
 
-                constructedGui.setSlot(i * 2 + 1, exampleStack);  // 2 being the last slot index in anvil inventory
+                // 2 being the last slot index in anvil inventory
+                constructedGui.setSlot(i * 2 + 1, new GuiElement(exampleStack, (index, type, action) -> {
+                    String input = ((AnvilInputGui) constructedGui).getInput();
+                    ((AnvilInputGui) constructedGui).setDefaultInputValue(exampleStack.getHoverName().getString());
+                    exampleStack.setHoverName(new TextComponent(input));
+                }));
             }
         } else {
             // Creates the biggest possible container

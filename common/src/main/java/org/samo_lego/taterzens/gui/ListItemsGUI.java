@@ -10,13 +10,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
 public abstract class ListItemsGUI extends SimpleGui implements Container {
     protected static final CompoundTag customData = new CompoundTag();
+    private static final int REGISTRY_ITEMS_SIZE =  LoaderSpecific.getItemRegistrySize();
     private int currentPage = 0;
 
     /**
@@ -77,6 +80,20 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
             player.closeContainer();
         });
         this.setSlot(8, closeScreenButton);
+    }
+
+    /**
+     * Gets an item from registry by string hash.
+     * @param name string to convert into item
+     * @return item, converted from string hash. If air would be returned, it is switched top stone instead.
+     */
+    public static Item getFromName(String name) {
+        int i = Math.abs(name.hashCode());
+        Item item = Item.byId(i % REGISTRY_ITEMS_SIZE);
+        if (item.equals(Items.AIR))
+            item = Items.STONE;
+
+        return item;
     }
 
     /**
