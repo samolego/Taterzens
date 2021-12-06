@@ -30,7 +30,6 @@ public class TaterzensFabric implements ModInitializer {
                 FabricEntityTypeBuilder
                         .create(MobCategory.MISC, TaterzenNPC::new)
                         .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
-                        .disableSummon()
                         .build()
         );
 
