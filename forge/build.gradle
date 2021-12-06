@@ -39,7 +39,7 @@ dependencies {
 
     // SGUI
     modApi("com.github.samolego:forgified-sgui:${project.fsgui_version}")
-    shadowCommon("com.github.samolego:forgified-sgui:${project.fsgui_version}") { transitive false}
+    shadowCommon("com.github.samolego:forgified-sgui:${project.fsgui_version}") { transitive false }
 
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
