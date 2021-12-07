@@ -1184,6 +1184,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 this.targetSelector.addGoal(2, revengeGoal);
                 this.targetSelector.addGoal(3, followMonstersGoal);
                 this.goalSelector.addGoal(3, attackMonstersGoal);
+                this.setAttackGoal();
             }
             case HOSTILE -> {
                 this.targetSelector.addGoal(2, revengeGoal);

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
+import org.samo_lego.taterzens.compatibility.carpet.AdditionalFunctions;
 import org.samo_lego.taterzens.compatibility.carpet.ScarpetProfession;
 import org.samo_lego.taterzens.compatibility.carpet.ScarpetTraitCommand;
 import org.samo_lego.taterzens.fabric.event.BlockInteractEventImpl;
@@ -55,6 +56,7 @@ public class TaterzensFabric implements ModInitializer {
         CARPETMOD_LOADED = FabricLoader.getInstance().isModLoaded("carpet");
         if (CARPETMOD_LOADED) {
             TaterzensAPI.registerProfession(ScarpetProfession.ID, new ScarpetProfession());
+            AdditionalFunctions.init();
         }
 
         // Events
