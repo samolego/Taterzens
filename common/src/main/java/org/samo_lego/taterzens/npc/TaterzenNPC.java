@@ -545,10 +545,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Setting new skin
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
-        if(DISGUISELIB_LOADED) {
-            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
-        }
-
         // Sending updates
         this.sendProfileUpdates();
     }
@@ -1535,7 +1531,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets all "bungee" commands that Taterzen will execute when right-clicked upon.
-     * @return arraylist od triples that are constructed into bungee command
+     * @return arraylist of triples that are constructed into bungee command
      */
     public ArrayList<Triple<BungeeCompatibility, String, String>> getBungeeCommands() {
         return new ArrayList<>(this.npcData.bungeeCommands);
