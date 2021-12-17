@@ -199,16 +199,26 @@ public class TaterConfig implements IBrigadierConfigurator {
         /**
          * Whether Taterzen is invulnerable by default.
          */
+        @BrigadierDescription(defaultOption = "true")
         public boolean invulnerable = true;
 
+        @BrigadierDescription(defaultOption = "true")
         @SerializedName("// Enable jumps when Taterzen is in attack mode.")
         public final String _comment_jumpWhileAttacking = "";
         /**
          * Whether to enable jumps when Taterzen
          * is in attack mode.
          */
+        @BrigadierDescription(defaultOption = "true")
         @SerializedName("jump_while_attacking")
         public boolean jumpWhileAttacking = true;
+
+        @SerializedName("// Whether Taterzen is able to fly.")
+        public final String _comment_allowFlight = "";
+
+        @BrigadierDescription(defaultOption = "false")
+        @SerializedName("allow_flight")
+        public boolean allowFlight = false;
     }
 
     /**

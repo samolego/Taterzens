@@ -1,21 +1,22 @@
 package org.samo_lego.taterzens.commands.edit;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.resources.ResourceLocation;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.NPCData;
 
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.resources.ResourceLocation;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
@@ -34,7 +35,7 @@ public class MovementCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> movementNode = literal("movement")
                 .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
-                .then(literal("FOLLOW")
+                .then(literal("follow")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement.follow", config.perms.npcCommandPermissionLevel))
                         .then(argument("follow type", word())
                                 .suggests(FOLLOW_TYPES)
@@ -48,6 +49,11 @@ public class MovementCommand {
                         .suggests(MOVEMENT_TYPES)
                         .executes(context -> changeMovement(context, StringArgumentType.getString(context, "movement type")))
                 )
+                .then(literal("allowFlight")
+                        .then(argument("allowFlight", BoolArgumentType.bool())
+                                .executes(MovementCommand::setAllowFlight)
+                        )
+                )
                 .build();
 
 
@@ -58,6 +64,14 @@ public class MovementCommand {
 
         editNode.addChild(movementNode);
         editNode.addChild(lookNode);
+    }
+
+    private static int setAllowFlight(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        boolean allowFlight = BoolArgumentType.getBool(context, "allowFlight");
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            taterzen.setAllowFlight(allowFlight);
+        });
     }
 
     private static int changeMovement(CommandContext<CommandSourceStack> context, String movement) throws CommandSyntaxException {

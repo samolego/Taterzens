@@ -21,11 +21,11 @@ import static org.samo_lego.taterzens.Taterzens.*;
 @Mod(MODID)
 public class TaterzensForge {
 
+    @SuppressWarnings("unchecked")
     public TaterzensForge() {
         taterDir = new File(FMLPaths.CONFIGDIR.get() + "/Taterzens/presets");
         DISGUISELIB_LOADED = ModList.get().isLoaded("disguiselib");
 
-        //noinspection
         TATERZEN_TYPE = (EntityType<TaterzenNPC>) EntityType.Builder
                 .of(TaterzenNPC::new, MobCategory.MISC)
                 .sized(0.6F, 1.8F)

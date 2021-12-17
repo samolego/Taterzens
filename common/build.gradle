@@ -1,6 +1,5 @@
 plugins {
     // Dokka docs
-    id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
 }
 
@@ -11,6 +10,9 @@ dependencies {
 
     modCompileOnly "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
     modCompileOnly "com.github.samolego.Config2Brigadier:config2brigadier:${rootProject.c2b_version}"
+
+    // Built using vanillagradle, no need for remapping
+    //compileOnly("com.github.samolego:Config2Brigadier:55370d49b3")
     modCompileOnly "eu.pb4:sgui:${rootProject.sgui_version}"
 }
 

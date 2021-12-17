@@ -5,7 +5,6 @@ plugins {
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
     // Dokka docs
-    id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
 }
 
@@ -42,14 +41,14 @@ dependencies {
     modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
 
     // Permission API
-    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
+    modCompileOnly('me.lucko:fabric-permissions-api:0.1-SNAPSHOT')
 
     // SGUI
     modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
 
     // Carpet
     //modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")
-    modImplementation("carpet:fabric-carpet:1.18-pre4-${project.carpet_core_version}")
+    modCompileOnly("carpet:fabric-carpet:1.18-pre4-${project.carpet_core_version}")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

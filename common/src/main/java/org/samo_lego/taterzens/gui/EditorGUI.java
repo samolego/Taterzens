@@ -36,6 +36,7 @@ public class EditorGUI {
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     public static SimpleGui createCommandGui(ServerPlayer player, SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
         // If node is not an argument, we skip to first child node that is an argument or has more than 1 child node
         while (parentNode.getChildren().size() == 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
