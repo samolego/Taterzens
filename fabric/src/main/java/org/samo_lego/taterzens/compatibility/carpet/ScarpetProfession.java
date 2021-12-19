@@ -15,7 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.samo_lego.taterzens.api.professions.TaterzenProfession;
+import org.samo_lego.taterzens.api.professions.AbstractProfession;
 import org.samo_lego.taterzens.npc.NPCData;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -24,8 +24,7 @@ import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.MODID;
 
-public class ScarpetProfession implements TaterzenProfession {
-    private TaterzenNPC taterzen;
+public class ScarpetProfession extends AbstractProfession {
     private static final TaterzenScarpetEvent PICKUP_EVENT = new TaterzenScarpetEvent("taterzen_tries_pickup", 3);
     private static final TaterzenScarpetEvent INTERACTION_EVENT = new TaterzenScarpetEvent("taterzen_interacted", 5);
     private static final TaterzenScarpetEvent BEING_ATTACKED_EVENT = new TaterzenScarpetEvent("taterzen_is_attacked", 3);
@@ -41,6 +40,10 @@ public class ScarpetProfession implements TaterzenProfession {
 
     private final HashSet<Value> SCARPET_TRAITS = new HashSet<>();
     public static final ResourceLocation ID = new ResourceLocation(MODID, "scarpet_profession");
+
+    public ScarpetProfession(TaterzenNPC npc) {
+        super(npc);
+    }
 
     /**
      * Adds a string profession to the taterzen that can be used (mainly) in scarpet.
@@ -68,42 +71,42 @@ public class ScarpetProfession implements TaterzenProfession {
     }
     @Override
     public boolean tryPickupItem(ItemEntity itemEntity) {
-        PICKUP_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), itemEntity);
+        PICKUP_EVENT.triggerCustomEvent(this.npc, this.getTraits(), itemEntity);
         return itemEntity.getItem().isEmpty() || itemEntity.isRemoved();
     }
 
     @Override
     public InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
-        INTERACTION_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), player, ValueConversions.of(pos), hand);
+        INTERACTION_EVENT.triggerCustomEvent(this.npc, this.getTraits(), player, ValueConversions.of(pos), hand);
 
-        return TaterzenProfession.super.interactAt(player, pos, hand);
+        return super.interactAt(player, pos, hand);
     }
 
     @Override
     public boolean handleAttack(Entity attacker) {
-        BEING_ATTACKED_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), attacker);
-        return TaterzenProfession.super.handleAttack(attacker);
+        BEING_ATTACKED_EVENT.triggerCustomEvent(this.npc, this.getTraits(), attacker);
+        return super.handleAttack(attacker);
     }
 
     @Override
     public void onPlayersNearby(List<ServerPlayer> players) {
-        PLAYERS_NEARBY_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), players);
+        PLAYERS_NEARBY_EVENT.triggerCustomEvent(this.npc, this.getTraits(), players);
     }
 
     @Override
     public InteractionResult tickMovement() {
-        TICK_MOVEMENT_EVENT.triggerCustomEvent(this.taterzen, this.getTraits());
-        return TaterzenProfession.super.tickMovement();
+        TICK_MOVEMENT_EVENT.triggerCustomEvent(this.npc, this.getTraits());
+        return super.tickMovement();
     }
 
     @Override
     public void onRemove() {
-        REMOVED_EVENT.triggerCustomEvent(this.taterzen, this.getTraits());
+        REMOVED_EVENT.triggerCustomEvent(this.npc, this.getTraits());
     }
 
     @Override
     public void readNbt(CompoundTag tag) {
-        READ_NBT_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), tag);
+        READ_NBT_EVENT.triggerCustomEvent(this.npc, this.getTraits(), tag);
 
         ListTag scarpetTraits = (ListTag) tag.get("ScarpetTraits");
         if (scarpetTraits != null) {
@@ -113,7 +116,7 @@ public class ScarpetProfession implements TaterzenProfession {
 
     @Override
     public void saveNbt(CompoundTag tag) {
-        SAVE_NBT_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), tag);
+        SAVE_NBT_EVENT.triggerCustomEvent(this.npc, this.getTraits(), tag);
 
         if (!this.SCARPET_TRAITS.isEmpty()) {
             ListTag scarpetTraits = new ListTag();
@@ -124,30 +127,23 @@ public class ScarpetProfession implements TaterzenProfession {
 
     @Override
     public void onMovementSet(NPCData.Movement movement) {
-        MOVEMENT_SET_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), movement);
+        MOVEMENT_SET_EVENT.triggerCustomEvent(this.npc, this.getTraits(), movement);
     }
 
     @Override
     public void onBehaviourSet(NPCData.Behaviour behaviourLevel) {
-        BEHAVIOUR_SET_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), behaviourLevel);
+        BEHAVIOUR_SET_EVENT.triggerCustomEvent(this.npc, this.getTraits(), behaviourLevel);
     }
 
     @Override
     public boolean cancelRangedAttack(LivingEntity target) {
-        TRY_RANGED_ATTACK_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), target);
-        return TaterzenProfession.super.cancelRangedAttack(target);
+        TRY_RANGED_ATTACK_EVENT.triggerCustomEvent(this.npc, this.getTraits(), target);
+        return super.cancelRangedAttack(target);
     }
 
     @Override
     public boolean cancelMeleeAttack(Entity target) {
-        TRY_MELEE_ATTACK_EVENT.triggerCustomEvent(this.taterzen, this.getTraits(), target);
-        return TaterzenProfession.super.cancelMeleeAttack(target);
-    }
-
-    @Override
-    public TaterzenProfession create(TaterzenNPC taterzen) {
-        ScarpetProfession profession = new ScarpetProfession();
-        profession.taterzen = taterzen;
-        return profession;
+        TRY_MELEE_ATTACK_EVENT.triggerCustomEvent(this.npc, this.getTraits(), target);
+        return super.cancelMeleeAttack(target);
     }
 }

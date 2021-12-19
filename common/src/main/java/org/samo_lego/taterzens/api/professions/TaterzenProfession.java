@@ -106,8 +106,12 @@ public interface TaterzenProfession {
      *
      * @param taterzen taterzen to create profession for
      * @return new profession object of taterzen.
+     * @deprecated Use normal constructor instead.
      */
-    TaterzenProfession create(TaterzenNPC taterzen);
+    @Deprecated
+    default TaterzenProfession create(TaterzenNPC taterzen) {
+        return new AbstractProfession(taterzen) {};
+    }
 
     /**
      * Called when Taterzen has a chance to pickup an item.

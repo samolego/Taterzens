@@ -5,14 +5,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -22,11 +14,19 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import static net.minecraft.commands.arguments.MessageArgument.message;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
+import static net.minecraft.commands.arguments.MessageArgument.message;
+import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.*;
@@ -46,7 +46,7 @@ public class ProfessionsCommand {
                 .then(literal("add")
                         .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.add", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
-                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(PROFESSION_TYPES.keySet().stream().map(ResourceLocation::toString), builder))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(LEGACY_PROFESSION_TYPES.keySet().stream().map(ResourceLocation::toString), builder))
                                 .executes(ctx -> setProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getContents())))
                         )
                 )
@@ -104,7 +104,7 @@ public class ProfessionsCommand {
     private static int setProfession(CommandContext<CommandSourceStack> context, ResourceLocation id) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            if(PROFESSION_TYPES.containsKey(id)) {
+            if(LEGACY_PROFESSION_TYPES.containsKey(id)) {
                 taterzen.addProfession(id);
                 source.sendSuccess(successText("taterzens.command.profession.add", id.toString()), false);
             } else

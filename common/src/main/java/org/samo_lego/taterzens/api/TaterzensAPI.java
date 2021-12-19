@@ -25,6 +25,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 
@@ -162,10 +163,25 @@ public class TaterzensAPI {
      *
      * @param professionId a unique id of profession.
      * @param profession profession to register.
+     *
+     * @deprecated
      */
+    @Deprecated
     public static void registerProfession(ResourceLocation professionId, TaterzenProfession profession) {
+        if(!LEGACY_PROFESSION_TYPES.containsKey(professionId))
+            LEGACY_PROFESSION_TYPES.put(professionId, profession);
+        else
+            LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
+    }
+
+    /**
+     * Registers a new {@link TaterzenProfession}.
+     * @param professionId a unique id of profession.
+     * @param professionInitilizer constructor of profession that accepts {@link TaterzenNPC}.
+     */
+    public static void registerProfession(ResourceLocation professionId, Function<TaterzenNPC, TaterzenProfession> professionInitilizer) {
         if(!PROFESSION_TYPES.containsKey(professionId))
-            PROFESSION_TYPES.put(professionId, profession);
+            PROFESSION_TYPES.put(professionId, professionInitilizer);
         else
             LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
     }

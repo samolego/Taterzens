@@ -55,7 +55,7 @@ public class TaterzensFabric implements ModInitializer {
         // CarpetMod
         CARPETMOD_LOADED = FabricLoader.getInstance().isModLoaded("carpet");
         if (CARPETMOD_LOADED) {
-            TaterzensAPI.registerProfession(ScarpetProfession.ID, new ScarpetProfession());
+            TaterzensAPI.registerProfession(ScarpetProfession.ID, ScarpetProfession::new);
             AdditionalFunctions.init();
         }
 

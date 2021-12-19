@@ -22,6 +22,7 @@ import org.samo_lego.taterzens.util.PermissionExtractor;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.function.Function;
 
 public class Taterzens {
 
@@ -42,7 +43,8 @@ public class Taterzens {
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
 
-    public static final HashMap<ResourceLocation, TaterzenProfession> PROFESSION_TYPES = new HashMap<>();
+    public static final HashMap<ResourceLocation, TaterzenProfession> LEGACY_PROFESSION_TYPES = new HashMap<>();
+    public static final HashMap<ResourceLocation, Function<TaterzenNPC, TaterzenProfession>> PROFESSION_TYPES = new HashMap<>();
 
 
     public static final Gson GSON = new GsonBuilder()

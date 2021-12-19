@@ -73,6 +73,7 @@ import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
@@ -676,7 +677,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
                 ResourceLocation professionId = new ResourceLocation(professionCompound.getString("ProfessionType"));
                 if(PROFESSION_TYPES.containsKey(professionId)) {
-                    TaterzenProfession profession = PROFESSION_TYPES.get(professionId).create(this);
+                    TaterzenProfession profession = PROFESSION_TYPES.get(professionId).apply(this);
+                    this.addProfession(professionId, profession);
+
+                    // Parsing profession data
+                    profession.readNbt(professionCompound.getCompound("ProfessionData"));
+                } else if(LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
+                    // Deprecated
+                    TaterzenProfession profession = LEGACY_PROFESSION_TYPES.get(professionId).create(this);
                     this.addProfession(professionId, profession);
 
                     // Parsing profession data
@@ -1339,12 +1347,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds {@link TaterzenProfession} to Taterzen.
-     * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(ResourceLocation, TaterzenProfession)}.
+     * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(ResourceLocation, Function)}.
      * @param professionId ResourceLocation of the profession
      */
     public void addProfession(ResourceLocation professionId) {
         if(PROFESSION_TYPES.containsKey(professionId)) {
-            this.addProfession(professionId, PROFESSION_TYPES.get(professionId).create(this));
+            this.addProfession(professionId, PROFESSION_TYPES.get(professionId).apply(this));
+        } else if(LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
+            this.addProfession(professionId, LEGACY_PROFESSION_TYPES.get(professionId).create(this));
         } else
             Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().getString());
     }
