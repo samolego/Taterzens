@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
@@ -37,8 +36,6 @@ import static org.samo_lego.taterzens.Taterzens.*;
 // * but I feel like it would be too cluttered.
 public class TaterzensAPI {
 
-    private static final JsonParser parser = new JsonParser();
-
     /**
      * Loads {@link TaterzenNPC} from preset.
      *
@@ -48,41 +45,42 @@ public class TaterzensAPI {
      */
     @Nullable
     public static TaterzenNPC loadTaterzenFromPreset(File preset, Level world) {
-        if(preset.exists()) {
-            JsonElement element = null;
-            try(BufferedReader fileReader = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(preset), StandardCharsets.UTF_8)
-            )
-            ) {
-                element = parser.parse(fileReader).getAsJsonObject();
-            } catch(IOException e) {
-                LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
-            }
-            if(element != null) {
-                try {
-                    Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
-                    if(tag instanceof CompoundTag saveTag) {
-                        TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
-                        saveTag.putUUID("UUID", taterzenNPC.getUUID());
-                        taterzenNPC.load(saveTag);
+        if (preset.exists()) {
+            TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
+            taterzenNPC.loadFromPresetFile(preset);
 
-                        // Team stuff
-                        CompoundTag npcTag = (CompoundTag) saveTag.get("TaterzenNPCTag");
-                        if (npcTag != null) {
-                            String savedTeam = npcTag.getString("SavedTeam");
-                            PlayerTeam team = world.getScoreboard().getPlayerTeam(savedTeam);
-                            if (team != null)
-                                world.getScoreboard().addPlayerToTeam(taterzenNPC.getScoreboardName(), team);
-                        }
+            return taterzenNPC;
+        }
 
-                        return taterzenNPC;
-                    }
-                } catch(Throwable e) {
-                    e.printStackTrace();
+        return null;
+    }
+
+    /**
+     * Gets the Taterzen data from file.
+     * @param preset preset file of Taterzen.
+     * @return CompoundTag containing Taterzen data.
+     */
+    public static CompoundTag loadPresetTag(File preset) {
+        JsonElement element = null;
+        try(BufferedReader fileReader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(preset), StandardCharsets.UTF_8)
+        )
+        ) {
+            element = JsonParser.parseReader(fileReader).getAsJsonObject();
+        } catch(IOException e) {
+            LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
+        }
+        if(element != null) {
+            try {
+                Tag tag = JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, element);
+                if(tag instanceof CompoundTag saveTag) {
+                    return saveTag;
                 }
+            } catch(Throwable e) {
+                e.printStackTrace();
             }
         }
-        return null;
+        return new CompoundTag();
     }
 
     /**
