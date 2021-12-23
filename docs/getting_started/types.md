@@ -42,6 +42,11 @@ DisguiseLib supports disguises with nbt as well. To utilize it, append the nbt d
 ```
 /npc edit type minecraft:villager {VillagerData:{profession:"minecraft:armorer",type:"minecraft:desert"}}
 ```
+<video controls="true" allowfullscreen="true" width="100%">
+	<source src="../../assets/video/type_change_nbt.mp4" type="video/mp4">
+	<p>Your browser does not support the video element.</p>
+</video>
+
 #### Baby chicken
 ```
 /npc edit type minecraft:chicken {Age:-1}
