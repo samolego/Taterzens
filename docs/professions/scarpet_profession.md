@@ -26,7 +26,7 @@ Download the [merchant script](https://github.com/samolego/TaterzenScarpetProfes
 and load it using the steps described above.
 
 <video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/bartering.webm" type="video/webm">
+	<source src="../assets/video/bartering.webm" type="video/webm">
 	<p>Your browser does not support the video element.</p>
 </video>
 
@@ -60,7 +60,7 @@ global_item_map = {
 +        'take_count'-> 1,
 +        'trade_item'-> 'diamond',
 +        'trade_count'-> 64
-+    }
+    }
 };
 ```
 

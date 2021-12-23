@@ -25,7 +25,7 @@ You can click on the <span style="color:red">X</span> to remove profession from 
 
 ## Removing professions
 As said above, you can click on the <span style="color:red">X</span> next to the profession
-ResourceLocation to remove it. But you can also use
+ID to remove it. But you can also use
 ```
 /npc edit professions remove <profession id>
 ```
