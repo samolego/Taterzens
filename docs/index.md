@@ -1,6 +1,6 @@
 ---
 template: home.html
-title: Taterzens
+title: ""
 ---
 
 ![banner](./assets/img/banner.svg)

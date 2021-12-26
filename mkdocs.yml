@@ -12,6 +12,7 @@ theme:
     - navigation.top
     - navigation.tabs
 
+  logo: assets/img/logo.png
   icon:
     logo: fontawesome/solid/users
     repo: fontawesome/brands/github

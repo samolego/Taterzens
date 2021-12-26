@@ -95,14 +95,14 @@ It can be changed in config, look for the `messageDelay` option.
 ```
 
 <span style="color:aqua">
-	Taterzen <span style="color:yellow">Taterzen</span> has the following messages. Click on one to edit it.
+	Taterzen <span style="color:gold">Taterzen</span> has the following messages. Click on one to edit it.
 </span>
 
 <span style="color:gold">
 	1-> Discord invite! <span style="color:red">X</span>
 </span>
 
-<span style="color:yellow">2-> Second message.</span>	<span style="color:red">X</span>
+<span style="color:DarkGoldenRod">2-> Second message.</span>	<span style="color:red">X</span>
 
 <span style="color:gold">
 	3-> Yet another message ... <span style="color:red">X</span>
