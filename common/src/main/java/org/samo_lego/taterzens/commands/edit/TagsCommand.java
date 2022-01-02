@@ -4,14 +4,14 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
-
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Pose;
+import org.samo_lego.taterzens.commands.NpcCommand;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
+
+import java.util.function.Consumer;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -110,7 +110,7 @@ public class TagsCommand {
         });
     }
 
-    private static int setTag(CommandContext<CommandSourceStack> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
+    public static int setTag(CommandContext<CommandSourceStack> context, String flagName, boolean flagValue, Consumer<TaterzenNPC> flag) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             flag.accept(taterzen);

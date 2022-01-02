@@ -51,7 +51,10 @@ public class MovementCommand {
                 )
                 .then(literal("allowFlight")
                         .then(argument("allowFlight", BoolArgumentType.bool())
-                                .executes(MovementCommand::setAllowFlight)
+                                .executes(context -> {
+                                    boolean allowFlight = BoolArgumentType.getBool(context, "allowFlight");
+                                    return TagsCommand.setTag(context, "allowFlight", allowFlight, npc -> npc.setAllowFlight(allowFlight));
+                                })
                         )
                 )
                 .build();
@@ -64,14 +67,6 @@ public class MovementCommand {
 
         editNode.addChild(movementNode);
         editNode.addChild(lookNode);
-    }
-
-    private static int setAllowFlight(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
-        boolean allowFlight = BoolArgumentType.getBool(context, "allowFlight");
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            taterzen.setAllowFlight(allowFlight);
-        });
     }
 
     private static int changeMovement(CommandContext<CommandSourceStack> context, String movement) throws CommandSyntaxException {
