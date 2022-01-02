@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -136,7 +135,7 @@ public class ProfessionsCommand {
     static {
         Set<ResourceLocation> availableProfessions = PROFESSION_TYPES.keySet();
         availableProfessions.addAll(LEGACY_PROFESSION_TYPES.keySet());
-        Stream<String> professionsStream = availableProfessions.stream().map(ResourceLocation::toString);
+        String[] professionsStream = (String[]) availableProfessions.stream().map(ResourceLocation::toString).toArray();
 
         PROFESSION_SUGESTIONS = (context, builder) ->
                 SharedSuggestionProvider.suggest(professionsStream, builder);
