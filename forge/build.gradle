@@ -5,6 +5,7 @@ plugins {
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
     // Dokka docs
+    id "org.jetbrains.kotlin.jvm"
     id("org.jetbrains.dokka")
 }
 
