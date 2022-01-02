@@ -40,11 +40,12 @@ import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -55,6 +56,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
@@ -193,7 +195,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.setPersistenceRequired();
         this.xpReward = 0;
         this.setSpeed(0.4F);
-        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
 
         this.gameProfile = new GameProfile(this.getUUID(), this.getName().getString());
         if(DISGUISELIB_LOADED) {
@@ -226,6 +227,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 .add(Attributes.ATTACK_DAMAGE, 3.25D)
                 .add(Attributes.ARMOR, 2.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2505D)
+                .add(Attributes.FLYING_SPEED, 0.8D)
                 .add(Attributes.FOLLOW_RANGE, 35.0D);
     }
 
@@ -771,6 +773,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         if (npcTag.contains("LockedBy"))
             this.lockedUuid = npcTag.getUUID("LockedBy");
+
+        this.setAllowFlight(npcTag.getBoolean("AllowFlight"));
     }
 
     /**
@@ -883,6 +887,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Locking
         if (this.lockedUuid != null)
             npcTag.putUUID("LockedBy", this.lockedUuid);
+
+        npcTag.putBoolean("AllowFlight", this.npcData.allowFlight);
 
         tag.put("TaterzenNPCTag", npcTag);
     }
@@ -1662,40 +1668,21 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public void setAllowFlight(boolean allowFlight) {
         this.npcData.allowFlight = allowFlight;
-        this.getNavigation().setCanFloat(allowFlight);
+
+        if (allowFlight) {
+            this.moveControl = new FlyingMoveControl(this, 20, false);
+            this.navigation = new FlyingPathNavigation(this, level);
+            this.getNavigation().setCanFloat(true);
+        } else {
+            this.moveControl = new MoveControl(this);
+            this.navigation = new GroundPathNavigation(this, level);
+            ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
+        }
     }
 
     @Override
-    public void travel(Vec3 vec3) {
-        if (this.npcData.allowFlight) {
-            if (this.isInWater()) {
-                this.moveRelative(0.02F, vec3);
-                this.move(MoverType.SELF, this.getDeltaMovement());
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.8F));
-            } else if (this.isInLava()) {
-                this.moveRelative(0.02F, vec3);
-                this.move(MoverType.SELF, this.getDeltaMovement());
-                this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
-            } else {
-                float f = 0.91F;
-                if (this.onGround) {
-                    f = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.91F;
-                }
-
-                float g = 0.16277137F / (f * f * f);
-                f = 0.91F;
-                if (this.onGround) {
-                    f = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.91F;
-                }
-
-                this.moveRelative(this.onGround ? 0.1F * g : 0.02F, vec3);
-                this.move(MoverType.SELF, this.getDeltaMovement());
-                this.setDeltaMovement(this.getDeltaMovement().scale((double) f));
-            }
-            this.calculateEntityAnimation(this, false);
-        } else {
-            super.travel(vec3);
-        }
+    public boolean causeFallDamage(float f, float g, DamageSource damageSource) {
+        return !this.npcData.allowFlight && super.causeFallDamage(f, g, damageSource);
     }
 
     /**
