@@ -3,11 +3,7 @@
 
 name: Javadoc but Dokka
 
-on:
-  release:
-    types:
-      - published
-  workflow_dispatch:
+on: [push]
 
 jobs:
   build:
@@ -31,4 +27,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         enable_jekyll: true
         publish_dir: build/dokka/htmlMultiModule
-        destination_dir: dokka/v${{ github.event.release.tag_name }}
+        destination_dir: dokka/latest-snapshot
