@@ -640,13 +640,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         // Has a "preset" tag
         // We want to override other data
-        if (!tag.getString("PresetOverride").isEmpty()) {
-            System.out.println("Has additional save data!");
+        if (tag.contains("PresetOverride")) {
             this.loadPresetTag(tag);
             return;  // Other data doesn't need to be loaded as it will be handled by preset
         }
-
-        System.out.println("Loading!");
 
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
@@ -771,6 +768,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
         else
             this.setMovement(NPCData.Movement.NONE);
+
+        if (npcTag.contains("LockedBy"))
+            this.lockedUuid = npcTag.getUUID("LockedBy");
     }
 
     /**
@@ -880,6 +880,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         bodyRotations.putFloat("YRot", this.getYRot());
         npcTag.put("BodyRotations", bodyRotations);
 
+        // Locking
+        if (this.lockedUuid != null)
+            npcTag.putUUID("LockedBy", this.lockedUuid);
+
         tag.put("TaterzenNPCTag", npcTag);
     }
 
@@ -891,21 +895,28 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         String preset = tag.getString("PresetOverride") + ".json";
         File presetFile = new File(presetsDir + "/" + preset);
 
-        System.out.println(presetFile.exists());
-
         if (presetFile.exists())
-            this.loadFromPresetFile(presetFile);
+            this.loadFromPresetFile(presetFile, preset);
     }
 
     /**
      * Loads Taterzen data from preset file. Loads team data as well.
      * @param presetFile file containing a taterzen preset.
+     * @param presetName name of the preset.
      */
-    public void loadFromPresetFile(File presetFile) {
+    public void loadFromPresetFile(File presetFile, String presetName) {
         CompoundTag saveTag = TaterzensAPI.loadPresetTag(presetFile);
         saveTag.putString("UUID", this.getStringUUID());
-        saveTag.remove("PresetOverride");  // Avoid looping if user has messed with preset
+
+        // Avoid looping if user has messed with preset
+        if (!presetName.isEmpty() && presetName.equals(saveTag.getString("PresetOverride"))) {
+            saveTag.remove("PresetOverride");
+            LOGGER.warn("Preset override loop detected in {}. Aborting it.", presetName);
+        }
+
+        Vec3 savedPos = this.getPosition(0);
         this.load(saveTag);
+        this.setPos(savedPos);
 
         CompoundTag npcTag = (CompoundTag) saveTag.get("TaterzenNPCTag");
         if (npcTag != null) {
@@ -1687,22 +1698,44 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
     }
 
+    /**
+     * Whether taterzen should be allowed to be edited by entity.
+     * @param entity entity to check.
+     * @return true if taterzen can be edited by entity, otherwise false.
+     */
     public boolean canEdit(Entity entity) {
         return this.canEdit(entity.getUUID());
     }
 
+    /**
+     * Whether taterzen should be allowed to be edited by provided uuid.
+     * @param uuid uuid to check.
+     * @return true if taterzen can be edited by provided uuid, otherwise false.
+     */
     public boolean canEdit(UUID uuid) {
         return this.lockedUuid == null || this.lockedUuid.equals(uuid) || this.getUUID().equals(uuid);
     }
 
+    /**
+     * Whether taterzen is locked.
+     * @return true if taterzen is locked, otherwise false.
+     */
     public boolean isLocked() {
         return this.lockedUuid != null;
     }
 
+    /**
+     * Sets taterzen to be locked by provided owner's uuid.
+     * @param owner entity to lock taterzen to.
+     */
     public void setLocked(Entity owner) {
         this.setLocked(owner.getUUID());
     }
 
+    /**
+     * Sets taterzen to be locked by provided uuid.
+     * @param uuid uuid to lock taterzen to.
+     */
     public void setLocked(UUID uuid) {
         this.lockedUuid = uuid;
     }

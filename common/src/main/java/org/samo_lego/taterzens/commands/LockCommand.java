@@ -13,31 +13,32 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class LockCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
-        LiteralCommandNode<CommandSourceStack> lockingNode = literal("action")
-                .then(literal("lock")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.lock", config.perms.npcCommandPermissionLevel))
-                        .executes(context -> lock(context, true))
-                )
-                .then(literal("unclock")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.unlock", config.perms.npcCommandPermissionLevel))
-                        .executes(context -> lock(context, false))
-                )
+        LiteralCommandNode<CommandSourceStack> lockingNode = literal("lock")
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.lock", config.perms.npcCommandPermissionLevel))
+                .executes(context -> lock(context, true))
+                .build();
+
+
+        LiteralCommandNode<CommandSourceStack> unlockingNode = literal("unlock")
+                .requires(src -> permissions$checkPermission(src, "taterzens.npc.unlock", config.perms.npcCommandPermissionLevel))
+                .executes(context -> lock(context, false))
                 .build();
 
         npcNode.addChild(lockingNode);
+        npcNode.addChild(unlockingNode);
     }
 
     private static int lock(CommandContext<CommandSourceStack> context, boolean lock) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         Entity entity = source.getEntityOrException();
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
-            if (!taterzen.isLocked() && lock) {
+            if (lock) {
                 taterzen.setLocked(entity);
                 source.sendSuccess(
                         successText("taterzens.command.lock.success", taterzen.getName().getString()),
                         false
                 );
-            } else if (taterzen.canEdit(entity) && !lock) {
+            } else {
                 source.sendSuccess(
                         successText("taterzens.command.unlock.success", taterzen.getName().getString()),
                         false

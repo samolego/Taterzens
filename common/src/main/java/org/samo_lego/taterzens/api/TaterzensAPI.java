@@ -20,13 +20,26 @@ import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.GSON;
+import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.LOGGER;
+import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
+import static org.samo_lego.taterzens.Taterzens.presetsDir;
 
 /**
  * Class containing static methods to use with Taterzens.
@@ -46,8 +59,9 @@ public class TaterzensAPI {
     @Nullable
     public static TaterzenNPC loadTaterzenFromPreset(File preset, Level world) {
         if (preset.exists()) {
+            String name = preset.getName();
             TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
-            taterzenNPC.loadFromPresetFile(preset);
+            taterzenNPC.loadFromPresetFile(preset, name.substring(0, name.lastIndexOf('.')));
 
             return taterzenNPC;
         }
