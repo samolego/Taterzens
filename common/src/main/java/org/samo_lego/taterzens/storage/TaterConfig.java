@@ -5,13 +5,23 @@ import org.samo_lego.config2brigadier.IBrigadierConfigurator;
 import org.samo_lego.config2brigadier.annotation.BrigadierDescription;
 import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.CONFIG_FILE;
+import static org.samo_lego.taterzens.Taterzens.GSON;
+import static org.samo_lego.taterzens.Taterzens.LOGGER;
+import static org.samo_lego.taterzens.Taterzens.MODID;
 
 public class TaterConfig implements IBrigadierConfigurator {
 
@@ -69,6 +79,12 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("hide_ops_message")
     public boolean hideOpsMessage = true;
 
+    @SerializedName("// Whether to automatically lock the taterzen after creating it.")
+    public final String _comment_lockAfterCreation = "";
+    @BrigadierDescription(defaultOption = "true")
+    @SerializedName("lock_after_creation")
+    public boolean lockAfterCreation = true;
+
     @SerializedName("// Default settings for new Taterzens.")
     public final String _comment_defaults = "";
     public Defaults defaults = new Defaults();
@@ -79,7 +95,7 @@ public class TaterConfig implements IBrigadierConfigurator {
     public Bungee bungee = new Bungee();
 
     @SerializedName("// Custom model data number that items in GUI should use.")
-    public final String _commment_guiItemModelData = "";
+    public final String _comment_guiItemModelData = "";
     @BrigadierDescription(defaultOption = "257")
     @SerializedName("gui_item_model_data")
     public int guiItemModelData = 257;

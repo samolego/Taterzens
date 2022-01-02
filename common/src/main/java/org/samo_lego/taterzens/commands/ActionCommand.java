@@ -51,11 +51,7 @@ public class ActionCommand {
                         false
                 );
             }
-
-
         });
-
-
     }
 
     private static int gotoBlock(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

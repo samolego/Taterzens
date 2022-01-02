@@ -34,7 +34,9 @@ import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class NpcCommand {
     public static LiteralCommandNode<CommandSourceStack> npcNode;
@@ -75,6 +77,7 @@ public class NpcCommand {
         PresetCommand.registerNode(npcNode);
         TeleportCommand.registerNode(npcNode);
         ActionCommand.registerNode(npcNode);
+        LockCommand.registerNode(npcNode);
     }
 
     /**
@@ -175,11 +178,17 @@ public class NpcCommand {
             if(npc != null) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
-            ((ITaterzenEditor) player).selectNpc(taterzen);
-            source.sendSuccess(
-                    successText("taterzens.command.select", taterzen.getName().getString()),
-                    false
-            );
+            boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
+            if (selected) {
+                source.sendSuccess(
+                        successText("taterzens.command.select", taterzen.getName().getString()),
+                        false
+                );
+            } else {
+                source.sendFailure(
+                        errorText("taterzens.command.error.locked", taterzen.getName().getString())
+                );
+            }
         }
         return 0;
     }
@@ -212,11 +221,17 @@ public class NpcCommand {
         List<TaterzenNPC> detectedTaterzens = player.getLevel().getEntitiesOfClass(TaterzenNPC.class, box);
         if(!detectedTaterzens.isEmpty()) {
             TaterzenNPC taterzen = detectedTaterzens.get(0);
-            ((ITaterzenEditor) player).selectNpc(taterzen);
-            source.sendSuccess(
-                    successText("taterzens.command.select", taterzen.getName().getString()),
-                    false
-            );
+            boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
+            if (selected) {
+                source.sendSuccess(
+                        successText("taterzens.command.select", taterzen.getName().getString()),
+                        false
+                );
+            } else {
+                source.sendFailure(
+                        errorText("taterzens.command.error.locked", taterzen.getName().getString())
+                );
+            }
         } else {
             source.sendFailure(
                     translate("taterzens.error.404.detected")
@@ -258,6 +273,11 @@ public class NpcCommand {
         TaterzenNPC taterzen = TaterzensAPI.createTaterzen(player, taterzenName);
         // Making sure permission level is as high as owner's, to prevent permission bypassing.
         taterzen.setPermissionLevel(((CommandSourceStackAccessor) source).getPermissionLevel());
+
+        // Lock if needed
+        if (config.lockAfterCreation)
+            taterzen.setLocked(player);
+
         player.getLevel().addFreshEntity(taterzen);
 
         ((ITaterzenEditor) player).selectNpc(taterzen);

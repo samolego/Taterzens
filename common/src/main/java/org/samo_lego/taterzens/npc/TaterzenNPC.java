@@ -35,10 +35,25 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
+import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -71,14 +86,29 @@ import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
-import org.samo_lego.taterzens.npc.ai.goal.*;
+import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
+import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
+import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
+import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
+import org.samo_lego.taterzens.npc.ai.goal.TrackUuidGoal;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.function.Function;
 
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.DISGUISELIB_LOADED;
+import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
+import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.Taterzens.presetsDir;
 import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
@@ -137,6 +167,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public final TeamRevengeGoal revengeGoal = new TeamRevengeGoal(this);
     public final MeleeAttackGoal attackMonstersGoal = new MeleeAttackGoal(this, 1.2D, false);
     private @Nullable Vec3 respawnPosition;
+
+    /**
+     * UUID of the "owner" that has locked this NPC.
+     */
+    private UUID lockedUuid;
 
     /**
      * Creates a TaterzenNPC.
@@ -1650,5 +1685,25 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         } else {
             super.travel(vec3);
         }
+    }
+
+    public boolean canEdit(Entity entity) {
+        return this.canEdit(entity.getUUID());
+    }
+
+    public boolean canEdit(UUID uuid) {
+        return this.lockedUuid == null || this.lockedUuid.equals(uuid) || this.getUUID().equals(uuid);
+    }
+
+    public boolean isLocked() {
+        return this.lockedUuid != null;
+    }
+
+    public void setLocked(Entity owner) {
+        this.setLocked(owner.getUUID());
+    }
+
+    public void setLocked(UUID uuid) {
+        this.lockedUuid = uuid;
     }
 }

@@ -17,8 +17,9 @@ public interface ITaterzenEditor {
     /**
      * Selects {@link TaterzenNPC} to be editoed.
      * @param npc Taterzen to select
+     * @return true if successful, false if taterzen is locked and cannot be selected by this player.
      */
-    void selectNpc(@Nullable TaterzenNPC npc);
+    boolean selectNpc(@Nullable TaterzenNPC npc);
 
     /**
      * Sets the index of message that's
