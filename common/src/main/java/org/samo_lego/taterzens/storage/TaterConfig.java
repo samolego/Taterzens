@@ -136,10 +136,10 @@ public class TaterConfig implements IBrigadierConfigurator {
         @SerializedName("npc_command_permission_level")
         public int npcCommandPermissionLevel = 2;
 
-        @SerializedName("// Default permission level for `/trait` command.")
+        @SerializedName("// Default permission level for `/profession` command.")
         public final String _comment_professionCommandPermissionLevel = "";
-        @SerializedName("trait_command_permission_level")
-        public int traitCommandPermissionLevel = 2;
+        @SerializedName("profession_command_permission_level")
+        public int professionCommandPL = 2;
 
 
         @SerializedName("// Permission level required to execute / taterzens command.")

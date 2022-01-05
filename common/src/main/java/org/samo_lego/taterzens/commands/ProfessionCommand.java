@@ -23,7 +23,7 @@ public class ProfessionCommand {
 
     static {
         PROFESSION_COMMAND_NODE = literal("profession")
-                    .requires(src -> permissions$checkPermission(src, "taterzens.profession", config.perms.traitCommandPermissionLevel)
+                    .requires(src -> permissions$checkPermission(src, "taterzens.profession", config.perms.professionCommandPL)
                 )
                 .build();
     }

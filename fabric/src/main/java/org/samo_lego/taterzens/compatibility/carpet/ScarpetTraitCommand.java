@@ -30,14 +30,17 @@ import static org.samo_lego.taterzens.Taterzens.CARPETMOD_LOADED;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.ProfessionCommand.PROFESSION_COMMAND_NODE;
 import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.joinText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class ScarpetTraitCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
         LiteralCommandNode<CommandSourceStack> scarpet = literal("scarpetTraits")
-                .requires(src -> CARPETMOD_LOADED && permissions$checkPermission(src, "taterzens.profession.scarpet", config.perms.traitCommandPermissionLevel))
+                .requires(src -> CARPETMOD_LOADED && permissions$checkPermission(src, "taterzens.profession.scarpet", config.perms.professionCommandPL))
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.add", config.perms.traitCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.add", config.perms.professionCommandPL))
                         .then(argument("id", StringArgumentType.word())
                                 .executes(ScarpetTraitCommand::addTrait)
                         )
@@ -46,7 +49,7 @@ public class ScarpetTraitCommand {
                         .executes(ScarpetTraitCommand::listScarpetTraits)
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.remove", config.perms.traitCommandPermissionLevel))
+                        .requires(src -> permissions$checkPermission(src, "taterzens.profession.scarpet.remove", config.perms.professionCommandPL))
                         .then(argument("id", StringArgumentType.word())
                                 .suggests(ScarpetTraitCommand::suggestRemovableTraits)
                                 .executes(ScarpetTraitCommand::removeTrait)

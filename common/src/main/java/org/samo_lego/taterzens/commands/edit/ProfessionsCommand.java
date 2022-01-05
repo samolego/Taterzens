@@ -21,6 +21,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -135,9 +136,9 @@ public class ProfessionsCommand {
     static {
         Set<ResourceLocation> availableProfessions = PROFESSION_TYPES.keySet();
         availableProfessions.addAll(LEGACY_PROFESSION_TYPES.keySet());
-        String[] professionsStream = (String[]) availableProfessions.stream().map(ResourceLocation::toString).toArray();
 
+        List<String> professions = availableProfessions.stream().map(ResourceLocation::toString).toList();
         PROFESSION_SUGESTIONS = (context, builder) ->
-                SharedSuggestionProvider.suggest(professionsStream, builder);
+                SharedSuggestionProvider.suggest(professions, builder);
     }
 }
