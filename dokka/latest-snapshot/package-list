@@ -29,5 +29,3 @@ module:forge
 org.samo_lego.taterzens.compatibility.forge
 org.samo_lego.taterzens.forge
 org.samo_lego.taterzens.forge.event
-module:sponge
-org.samo_lego.taterzens.sponge
