@@ -4,9 +4,6 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.0.0"
     id 'com.matthewprenger.cursegradle'
     id "com.modrinth.minotaur"
-    // Dokka docs
-    id "org.jetbrains.kotlin.jvm"
-    id("org.jetbrains.dokka")
 }
 
 repositories {

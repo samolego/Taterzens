@@ -1,9 +1,3 @@
-plugins {
-    // Dokka docs
-    id "org.jetbrains.kotlin.jvm"
-    id("org.jetbrains.dokka")
-}
-
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
@@ -13,7 +7,6 @@ dependencies {
     modCompileOnly "com.github.samolego.Config2Brigadier:config2brigadier:${rootProject.c2b_version}"
 
     // Built using vanillagradle, no need for remapping
-    //compileOnly("com.github.samolego:Config2Brigadier:55370d49b3")
     modCompileOnly "eu.pb4:sgui:${rootProject.sgui_version}"
 }
 

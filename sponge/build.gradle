@@ -1,0 +1,55 @@
+import org.spongepowered.gradle.vanilla.repository.MinecraftPlatform
+
+dependencies {
+    compileOnly("org.spongepowered:mixin:0.8.3-SNAPSHOT")
+    compileOnly("org.spongepowered:spongeapi:8.0.0-SNAPSHOT")
+
+    // It doesn't want to compile without this
+    testCompileOnly("org.spongepowered:mixin:0.8.3-SNAPSHOT")
+
+    compileOnly("xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}")
+    compileOnly("com.github.samolego.Config2Brigadier:config2brigadier:${rootProject.c2b_version}")
+    compileOnly("eu.pb4:sgui:${rootProject.sgui_version}")
+
+    compileOnly project(":common")
+}
+
+minecraft {
+    version(rootProject.minecraft_version)
+    platform(MinecraftPlatform.JOINED)
+
+    runs {
+        server()
+        client()
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "Taterzens",
+                "Specification-Vendor"    : "",
+                "Specification-Version"   : rootProject.mod_version,
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : "",
+                "MixinConfigs"            : "[taterzens.common.mixins.json, taterzens.mixins.json]",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+processResources {
+    from project(":common").sourceSets.main.resources
+    inputs.property "version", "1.7.0"
+
+    filesMatching("plugins.json") {
+        expand(
+                "version": "1.7.0",
+        )
+    }
+}
+
+tasks.withType(JavaCompile) {
+    source(project(":common").sourceSets.main.allSource)
+}
