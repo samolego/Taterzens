@@ -20,6 +20,7 @@ https://user-images.githubusercontent.com/34912839/142493879-6f642eb1-e226-4798-
 
 ## Addons
 * [Traders](https://github.com/samolego/TraderNPCs)
+* [Blacksmiths](https://github.com/samolego/Blacksmiths)
 
 ## Thanks
 * [SGUI mod by Patbox](https://github.com/Patbox/sgui) (<- make sure to give this a star!)
