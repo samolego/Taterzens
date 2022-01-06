@@ -7,18 +7,18 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class MountCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> mountNode = literal("mount")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.mount", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.mount", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity", EntityArgument.entity())
                         .executes(MountCommand::mountTaterzen)
                 )

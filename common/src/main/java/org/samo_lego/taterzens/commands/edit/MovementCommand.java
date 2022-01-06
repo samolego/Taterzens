@@ -11,6 +11,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.resources.ResourceLocation;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.NPCData;
 
@@ -21,9 +22,8 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
@@ -34,9 +34,9 @@ public class MovementCommand {
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> movementNode = literal("movement")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .then(literal("follow")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement.follow", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.movement.follow", config.perms.npcCommandPermissionLevel))
                         .then(argument("follow type", word())
                                 .suggests(FOLLOW_TYPES)
                                 .executes(ctx -> setFollowType(ctx, NPCData.FollowTypes.valueOf(StringArgumentType.getString(ctx, "follow type"))))
@@ -61,7 +61,7 @@ public class MovementCommand {
 
 
         LiteralCommandNode<CommandSourceStack> lookNode = literal("look")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.movement", config.perms.npcCommandPermissionLevel))
                 .executes(context -> changeMovement(context, "FORCED_LOOK"))
                 .build();
 
@@ -99,13 +99,13 @@ public class MovementCommand {
 
     static {
         MOVEMENT_TYPES = SuggestionProviders.register(
-                new ResourceLocation(MODID, "movement_types"),
+                new ResourceLocation(MOD_ID, "movement_types"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
 
         FOLLOW_TYPES = SuggestionProviders.register(
-                new ResourceLocation(MODID, "follow_types"),
+                new ResourceLocation(MOD_ID, "follow_types"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(NPCData.FollowTypes.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );

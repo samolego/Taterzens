@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Pose;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
@@ -16,16 +17,15 @@ import java.util.function.Consumer;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.joinText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class TagsCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> tagsNode = literal("tags")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags", config.perms.npcCommandPermissionLevel))
                 .then(literal("leashable")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.leashable", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.leashable", config.perms.npcCommandPermissionLevel))
                         .then(argument("leashable", BoolArgumentType.bool())
                                 .executes(ctx -> {
                                     boolean leashable = BoolArgumentType.getBool(ctx, "leashable");
@@ -34,7 +34,7 @@ public class TagsCommand {
                         )
                 )
                 .then(literal("pushable")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.pushable", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.pushable", config.perms.npcCommandPermissionLevel))
                         .then(argument("pushable", BoolArgumentType.bool())
                                 .executes(ctx -> {
                                     boolean pushable = BoolArgumentType.getBool(ctx, "pushable");
@@ -43,7 +43,7 @@ public class TagsCommand {
                         )
                 )
                 .then(literal("jumpWhileAttacking")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.jump_while_attacking", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.jump_while_attacking", config.perms.npcCommandPermissionLevel))
                         .then(argument("perform jumps", BoolArgumentType.bool())
                                 .executes(ctx -> {
                                     boolean jumpWhileAttacking = BoolArgumentType.getBool(ctx, "perform jumps");
@@ -52,11 +52,11 @@ public class TagsCommand {
                         )
                 )
                 .then(literal("allowEquipmentDrops")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.equipment.drops", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.equipment.drops", config.perms.npcCommandPermissionLevel))
                         .then(argument("drop", BoolArgumentType.bool()).executes(EquipmentCommand::setEquipmentDrops))
                 )
                 .then(literal("sneakNameType")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.sneakNameType", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.sneakNameType", config.perms.npcCommandPermissionLevel))
                         .then(argument("sneak type name", BoolArgumentType.bool())
                                 .executes(ctx -> {
                                     boolean sneakNameType = BoolArgumentType.getBool(ctx, "sneak type name");
@@ -65,7 +65,7 @@ public class TagsCommand {
                         )
                 )
                 .then(literal("allowSounds")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.allow_sounds", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.allow_sounds", config.perms.npcCommandPermissionLevel))
                         .then(argument("allow sounds", BoolArgumentType.bool())
                                 .executes(ctx -> {
                                     boolean allowSounds = BoolArgumentType.getBool(ctx, "allow sounds");
@@ -74,7 +74,7 @@ public class TagsCommand {
                         )
                 )
                 .then(literal("showCustomName")
-                    .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.tags.allow_sounds", config.perms.npcCommandPermissionLevel))
+                    .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.allow_sounds", config.perms.npcCommandPermissionLevel))
                     .then(argument("show custom name", BoolArgumentType.bool())
                             .executes(TagsCommand::editNameVisibility)
                     )

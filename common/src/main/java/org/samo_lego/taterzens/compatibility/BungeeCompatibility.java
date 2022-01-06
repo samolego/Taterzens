@@ -21,7 +21,14 @@ public enum BungeeCompatibility {
     MESSAGE_RAW("MessageRaw"),
     KICK("KickPlayer");
 
+    /**
+     * Contains all available proxy servers.
+     */
     public static final ArrayList<String> AVAILABLE_SERVERS = new ArrayList<>();
+
+    /**
+     * Identifier of the proxy message channel.
+     */
     public static final ResourceLocation BUNGEE_CHANNEL = new ResourceLocation("bungeecord", "main");
 
     private final String subchannel;

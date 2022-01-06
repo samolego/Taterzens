@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.compatibility.carpet;
+package org.samo_lego.taterzens.fabric.compatibility.carpet;
 
 import carpet.CarpetServer;
 import carpet.script.CarpetEventServer;

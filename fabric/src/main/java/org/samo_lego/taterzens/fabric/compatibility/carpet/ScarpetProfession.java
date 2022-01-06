@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.compatibility.carpet;
+package org.samo_lego.taterzens.fabric.compatibility.carpet;
 
 import carpet.script.value.StringValue;
 import carpet.script.value.Value;
@@ -22,7 +22,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 
 public class ScarpetProfession extends AbstractProfession {
     private static final TaterzenScarpetEvent PICKUP_EVENT = new TaterzenScarpetEvent("taterzen_tries_pickup", 3);
@@ -39,7 +39,7 @@ public class ScarpetProfession extends AbstractProfession {
     private static final TaterzenScarpetEvent PLAYERS_NEARBY_EVENT = new TaterzenScarpetEvent("taterzen_approached_by", 3);
 
     private final HashSet<Value> SCARPET_TRAITS = new HashSet<>();
-    public static final ResourceLocation ID = new ResourceLocation(MODID, "scarpet_profession");
+    public static final ResourceLocation ID = new ResourceLocation(MOD_ID, "scarpet_profession");
 
     public ScarpetProfession(TaterzenNPC npc) {
         super(npc);

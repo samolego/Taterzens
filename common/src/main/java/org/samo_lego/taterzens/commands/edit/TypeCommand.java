@@ -13,22 +13,22 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 
-import static net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.DISGUISELIB_LOADED;
+import static net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class TypeCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity type", EntitySummonArgument.id())
                         .suggests(SUMMONABLE_ENTITIES)
                         .executes(TypeCommand::changeType)
@@ -37,15 +37,15 @@ public class TypeCommand {
                         )
                 )
                 .then(literal("minecraft:player")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .then(literal("player")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .then(literal("reset")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                         .executes(TypeCommand::resetType)
                 )
                 .build();

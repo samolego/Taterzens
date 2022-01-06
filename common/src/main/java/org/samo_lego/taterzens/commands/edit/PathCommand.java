@@ -11,22 +11,24 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.joinText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class PathCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> pathNode = literal("path")
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.path.clear", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.path.clear", config.perms.npcCommandPermissionLevel))
                         .executes(PathCommand::clearTaterzenPath)
                 )
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.path", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.path", config.perms.npcCommandPermissionLevel))
                 .executes(PathCommand::editTaterzenPath)
                 .build();
 

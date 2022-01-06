@@ -13,15 +13,19 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import org.samo_lego.config2brigadier.util.TranslatedText;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.util.LanguageUtil;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
+import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.SERVER_TRANSLATIONS_LOADED;
 import static org.samo_lego.taterzens.util.LanguageUtil.LANG_LIST;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class TaterzensCommand {
     private static final SuggestionProvider<CommandSourceStack> AVAILABLE_LANGUAGES;
@@ -32,24 +36,24 @@ public class TaterzensCommand {
         // root node
         LiteralCommandNode<CommandSourceStack> taterzensNode = dispatcher.register(literal("taterzens")
                 .then(literal("wiki")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.wiki_info", config.perms.taterzensCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.wiki_info", config.perms.taterzensCommandPermissionLevel))
                         .executes(TaterzensCommand::wikiInfo)
                 )
         );
 
         // config node
         LiteralCommandNode<CommandSourceStack> configNode = literal("config")
-                .requires(src -> permissions$checkPermission(src, "taterzens.config", config.perms.taterzensCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.config", config.perms.taterzensCommandPermissionLevel))
                 .then(literal("reload")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.config.reload", config.perms.taterzensCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.config.reload", config.perms.taterzensCommandPermissionLevel))
                         .executes(TaterzensCommand::reloadConfig)
                 )
                 .build();
 
         LiteralCommandNode<CommandSourceStack> editNode = literal("edit")
-                .requires(src -> permissions$checkPermission(src, "taterzens.config.edit", config.perms.taterzensCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.config.edit", config.perms.taterzensCommandPermissionLevel))
                 .then(literal("language")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.config.edit.lang", config.perms.taterzensCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.config.edit.lang", config.perms.taterzensCommandPermissionLevel))
                         .then(argument("language", word())
                                 .suggests(AVAILABLE_LANGUAGES)
                                 .executes(TaterzensCommand::setLang)
@@ -75,7 +79,7 @@ public class TaterzensCommand {
 
         if(LANG_LIST.contains(language)) {
             config.language = language;
-            config.saveConfigFile(CONFIG_FILE);
+            config.save();
 
             LanguageUtil.setupLanguage();
             source.sendSuccess(successText("taterzens.command.language.success", language), false);
@@ -124,14 +128,14 @@ public class TaterzensCommand {
      * Reloads the config and language objects.
      */
     private static void reloadConfig() {
-        config.reload(CONFIG_FILE);
+        config.reload();
         LanguageUtil.setupLanguage();
     }
 
 
     static {
         AVAILABLE_LANGUAGES = SuggestionProviders.register(
-                new ResourceLocation(MODID, "languages"),
+                new ResourceLocation(MOD_ID, "languages"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(LANG_LIST, builder)
         );

@@ -3,10 +3,10 @@ package org.samo_lego.taterzens.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
+import org.samo_lego.taterzens.Taterzens;
 
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 
 public class ProfessionCommand {
     public static final LiteralCommandNode<CommandSourceStack> PROFESSION_COMMAND_NODE;
@@ -23,7 +23,7 @@ public class ProfessionCommand {
 
     static {
         PROFESSION_COMMAND_NODE = literal("profession")
-                    .requires(src -> permissions$checkPermission(src, "taterzens.profession", config.perms.professionCommandPL)
+                    .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.profession", config.perms.professionCommandPL)
                 )
                 .build();
     }

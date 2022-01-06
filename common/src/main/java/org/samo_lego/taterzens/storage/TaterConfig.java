@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import org.samo_lego.config2brigadier.IBrigadierConfigurator;
 import org.samo_lego.config2brigadier.annotation.BrigadierDescription;
 import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
+import org.samo_lego.taterzens.Taterzens;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,10 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.samo_lego.taterzens.Taterzens.CONFIG_FILE;
 import static org.samo_lego.taterzens.Taterzens.GSON;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 
 public class TaterConfig implements IBrigadierConfigurator {
 
@@ -109,7 +109,7 @@ public class TaterConfig implements IBrigadierConfigurator {
 
     @Override
     public void save() {
-        this.saveConfigFile(CONFIG_FILE);
+        this.saveConfigFile(Taterzens.getInstance().getConfigFile());
     }
 
     /**
@@ -311,7 +311,7 @@ public class TaterConfig implements IBrigadierConfigurator {
             )) {
                 config = GSON.fromJson(fileReader, TaterConfig.class);
             } catch (IOException e) {
-                throw new RuntimeException(MODID + " Problem occurred when trying to load config: ", e);
+                throw new RuntimeException(MOD_ID + " Problem occurred when trying to load config: ", e);
             }
         }
         if(config == null)
@@ -340,10 +340,9 @@ public class TaterConfig implements IBrigadierConfigurator {
      * in order to keep the same object.
      * (that still allows in-game editing)
      *
-     * @param file file to read new config from
      */
-    public void reload(File file) {
-        TaterConfig newConfig = loadConfigFile(file);
+    public void reload() {
+        TaterConfig newConfig = loadConfigFile(Taterzens.getInstance().getConfigFile());
         this.reload(newConfig);
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -32,7 +33,6 @@ import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.joinText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -44,23 +44,23 @@ public class ProfessionsCommand {
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> professionsNode = literal("professions")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions", config.perms.npcCommandPermissionLevel))
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.remove", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests(ProfessionsCommand::suggestRemovableProfessions)
                                 .executes(ctx -> removeProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getContents())))
                         )
                 )
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.add", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions.add", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests(PROFESSION_SUGESTIONS)
                                 .executes(ctx -> setProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getContents())))
                         )
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.professions.list", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions.list", config.perms.npcCommandPermissionLevel))
                         .executes(ProfessionsCommand::listTaterzenProfessions)
                 )
                 .build();

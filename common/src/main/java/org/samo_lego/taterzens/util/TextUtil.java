@@ -10,10 +10,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+
 import java.util.Arrays;
 
-import static org.samo_lego.taterzens.Taterzens.SERVER_TRANSLATIONS_LOADED;
 import static org.samo_lego.taterzens.Taterzens.lang;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.SERVER_TRANSLATIONS_LOADED;
 
 public class TextUtil {
     private static final JsonParser parser = new JsonParser();

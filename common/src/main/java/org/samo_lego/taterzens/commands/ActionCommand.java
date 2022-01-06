@@ -6,12 +6,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.npc.NPCData;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
@@ -19,13 +19,13 @@ public class ActionCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
         LiteralCommandNode<CommandSourceStack> actionNode = literal("action")
                 .then(literal("goto")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.action.goto", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.action.goto", config.perms.npcCommandPermissionLevel))
                         .then(argument("block pos", BlockPosArgument.blockPos())
                                 .executes(ActionCommand::gotoBlock)
                         )
                 )
                 .then(literal("interact")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.action.interact", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.action.interact", config.perms.npcCommandPermissionLevel))
                         .then(argument("block pos", BlockPosArgument.blockPos())
                                 .executes(ActionCommand::interactWithBlock)
                         )

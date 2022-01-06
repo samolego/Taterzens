@@ -8,8 +8,8 @@ import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
-import org.samo_lego.taterzens.compatibility.LoaderSpecific;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,7 +37,7 @@ public class ServerGamePacketListenerImplMixin_BungeeListener {
     private void onCustomPayload(ServerboundCustomPayloadPacket packet, CallbackInfo ci) {
         ResourceLocation packetId = packet.getIdentifier();
         CommandSourceStack commandSourceStack = player.createCommandSourceStack();
-        boolean hasPermission = LoaderSpecific.permissions$checkPermission(commandSourceStack, taterzens$permission, config.perms.npcCommandPermissionLevel);
+        boolean hasPermission = Taterzens.getInstance().getPlatform().checkPermission(commandSourceStack, taterzens$permission, config.perms.npcCommandPermissionLevel);
 
         if(AVAILABLE_SERVERS.isEmpty() && config.bungee.enableCommands && hasPermission) {
             if(packetId.equals(BungeeCompatibility.BUNGEE_CHANNEL)) {

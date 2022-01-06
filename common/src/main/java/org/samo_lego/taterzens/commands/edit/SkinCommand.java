@@ -12,6 +12,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 
 import java.io.IOException;
@@ -23,10 +24,13 @@ import java.util.concurrent.Executors;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.MessageArgument.message;
-import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.Taterzens.GSON;
+import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.FABRICTAILOR_LOADED;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 import static org.samo_lego.taterzens.util.WebUtil.urlRequest;
 
 public class SkinCommand {
@@ -38,7 +42,7 @@ public class SkinCommand {
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> skinNode = literal("skin")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.skin", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.skin", config.perms.npcCommandPermissionLevel))
                 .then(argument("mineskin URL | playername", message())
                         .executes(SkinCommand::setCustomSkin)
                 )

@@ -42,7 +42,7 @@ dependencies {
     modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
 
     // Permission API
-    modCompileOnly('me.lucko:fabric-permissions-api:0.1-SNAPSHOT')
+    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // SGUI
     modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))

@@ -178,26 +178,31 @@ public class EditorGUI {
         }
 
         if (clickType == ClickType.MOUSE_LEFT && node.getChildren().size() > 0 || (node instanceof ArgumentCommandNode<?, ?> && !givenInput)) {
-            gui.close();
             createCommandGui(player, gui, node, currentCommandPath, givenInput).open();
         } else {
-            execute(player, currentCommandPath, gui);
+            execute(player, currentCommandPath);
         }
+        gui.close();
     }
 
-    private static void execute(ServerPlayer player, List<String> parents, SimpleGui currentGui) {
+
+    /**
+     * Executes the command
+     * @param player player to execute command as.
+     * @param commandTree command tree to execute.
+     */
+    private static void execute(ServerPlayer player, List<String> commandTree) {
         try {
             // Execute
             // we "fake" the command
             StringBuilder builder = new StringBuilder();
 
-            // Builds the command from parents
-            parents.forEach(nd -> builder.append(nd).append(" "));
+            // Builds the command from commandTree
+            commandTree.forEach(nd -> builder.append(nd).append(" "));
             // Delete last space
             builder.deleteCharAt(builder.length() - 1);
 
             player.closeContainer();
-            currentGui.close();
 
             player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
         } catch (IllegalArgumentException e) {

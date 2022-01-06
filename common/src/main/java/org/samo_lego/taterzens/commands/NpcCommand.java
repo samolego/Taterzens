@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.edit.EditCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
@@ -33,7 +34,6 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
@@ -42,9 +42,9 @@ public class NpcCommand {
     public static LiteralCommandNode<CommandSourceStack> npcNode;
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
         npcNode = dispatcher.register(literal("npc")
-                .requires(src -> permissions$checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.create", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.create", config.perms.npcCommandPermissionLevel))
                         .then(argument("name", message())
                                 .suggests((context, builder) -> SharedSuggestionProvider.suggest(getOnlinePlayers(context), builder))
                                 .executes(NpcCommand::spawnTaterzen)
@@ -52,23 +52,23 @@ public class NpcCommand {
                         .executes(NpcCommand::spawnTaterzen)
                 )
                 .then(literal("select")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.select", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select", config.perms.npcCommandPermissionLevel))
                         .then(argument("id", IntegerArgumentType.integer(1))
-                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
                                 .executes(NpcCommand::selectTaterzenById)
                         )
                         .executes(NpcCommand::selectTaterzen)
                 )
                 .then(literal("deselect")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.select.deselect", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.deselect", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::deselectTaterzen)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.list", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.list", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::listTaterzens)
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.remove", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.remove", config.perms.npcCommandPermissionLevel))
                         .executes(NpcCommand::removeTaterzen)
                 )
         );

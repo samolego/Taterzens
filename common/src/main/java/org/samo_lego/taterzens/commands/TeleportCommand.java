@@ -7,18 +7,18 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.world.phys.Vec3;
+import org.samo_lego.taterzens.Taterzens;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.selectedTaterzenExecutor;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 
 public class TeleportCommand {
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
         LiteralCommandNode<CommandSourceStack> tpNode = literal("tp")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.tp", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.tp", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity", EntityArgument.entity())
                         .executes(context -> teleportTaterzen(context, EntityArgument.getEntity(context, "entity").position()))
                 )

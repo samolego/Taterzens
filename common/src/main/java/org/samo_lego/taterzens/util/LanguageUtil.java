@@ -7,7 +7,10 @@ import org.apache.commons.io.IOUtils;
 import org.samo_lego.taterzens.Taterzens;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
-import static org.samo_lego.taterzens.Taterzens.*;
+import static org.samo_lego.taterzens.Taterzens.GSON;
+import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.Taterzens.lang;
 
 public class LanguageUtil {
 
@@ -45,7 +50,7 @@ public class LanguageUtil {
                     // Since this language doesn't exist,
                     // change the config back to english.
                     config.language = "en_us";
-                    config.saveConfigFile(new File(taterDir + "/config.json"));
+                    config.save();
 
                     lang = loadLanguageFile(DEFAULT_LANG_STREAM);
                 }

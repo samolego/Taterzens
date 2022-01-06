@@ -13,13 +13,13 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.samo_lego.taterzens.compatibility.LoaderSpecific;
+import org.samo_lego.taterzens.Taterzens;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
 public abstract class ListItemsGUI extends SimpleGui implements Container {
     protected static final CompoundTag customData = new CompoundTag();
-    private static final int REGISTRY_ITEMS_SIZE =  LoaderSpecific.getItemRegistrySize();
+    private static final int REGISTRY_ITEMS_SIZE = Taterzens.getInstance().getPlatform().getItemRegistrySize();
     private int currentPage = 0;
 
     /**

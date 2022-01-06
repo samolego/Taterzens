@@ -5,22 +5,22 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.Entity;
+import org.samo_lego.taterzens.Taterzens;
 
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class LockCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
         LiteralCommandNode<CommandSourceStack> lockingNode = literal("lock")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.lock", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.lock", config.perms.npcCommandPermissionLevel))
                 .executes(context -> lock(context, true))
                 .build();
 
 
         LiteralCommandNode<CommandSourceStack> unlockingNode = literal("unlock")
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.unlock", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.unlock", config.perms.npcCommandPermissionLevel))
                 .executes(context -> lock(context, false))
                 .build();
 

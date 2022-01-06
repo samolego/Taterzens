@@ -36,10 +36,9 @@ import java.util.function.Function;
 import static org.samo_lego.taterzens.Taterzens.GSON;
 import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
-import static org.samo_lego.taterzens.Taterzens.presetsDir;
 
 /**
  * Class containing static methods to use with Taterzens.
@@ -82,7 +81,7 @@ public class TaterzensAPI {
         ) {
             element = JsonParser.parseReader(fileReader).getAsJsonObject();
         } catch(IOException e) {
-            LOGGER.error(MODID + " Problem occurred when trying to load Taterzen preset: ", e);
+            LOGGER.error(MOD_ID + " Problem occurred when trying to load Taterzen preset: ", e);
         }
         if(element != null) {
             try {
@@ -201,7 +200,7 @@ public class TaterzensAPI {
 
     public static List<String> getPresets() {
         List<String> files = new ArrayList<>();
-        File[] presets = presetsDir.listFiles();
+        File[] presets = Taterzens.getInstance().getPresetDirectory().listFiles();
         if(presets != null) {
             final String ending = ".json";
             for(File preset : presets) {

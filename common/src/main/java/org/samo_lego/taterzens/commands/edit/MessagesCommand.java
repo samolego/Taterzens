@@ -7,8 +7,13 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.gui.MessagesEditGUI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
@@ -20,46 +25,48 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.joinText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class MessagesCommand {
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> messagesNode = literal("messages")
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.clear", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.clear", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::clearTaterzenMessages)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.list", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::listTaterzenMessages)
                 )
                 .then(literal("swap")
                         .then(argument("id 1", IntegerArgumentType.integer())
-                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.swap", config.perms.npcCommandPermissionLevel))
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.swap", config.perms.npcCommandPermissionLevel))
                                 .then(argument("id 2", IntegerArgumentType.integer())
                                         .executes(MessagesCommand::swapMessages)
                                 )
                         )
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.reorder", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.reorder", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::reorderMessages)
                 )
                 .then(argument("message id", IntegerArgumentType.integer())
                         .then(literal("delete")
-                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delete", config.perms.npcCommandPermissionLevel))
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.delete", config.perms.npcCommandPermissionLevel))
                                 .executes(MessagesCommand::deleteTaterzenMessage)
                         )
                         .then(literal("setDelay")
-                                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.delay", config.perms.npcCommandPermissionLevel))
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.delay", config.perms.npcCommandPermissionLevel))
                                 .then(argument("delay", IntegerArgumentType.integer(0))
                                         .executes(MessagesCommand::editMessageDelay)
                                 )
                         )
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::editMessage)
                 )
-                .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.messages.edit", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.edit", config.perms.npcCommandPermissionLevel))
                 .executes(MessagesCommand::editTaterzenMessages).build();
         
         editNode.addChild(messagesNode);

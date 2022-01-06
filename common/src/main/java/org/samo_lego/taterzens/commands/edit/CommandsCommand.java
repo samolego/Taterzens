@@ -12,9 +12,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Triple;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 
@@ -28,12 +33,14 @@ import java.util.stream.Stream;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.noSelectedTaterzenError;
 import static org.samo_lego.taterzens.compatibility.BungeeCompatibility.AVAILABLE_SERVERS;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.joinText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class CommandsCommand {
     private static final SuggestionProvider<CommandSourceStack> BUNGEE_COMMANDS;
@@ -42,17 +49,17 @@ public class CommandsCommand {
     public static void registerNode(CommandDispatcher<CommandSourceStack> dispatcher, LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> commandsNode = literal("commands")
                 .then(literal("setPermissionLevel")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.set_permission_level", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.set_permission_level", config.perms.npcCommandPermissionLevel))
                         .then(argument("level", IntegerArgumentType.integer(0, 4))
                                 .executes(CommandsCommand::setPermissionLevel)
                         )
                 )
                 .then(literal("remove")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("command id", IntegerArgumentType.integer()).executes(CommandsCommand::removeCommand))
                 )
                 .then(literal("add")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                         .redirect(dispatcher.getRoot(), context -> {
                             // Really ugly, but ... works :P
                             String cmd = addCommand(context);
@@ -64,7 +71,7 @@ public class CommandsCommand {
                         })
                 )
                 .then(literal("addBungee")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.addBungee", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.addBungee", config.perms.npcCommandPermissionLevel))
                         .then(argument("command", string())
                             .suggests(BUNGEE_COMMANDS)
                             .then(argument("player", string())
@@ -77,11 +84,11 @@ public class CommandsCommand {
                         )
                 )
                 .then(literal("clear")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
                         .executes(CommandsCommand::clearCommands)
                 )
                 .then(literal("list")
-                        .requires(src -> permissions$checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
                         .executes(CommandsCommand::listTaterzenCommands)
                 )
                 .build();
@@ -256,12 +263,12 @@ public class CommandsCommand {
 
     static {
         BUNGEE_COMMANDS = SuggestionProviders.register(
-                new ResourceLocation(MODID, "bungee_commands"),
+                new ResourceLocation(MOD_ID, "bungee_commands"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(BungeeCompatibility.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
         );
         PLAYERS = SuggestionProviders.register(
-                new ResourceLocation(MODID, "players"),
+                new ResourceLocation(MOD_ID, "players"),
                 (context, builder) -> {
                     Collection<String> names = context.getSource().getOnlinePlayerNames();
                     names.add("--clicker--");

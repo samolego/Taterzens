@@ -105,14 +105,12 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static org.samo_lego.taterzens.Taterzens.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.Taterzens.presetsDir;
 import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
-import static org.samo_lego.taterzens.compatibility.LoaderSpecific.permissions$checkPermission;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -606,7 +604,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             String value = tag.getString("value");
             String signature = tag.getString("signature");
 
-            if(!value.isEmpty() && !signature.isEmpty()) {
+            if(value != null && signature != null && !value.isEmpty() && !signature.isEmpty()) {
                 PropertyMap propertyMap = this.gameProfile.getProperties();
                 propertyMap.put("textures", new Property("textures", value, signature));
             }
@@ -899,7 +897,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     private void loadPresetTag(CompoundTag tag) {
         String preset = tag.getString("PresetOverride") + ".json";
-        File presetFile = new File(presetsDir + "/" + preset);
+        File presetFile = new File(Taterzens.getInstance().getPresetDirectory() + "/" + preset);
 
         if (presetFile.exists())
             this.loadFromPresetFile(presetFile, preset);
@@ -1000,7 +998,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         } else if(
                 player.getItemInHand(hand).getItem().equals(Items.POTATO) &&
                 player.isShiftKeyDown() &&
-                permissions$checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
+                Taterzens.getInstance().getPlatform().checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
         ) {
             // Select this taterzen
             ((ITaterzenEditor) player).selectNpc(this);

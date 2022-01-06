@@ -14,7 +14,9 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.commands.NpcGUICommand;
 import org.samo_lego.taterzens.commands.ProfessionCommand;
 import org.samo_lego.taterzens.commands.TaterzensCommand;
+import org.samo_lego.taterzens.compatibility.ModDiscovery;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.samo_lego.taterzens.platform.Platform;
 import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
 import org.samo_lego.taterzens.util.PermissionExtractor;
@@ -24,20 +26,24 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.function.Function;
 
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.LUCKPERMS_LOADED;
+
 public class Taterzens {
 
-    public static final String MODID = "taterzens";
-    public static boolean DISGUISELIB_LOADED;
+    public static final String MOD_ID = "taterzens";
+    public static final Logger LOGGER = (Logger) LogManager.getLogger(MOD_ID);
+    private static Taterzens INSTANCE;
 
     /**
      * Configuration file.
      */
     public static TaterConfig config;
+
     /**
      * Language file.
      */
     public static JsonObject lang;
-    public static final Logger LOGGER = (Logger) LogManager.getLogger(MODID);
+
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
@@ -45,46 +51,39 @@ public class Taterzens {
 
     public static final HashMap<ResourceLocation, TaterzenProfession> LEGACY_PROFESSION_TYPES = new HashMap<>();
     public static final HashMap<ResourceLocation, Function<TaterzenNPC, TaterzenProfession>> PROFESSION_TYPES = new HashMap<>();
-
-
-    public static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .serializeNulls()
-            .disableHtmlEscaping()
-            .create();
+    public static final Gson GSON;
 
     /**
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
      * when packets are sent.
      */
     public static EntityType<TaterzenNPC> TATERZEN_TYPE;
-    public static ResourceLocation NPC_ID = new ResourceLocation(MODID, "npc");
+    public static final ResourceLocation NPC_ID = new ResourceLocation(MOD_ID, "npc");
 
-    public static File taterDir;
-    public static File presetsDir;
-    public static File CONFIG_FILE;
+    private final File configFile;
 
 
     /**
-     * Whether LuckPerms mod is loaded.
-     * @see <a href="https://luckperms.net/">LuckPerms website</a>.
+     * Directory of the presets.
      */
-    public static boolean LUCKPERMS_LOADED;
+    public final File presetsDir;
+    private final Platform platform;
 
-    public static boolean SERVER_TRANSLATIONS_LOADED;
+    public Taterzens(Platform platform) {
+        INSTANCE = this;
+        TATERZEN_TYPE = platform.registerTaterzenType();
 
-    public static boolean FABRICTAILOR_LOADED;
+        ModDiscovery.checkLoadedMods(platform);
 
-    public static boolean CARPETMOD_LOADED;
+        this.presetsDir = new File(platform.getConfigDirPath() + "/Taterzens/presets");
+        this.platform = platform;
 
+        if (!presetsDir.exists() && !presetsDir.mkdirs())
+            throw new RuntimeException(String.format("[%s] Error creating directory!", MOD_ID));
 
-    public static void onInitialize() {
-        if (!taterDir.exists() && !taterDir.mkdirs())
-            throw new RuntimeException(String.format("[%s] Error creating directory!", MODID));
-        presetsDir = taterDir;
-        taterDir = taterDir.getParentFile();
-        CONFIG_FILE = new File(taterDir + "/config.json");
-        config = TaterConfig.loadConfigFile(CONFIG_FILE);
+        File taterDir = presetsDir.getParentFile();
+        configFile = new File(taterDir + "/config.json");
+        config = TaterConfig.loadConfigFile(configFile);
 
         LanguageUtil.setupLanguage();
 
@@ -93,11 +92,56 @@ public class Taterzens {
         }
     }
 
+    /**
+     * Returns the presets directory.
+     * @return presets directory.
+     */
+    public File getPresetDirectory() {
+        return this.presetsDir;
+    }
+
+    /**
+     * Gets the instance of the mod.
+     * @return instance of the mod.
+     */
+    public static Taterzens getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * Gets configuration file.
+     * @return configuration file.
+     */
+    public File getConfigFile() {
+        return this.configFile;
+    }
+
+    /**
+     * Gets the platform - usable with loader-specific methods.
+     * @return platform.
+     */
+    public Platform getPlatform() {
+        return this.platform;
+    }
+
+    /**
+     * Handles command registration.
+     * @param dispatcher dispatcher to register commands to.
+     * @param dedicated whether the server is dedicated or not.
+     */
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
         NpcCommand.register(dispatcher, dedicated);
         TaterzensCommand.register(dispatcher, dedicated);
         NpcGUICommand.register(dispatcher, dedicated);
 
         ProfessionCommand.register(dispatcher, dedicated);
+    }
+
+    static {
+        GSON = new GsonBuilder()
+                .setPrettyPrinting()
+                .serializeNulls()
+                .disableHtmlEscaping()
+                .create();
     }
 }

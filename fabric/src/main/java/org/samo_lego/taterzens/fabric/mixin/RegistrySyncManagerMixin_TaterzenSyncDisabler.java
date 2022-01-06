@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Map;
 
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 
 
 @Mixin(RegistrySyncManager.class)
@@ -38,7 +38,7 @@ public class RegistrySyncManagerMixin_TaterzenSyncDisabler {
                                                Map<ResourceLocation, Object2IntMap<ResourceLocation>> map
     ) {
         if (isClientSync) {
-            map.get(ENTITY_TYPE).removeInt(new ResourceLocation(MODID, "npc"));
+            map.get(ENTITY_TYPE).removeInt(new ResourceLocation(MOD_ID, "npc"));
         }
     }
 }

@@ -1,41 +1,29 @@
 package org.samo_lego.taterzens.forge;
 
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLPaths;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.forge.event.EventHandler;
+import org.samo_lego.taterzens.forge.platform.ForgePlatform;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.io.File;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
 
-import static org.samo_lego.taterzens.Taterzens.*;
-
-@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-@Mod(MODID)
+@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod(MOD_ID)
 public class TaterzensForge {
 
-    @SuppressWarnings("unchecked")
     public TaterzensForge() {
-        taterDir = new File(FMLPaths.CONFIGDIR.get() + "/Taterzens/presets");
-        DISGUISELIB_LOADED = ModList.get().isLoaded("disguiselib");
-
-        TATERZEN_TYPE = (EntityType<TaterzenNPC>) EntityType.Builder
-                .of(TaterzenNPC::new, MobCategory.MISC)
-                .sized(0.6F, 1.8F)
-                .build(NPC_ID.toString())
-                .setRegistryName(NPC_ID.toString());
-
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EventHandler());
         MinecraftForge.EVENT_BUS.addListener(TaterzensForge::entityAttributes);
-        Taterzens.onInitialize();
+
+        new Taterzens(new ForgePlatform());
     }
 
     @SubscribeEvent

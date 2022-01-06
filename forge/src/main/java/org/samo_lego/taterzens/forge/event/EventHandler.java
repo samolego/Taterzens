@@ -11,9 +11,9 @@ import net.minecraftforge.fml.common.Mod;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.event.BlockEvent;
 
-import static org.samo_lego.taterzens.Taterzens.MODID;
+import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 
-@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
     public EventHandler() {
     }
