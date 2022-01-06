@@ -134,7 +134,7 @@ public class ProfessionsCommand {
     }
 
     static {
-        Set<ResourceLocation> availableProfessions = PROFESSION_TYPES.keySet();
+        Set<ResourceLocation> availableProfessions = new HashSet<>(PROFESSION_TYPES.keySet());
         availableProfessions.addAll(LEGACY_PROFESSION_TYPES.keySet());
 
         List<String> professions = availableProfessions.stream().map(ResourceLocation::toString).toList();
