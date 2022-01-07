@@ -1,0 +1,80 @@
+<!--
+  Taken from: https://github.com/squidfunk/mkdocs-material/blob/master/src/overrides/home.html
+-->
+
+{% extends "main.html" %}
+
+<!-- Render hero under tabs -->
+{% block tabs %}
+  {{ super() }}
+  <style>
+    /* Background image for hero */
+    .background-image {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-image: url("assets/img/background_wide_alt2.png");
+      background-size: cover;
+      min-height: 100%;
+      width: 100%;
+      position: absolute;
+      object-fit: fill;
+
+      z-index: -1;
+      opacity: 0.6;
+      display: flex;
+    }
+  </style>
+
+  
+  <!-- Hero for landing page -->
+  <section class="mdx-container">
+    <div class="mdx-hero__image background-image"></div>
+    <div class="md-grid md-typeset" style="text-align: right;">
+      <div class="mdx-hero">
+        <div class="mdx-hero__content">
+          <img src="./assets/img/banner.svg" alt="banner">
+          <p>An NPC / Citizen-like mod for Fabric / Forge modloader.</p>
+          <a href="https://github.com/samolego/Taterzens/blob/master/LICENSE">
+            <img src="https://img.shields.io/github/license/samolego/Taterzens?style=flat-square" alt="GitHub license">
+          </a>
+          <a href="https://github.com/samolego/Taterzens">
+            <img src="https://img.shields.io/badge/Environment-server-blue?style=flat-square" alt="Server environment">
+          </a>
+          <a href="https://github.com/samolego/Taterzens">
+            <img src="https://img.shields.io/badge/Environment-singleplayer-yellow?style=flat-square" alt="Singleplayer environment">
+          </a>
+          <p>
+            <li>
+              Fabric:
+              <a href="https://www.curseforge.com/minecraft/mc-mods/taterzens">
+                <img src="http://cf.way2muchnoise.eu/full_446499_downloads.svg" alt="Curseforge downloads">
+              </a>
+              <a href="https://www.curseforge.com/minecraft/mc-mods/taterzens">
+                <img src="http://cf.way2muchnoise.eu/versions/For_446499_all.svg" alt="Curseforge versions">
+              </a>
+            </li>
+            <li>
+              Forge:
+              <a href="https://www.curseforge.com/minecraft/mc-mods/taterzens-forge">
+                <img src="https://cf.way2muchnoise.eu/full_473071_downloads.svg" alt="Curseforge downloads">
+              </a>
+              <a href="https://www.curseforge.com/minecraft/mc-mods/taterzens-forge">
+                <img src="https://cf.way2muchnoise.eu/versions/For_473071_all.svg" alt="Curseforge versions">
+              </a>
+            </li>
+          </p>
+          <p>
+            <a class="md-button md-button--primary" href="./installation/">Installation</a>
+            <a class="md-button md-button--primary" href="./getting_started/">Getting started</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+<!-- Content -->
+{% block content %}{% endblock %}
+
+<!-- Application footer -->
+{% block footer %}{% endblock %}
