@@ -654,6 +654,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.allowEquipmentDrops(tags.getBoolean("DropsAllowed"));
         this.setShiftKeyDown(tags.getBoolean("SneakNameType"));
         this.setAllowSounds(tags.getBoolean("AllowSounds"));
+        this.setAllowFlight(tags.getBoolean("AllowFlight"));
+        this.setAllowRiding(tags.getBoolean("AllowRiding"));
 
         // Skin layers
         this.setSkinLayers(npcTag.getByte("SkinLayers"));
@@ -799,6 +801,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
         tags.putBoolean("SneakNameType", this.isShiftKeyDown());
         tags.putBoolean("AllowSounds", this.npcData.allowSounds);
+        tags.putBoolean("AllowFlight", this.npcData.allowFlight);
+        tags.putBoolean("AllowRiding", this.npcData.allowRiding);
 
         npcTag.put("Tags", tags);
 
