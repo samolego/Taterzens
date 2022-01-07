@@ -33,6 +33,15 @@ public class TagsCommand {
                                 })
                         )
                 )
+                .then(literal("allowRiding")
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.allow_riding", config.perms.npcCommandPermissionLevel))
+                        .then(argument("allowRiding", BoolArgumentType.bool())
+                                .executes(ctx -> {
+                                    boolean allow = BoolArgumentType.getBool(ctx, "allowRiding");
+                                    return setTag(ctx, "allowRiding", allow, npc -> npc.setAllowRiding(allow));
+                                })
+                        )
+                )
                 .then(literal("pushable")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.tags.pushable", config.perms.npcCommandPermissionLevel))
                         .then(argument("pushable", BoolArgumentType.bool())

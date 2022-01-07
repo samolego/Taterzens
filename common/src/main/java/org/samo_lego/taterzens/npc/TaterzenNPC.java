@@ -1678,9 +1678,16 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
     }
 
+    /**
+     * Whether taterzen can take fall damage.
+     * @param fallDistance fall distance.
+     * @param multiplier damage multiplier.
+     * @param source source of damage.
+     * @return true if damage should be taken, otherwise false.
+     */
     @Override
-    public boolean causeFallDamage(float f, float g, DamageSource damageSource) {
-        return !this.npcData.allowFlight && super.causeFallDamage(f, g, damageSource);
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+        return !this.npcData.allowFlight && super.causeFallDamage(fallDistance, multiplier, source);
     }
 
     /**
@@ -1699,6 +1706,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public boolean canEdit(UUID uuid) {
         return this.lockedUuid == null || this.lockedUuid.equals(uuid) || this.getUUID().equals(uuid);
+    }
+
+    /**
+     * Tries to make taterzen to ride provided entity.
+     * @param entity entity to ride.
+     * @return true if taterzen was able to ride provided entity, otherwise false.
+     */
+    public boolean startRiding(Entity entity) {
+        if (this.npcData.allowRiding) {
+            return this.startRiding(entity, false);
+        }
+        return false;
     }
 
     /**
@@ -1723,5 +1742,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public void setLocked(UUID uuid) {
         this.lockedUuid = uuid;
+    }
+
+    /**
+     * Sets whether taterzen should be allowed to be ride entities.
+     * (Mainly used for preventing them being picked up by boats / minecarts.)
+     * @param allow whether to allow riding or not.
+     */
+    public void setAllowRiding(boolean allow) {
+        this.npcData.allowRiding = allow;
     }
 }

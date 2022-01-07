@@ -98,6 +98,8 @@ permissions = [
    "taterzens.npc.edit.tags",
    #  Enables changing whether Taterzen can be leashed.
    "taterzens.npc.edit.tags.leashable",
+   #  Enables changing whether Taterzen can be taken away with boats / minecarts.
+   "taterzens.npc.edit.tags.allow_riding",
    #  Enables changing whether Taterzen is pushable.
    "taterzens.npc.edit.tags.pushable",
    #  Enables changing whether Taterzen should jump during attacking.

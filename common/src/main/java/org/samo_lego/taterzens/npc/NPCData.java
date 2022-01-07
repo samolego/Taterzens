@@ -73,6 +73,7 @@ public class NPCData {
     public boolean allowSounds = !config.defaults.ambientSounds.isEmpty();
     public ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
     public boolean allowFlight = config.defaults.allowFlight;
+    public boolean allowRiding = config.defaults.allowRiding;
 
     public static class Follow {
         /**

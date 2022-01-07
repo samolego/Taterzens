@@ -235,6 +235,12 @@ public class TaterConfig implements IBrigadierConfigurator {
         @BrigadierDescription(defaultOption = "false")
         @SerializedName("allow_flight")
         public boolean allowFlight = false;
+
+        @SerializedName("// Whether Taterzens can be picked up by boats / minecarts.")
+        public final String _comment_allowRiding = "";
+        @BrigadierDescription(defaultOption = "false")
+        @SerializedName("allow_riding")
+        public boolean allowRiding = false;
     }
 
     /**
