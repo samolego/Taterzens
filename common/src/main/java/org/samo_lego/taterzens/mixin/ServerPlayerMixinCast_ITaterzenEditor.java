@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
+import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
@@ -123,7 +124,12 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
 
     @Override
     public boolean selectNpc(@Nullable TaterzenNPC npc) {
-        if (npc != null && !npc.canEdit(this.player)) {
+        if (
+            npc != null && !npc.canEdit(this.player) &&
+            Taterzens.getInstance().getPlatform().checkPermission(
+                    this.player.createCommandSourceStack(), "taterzens.npc.select.bypass", 4
+            )
+        ) {
             return false;
         }
         TaterzenNPC selectedNpc = this.taterzens$selectedNpc;

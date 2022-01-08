@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.commands.edit;
+package org.samo_lego.taterzens.commands.edit.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -92,7 +92,8 @@ public class CommandsCommand {
                         .executes(CommandsCommand::listTaterzenCommands)
                 )
                 .build();
-        
+
+        CooldownCommand.registerNode(dispatcher, commandsNode);
         editNode.addChild(commandsNode);
     }
 

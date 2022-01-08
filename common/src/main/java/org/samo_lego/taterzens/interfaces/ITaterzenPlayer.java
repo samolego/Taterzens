@@ -53,4 +53,18 @@ public interface ITaterzenPlayer {
      * @param newPos new index for the last sent message.
      */
     void setLastMsgPos(UUID taterzenUuid, int newPos);
+
+    /**
+     * Sets last command interaction time for specified taterzen.
+     * @param uuid uuid of taterzen to get last command time for.
+     * @return last command interaction time.
+     */
+    long getLastCommandTime(UUID uuid);
+
+    /**
+     * Sets last command interaction time for specified taterzen.
+     * @param uuid uuid of taterzen to set last command time for.
+     * @param now current time.
+     */
+    void setLastCommandTime(UUID uuid, long now);
 }

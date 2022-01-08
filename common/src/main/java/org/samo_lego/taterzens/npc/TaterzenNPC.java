@@ -113,6 +113,7 @@ import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 /**
@@ -775,6 +776,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.lockedUuid = npcTag.getUUID("LockedBy");
 
         this.setAllowFlight(npcTag.getBoolean("AllowFlight"));
+
+        this.setMinCommandInteractionTime(npcTag.getLong("MinCommandInteractionTime"));
     }
 
     /**
@@ -892,6 +895,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         npcTag.putBoolean("AllowFlight", this.npcData.allowFlight);
 
+        npcTag.putLong("MinCommandInteractionTime", this.npcData.minCommandInteractionTime);
+
         tag.put("TaterzenNPCTag", npcTag);
     }
 
@@ -962,13 +967,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
+        ITaterzenPlayer ipl = (ITaterzenPlayer) player;
         long lastAction = ((ServerPlayer) player).getLastActionTime();
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
-        if(lastAction - ((ITaterzenPlayer) player).getLastInteractionTime() < 50)
+        if(lastAction - ipl.getLastInteractionTime() < 50)
             return InteractionResult.FAIL;
-        ((ITaterzenPlayer) player).setLastInteraction(lastAction);
+        ipl.setLastInteraction(lastAction);
 
 
         for(TaterzenProfession profession : this.professions.values()) {
@@ -1019,46 +1025,80 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             editorGUI.open();
         }
 
-        String playername = player.getGameProfile().getName();
-        if(!this.npcData.commands.isEmpty()) {
-            // Saving commands to a new list in order
-            // to allow commands to be modified via commands
-            // Functions are the easiest and cleanest way to do this
-            ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
-            for(String cmd : commands) {
-                if(cmd.contains("--clicker--")) {
-                    cmd = cmd.replaceAll("--clicker--", playername);
+        // Limiting command usage
+        long now = System.currentTimeMillis();
+        long diff = (now - ipl.getLastCommandTime(this.getUUID())) / 1000;
+        if(
+                diff > this.npcData.minCommandInteractionTime ||
+                this.npcData.minCommandInteractionTime <= 0
+        ) {
+            ipl.setLastCommandTime(this.getUUID(), now);
+            String playername = player.getGameProfile().getName();
+            if(!this.npcData.commands.isEmpty()) {
+                // Saving commands to a new list in order
+                // to allow commands to be modified via commands
+                // Functions are the easiest and cleanest way to do this
+                ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
+                for(String cmd : commands) {
+                    if(cmd.contains("--clicker--")) {
+                        cmd = cmd.replaceAll("--clicker--", playername);
+                    }
+                    this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
                 }
-                this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
-            }
-        }
-
-        for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
-            String first = cmd.getLeft().getSubchannel();
-            String middle = cmd.getMiddle();
-            if(middle.equals("--clicker--"))
-                middle = playername;
-
-            String argument = cmd.getRight();
-            if(argument.contains("--clicker--")) {
-                argument = argument.replaceAll("--clicker--", playername);
             }
 
-            // Sending command as CustomPayloadS2CPacket
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF(first);
-            out.writeUTF(middle);
-            out.writeUTF(argument);
+            for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
+                String first = cmd.getLeft().getSubchannel();
+                String middle = cmd.getMiddle();
+                if(middle.equals("--clicker--"))
+                    middle = playername;
 
-            FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-            buf.writeBytes(out.toByteArray());
+                String argument = cmd.getRight();
+                if(argument.contains("--clicker--")) {
+                    argument = argument.replaceAll("--clicker--", playername);
+                }
 
-            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
-            ((ServerPlayer) player).connection.send(packet);
+                // Sending command as CustomPayloadS2CPacket
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF(first);
+                out.writeUTF(middle);
+                out.writeUTF(argument);
+
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeBytes(out.toByteArray());
+
+                ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
+                ((ServerPlayer) player).connection.send(packet);
+            }
+        } else {
+            // Inform player about the cooldown
+            player.sendMessage(errorText(this.npcData.commandCooldownMessage,
+                        String.valueOf(this.npcData.minCommandInteractionTime - diff)
+                    ),
+                    this.getUUID()
+            );
         }
+
 
         return this.interact(player, hand);
     }
+
+    /**
+     * Sets the cooldown message.
+     * @param message new cooldown message.
+     */
+    public void setCooldownMessage(String message) {
+        this.npcData.commandCooldownMessage = message;
+    }
+
+    /**
+     * Sets the minimum time between command usage.
+     * @param time new minimum time.
+     */
+    public void setMinCommandInteractionTime(long time) {
+        this.npcData.minCommandInteractionTime = time;
+    }
+
 
     @Override
     protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
@@ -1486,11 +1526,16 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
-     * Removes Taterzen's profession.
+     * Removes Taterzen's profession and triggers the corresponding {@link TaterzenProfession#onRemove()} event.
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
     public void removeProfession(ResourceLocation professionId) {
-        this.professions.remove(professionId);
+        TaterzenProfession toRemove = this.professions.getOrDefault(professionId, null);
+
+        if (toRemove != null) {
+            toRemove.onProfessionRemoved();
+            this.professions.remove(professionId);
+        }
     }
 
     /**

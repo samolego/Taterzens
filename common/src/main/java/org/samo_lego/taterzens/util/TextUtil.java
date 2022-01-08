@@ -65,6 +65,7 @@ public class TextUtil {
         if(SERVER_TRANSLATIONS_LOADED) {
             return new TranslatableComponent(key, args);
         }
+
         String translation;
         if(lang.has(key))
             translation = lang.get(key).getAsString();

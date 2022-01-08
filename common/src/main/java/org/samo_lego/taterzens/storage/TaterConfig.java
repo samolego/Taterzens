@@ -177,6 +177,17 @@ public class TaterConfig implements IBrigadierConfigurator {
         public boolean leashable = false;
         public boolean pushable = false;
 
+        @SerializedName("// How many ticks must pass between each interaction (command triggerings).")
+        public final String _comment_minInteractionTime = "";
+        @BrigadierDescription(defaultOption = "0")
+        @SerializedName("minimum_interaction_time")
+        public long minInteractionTime = 0;
+
+        @SerializedName("// Default cooldown message to be sent to the player. Supports translation as well.")
+        public final String _comment_commandCooldownMessage = "";
+        @SerializedName("command_cooldown_message")
+        public String commandCooldownMessage = "taterzens.npc.interact.cooldown";
+
         @SerializedName("// Default command permission level of Taterzen.")
         public final String _comment_commandPermissionLevel = "";
         /**
@@ -241,6 +252,8 @@ public class TaterConfig implements IBrigadierConfigurator {
         @BrigadierDescription(defaultOption = "false")
         @SerializedName("allow_riding")
         public boolean allowRiding = false;
+
+
     }
 
     /**

@@ -39,6 +39,7 @@ public abstract class ServerPlayerMixinCast_ITaterzenPlayer implements ITaterzen
      */
     @Unique
     private final HashMap<UUID, Integer> taterzens$currentMsg = new HashMap<>();
+    private final HashMap<UUID, Long> taterzens$lastCommandTime = new HashMap<>();
 
     @Override
     public long getLastInteractionTime() {
@@ -83,5 +84,15 @@ public abstract class ServerPlayerMixinCast_ITaterzenPlayer implements ITaterzen
             int ticks = this.taterzens$lastMessageTicks.get(npcId) + 1;
             this.taterzens$lastMessageTicks.put(npcId, ticks);
         }
+    }
+
+    @Override
+    public long getLastCommandTime(UUID uuid) {
+        return this.taterzens$lastCommandTime.getOrDefault(uuid, 0L);
+    }
+
+    @Override
+    public void setLastCommandTime(UUID uuid, long now) {
+        this.taterzens$lastCommandTime.put(uuid, now);
     }
 }

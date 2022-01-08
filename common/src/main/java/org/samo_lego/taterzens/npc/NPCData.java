@@ -74,6 +74,8 @@ public class NPCData {
     public ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
     public boolean allowFlight = config.defaults.allowFlight;
     public boolean allowRiding = config.defaults.allowRiding;
+    public long minCommandInteractionTime = config.defaults.minInteractionTime;
+    public String commandCooldownMessage = config.defaults.commandCooldownMessage;
 
     public static class Follow {
         /**

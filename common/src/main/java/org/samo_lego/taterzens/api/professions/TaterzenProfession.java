@@ -82,7 +82,7 @@ public interface TaterzenProfession {
     }
 
     /**
-     * Called onb Taterzen death / removal.
+     * Called on Taterzen death / removal.
      */
     default void onRemove() {
     }
@@ -177,5 +177,12 @@ public interface TaterzenProfession {
      * @param players players that are in talking range of taterzen.
      */
     default void onPlayersNearby(List<ServerPlayer> players) {
+    }
+
+    /**
+     * Called when taterzen "loses" this profession.
+     * (when it is removed via command / code call)
+     */
+    default void onProfessionRemoved() {
     }
 }

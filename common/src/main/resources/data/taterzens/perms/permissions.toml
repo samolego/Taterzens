@@ -21,6 +21,9 @@ permissions = [
    #  Selecting Taterzens
    #  Selects Taterzen (in front of the executor).
    "taterzens.npc.select",
+
+   # Enables selecting taterzen even if it's locked
+   "taterzens.npc.select.bypass",
    #  Selects Taterzens by ID.
    "taterzens.npc.select.id",
    #  Deselects Taterzen.
@@ -42,6 +45,11 @@ permissions = [
    "taterzens.npc.edit.name",
 
    #  Editing Taterzen's commands
+
+   # Editing command cooldown
+   "taterzens.edit.commands.cooldown",
+   "taterzens.edit.commands.cooldown.set",
+   "taterzens.edit.commands.cooldown.edit_cooldown",
    #  Manages permission level of Taterzen.
    "taterzens.npc.edit.commands.set_permission_level",
    #  Removes command by ID from Taterzen.

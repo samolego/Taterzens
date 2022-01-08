@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.commands.edit;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
+import org.samo_lego.taterzens.commands.edit.commands.CommandsCommand;
 
 import static net.minecraft.commands.Commands.literal;
 
