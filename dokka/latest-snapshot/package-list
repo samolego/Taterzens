@@ -7,6 +7,7 @@ org.samo_lego.taterzens.api
 org.samo_lego.taterzens.api.professions
 org.samo_lego.taterzens.commands
 org.samo_lego.taterzens.commands.edit
+org.samo_lego.taterzens.commands.edit.commands
 org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.event
 org.samo_lego.taterzens.gui
