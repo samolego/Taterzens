@@ -32,8 +32,6 @@ public class TeleportCommand {
 
     private static int teleportTaterzen(CommandContext<CommandSourceStack> context, Vec3 destination) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        return selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            taterzen.teleportToWithTicket(destination.x(), destination.y(), destination.z());
-        });
+        return selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> taterzen.teleportToWithTicket(destination.x(), destination.y(), destination.z()));
     }
 }

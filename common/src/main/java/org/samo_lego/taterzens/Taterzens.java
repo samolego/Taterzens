@@ -127,14 +127,13 @@ public class Taterzens {
     /**
      * Handles command registration.
      * @param dispatcher dispatcher to register commands to.
-     * @param dedicated whether the server is dedicated or not.
      */
-    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
-        NpcCommand.register(dispatcher, dedicated);
-        TaterzensCommand.register(dispatcher, dedicated);
-        NpcGUICommand.register(dispatcher, dedicated);
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+        NpcCommand.register(dispatcher);
+        TaterzensCommand.register(dispatcher);
+        NpcGUICommand.register(dispatcher);
 
-        ProfessionCommand.register(dispatcher, dedicated);
+        ProfessionCommand.register(dispatcher);
     }
 
     static {

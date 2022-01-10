@@ -36,7 +36,7 @@ public class EquipmentCommand {
     }
 
     static int setEquipmentDrops(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();;
+        CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             boolean drop = BoolArgumentType.getBool(context, "drop");
             taterzen.allowEquipmentDrops(drop);

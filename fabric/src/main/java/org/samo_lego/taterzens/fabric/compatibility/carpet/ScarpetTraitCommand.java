@@ -1,7 +1,6 @@
 package org.samo_lego.taterzens.fabric.compatibility.carpet;
 
 import carpet.script.value.Value;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -36,7 +35,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class ScarpetTraitCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+    public static void register() {
         LiteralCommandNode<CommandSourceStack> scarpet = literal("scarpetTraits")
                 .requires(src -> CARPETMOD_LOADED && Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.profession.scarpet", config.perms.professionCommandPL))
                 .then(literal("add")

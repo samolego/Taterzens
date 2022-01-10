@@ -25,7 +25,7 @@ import static org.samo_lego.taterzens.Taterzens.lang;
 public class LanguageUtil {
 
     public static final InputStream DEFAULT_LANG_STREAM = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
-    public static List<String> LANG_LIST = new ArrayList<>();
+    public static final List<String> LANG_LIST = new ArrayList<>();
     private static final String API_URL = "https://api.github.com/repos/samolego/taterzens/contents/common/src/main/resources/data/taterzens/lang";
     private static final String LANG_FILE_URL = "https://raw.githubusercontent.com/samolego/Taterzens/master/common/src/main/resources/data/taterzens/lang/%s.json";
 

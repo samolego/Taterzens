@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.commands.edit.commands;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -18,7 +17,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 public class CooldownCommand {
 
-    public static void registerNode(CommandDispatcher<CommandSourceStack> dispatcher, LiteralCommandNode<CommandSourceStack> commandsNode) {
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> commandsNode) {
         LiteralCommandNode<CommandSourceStack> cooldown = literal("cooldown")
                 .requires(cs -> Taterzens.getInstance().getPlatform().checkPermission(cs, "taterzens.edit.commands.cooldown", config.perms.npcCommandPermissionLevel))
                 .then(literal("set")

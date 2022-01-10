@@ -107,9 +107,7 @@ public class EditorGUI {
             close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
             close.enchant(null, 0);
 
-            GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> {
-                player.closeContainer();
-            });
+            GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> player.closeContainer());
             constructedGui.setSlot(8, closeScreenButton);
 
             // Integer to track item positions

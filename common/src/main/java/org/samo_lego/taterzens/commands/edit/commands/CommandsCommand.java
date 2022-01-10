@@ -93,7 +93,7 @@ public class CommandsCommand {
                 )
                 .build();
 
-        CooldownCommand.registerNode(dispatcher, commandsNode);
+        CooldownCommand.registerNode(commandsNode);
         editNode.addChild(commandsNode);
     }
 
@@ -206,7 +206,7 @@ public class CommandsCommand {
     }
 
     private static int setPermissionLevel(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();;
+        CommandSourceStack source = context.getSource();
         int newPermLevel = IntegerArgumentType.getInteger(context, "level");
 
         if(!config.perms.allowSettingHigherPermissionLevel && !source.hasPermission(newPermLevel)) {

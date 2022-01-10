@@ -14,7 +14,7 @@ import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 
 public class NpcGUICommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(npcNode.createBuilder().executes(NpcGUICommand::openGUI));
     }
 

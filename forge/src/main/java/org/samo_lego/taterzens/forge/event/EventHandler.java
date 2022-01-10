@@ -29,6 +29,6 @@ public class EventHandler {
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        Taterzens.registerCommands(dispatcher, false);
+        Taterzens.registerCommands(dispatcher);
     }
 }

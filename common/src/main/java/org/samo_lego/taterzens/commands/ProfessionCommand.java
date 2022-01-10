@@ -15,9 +15,8 @@ public class ProfessionCommand {
      * Registers "/profession" node. Can be used to manage scarpet professions,
      * or other professions if they hook into the node.
      * @param dispatcher command dispatcher
-     * @param dedicated whether server is dedicated or singleplayer.
      */
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.getRoot().addChild(PROFESSION_COMMAND_NODE);
     }
 

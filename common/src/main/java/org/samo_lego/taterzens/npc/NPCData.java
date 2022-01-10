@@ -50,7 +50,7 @@ public class NPCData {
      * Messages of Taterzen.
      * Saved as &lt;Message Text, Delay&gt;
      */
-    public ArrayList<Pair<Component, Integer>> messages = new ArrayList<>();
+    public final ArrayList<Pair<Component, Integer>> messages = new ArrayList<>();
     /**
      * Permission level of Taterzen.
      */
@@ -58,7 +58,7 @@ public class NPCData {
     /**
      * Commands to be executed on right click.
      */
-    public ArrayList<String> commands = new ArrayList<>();
+    public final ArrayList<String> commands = new ArrayList<>();
     /**
      * Default behaviour of Taterzen.
      */
@@ -69,9 +69,9 @@ public class NPCData {
     public boolean allowEquipmentDrops = false;
     public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
-    public Follow follow = new Follow();
+    public final Follow follow = new Follow();
     public boolean allowSounds = !config.defaults.ambientSounds.isEmpty();
-    public ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
+    public final ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
     public boolean allowFlight = config.defaults.allowFlight;
     public boolean allowRiding = config.defaults.allowRiding;
     public long minCommandInteractionTime = config.defaults.minInteractionTime;

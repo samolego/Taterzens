@@ -40,7 +40,7 @@ import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class NpcCommand {
     public static LiteralCommandNode<CommandSourceStack> npcNode;
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         npcNode = dispatcher.register(literal("npc")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
@@ -118,7 +118,7 @@ public class NpcCommand {
         ServerPlayer player = source.getPlayerOrException();
         ((ITaterzenEditor) player).selectNpc(null);
         source.sendSuccess(translate("taterzens.command.deselect").withStyle(ChatFormatting.GREEN), false);
-        return 0;
+        return 1;
     }
 
     private static int listTaterzens(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -163,7 +163,7 @@ public class NpcCommand {
         }
 
         source.sendSuccess(response, false);
-        return 0;
+        return 1;
     }
 
     private static int selectTaterzenById(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -190,7 +190,7 @@ public class NpcCommand {
                 );
             }
         }
-        return 0;
+        return 1;
     }
 
 
@@ -240,7 +240,7 @@ public class NpcCommand {
                             .append(translate("taterzens.command.deselect").withStyle(ChatFormatting.GOLD))
             );
         }
-        return 0;
+        return 1;
     }
 
 
@@ -286,7 +286,7 @@ public class NpcCommand {
                 player.getUUID()
         );
 
-        return 0;
+        return 1;
     }
 
 

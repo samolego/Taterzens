@@ -13,7 +13,6 @@ import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,8 +28,6 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
  */
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
-
-    @Shadow public abstract void resetLastActionTime();
 
     private final ServerPlayer player = (ServerPlayer) (Object) this;
 

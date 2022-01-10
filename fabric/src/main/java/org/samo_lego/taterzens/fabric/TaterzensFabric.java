@@ -33,8 +33,8 @@ public class TaterzensFabric implements ModInitializer {
 
         // Events
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            Taterzens.registerCommands(dispatcher, dedicated);
-            ScarpetTraitCommand.register(dispatcher, dedicated);
+            Taterzens.registerCommands(dispatcher);
+            ScarpetTraitCommand.register();
         });
         UseBlockCallback.EVENT.register(new BlockInteractEventImpl());
     }

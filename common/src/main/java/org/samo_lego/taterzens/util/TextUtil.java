@@ -17,8 +17,6 @@ import static org.samo_lego.taterzens.Taterzens.lang;
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.SERVER_TRANSLATIONS_LOADED;
 
 public class TextUtil {
-    private static final JsonParser parser = new JsonParser();
-
 
     /**
      * Inserts colored insertedText in string message.
@@ -42,7 +40,7 @@ public class TextUtil {
      * @return NbtElement generated from text.
      */
     public static Tag toNbtElement(Component text) {
-        JsonElement json = parser.parse(Component.Serializer.toJson(text));
+        JsonElement json = JsonParser.parseString(Component.Serializer.toJson(text));
         return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
     }
 

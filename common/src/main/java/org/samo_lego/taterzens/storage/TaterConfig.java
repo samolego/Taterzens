@@ -16,7 +16,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.samo_lego.taterzens.Taterzens.GSON;
@@ -103,7 +102,7 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("// Nodes which prefer execution instead of going in submenus in `/npc` gui. (Swaps the right and left click function to these nodes)")
     public final String _comment_prefersExecution = "";
     @SerializedName("prefer_execution_nodes")
-    public List<String> prefersExecution = new ArrayList<>(Arrays.asList(
+    public List<String> prefersExecution = new ArrayList<>(List.of(
             "npc edit messages swap"
     ));
 
@@ -203,7 +202,7 @@ public class TaterConfig implements IBrigadierConfigurator {
          * Can be null to not produce any sounds.
          */
         @SerializedName("death_sounds")
-        public List<String> deathSounds = new ArrayList<>(Arrays.asList(
+        public List<String> deathSounds = new ArrayList<>(List.of(
                 "entity.player.death"
         ));
         /**
@@ -211,7 +210,7 @@ public class TaterConfig implements IBrigadierConfigurator {
          * Can be null to not produce any sounds.
          */
         @SerializedName("hurt_sounds")
-        public List<String> hurtSounds = new ArrayList<>(Arrays.asList(
+        public List<String> hurtSounds = new ArrayList<>(List.of(
                 "entity.player.hurt"
         ));
         /**

@@ -32,7 +32,7 @@ public class TaterzensCommand {
 
     private static final String DOCS_URL = "https://samolego.github.io/Taterzens/";
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, boolean dedicated) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         // root node
         LiteralCommandNode<CommandSourceStack> taterzensNode = dispatcher.register(literal("taterzens")
                 .then(literal("wiki")
