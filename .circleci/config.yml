@@ -46,10 +46,8 @@ jobs:
       - run: gradle fabric:build
       - store_artifacts:
           path: fabric/build/libs/*-fabric.jar
-          destination: artifact-file1
         
       # build forge
       - run: gradle forge:build
       - store_artifacts:
           path: forge/build/libs/*-forge.jar
-          destination: artifact-file
