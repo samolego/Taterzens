@@ -42,5 +42,14 @@ jobs:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # run tests!
-      - run: gradle test
+      # build fabric
+      - run: gradle fabric:build
+      - store_artifacts:
+        path: fabric/build/libs/*-fabric.jar
+        destination: artifact-file
+        
+      # build forge
+      - run: gradle forge:build
+      - store_artifacts:
+        path: forge/build/libs/*-forge.jar
+        destination: artifact-file
