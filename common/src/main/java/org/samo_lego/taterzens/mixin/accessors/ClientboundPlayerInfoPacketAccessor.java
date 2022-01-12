@@ -10,13 +10,6 @@ import java.util.List;
 @Mixin(ClientboundPlayerInfoPacket.class)
 public interface ClientboundPlayerInfoPacketAccessor {
     @Mutable
-    @Accessor("action")
-    void setAction(ClientboundPlayerInfoPacket.Action action);
-
-    @Accessor("action")
-    ClientboundPlayerInfoPacket.Action getAction();
-
-    @Mutable
     @Accessor("entries")
     void setEntries(List<ClientboundPlayerInfoPacket.PlayerUpdate> entries);
     @Accessor("entries")

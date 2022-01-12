@@ -16,7 +16,7 @@ available on [GitHub](https://www.github.com/samolego/TaterzenProfessionExampleM
 
 ## Creating your own profession class
 First off, create a class implementing
-[`TaterzenProfession`](https://samolego.github.io/Taterzens/dokka/common/common/org.samo_lego.taterzens.api.professions/-taterzen-profession/index.html)
+[`TaterzenProfession`](https://samolego.github.io/Taterzens/dokka/latest-snapshot/common/common/org.samo_lego.taterzens.api.professions/-taterzen-profession/index.html)
 interface (found in `org.samo_lego.taterzens.api.professions`).
 
 Create a unique ResourceLocation for your profession as well, as we will
@@ -34,7 +34,7 @@ public class MyFirstProfession implements TaterzenProfession {
 You will then need to implement the methods.
 If you don't want to change certain behaviours, just leave those empty.
 If you don't know what certain methods mean, you can always check out
-[code docs](https://samolego.github.io/Taterzens/dokka/common/common/org.samo_lego.taterzens.api.professions/-taterzen-profession/index.html).
+[code docs](https://samolego.github.io/Taterzens/dokka/latest-snapshot/common/common/org.samo_lego.taterzens.api.professions/-taterzen-profession/index.html).
 
 For methods using `InteractionResult`, your return variable can mean the following:
 
@@ -43,22 +43,13 @@ For methods using `InteractionResult`, your return variable can mean the followi
 * `InteractionResult#FAIL` - Stops whole movement tick.
 * `InteractionResult#SUCCESS` - Continues with super.tickMovement(), but skips Taterzen's movement tick.
 
-The **base** method you need to implement is `create(TaterzenNPC)`.
-This should create a new profession object for the passed Taterzen
-and return it. See the below example.
-
 ```java
 public class MyFirstProfession implements TaterzenProfession {
     public static final ResourceLocation ID = new ResourceLocation(MODID, "my_profession");
-    private TaterzenNPC npc;
+    private final TaterzenNPC npc;
 
-    /**
-    * Deafult constructor. Will be used to register our profession later.
-    * A profession created with this constructor isn't really useful, as it doesn't
-    * have a Taterzen assigned to it.
-    * That's why we need another {@link MyFirstProfession#create(TaterzenNPC)}.
-    */
-    public MyFirstProfession() {
+    public MyFirstProfession(TaterzenNPC npc) {
+        this.npc = npc;
     }
 
     @Override
@@ -94,7 +85,7 @@ import my.custom.package.MyFirstProfession;
 
 public class MyProfessionsMod {
 
-    public static final String MODID = "taterzens";
+    public static final String MODID = "my_professions_mod";
 
     /**
 	* Put this in initialisation method of your mod.
@@ -102,7 +93,7 @@ public class MyProfessionsMod {
     */
     public static void onInitialize() {
         // Profession registering
-        TaterzensAPI.registerProfession(MyFirstProfession.ID, new MyFirstProfession());
+        TaterzensAPI.registerProfession(MyFirstProfession.ID, MyFirstProfession::new);
     }
 }
 

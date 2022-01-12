@@ -99,8 +99,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Function;
@@ -173,6 +175,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * UUID of the "owner" that has locked this NPC.
      */
     private UUID lockedUuid;
+    private final Map<UUID, Long> commandTimes = new HashMap<>();
 
     /**
      * Creates a TaterzenNPC.
@@ -1026,59 +1029,58 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
 
         // Limiting command usage
-        long now = System.currentTimeMillis();
-        long diff = (now - ipl.getLastCommandTime(this.getUUID())) / 1000;
-        if(
-                diff > this.npcData.minCommandInteractionTime ||
-                this.npcData.minCommandInteractionTime <= 0
-        ) {
-            ipl.setLastCommandTime(this.getUUID(), now);
-            String playername = player.getGameProfile().getName();
-            if(!this.npcData.commands.isEmpty()) {
-                // Saving commands to a new list in order
-                // to allow commands to be modified via commands
-                // Functions are the easiest and cleanest way to do this
-                ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
-                for(String cmd : commands) {
-                    if(cmd.contains("--clicker--")) {
-                        cmd = cmd.replaceAll("--clicker--", playername);
+        if (this.npcData.minCommandInteractionTime != -1) {
+            long now = System.currentTimeMillis();
+            long diff = (now - this.commandTimes.getOrDefault(player.getUUID(), 0L)) / 1000;
+
+            if (diff > this.npcData.minCommandInteractionTime || this.npcData.minCommandInteractionTime == 0) {
+                this.commandTimes.put(player.getUUID(), now);
+                String playername = player.getGameProfile().getName();
+                if(!this.npcData.commands.isEmpty()) {
+                    // Saving commands to a new list in order
+                    // to allow commands to be modified via commands
+                    // Functions are the easiest and cleanest way to do this
+                    ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
+                    for(String cmd : commands) {
+                        if(cmd.contains("--clicker--")) {
+                            cmd = cmd.replaceAll("--clicker--", playername);
+                        }
+                        this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
                     }
-                    this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
-                }
-            }
-
-            for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
-                String first = cmd.getLeft().getSubchannel();
-                String middle = cmd.getMiddle();
-                if(middle.equals("--clicker--"))
-                    middle = playername;
-
-                String argument = cmd.getRight();
-                if(argument.contains("--clicker--")) {
-                    argument = argument.replaceAll("--clicker--", playername);
                 }
 
-                // Sending command as CustomPayloadS2CPacket
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF(first);
-                out.writeUTF(middle);
-                out.writeUTF(argument);
+                for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
+                    String first = cmd.getLeft().getSubchannel();
+                    String middle = cmd.getMiddle();
+                    if(middle.equals("--clicker--"))
+                        middle = playername;
 
-                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                buf.writeBytes(out.toByteArray());
+                    String argument = cmd.getRight();
+                    if(argument.contains("--clicker--")) {
+                        argument = argument.replaceAll("--clicker--", playername);
+                    }
 
-                ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
-                ((ServerPlayer) player).connection.send(packet);
+                    // Sending command as CustomPayloadS2CPacket
+                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                    out.writeUTF(first);
+                    out.writeUTF(middle);
+                    out.writeUTF(argument);
+
+                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                    buf.writeBytes(out.toByteArray());
+
+                    ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
+                    ((ServerPlayer) player).connection.send(packet);
+                }
+            } else {
+                // Inform player about the cooldown
+                player.sendMessage(errorText(this.npcData.commandCooldownMessage,
+                                String.valueOf(this.npcData.minCommandInteractionTime - diff)
+                        ),
+                        this.getUUID()
+                );
             }
-        } else {
-            // Inform player about the cooldown
-            player.sendMessage(errorText(this.npcData.commandCooldownMessage,
-                        String.valueOf(this.npcData.minCommandInteractionTime - diff)
-                    ),
-                    this.getUUID()
-            );
         }
-
 
         return this.interact(player, hand);
     }
@@ -1161,7 +1163,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
-     * Sets message delay.
+     * Sets message delay for specified message.
+     * E.g. if you want to set delay for message at index 2 (you want 3rd message to appear right after second),
+     * you'd set delay for index 2 to zero.
      *
      * @param index index of the message to change delay for.
      * @param delay new delay.

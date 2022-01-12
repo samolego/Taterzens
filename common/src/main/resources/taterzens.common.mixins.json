@@ -13,7 +13,6 @@
     "ServerPlayerMixinCast_ITaterzenPlayer",
     "ServerPlayInteractionManagerMixin",
     "accessors.ChunkMapAccessor",
-    "accessors.ClientboundAddMobPacketAccessor",
     "accessors.ClientboundAddPlayerPacketAccessor",
     "accessors.ClientboundPlayerInfoPacketAccessor",
     "accessors.ClientboundSetEntityDataPacketAccessor",
