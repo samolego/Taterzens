@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +38,7 @@ public class EditorGUI {
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static SimpleGui createCommandGui(ServerPlayer player, SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
+    public static SimpleGui createCommandGui(ServerPlayer player, @Nullable SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
         // If node is not an argument, we skip to first child node that is an argument or has more than 1 child node
         while (parentNode.getChildren().size() == 1 && !(parentNode instanceof ArgumentCommandNode<?, ?>)) {
             CommandNode<CommandSourceStack> childNode = (CommandNode<CommandSourceStack>) parentNode.getChildren().toArray()[0];

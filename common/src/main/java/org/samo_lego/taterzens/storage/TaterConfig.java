@@ -106,6 +106,11 @@ public class TaterConfig implements IBrigadierConfigurator {
             "npc edit messages swap"
     ));
 
+    @SerializedName("// Whether to allow Taterzens to fight players in peaceful mode as well.")
+    public final String _comment_combatInPeaceful = "";
+    @SerializedName("combat_in_peaceful")
+    public boolean combatInPeaceful = true;
+
     @Override
     public void save() {
         this.saveConfigFile(Taterzens.getInstance().getConfigFile());

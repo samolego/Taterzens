@@ -32,6 +32,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -1804,5 +1805,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public void setAllowRiding(boolean allow) {
         this.npcData.allowRiding = allow;
+    }
+
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        return (!(target instanceof Player) || (this.level.getDifficulty() != Difficulty.PEACEFUL || config.combatInPeaceful)) && target.canBeSeenAsEnemy();
     }
 }
