@@ -14,6 +14,8 @@ org.samo_lego.taterzens.gui
 org.samo_lego.taterzens.interfaces
 org.samo_lego.taterzens.mixin
 org.samo_lego.taterzens.mixin.accessors
+org.samo_lego.taterzens.mixin.network
+org.samo_lego.taterzens.mixin.player
 org.samo_lego.taterzens.npc
 org.samo_lego.taterzens.npc.ai.goal
 org.samo_lego.taterzens.platform
