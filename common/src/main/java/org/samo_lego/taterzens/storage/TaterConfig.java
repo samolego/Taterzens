@@ -108,6 +108,7 @@ public class TaterConfig implements IBrigadierConfigurator {
 
     @SerializedName("// Whether to allow Taterzens to fight players in peaceful mode as well.")
     public final String _comment_combatInPeaceful = "";
+    @BrigadierDescription(defaultOption = "true")
     @SerializedName("combat_in_peaceful")
     public boolean combatInPeaceful = true;
 

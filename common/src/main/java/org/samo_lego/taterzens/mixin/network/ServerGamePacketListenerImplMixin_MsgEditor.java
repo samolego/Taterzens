@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.mixin.network;
 
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;

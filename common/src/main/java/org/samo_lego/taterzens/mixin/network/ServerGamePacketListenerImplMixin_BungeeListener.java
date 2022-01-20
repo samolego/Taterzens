@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.mixin.network;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;

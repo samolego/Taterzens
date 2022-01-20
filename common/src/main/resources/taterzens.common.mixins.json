@@ -6,11 +6,6 @@
   "mixins": [
     "ChunkMapMixin_TaterzenList",
     "CommandSourceStackMixin_HideTaterzenExecutor",
-    "ServerGamePacketListenerImplMixin_BungeeListener",
-    "ServerGamePacketListenerImplMixin_MsgEditor",
-    "ServerGamePacketListenerImplMixin_PacketFaker",
-    "ServerPlayerMixinCast_ITaterzenEditor",
-    "ServerPlayerMixinCast_ITaterzenPlayer",
     "ServerPlayInteractionManagerMixin",
     "accessors.ChunkMapAccessor",
     "accessors.ClientboundAddPlayerPacketAccessor",
@@ -19,7 +14,13 @@
     "accessors.CommandSourceStackAccessor",
     "accessors.EntityAccessor",
     "accessors.EntityTrackerEntryAccessor",
-    "accessors.PlayerAccessor"
+    "accessors.PlayerAccessor",
+    "network.ServerGamePacketListenerImplMixin_BungeeListener",
+    "network.ServerGamePacketListenerImplMixin_MsgEditor",
+    "network.ServerGamePacketListenerImplMixin_PacketFaker",
+    "player.PlayerMixin_PeacefulDamage",
+    "player.ServerPlayerMixinCast_ITaterzenEditor",
+    "player.ServerPlayerMixinCast_ITaterzenPlayer"
   ],
   "client": [],
   "injectors": {

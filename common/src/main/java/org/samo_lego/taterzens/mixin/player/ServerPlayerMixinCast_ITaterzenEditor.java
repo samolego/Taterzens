@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.mixin.player;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;

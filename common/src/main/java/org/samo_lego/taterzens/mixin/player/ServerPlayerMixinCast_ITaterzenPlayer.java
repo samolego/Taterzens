@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.mixin;
+package org.samo_lego.taterzens.mixin.player;
 
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
