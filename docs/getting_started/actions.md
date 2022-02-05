@@ -31,7 +31,7 @@ where `x`, `y` and `z` are block coordinates.
 
 To make the Taterzen go to certain block, you can use the following command
 ```
-/npc action interact <x> <y> <z>
+/npc action goto <x> <y> <z>
 ```
 where `x`, `y` and `z` are block coordinates.
 <video controls="true" allowfullscreen="true" width="100%">
