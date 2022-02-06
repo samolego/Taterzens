@@ -19,6 +19,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -82,11 +84,10 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
         if(packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
             Entity entity = world.getEntity(((ClientboundAddPlayerPacketAccessor) packet).getId());
 
-            if(!(entity instanceof TaterzenNPC npc))
+            if(!(entity instanceof TaterzenNPC npc) || (DISGUISELIB_LOADED && DisguiseLibCompatibility.isDisguised(entity)))
                 return;
 
             GameProfile profile = npc.getGameProfile();
-
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(

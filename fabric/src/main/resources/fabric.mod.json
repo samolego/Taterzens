@@ -35,6 +35,9 @@
     "fabric": ">=0.45.1"
   },
   "recommends": {
-    "disguiselib": ">=1.0.0"
+    "disguiselib": ">=1.2.1"
+  },
+  "breaks": {
+    "disguiselib": "<1.2.1"
   }
 }
