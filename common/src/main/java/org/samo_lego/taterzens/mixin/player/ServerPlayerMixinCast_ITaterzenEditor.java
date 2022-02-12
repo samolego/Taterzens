@@ -124,7 +124,7 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
         if (
             npc != null && !npc.canEdit(this.player) &&
             Taterzens.getInstance().getPlatform().checkPermission(
-                    this.player.createCommandSourceStack(), "taterzens.npc.select.bypass", 4
+                    this.player.createCommandSourceStack(), "taterzens.npc.select.bypass", config.perms.selectBypassLevel
             )
         ) {
             return false;

@@ -166,6 +166,12 @@ public class TaterConfig implements IBrigadierConfigurator {
         public final String _comment_allowSettingHigherPermissionLevel2 = "";
         @SerializedName("allow_setting_higher_perm_level")
         public boolean allowSettingHigherPermissionLevel = false;
+
+        @SerializedName("// Default permission level to bypass selecting locked npcs.")
+        public final String _comment_selectBypassLevel = "";
+        @BrigadierDescription(defaultOption = "3")
+        @SerializedName("select_bypass_level")
+        public int selectBypassLevel = 3;
     }
 
     /**
