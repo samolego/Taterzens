@@ -313,16 +313,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
 
         if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
+            int priority = 8;
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.addGoal(4, directPathGoal);
-            } else {
-                this.goalSelector.addGoal(8, lookPlayerGoal);
-                this.goalSelector.addGoal(9, lookAroundGoal);
-                if(movement == NPCData.Movement.PATH)
+                priority = 5;
+            } else if(movement == NPCData.Movement.PATH) {
                     this.goalSelector.addGoal(4, pathGoal);
-                else if(movement == NPCData.Movement.FREE)
-                    this.goalSelector.addGoal(6, wanderAroundFarGoal);
+            } else if(movement == NPCData.Movement.FREE) {
+                this.goalSelector.addGoal(6, wanderAroundFarGoal);
             }
+
+            this.goalSelector.addGoal(priority, lookPlayerGoal);
+            this.goalSelector.addGoal(priority + 1, lookAroundGoal);
         }
     }
 
@@ -422,24 +424,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setYRot(this.yHeadRot); // Rotates body as well
             LivingEntity target = this.getTarget();
 
-            if((this.npcData.movement == NPCData.Movement.FORCED_PATH && !this.npcData.pathTargets.isEmpty()) && !this.isPathFinding()) {
+            if((this.npcData.movement == NPCData.Movement.FORCED_PATH ||
+                this.npcData.movement == NPCData.Movement.PATH ) &&
+                    !this.npcData.pathTargets.isEmpty() &&
+                    !this.isPathFinding()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
                 if(this.getRestrictCenter().distSqr(this.position(), true) < 5.0D) {
-                    if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
-                        this.npcData.currentMoveTarget = 0;
-
-                    // New target
-                    this.restrictTo(this.npcData.pathTargets.get(this.npcData.currentMoveTarget), 1);
-                }
-            } else if(this.npcData.movement == NPCData.Movement.PATH && !this.pathGoal.canContinueToUse() && !this.npcData.pathTargets.isEmpty()) {
-                // Checking here as well (if path targets size was changed during the previous tick)
-                if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
-                    this.npcData.currentMoveTarget = 0;
-
-                if(this.npcData.pathTargets.get(this.npcData.currentMoveTarget).distSqr(this.position(), true) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
