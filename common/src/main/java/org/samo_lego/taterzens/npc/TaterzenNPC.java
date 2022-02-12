@@ -147,7 +147,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public final NearestAttackableTargetGoal<LivingEntity> followTargetGoal = new NearestAttackableTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isAlliedTo(target));
     public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100,false, true, target -> !this.isAlliedTo(target));
-    public final NearestAttackableTargetGoal<Player> followPlayersGoal = new NearestAttackableTargetGoal<>(this, Player.class, 100,false, true, target -> !this.isAlliedTo(target));
 
     /**
      * Tracking movement
