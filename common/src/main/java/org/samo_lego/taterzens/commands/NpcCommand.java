@@ -15,7 +15,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
@@ -26,7 +28,6 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static net.minecraft.commands.Commands.argument;
@@ -40,6 +41,10 @@ import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class NpcCommand {
     public static LiteralCommandNode<CommandSourceStack> npcNode;
+
+    private static final double MAX_DISTANCE = 8.02;
+    private static final double SQRD_DIST = MAX_DISTANCE * MAX_DISTANCE;
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         npcNode = dispatcher.register(literal("npc")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
@@ -211,16 +216,17 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
 
-        AABB box = player.getBoundingBox().move(player.getLookAngle().scale(2.0F)).inflate(0.3D);
+        // Made with help of https://github.com/Patbox/polydex/blob/2e1cd03470c6202bf0522c845caa35b20244f8b9/src/main/java/eu/pb4/polydex/impl/display/PolydexTargetImpl.java#L44
+        Vec3 min = player.getEyePosition(0);
 
-        TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-        if(npc != null) {
-            ((ITaterzenEditor) player).selectNpc(null);
-        }
+        Vec3 vec3d2 = player.getViewVector(1.0F);
+        Vec3 max = min.add(vec3d2.x * MAX_DISTANCE, vec3d2.y * MAX_DISTANCE, vec3d2.z * MAX_DISTANCE);
+        AABB box = player.getBoundingBox().expandTowards(vec3d2.scale(MAX_DISTANCE)).inflate(1.0D);
 
-        List<TaterzenNPC> detectedTaterzens = player.getLevel().getEntitiesOfClass(TaterzenNPC.class, box);
-        if(!detectedTaterzens.isEmpty()) {
-            TaterzenNPC taterzen = detectedTaterzens.get(0);
+        final var hit = ProjectileUtil.getEntityHitResult(player, min, max, box, entity -> entity.isPickable() && entity instanceof TaterzenNPC, SQRD_DIST);
+
+        if (hit != null) {
+            TaterzenNPC taterzen = (TaterzenNPC) hit.getEntity();
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
                 source.sendSuccess(
@@ -236,8 +242,6 @@ public class NpcCommand {
             source.sendFailure(
                     translate("taterzens.error.404.detected")
                             .withStyle(ChatFormatting.RED)
-                            .append("\n")
-                            .append(translate("taterzens.command.deselect").withStyle(ChatFormatting.GOLD))
             );
         }
         return 1;
