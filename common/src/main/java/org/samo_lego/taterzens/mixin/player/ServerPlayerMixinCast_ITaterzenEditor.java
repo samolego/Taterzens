@@ -121,14 +121,12 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
 
     @Override
     public boolean selectNpc(@Nullable TaterzenNPC npc) {
-        if (
-            npc != null && !npc.canEdit(this.player) &&
-            Taterzens.getInstance().getPlatform().checkPermission(
-                    this.player.createCommandSourceStack(), "taterzens.npc.select.bypass", config.perms.selectBypassLevel
-            )
-        ) {
+        if (npc != null && !npc.allowEditBy(this.player) &&
+            !Taterzens.getInstance().getPlatform().checkPermission(
+                    this.player.createCommandSourceStack(), "taterzens.npc.select.bypass", config.perms.selectBypassLevel)) {
             return false;
         }
+
         TaterzenNPC selectedNpc = this.taterzens$selectedNpc;
         this.taterzens$selectedNpc = npc;
 

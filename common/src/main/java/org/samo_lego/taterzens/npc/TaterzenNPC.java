@@ -1741,8 +1741,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param entity entity to check.
      * @return true if taterzen can be edited by entity, otherwise false.
      */
-    public boolean canEdit(Entity entity) {
-        return this.canEdit(entity.getUUID());
+    public boolean allowEditBy(Entity entity) {
+        return this.allowEditBy(entity.getUUID());
     }
 
     /**
@@ -1750,7 +1750,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param uuid uuid to check.
      * @return true if taterzen can be edited by provided uuid, otherwise false.
      */
-    public boolean canEdit(UUID uuid) {
+    public boolean allowEditBy(UUID uuid) {
         return this.lockedUuid == null || this.lockedUuid.equals(uuid) || this.getUUID().equals(uuid);
     }
 
