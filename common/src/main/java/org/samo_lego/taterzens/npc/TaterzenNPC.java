@@ -109,6 +109,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
+import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -431,7 +432,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 if(this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                     this.npcData.currentMoveTarget = 0;
 
-                if(this.getRestrictCenter().distSqr(this.position(), true) < 5.0D) {
+                if(this.getRestrictCenter().distToCenterSqr(this.position()) < 5.0D) {
                     if(++this.npcData.currentMoveTarget >= this.npcData.pathTargets.size())
                         this.npcData.currentMoveTarget = 0;
 
