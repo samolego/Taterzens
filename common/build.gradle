@@ -20,7 +20,7 @@ dependencies {
 def ENV = System.getenv();
 
 architectury {
-    common()
+    common(false)
 }
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
