@@ -26,7 +26,9 @@ public class AdditionalFunctions {
      */
     @ScarpetFunction
     public Entity spawn_taterzen(ServerPlayer player, String name) {
-        return TaterzensAPI.createTaterzen(player, name);
+        TaterzenNPC npc = TaterzensAPI.createTaterzen(player, name);
+        player.getLevel().addFreshEntity(npc);
+        return npc;
     }
 
     /**
