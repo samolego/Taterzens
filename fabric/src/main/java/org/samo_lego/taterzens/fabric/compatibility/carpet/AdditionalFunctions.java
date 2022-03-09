@@ -2,9 +2,6 @@ package org.samo_lego.taterzens.fabric.compatibility.carpet;
 
 import carpet.script.annotation.AnnotationParser;
 import carpet.script.annotation.ScarpetFunction;
-import carpet.script.value.EntityValue;
-import carpet.script.value.NullValue;
-import carpet.script.value.Value;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import org.samo_lego.taterzens.Taterzens;
