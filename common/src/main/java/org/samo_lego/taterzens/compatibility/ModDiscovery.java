@@ -21,6 +21,6 @@ public class ModDiscovery {
         DISGUISELIB_LOADED = platform.isModLoaded("disguiselib");
         SERVER_TRANSLATIONS_LOADED = platform.isModLoaded("server_translations_api");
         FABRICTAILOR_LOADED = platform.isModLoaded("fabrictailor");
-        CARPETMOD_LOADED = platform.isModLoaded("carpetmod");
+        CARPETMOD_LOADED = platform.isModLoaded("carpet");
     }
 }
