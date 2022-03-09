@@ -2,10 +2,8 @@ package org.samo_lego.taterzens.fabric.compatibility.carpet;
 
 import carpet.script.annotation.AnnotationParser;
 import carpet.script.annotation.ScarpetFunction;
-import carpet.script.value.EntityValue;
-import carpet.script.value.NullValue;
-import carpet.script.value.Value;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
@@ -26,9 +24,11 @@ public class AdditionalFunctions {
      * @param name name of taterzen to create.
      * @return created taterzen.
      */
-    @ScarpetFunction(maxParams = 2)
-    public EntityValue spawn_taterzen(ServerPlayer player, String name) {
-        return (EntityValue) EntityValue.of(TaterzensAPI.createTaterzen(player, name));
+    @ScarpetFunction
+    public Entity spawn_taterzen(ServerPlayer player, String name) {
+        TaterzenNPC npc = TaterzensAPI.createTaterzen(player, name);
+        player.getLevel().addFreshEntity(npc);
+        return npc;
     }
 
     /**
@@ -36,12 +36,9 @@ public class AdditionalFunctions {
      * @param player player to get taterzen from.
      * @return taterzen of player or null if player doesn't have taterzen selected.
      */
-    @ScarpetFunction(maxParams = 1)
-    public Value players_taterzen(ServerPlayer player) {
-        TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-        if (npc != null)
-            return EntityValue.of(npc);
-        return NullValue.NULL;
+    @ScarpetFunction
+    public Entity players_taterzen(ServerPlayer player) {
+        return ((ITaterzenEditor) player).getNpc();
     }
 
     /**
@@ -49,12 +46,12 @@ public class AdditionalFunctions {
      * @param id id of taterzen to get.
      * @return taterzen with given id or null if taterzen with given id doesn't exist.
      */
-    @ScarpetFunction(maxParams = 1)
-    public Value taterzen_by_id(int id) {
+    @ScarpetFunction
+    public Entity taterzen_by_id(int id) {
         // Check size of TATERZEN_NPCS
         if (id < Taterzens.TATERZEN_NPCS.size()) {
-            return EntityValue.of((TaterzenNPC) Taterzens.TATERZEN_NPCS.toArray()[id]);
+            return (TaterzenNPC) Taterzens.TATERZEN_NPCS.toArray()[id];
         }
-        return NullValue.NULL;
+        return null;
     }
 }
