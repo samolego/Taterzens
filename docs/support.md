@@ -1,16 +1,28 @@
----
-title: Support
----
+# Help! \<xyz\> doesn't work!
 
-## Donations
+1. Make sure you have installed the
+latest version Taterzens installed.
 
-Do you want to further support the development of Taterzens mod?
-You can donate [here](https://www.paypal.com/donate/?hosted_button_id=W8NZ8FJQDX4SY&item_name=Taterzens&cmd=_s-xclick). Thank you so much!
+2. Get the logs from
+`.minecraft/logs/latest.log`
+and crash reports (if crash occured)
+`.minecraft/crash-reports/crash<date>.txt`.
 
+3. Open a GitHub issue containing all
+the needed mentioned information.
 
-## Server renting ![](./assets/img/advert/apex_logo_dark.gif#only-light){ width="100" } ![](./assets/img/advert/apex_logo_light.gif#only-dark){ width="100" }
+# How do I achieve \<xyz\>?
 
+1. [Docs](https://samolego.github.io/Taterzens/)
+are a great place to start looking for features.
+You even have a search function up there :).
 
-[![](./assets/img/advert/apex_advert_banner.png){ loading=lazy align=right }](https://billing.apexminecrafthosting.com/aff.php?aff=7744)
-Taterzens is sponsored by [ApexHosting](https://billing.apexminecrafthosting.com/aff.php?aff=7744).
-You can rent a server there and support the development that way.
+2. You can also join the
+[discord](https://discord.gg/9PAesuHFnp) for
+further information. Someone might already had
+a similar issue, so you can try searching for it
+using discord's builtin search.
+
+If you need more information,
+don't be afraid to ask ;)!
+(just make sure to use the right channel)
