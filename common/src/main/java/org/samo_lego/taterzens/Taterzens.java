@@ -71,7 +71,7 @@ public class Taterzens {
 
     public Taterzens(Platform platform) {
         INSTANCE = this;
-        TATERZEN_TYPE = platform.registerTaterzenType();
+        platform.registerTaterzenType();
 
         ModDiscovery.checkLoadedMods(platform);
 

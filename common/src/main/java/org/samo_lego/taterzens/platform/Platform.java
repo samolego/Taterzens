@@ -1,8 +1,6 @@
 package org.samo_lego.taterzens.platform;
 
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.EntityType;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.nio.file.Path;
 
@@ -43,5 +41,5 @@ public abstract class Platform {
      * Registers the taterzen entity type.
      * @return the taterzen entity type that was registered.
      */
-    public abstract EntityType<TaterzenNPC> registerTaterzenType();
+    public abstract void registerTaterzenType();
 }
