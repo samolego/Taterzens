@@ -38,9 +38,10 @@ dependencies {
     shadowCommon("com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}") { transitive false }
 
     // SGUI
-    //modImplementation("com.github.samolego:forgified-sgui:${project.fsgui_version}")
-    //shadowCommon("com.github.samolego:forgified-sgui:${project.fsgui_version}") { transitive false }
-    modImplementation(shadowCommon("eu.pb4:sgui:${rootProject.sgui_version}") { transitive false })
+    modImplementation("com.github.samolego:forgified-sgui:${project.fsgui_version}")
+    shadowCommon("com.github.samolego:forgified-sgui:${project.fsgui_version}") { transitive false }
+    //modImplementation("eu.pb4:sgui:${rootProject.sgui_version}")
+    //shadowCommon("eu.pb4:sgui:${rootProject.sgui_version}") { transitive false }
 
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
