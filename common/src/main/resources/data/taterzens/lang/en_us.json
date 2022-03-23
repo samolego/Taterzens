@@ -55,6 +55,7 @@
   "taterzens.command.trait.error.404": "No traits with id %s were found.",
   "taterzens.command.trait.list": "Taterzen %s has the following traits set. Click on X to remove one.",
   "taterzens.command.pose": "Taterzen pose has been set to %s.",
+  "taterzens.command.respawn.toggle": "Taterzen respawn rule has been set to %s.",
   "taterzens.command.movement.set": "Movement type has been set to %s.",
   "taterzens.command.movement.follow.set": "Taterzen following goal has been set to %s.",
   "taterzens.command.movement.follow.error.uuid": "Follow type %s requires uuid argument.",

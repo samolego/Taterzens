@@ -52,6 +52,7 @@
   "taterzens.command.trait.error.404": "Nobena lastnost nima id-ja %s.",
   "taterzens.command.trait.list": "Krompirjevec %s ima sledeče lastnosti. Klikni na X za odstranitev.",
   "taterzens.command.pose": "Položaj krompirjevca je bil nastavljen na %s.",
+  "taterzens.command.respawn.toggle": "Krompirjevčevo oživetje po smrti je bilo nastavljeno na %s.",
   "taterzens.command.movement.set": "Način premikanja je bil nastavljen na %s.",
   "taterzens.command.movement.follow.set": "Krompirjevčev tip sledenja je bil nastavljen na %s.",
   "taterzens.command.movement.follow.error.uuid": "Tip sledenja %s potrebuje še dodaten uuid argument.",
