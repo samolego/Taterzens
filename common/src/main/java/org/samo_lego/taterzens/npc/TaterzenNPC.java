@@ -177,6 +177,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     private UUID lockedUuid;
     private final Map<UUID, Long> commandTimes = new HashMap<>();
+    private ServerPlayer lastLookTarget;
 
     /**
      * Creates a TaterzenNPC.
@@ -494,12 +495,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 }
             }
         }
-        if(!players.isEmpty()) {
+        if(!players.isEmpty() || this.lastLookTarget != null) {
             // We tick forced look here, as we already have players list.
             if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-                ServerPlayer player = players.get(this.random.nextInt(players.size()));
+                if (this.lastLookTarget == null || this.distanceTo(this.lastLookTarget) > 5.0D) {
+                    this.lastLookTarget = players.get(this.random.nextInt(players.size()));
+                }
 
-                this.lookAt(player, 60.0F, 60.0F);
+                this.lookAt(this.lastLookTarget, 60.0F, 60.0F);
                 this.setYHeadRot(this.getYRot());
             }
             // Tick profession
