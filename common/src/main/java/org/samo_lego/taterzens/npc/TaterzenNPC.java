@@ -561,6 +561,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * Updates Taterzen's {@link GameProfile} for others.
      */
     public void sendProfileUpdates() {
+        if (this.level.isClientSide()) return;
+
         if(DISGUISELIB_LOADED)
             DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
         else {
