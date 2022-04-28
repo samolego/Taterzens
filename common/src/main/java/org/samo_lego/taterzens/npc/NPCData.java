@@ -76,6 +76,7 @@ public class NPCData {
     public boolean allowRiding = config.defaults.allowRiding;
     public long minCommandInteractionTime = config.defaults.minInteractionTime;
     public String commandCooldownMessage = config.defaults.commandCooldownMessage;
+    public boolean allowSwimming = config.defaults.allowSwim;
 
     public static class Follow {
         /**

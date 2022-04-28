@@ -139,6 +139,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public final RandomLookAroundGoal lookAroundGoal = new RandomLookAroundGoal(this);
     public final RandomStrollGoal wanderAroundFarGoal = new RandomStrollGoal(this, 1.0D, 30);
 
+    public final FloatGoal swimGoal = new FloatGoal(this);
+
     /**
      * Target selectors.
      */
@@ -223,6 +225,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 .add(Attributes.FOLLOW_RANGE, 35.0D);
     }
 
+    /**
+     * Creates a fake player for this NPC
+     * in order to be able to use the
+     * player synched data.
+     */
     public void constructFakePlayer() {
         this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
             @Override
@@ -330,6 +337,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.goalSelector.addGoal(priority, lookPlayerGoal);
             this.goalSelector.addGoal(priority + 1, lookAroundGoal);
         }
+        if (this.npcData.allowSwimming)
+            this.goalSelector.addGoal(0, new FloatGoal(this));
     }
 
     /**
@@ -786,6 +795,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         this.setAllowFlight(npcTag.getBoolean("AllowFlight"));
 
+        this.setAllowSwimming(npcTag.getBoolean("AllowSwimming"));
+
         this.setMinCommandInteractionTime(npcTag.getLong("MinCommandInteractionTime"));
     }
 
@@ -903,6 +914,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             npcTag.putUUID("LockedBy", this.lockedUuid);
 
         npcTag.putBoolean("AllowFlight", this.npcData.allowFlight);
+
+        npcTag.putBoolean("AllowSwimming", this.npcData.allowSwimming);
 
         npcTag.putLong("MinCommandInteractionTime", this.npcData.minCommandInteractionTime);
 
@@ -1275,7 +1288,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
+
         this.goalSelector.addGoal(2, new OpenDoorGoal(this, true));
     }
 
@@ -1513,8 +1526,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.addProfession(professionId, PROFESSION_TYPES.get(professionId).apply(this));
         } else if(LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
             this.addProfession(professionId, LEGACY_PROFESSION_TYPES.get(professionId).create(this));
-        } else
+        } else {
             Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().getString());
+        }
     }
 
     /**
@@ -1815,5 +1829,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public boolean canAttack(LivingEntity target) {
         return (!(target instanceof Player) || (this.level.getDifficulty() != Difficulty.PEACEFUL || config.combatInPeaceful)) && target.canBeSeenAsEnemy();
+    }
+
+    public void setAllowSwimming(boolean allowSwimming) {
+        this.goalSelector.removeGoal(this.swimGoal);
+        if (allowSwimming) {
+            this.goalSelector.addGoal(0, this.swimGoal);
+        }
+        this.setSwimming(this.isSwimming() && allowSwimming);
+        this.getNavigation().setCanFloat(allowSwimming);
+        this.npcData.allowSwimming = allowSwimming;
     }
 }

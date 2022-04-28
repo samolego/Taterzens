@@ -179,10 +179,13 @@ public class TaterzensAPI {
      */
     @Deprecated
     public static void registerProfession(ResourceLocation professionId, TaterzenProfession profession) {
-        if(!LEGACY_PROFESSION_TYPES.containsKey(professionId))
+        if(!LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
             LEGACY_PROFESSION_TYPES.put(professionId, profession);
-        else
+            LOGGER.warn("[Taterzens] Profession {} is using a deprecated way of registering. This is scheduled for removal.", professionId.toString());
+        }
+        else {
             LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
+        }
     }
 
     /**

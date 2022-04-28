@@ -264,7 +264,11 @@ public class TaterConfig implements IBrigadierConfigurator {
         @SerializedName("allow_riding")
         public boolean allowRiding = false;
 
-
+        @SerializedName("// Whether Taterzen is able to swim.")
+        public final String _comment_allowSwim = "";
+        @BrigadierDescription(defaultOption = "true")
+        @SerializedName("allow_swim")
+        public boolean allowSwim = true;
     }
 
     /**
