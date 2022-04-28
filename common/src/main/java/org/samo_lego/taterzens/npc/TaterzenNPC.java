@@ -50,7 +50,6 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
@@ -89,6 +88,7 @@ import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
+import org.samo_lego.taterzens.npc.ai.goal.LazyPathGoal;
 import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
@@ -158,7 +158,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Used for {@link NPCData.Movement#PATH}.
      */
-    public final MoveTowardsRestrictionGoal pathGoal = new MoveTowardsRestrictionGoal(this, 1.0D);
+    public final LazyPathGoal pathGoal = new LazyPathGoal(this, 1.0D);
     public final DirectPathGoal directPathGoal = new DirectPathGoal(this, 1.0D);
 
     /**
@@ -329,7 +329,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 this.goalSelector.addGoal(4, directPathGoal);
                 priority = 5;
             } else if(movement == NPCData.Movement.PATH) {
-                    this.goalSelector.addGoal(4, pathGoal);
+                this.goalSelector.addGoal(4, pathGoal);
             } else if(movement == NPCData.Movement.FREE) {
                 this.goalSelector.addGoal(6, wanderAroundFarGoal);
             }
