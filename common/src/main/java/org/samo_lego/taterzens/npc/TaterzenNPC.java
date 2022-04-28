@@ -127,7 +127,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     private final NPCData npcData = new NPCData();
 
     private final MinecraftServer server;
-    private final Player fakePlayer;
+    private Player fakePlayer;
     private final LinkedHashMap<ResourceLocation, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
 
@@ -202,18 +202,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
         this.server = world.getServer();
 
-        this.fakePlayer = new Player(world, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return false;
-            }
-        };
-        this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
+        // Null check due top gravity changer incompatibility
+        if (this.fakePlayer == null) {
+            this.constructFakePlayer();
+        }
 
         TATERZEN_NPCS.add(this);
     }
@@ -229,6 +221,21 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 .add(Attributes.MOVEMENT_SPEED, 0.2505D)
                 .add(Attributes.FLYING_SPEED, 0.8D)
                 .add(Attributes.FOLLOW_RANGE, 35.0D);
+    }
+
+    public void constructFakePlayer() {
+        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+        };
+        this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
     }
 
     /**
@@ -344,6 +351,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public SynchedEntityData getEntityData() {
+        if (this.fakePlayer == null) {
+            // Fixes gravity changer incompatibility
+            this.constructFakePlayer();
+        }
         return this.fakePlayer.getEntityData();
     }
 
