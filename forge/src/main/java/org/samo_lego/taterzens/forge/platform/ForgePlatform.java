@@ -1,7 +1,9 @@
 package org.samo_lego.taterzens.forge.platform;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.RegistryManager;
@@ -42,5 +44,10 @@ public class ForgePlatform extends Platform {
                 .sized(0.6F, 1.8F)
                 .build(NPC_ID.toString())
                 .setRegistryName(NPC_ID.toString());*/
+    }
+
+    @Override
+    public void openEditorGui(Player player) {
+        player.sendMessage(new TranslatableComponent("taterzens.gui.forge"), player.getUUID());
     }
 }

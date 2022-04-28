@@ -103,5 +103,6 @@
   "taterzens.command.language.server_translations_hint.2": "dokler ne spremeniš jezika na tvoji napravi.",
   "taterzens.command.action.interact.success": "Krompirjevec %s je uporabil kocko na %s.",
   "taterzens.command.action.interact.fail": "Lokacija %s je predaleč.",
-  "taterzens.command.action.goto.success": "Krompirjevec %s se je odpravil proti lokaciji %s."
+  "taterzens.command.action.goto.success": "Krompirjevec %s se je odpravil proti lokaciji %s.",
+  "taterzens.gui.forge": "Grafični vmesnik ne dela na Forge. Če ga želiš uporabljati, uporabi Fabric verzijo."
 }

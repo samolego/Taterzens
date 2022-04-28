@@ -49,7 +49,9 @@ dependencies {
 
     // Carpet
     //modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")
-    modCompileOnly("carpet:fabric-carpet:1.18-pre4-${project.carpet_core_version}")
+    //modCompileOnly("carpet:fabric-carpet:1.18-pre4-${project.carpet_core_version}")
+    // Masa's maven is down atm
+    modImplementation "com.github.gnembon:fabric-carpet:${project.carpet_core_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

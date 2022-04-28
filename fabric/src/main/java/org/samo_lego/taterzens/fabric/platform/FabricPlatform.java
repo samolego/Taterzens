@@ -1,21 +1,27 @@
 package org.samo_lego.taterzens.fabric.platform;
 
+import eu.pb4.sgui.api.gui.SimpleGui;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
 import org.samo_lego.taterzens.fabric.mixin.MappedRegistryAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.platform.Platform;
 
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static net.minecraft.core.Registry.ITEM;
 import static org.samo_lego.taterzens.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
+import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
+import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
 
 public class FabricPlatform extends Platform {
 
@@ -64,5 +70,11 @@ public class FabricPlatform extends Platform {
                         .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
                         .build()
         );
+    }
+
+    @Override
+    public void openEditorGui(Player player) {
+        SimpleGui editorGUI = createCommandGui((ServerPlayer) player, null, npcNode, Collections.singletonList("npc"), false);
+        editorGUI.open();
     }
 }

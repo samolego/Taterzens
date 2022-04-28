@@ -15,7 +15,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.gui.MessagesEditGUI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import java.util.ArrayList;
@@ -31,9 +30,10 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class MessagesCommand {
+    public static LiteralCommandNode<CommandSourceStack> messagesNode;
 
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
-        LiteralCommandNode<CommandSourceStack> messagesNode = literal("messages")
+        messagesNode = literal("messages")
                 .then(literal("clear")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.clear", config.perms.npcCommandPermissionLevel))
                         .executes(MessagesCommand::clearTaterzenMessages)
@@ -50,7 +50,6 @@ public class MessagesCommand {
                                 )
                         )
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.reorder", config.perms.npcCommandPermissionLevel))
-                        .executes(MessagesCommand::reorderMessages)
                 )
                 .then(argument("message id", IntegerArgumentType.integer())
                         .then(literal("delete")
@@ -68,7 +67,7 @@ public class MessagesCommand {
                 )
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.messages.edit", config.perms.npcCommandPermissionLevel))
                 .executes(MessagesCommand::editTaterzenMessages).build();
-        
+
         editNode.addChild(messagesNode);
     }
 
@@ -110,14 +109,6 @@ public class MessagesCommand {
             ).withStyle(ChatFormatting.GREEN), false);
         });
 
-    }
-
-    private static int reorderMessages(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
-        ServerPlayer player = source.getPlayerOrException();
-        return NpcCommand.selectedTaterzenExecutor(player, taterzen ->
-                new MessagesEditGUI(player, taterzen).open()
-        );
     }
 
     private static int deleteTaterzenMessage(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

@@ -87,6 +87,7 @@
   "taterzens.command.language.error": "An error occurred when trying to fetch language %s.",
   "taterzens.command.language.404": "Language %s isn't available. Would you like to help with translations? Visit %s for more info.",
   "taterzens.command.wiki": "Visit %s for documentation.",
+  "taterzens.gui.forge": "GUIs are not supported in Forge version. Please install Fabric one.",
   "taterzens.npc.interact.cooldown": "You have to wait %s seconds before you can interact with me again.",
   "taterzens.tooltip.current_editor": "Current editor: %s.",
   "taterzens.tooltip.see_docs": "Navigate to documentation site.",

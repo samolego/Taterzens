@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
+import org.samo_lego.taterzens.fabric.commands.MessagesReorderCommand;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.AdditionalFunctions;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.ScarpetProfession;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.ScarpetTraitCommand;
@@ -34,6 +35,7 @@ public class TaterzensFabric implements ModInitializer {
         // Events
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             Taterzens.registerCommands(dispatcher);
+            MessagesReorderCommand.register(dispatcher);
             ScarpetTraitCommand.register();
         });
         UseBlockCallback.EVENT.register(new BlockInteractEventImpl());
