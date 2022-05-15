@@ -1,7 +1,6 @@
 package org.samo_lego.taterzens.forge.platform;
 
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
@@ -10,6 +9,8 @@ import net.minecraftforge.registries.RegistryManager;
 import org.samo_lego.taterzens.platform.Platform;
 
 import java.nio.file.Path;
+
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
 
 public class ForgePlatform extends Platform {
 
@@ -36,7 +37,6 @@ public class ForgePlatform extends Platform {
         return source.hasPermission(fallbackLevel);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void registerTaterzenType() {
         /*return (EntityType<TaterzenNPC>) EntityType.Builder
@@ -48,6 +48,6 @@ public class ForgePlatform extends Platform {
 
     @Override
     public void openEditorGui(Player player) {
-        player.sendMessage(new TranslatableComponent("taterzens.gui.forge"), player.getUUID());
+        player.sendMessage(errorText("taterzens.gui.forge"), player.getUUID());
     }
 }
