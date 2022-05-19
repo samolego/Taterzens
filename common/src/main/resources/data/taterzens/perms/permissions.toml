@@ -26,6 +26,10 @@ permissions = [
    "taterzens.npc.select.bypass",
    #  Selects Taterzens by ID.
    "taterzens.npc.select.id",
+   #  Selects Taterzens by name.
+   "taterzens.npc.select.name",
+   #  Selects Taterzens by UUID.
+   "taterzens.npc.select.uuid",
    #  Deselects Taterzen.
    "taterzens.npc.select.deselect",
    #  Lists Taterzens.
