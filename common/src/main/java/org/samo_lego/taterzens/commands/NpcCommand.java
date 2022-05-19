@@ -10,7 +10,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.MessageArgument;
-import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -64,18 +63,21 @@ public class NpcCommand {
                         .then(literal("id")
                             .then(argument("id", IntegerArgumentType.integer(1))
                                     .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
+                                    .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenIndices(), builder))
                                     .executes(NpcCommand::selectTaterzenById)
                             )
                         )
-                        .then(literal("name") // TODO: Autocompletion suggestions
+                        .then(literal("name")
                             .then(argument("name", StringArgumentType.string())
                                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.name", config.perms.npcCommandPermissionLevel))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenNames(), builder))
                                 .executes(NpcCommand::selectTaterzenByName)
                             )
                         )
-                        .then(literal("uuid") // TODO: Autocompletion suggestions
+                        .then(literal("uuid")
                             .then(argument("uuid", StringArgumentType.string())
                                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.uuid", config.perms.npcCommandPermissionLevel))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenUUIDs(), builder))
                                 .executes(NpcCommand::selectTaterzenByUUID)
                             )
                         )
@@ -187,6 +189,13 @@ public class NpcCommand {
         source.sendSuccess(response, false);
         return 1;
     }
+    private static String[] getAvailableTaterzenIndices() {
+        String[] availableIDs = new String[TATERZEN_NPCS.size()];
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableIDs[i] = Integer.toString(i + 1);
+        }
+        return availableIDs;
+    }
 
     private static int selectTaterzenById(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         int id = IntegerArgumentType.getInteger(context, "id");
@@ -213,6 +222,20 @@ public class NpcCommand {
             }
         }
         return 1;
+    }
+
+    private static String[] getAvailableTaterzenNames() {
+        String[] availableNames = new String[TATERZEN_NPCS.size()];
+        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableNames[i] = taterzenArray[i].getName().getString();
+            availableNames[i] = "\"" + availableNames[i] + "\""; // Adds quotation marks to the suggested name, such that
+                                                                 // Names containing a whitespace character (ex. the
+                                                                 // name is 'Foo Bar') can be completed and correctly
+                                                                 // used without the user having to enclose the argument
+                                                                 // name with quotation marks themselves.
+        }
+        return availableNames;
     }
 
     private static int selectTaterzenByName(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -268,6 +291,15 @@ public class NpcCommand {
 
             return -1;
         }
+    }
+
+    private static String[] getAvailableTaterzenUUIDs() {
+        String[] availableUUIDs = new String[TATERZEN_NPCS.size()];
+        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableUUIDs[i] = taterzenArray[i].getUUID().toString();
+        }
+        return availableUUIDs;
     }
 
     private static int selectTaterzenByUUID(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
