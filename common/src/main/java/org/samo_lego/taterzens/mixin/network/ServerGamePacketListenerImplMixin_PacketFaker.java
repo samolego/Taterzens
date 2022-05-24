@@ -107,9 +107,10 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // the client to fetch skin.
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
-            this.taterzens$queueTimer = config.taterzenTablistTimeout;
-            if(this.taterzens$queueTimer != -1)
+            if(config.taterzenTablistTimeout != -1) {
                 this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
+                this.taterzens$queueTimer = config.taterzenTablistTimeout;
+            }
 
             this.connection.send(new ClientboundRotateHeadPacket(entity, (byte)((int)(entity.getYHeadRot() * 256.0F / 360.0F))), listener);
 
@@ -134,17 +135,13 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
             ((ClientboundSetEntityDataPacketAccessor) packet).setPackedItems(trackedValues);
         } else if(packet instanceof ClientboundPlayerInfoPacket && !this.taterzens$skipCheck) {
-            this.taterzens$skipCheck = true;
-
-            this.taterzens$queueTimer = config.taterzenTablistTimeout;
             ((ClientboundPlayerInfoPacketAccessor) packet).getEntries().forEach(entry -> {
                 if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
                     // Fixes unloaded taterzens showing in tablist (disguiselib)
                     this.taterzens$tablistQueue.add(new Pair<>(entry.getProfile(), entry.getDisplayName()));
                 }
             });
-
-            this.taterzens$skipCheck = false;
+            this.taterzens$queueTimer = config.taterzenTablistTimeout;
         }
     }
 

@@ -56,6 +56,7 @@ public class TaterConfig implements IBrigadierConfigurator {
      * After how many ticks Taterzens should be cleared from tablist.
      * Some delay is needed, otherwise clients don't fetch their skins.
      */
+    @BrigadierDescription(defaultOption = "30")
     @SerializedName("taterzen_tablist_timeout")
     public int taterzenTablistTimeout = 30;
 
