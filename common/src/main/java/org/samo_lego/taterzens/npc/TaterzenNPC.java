@@ -209,6 +209,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.constructFakePlayer();
         }
 
+        // Set the sounds of this NPC to the default values from the config file
+        // (will be overwritten by individual configuration when e.g. loading corresponding NBT data)
+        if (!config.defaults.ambientSounds.isEmpty()) {
+            this.npcData.ambientSounds = new ArrayList<>(config.defaults.ambientSounds);
+        }
+        if (!config.defaults.hurtSounds.isEmpty()) {
+            this.npcData.hurtSounds = new ArrayList<>(config.defaults.hurtSounds);
+        }
+        if (!config.defaults.deathSounds.isEmpty()) {
+            this.npcData.deathSounds = new ArrayList<>(config.defaults.deathSounds);
+        }
+
         TATERZEN_NPCS.add(this);
     }
 
@@ -243,6 +255,54 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
         };
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
+    }
+
+    /**
+     * Adds sounds to the list of ambient sounds of a Taterzen.
+     * @param ambientSound The ambient sound resource location to add.
+     */
+    public void addAmbientSound(String ambientSound) {
+        this.npcData.ambientSounds.add(ambientSound);
+    }
+
+    /**
+     * Adds sounds to the list of hurt sounds of a Taterzen.
+     * @param hurtSound The hurt sound resource location to add.
+     */
+    public void addHurtSound(String hurtSound) {
+        this.npcData.hurtSounds.add(hurtSound);
+    }
+
+    /**
+     * Adds sounds to the list of death sounds of a Taterzen.
+     * @param deathSound The death sound resource location to add.
+     */
+    public void addDeathSound(String deathSound) {
+        this.npcData.deathSounds.add(deathSound);
+    }
+
+    /**
+     * Removes sounds from the list of ambient sounds of a Taterzen.
+     * @param index The index of the ambient sound resource location within the NPCData structure.
+     */
+    public void removeAmbientSound(int index) {
+        this.npcData.ambientSounds.remove(index);
+    }
+
+    /**
+     * Removes sounds from the list of hurt sounds of a Taterzen.
+     * @param index The index of the hurt sound resource location within the NPCData structure.
+     */
+    public void removeHurtSound(int index) {
+        this.npcData.hurtSounds.remove(index);
+    }
+
+    /**
+     * Removes sounds from the list of death sounds of a Taterzen.
+     * @param index The index of the death sound resource location within the NPCData structure.
+     */
+    public void removeDeathSound(int index) {
+        this.npcData.deathSounds.remove(index);
     }
 
     /**
@@ -666,6 +726,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         CompoundTag npcTag = tag.getCompound("TaterzenNPCTag");
 
+        // Boolean tags
         CompoundTag tags = npcTag.getCompound("Tags");
         this.setLeashable(tags.getBoolean("Leashable"));
         this.setPushable(tags.getBoolean("Pushable"));
@@ -679,7 +740,26 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Skin layers
         this.setSkinLayers(npcTag.getByte("SkinLayers"));
 
-        // Multiple commands
+        // Sounds
+        ListTag ambientSounds = (ListTag) npcTag.get("AmbientSounds");
+        if (ambientSounds != null) {
+            this.npcData.ambientSounds = new ArrayList<>(); // removes default loaded sounds
+            ambientSounds.forEach(snd -> this.addAmbientSound(snd.getAsString()));
+        }
+
+        ListTag hurtSounds = (ListTag) npcTag.get("HurtSounds");
+        if (hurtSounds != null) {
+            this.npcData.hurtSounds = new ArrayList<>(); // removes default loaded sounds
+            hurtSounds.forEach(snd -> this.addHurtSound(snd.getAsString()));
+        }
+
+        ListTag deathSounds = (ListTag) npcTag.get("DeathSounds");
+        if (deathSounds != null) {
+            this.npcData.deathSounds = new ArrayList<>(); // removes default loaded sounds
+            deathSounds.forEach(snd -> this.addDeathSound(snd.getAsString()));
+        }
+
+        // Commands
         ListTag commands = (ListTag) npcTag.get("Commands");
         if(commands != null) {
             commands.forEach(cmdTag -> this.addCommand(cmdTag.getAsString()));
@@ -816,6 +896,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         npcTag.putString("movement", this.npcData.movement.toString());
 
+        // Boolean tags
         CompoundTag tags = new CompoundTag();
 
         tags.putBoolean("Leashable", this.npcData.leashable);
@@ -829,8 +910,21 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         npcTag.put("Tags", tags);
 
-
+        // Skin layers
         npcTag.putByte("SkinLayers", this.fakePlayer.getEntityData().get(getPLAYER_MODE_CUSTOMISATION()));
+
+        // Sounds
+        ListTag ambientSounds = new ListTag();
+        this.npcData.ambientSounds.forEach(snd -> ambientSounds.add(StringTag.valueOf(snd)));
+        npcTag.put("AmbientSounds", ambientSounds);
+
+        ListTag hurtSounds = new ListTag();
+        this.npcData.hurtSounds.forEach(snd -> hurtSounds.add(StringTag.valueOf(snd)));
+        npcTag.put("HurtSounds", hurtSounds);
+
+        ListTag deathSounds = new ListTag();
+        this.npcData.deathSounds.forEach(snd -> deathSounds.add(StringTag.valueOf(snd)));
+        npcTag.put("DeathSounds", deathSounds);
 
         // Commands
         ListTag commands = new ListTag();
@@ -1463,35 +1557,62 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     protected SoundEvent getAmbientSound() {
-        if(config.defaults.ambientSounds.isEmpty() || !this.npcData.allowSounds)
+        if(!this.npcData.allowSounds || this.npcData.ambientSounds.isEmpty())
             return null;
 
-        int rnd = this.random.nextInt(config.defaults.ambientSounds.size());
-        ResourceLocation sound = new ResourceLocation(config.defaults.ambientSounds.get(rnd));
+        ResourceLocation sound;
+        int rnd = this.random.nextInt(this.npcData.ambientSounds.size());
+        sound = new ResourceLocation(this.npcData.ambientSounds.get(rnd));
 
         return new SoundEvent(sound);
+    }
+
+    public ArrayList<String> getAmbientSoundData() {
+        return this.npcData.ambientSounds;
+    }
+
+    public void setAmbientSoundData(ArrayList<String> ambientSounds) {
+        this.npcData.ambientSounds = ambientSounds;
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        if(config.defaults.hurtSounds.isEmpty() || !this.npcData.allowSounds)
+        if(!this.npcData.allowSounds || this.npcData.hurtSounds.isEmpty())
             return null;
 
-        int rnd = this.random.nextInt(config.defaults.hurtSounds.size());
-        ResourceLocation sound = new ResourceLocation(config.defaults.hurtSounds.get(rnd));
+        ResourceLocation sound;
+        int rnd = this.random.nextInt(this.npcData.hurtSounds.size());
+        sound = new ResourceLocation(this.npcData.hurtSounds.get(rnd));
 
         return new SoundEvent(sound);
     }
 
+    public ArrayList<String> getHurtSoundData() {
+        return this.npcData.hurtSounds;
+    }
+
+    public void setHurtSoundData(ArrayList<String> hurtSounds) {
+        this.npcData.hurtSounds = hurtSounds;
+    }
+
     @Override
     protected SoundEvent getDeathSound() {
-        if(config.defaults.deathSounds.isEmpty() || !this.npcData.allowSounds)
+        if(!this.npcData.allowSounds || this.npcData.deathSounds.isEmpty())
             return null;
 
-        int rnd = this.random.nextInt(config.defaults.deathSounds.size());
-        ResourceLocation sound = new ResourceLocation(config.defaults.deathSounds.get(rnd));
+        ResourceLocation sound;
+        int rnd = this.random.nextInt(this.npcData.deathSounds.size());
+        sound = new ResourceLocation(this.npcData.deathSounds.get(rnd));
 
         return new SoundEvent(sound);
+    }
+
+    public ArrayList<String> getDeathSoundData() {
+        return this.npcData.deathSounds;
+    }
+
+    public void setDeathSoundData(ArrayList<String> deathSounds) {
+        this.npcData.deathSounds = deathSounds;
     }
 
     @Override

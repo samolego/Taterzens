@@ -133,6 +133,15 @@ permissions = [
    # Enables editing Taterzen's vehicle
    "taterzens.npc.edit.mount",
 
+   # Enables editing Taterzen's sounds
+   "taterzen.npc.edit.sounds",
+   # Enables listing Taterzen's sounds
+   "taterzen.npc.edit.sounds.list",
+   # Enables adding sounds to Taterzen
+   "taterzen.npc.edit.sounds.add",
+   # Enables adding sounds from Taterzen
+   "taterzen.npc.edit.sounds.remove",
+
    # Enables providing an action to Taterzen
    # Going to block position
    "taterzens.npc.action.goto",
