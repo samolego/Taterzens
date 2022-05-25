@@ -116,7 +116,6 @@
   "taterzens.tooltip.exit": "Exit",
   "taterzens.error.invalid.url": "URL %s is malformed.",
   "taterzens.error.invalid.text": "The text nbt you entered is invalid.",
-  "taterzens.error.invalid.uuid": "The uuid you entered is invalid.",
   "taterzens.error.404.detected": "No Taterzen was detected in front of you.",
   "taterzens.error.404.id": "No Taterzen with id %s was found.",
   "taterzens.error.404.name": "No Taterzen with name %s was found.",

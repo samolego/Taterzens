@@ -252,18 +252,19 @@ public class NpcCommand {
             if (npcIt.getName().getString().equals(name)) {
                 taterzen = npcIt;
                 count++;
+
+                if (count > 1) {
+                    source.sendFailure(errorText("taterzens.error.multiple.name", name));
+                    return 0;
+                }
             }
         }
 
         if (count == 0) { // equivalent to taterzen == null
             source.sendFailure(errorText("taterzens.error.404.name", name));
-            return -1;
+            return 0;
         }
-        else if (count > 1) {
-            source.sendFailure(errorText("taterzens.error.multiple.name", name));
-            return -1;
-        }
-        else if (count == 1) {
+        else { // if count == 1
 
             ServerPlayer player = source.getPlayerOrException();
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
@@ -281,15 +282,8 @@ public class NpcCommand {
                 source.sendFailure(
                         errorText("taterzens.command.error.locked", taterzen.getName().getString())
                 );
-                return -1;
+                return 0;
             }
-        }
-        else {
-            // in theory there could be more than 2^32-1 NPCs.
-            // More than that will result in an overflow, i.e. a negative int.
-            // In practise, this is highly improbable.
-
-            return -1;
         }
     }
 
@@ -309,8 +303,8 @@ public class NpcCommand {
         try {
             uuid = UUID.fromString(StringArgumentType.getString(context, "uuid"));
         } catch (IllegalArgumentException ex) {
-                source.sendFailure(errorText("taterzens.error.invalid.uuid"));
-            return -1;
+                source.sendFailure(errorText("argument.uuid.invalid"));
+            return 0;
         }
 
         TaterzenNPC taterzen = null;
@@ -324,7 +318,7 @@ public class NpcCommand {
         }
         if (taterzen == null) {
             source.sendFailure(errorText("taterzens.error.404.uuid", uuid.toString()));
-            return -1;
+            return 0;
         } else {
             ServerPlayer player = source.getPlayerOrException();
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
@@ -342,7 +336,7 @@ public class NpcCommand {
                 source.sendFailure(
                         errorText("taterzens.command.error.locked", taterzen.getName().getString())
                 );
-                return -1;
+                return 0;
             }
         }
     }
