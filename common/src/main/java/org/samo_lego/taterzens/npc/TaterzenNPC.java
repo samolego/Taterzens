@@ -1077,12 +1077,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Handles interaction (right clicking on the NPC).
      * @param player player interacting with NPC
-     * @param pos interaction pos
      * @param hand player's interacting hand
      * @return {@link InteractionResult#PASS} if NPC has a right click action, otherwise {@link InteractionResult#FAIL}
      */
     @Override
-    public InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ITaterzenPlayer ipl = (ITaterzenPlayer) player;
         long lastAction = ((ServerPlayer) player).getLastActionTime();
 
@@ -1094,7 +1093,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
 
         for(TaterzenProfession profession : this.professions.values()) {
-            InteractionResult professionResult = profession.interactAt(player, pos, hand);
+            InteractionResult professionResult = profession.interactAt(player, player.position(), hand);
             if(professionResult != InteractionResult.PASS)
                 return professionResult;
         }
@@ -1196,6 +1195,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         return this.interact(player, hand);
     }
+
 
     /**
      * Sets the cooldown message.
