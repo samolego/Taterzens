@@ -12,31 +12,21 @@ A Taterzen addon that brings tool-repairing-guys to Minecraft.
 Blacksmiths addon allows you to create Taterzens which can repair tools.
 They can be configured how much durability per second they repair, whether they "work" in unloaded chunks, etc.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/blacksmith_profession_showcase.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/RrduZUPcmfY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Usage
 
 Make sure to [assign](./assigning_professions.md#giving-taterzen-a-profession) the `blacksmiths:blacksmith` profession to your Taterzen.
 After that, simply use right click on the Taterzen to open the GUI.
 
-
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/adding_blacksmith_profeesion.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/9gJV5l_lSlI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Pricing
 
 If you install [Grand Economy](https://www.curseforge.com/minecraft/mc-mods/grand-economy) mod, you can use it instead of defualt item pricing.
 Otherwise you can set the default payment item and how much is it "worth".
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/grand_economy_impl.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/L8c5hZvJOBU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Per-taterzen configuration
 

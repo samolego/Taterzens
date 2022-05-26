@@ -15,17 +15,12 @@ title: Entity Types
 Taterzens mod supports all vanilla entities (except for fishing bober).
 Modded ones *should* work as well.
 
-![Changing type](../../assets/img/entity_type_change.gif)
-
 To change the type of the Taterzen, simply use the following command
 ```
 /npc edit type <entity type>
 ```
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/entity_type_changing.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/OD84_yOOUoA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Adding custom NBT
 
@@ -42,10 +37,8 @@ DisguiseLib supports disguises with nbt as well. To utilize it, append the nbt d
 ```
 /npc edit type minecraft:villager {VillagerData:{profession:"minecraft:armorer",type:"minecraft:desert"}}
 ```
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/type_change_nbt.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/jrYyGCQgB-o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 #### Baby chicken
 ```

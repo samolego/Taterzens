@@ -10,7 +10,8 @@ title: Path
 
 ## Path
 
-![Path showcase](../assets/img/path_showcase.gif)
+![Path showcase](https://user-images.githubusercontent.com/34912839/170567577-a063d21a-5002-4976-b3ca-f0a5cf3a4a40.gif)
+
 
 ## Setting path nodes
 
@@ -129,7 +130,4 @@ To remove all nodes, run
 ```
 You'd probably want to set the movement to `NONE` as well.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/path_creation.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/ttTO_gmtBvU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

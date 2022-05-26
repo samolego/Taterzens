@@ -24,8 +24,4 @@ When [entity type](./types.md) is set to `PLAYER`, "working" poses are
 
 other poses usually just change the name position and do not appear visually different.
 
-
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/poses.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/21sM1KdcQsE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

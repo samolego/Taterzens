@@ -1,4 +1,4 @@
-# Help! \<xyz\> doesn't work!
+# Issues
 
 1. Make sure you have installed the
 latest version Taterzens installed.
@@ -8,10 +8,10 @@ latest version Taterzens installed.
 and crash reports (if crash occured)
 `.minecraft/crash-reports/crash<date>.txt`.
 
-3. Open a GitHub issue containing all
+3. Open a [GitHub issue](https://github.com/samolego/Taterzens/issues/new/choose) containing all
 the needed mentioned information.
 
-# How do I achieve \<xyz\>?
+# How do I achieve &lt;xyz&gt;?
 
 1. [Docs](https://samolego.github.io/Taterzens/)
 are a great place to start looking for features.

@@ -71,14 +71,10 @@ This would send a following-like text:
 3. Send it in chat and NPC will parse it.
 
 === "Chat"
-	<video controls="true" allowfullscreen="true" width="100%">
-		<source src="../../assets/video/messages.mp4" type="video/mp4">
-	</video>
+	<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/que9BA9BwLs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 === "GUI"
-	<video controls="true" allowfullscreen="true" width="100%">
-		<source src="../../assets/video/gui_messages.webm" type="video/mp4">
-	</video>
+	<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/AAEuWPYtkcI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## And then?
 
