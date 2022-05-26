@@ -455,6 +455,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.npcData.pathTargets.remove(blockPos);
     }
 
+    /** Removes node from path targets by index.
+     * @param index Index of the entry in the ArrayList.
+     * */
+    public void removePathTargetByIndex(int index) {
+        this.npcData.pathTargets.remove(index);
+    }
+
     /**
      * Gets the path nodes / targets.
      * @return array list of block positions.
