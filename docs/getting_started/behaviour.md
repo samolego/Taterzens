@@ -51,11 +51,7 @@ otherwise I'd be its next prey.
 **Don't make the same mistake.** I don't even know why I told you
 the above line ...*
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/pvp_fight.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/i15mTwF14XI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Defensive Behaviour
 
@@ -65,11 +61,7 @@ the mob that attacked it.
 /npc edit behaviour DEFENSIVE
 ```
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/defensive_behaviour.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/NcajBNITVtc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Friendly behaviour
 
@@ -79,11 +71,7 @@ monsters that dare to come around.
 /npc edit behaviour FRIENDLY
 ```
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/friendly_behaviour.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/P32Th75uj4Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Passive behaviour
 

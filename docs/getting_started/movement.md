@@ -34,14 +34,10 @@ Makes the Taterzen look at a player in radious of 4 blocks
 ```
 
 === "GUI"
-	<video controls="true" allowfullscreen="true" width="100%">
-		<source src="../../assets/video/gui_look.webm" type="video/mp4">
-	</video>
+	<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/EofYSR-D4PI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 === "Command"
-	<video controls="true" allowfullscreen="true" width="100%">
-		<source src="../../assets/video/forced_look.mp4" type="video/mp4">
-	</video>
+	<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/X9z0ykvXUUE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 2. For following the [path](./path.md) strictly with no rests
 ```
@@ -70,10 +66,8 @@ Makes the Taterzen look at a player in radious of 4 blocks
 ```
 as it makes the Taterzen move around freely with no restrictions.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/free_movement.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Mv3TnTVJ2aM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 
 2. For following the [path](./path.md) but enabling *long* rests and looking around, use
 ```

@@ -21,11 +21,7 @@ To make th Taterzen interact with certain block, you can use the following comma
 ```
 where `x`, `y` and `z` are block coordinates.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/block_interactions.webm" type="video/webm">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/VkoBrUh0ZUM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Going to block position
 
@@ -34,7 +30,5 @@ To make the Taterzen go to certain block, you can use the following command
 /npc action goto <x> <y> <z>
 ```
 where `x`, `y` and `z` are block coordinates.
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/goto_block.webm" type="video/webm">
-	<p>Your browser does not support the video element.</p>
-</video>
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/1LI1oDI0KLA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

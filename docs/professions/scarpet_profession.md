@@ -25,11 +25,7 @@ title: Scarpet Profession
 Download the [merchant script](https://github.com/samolego/TaterzenScarpetProfessions/blob/master/scripts/merchant.sc)
 and load it using the steps described above.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/bartering.webm" type="video/webm">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/7kT-GflSREc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 *Now you can trade:*
 

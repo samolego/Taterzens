@@ -45,11 +45,7 @@ To set custom skin layers to Taterzen, use
 ```
 It will copy your skin settings to Taterzen.
 
-<video controls="true" allowfullscreen="true" poster="../../assets/img/skin_layer_change_poster.png" width="100%">
-	<source src="../../assets/video/skin_layer_change.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/GC2O78TZMy4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Custom skins
 

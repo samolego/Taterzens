@@ -26,7 +26,4 @@ Inputs to GUI are handled via anvil GUI.
 * to execute a node, **right click** the item in menu
 * to go to child GUI, **left click** the item in menu (if there's no more child GUIs, left clicking will execute it as well.)
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../assets/video/gui_rename.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/by59c1Ac-a0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

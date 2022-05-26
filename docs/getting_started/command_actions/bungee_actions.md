@@ -29,7 +29,4 @@ where
 
 ## Server redirect
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/bungee_redirect.webm" type="video/webm">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/hntv-TevhNs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>>

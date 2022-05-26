@@ -22,10 +22,7 @@ You now have have the following options
 * Shift-right-click to put a piece equipment
 * Shift-right-click **with empty hand** clear equipment
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/equipment_editing.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/dvad0L_RgLU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 If you want them to drop equipment on death (not *removal*), run
 ```

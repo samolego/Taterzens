@@ -56,11 +56,8 @@ Missing a language? Feel free to [translate Taterzens](https://github.com/samole
 ## In-game editing
 
 Taterzens also supports editing config in-game. See below video for example.
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/config_editing.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
 
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/F9KT2RAN3IA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## Latest config
 

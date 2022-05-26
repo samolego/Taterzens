@@ -18,10 +18,7 @@ It's as simple as using
 *Note: all commands that are added are
 executed **AT ONCE** when NPC is interacted with.*
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../../assets/video/commands.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/nXLDvmP4d6g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## I want to target the player who interacted with my NPC!
 

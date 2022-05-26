@@ -17,13 +17,9 @@ Commands allow you to tp players, give them
 stuff etc. Even more, you can target the Taterzen itself,
 random player or all players!
 
-They can even edit themselves via commands that they execute! See the following video for example.
+NPCs can even edit themselves via commands that they execute! See the following video for example.
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/self_edit.webm" type="video/webm">
-	<p>Your browser does not support the video element.</p>
-</video>
-
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/VjgHzU3wy7A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 To see all the commands that will be run when Taterzen is right-clicked, use
 
@@ -36,7 +32,7 @@ To see all the commands that will be run when Taterzen is right-clicked, use
 
 (aka *Why did my command not work?*)
 
-Default permission level for newly-spawned-in NPCs can be found in [config](../../config.md).
+Default permission level for newly-spawned-in NPCs can be found in [config](../../installation/config.md).
 
 If you'd like to keep a Taterzen to execute non-op
 commands only, you'd type:
@@ -72,7 +68,4 @@ Teleporting the clicker 10 blocks up:
 /npc edit commands add execute at --clicker-- run tp --clicker-- ~ ~10 ~
 ```
 
-<video controls="true" allowfullscreen="true" width="100%">
-	<source src="../../assets/video/more_commands.mp4" type="video/mp4">
-	<p>Your browser does not support the video element.</p>
-</video>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/PYkcRGhlwWw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
