@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -28,6 +29,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static net.minecraft.commands.Commands.argument;
@@ -58,9 +60,26 @@ public class NpcCommand {
                 )
                 .then(literal("select")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select", config.perms.npcCommandPermissionLevel))
-                        .then(argument("id", IntegerArgumentType.integer(1))
-                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
-                                .executes(NpcCommand::selectTaterzenById)
+                        .then(literal("id")
+                            .then(argument("id", IntegerArgumentType.integer(1))
+                                    .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.id", config.perms.npcCommandPermissionLevel))
+                                    .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenIndices(), builder))
+                                    .executes(NpcCommand::selectTaterzenById)
+                            )
+                        )
+                        .then(literal("name")
+                            .then(argument("name", StringArgumentType.string())
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.name", config.perms.npcCommandPermissionLevel))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenNames(), builder))
+                                .executes(NpcCommand::selectTaterzenByName)
+                            )
+                        )
+                        .then(literal("uuid")
+                            .then(argument("uuid", StringArgumentType.string())
+                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.select.uuid", config.perms.npcCommandPermissionLevel))
+                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(getAvailableTaterzenUUIDs(), builder))
+                                .executes(NpcCommand::selectTaterzenByUUID)
+                            )
                         )
                         .executes(NpcCommand::selectTaterzen)
                 )
@@ -170,6 +189,13 @@ public class NpcCommand {
         source.sendSuccess(response, false);
         return 1;
     }
+    private static String[] getAvailableTaterzenIndices() {
+        String[] availableIDs = new String[TATERZEN_NPCS.size()];
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableIDs[i] = Integer.toString(i + 1);
+        }
+        return availableIDs;
+    }
 
     private static int selectTaterzenById(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         int id = IntegerArgumentType.getInteger(context, "id");
@@ -196,6 +222,123 @@ public class NpcCommand {
             }
         }
         return 1;
+    }
+
+    private static String[] getAvailableTaterzenNames() {
+        String[] availableNames = new String[TATERZEN_NPCS.size()];
+        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableNames[i] = taterzenArray[i].getName().getString();
+            availableNames[i] = "\"" + availableNames[i] + "\""; // Adds quotation marks to the suggested name, such that
+                                                                 // Names containing a whitespace character (ex. the
+                                                                 // name is 'Foo Bar') can be completed and correctly
+                                                                 // used without the user having to enclose the argument
+                                                                 // name with quotation marks themselves.
+        }
+        return availableNames;
+    }
+
+    private static int selectTaterzenByName(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        String name = StringArgumentType.getString(context, "name");
+
+        // first count how many NPCs have the same name.
+        // If there is more than one NPC with an identical name, the command will fail.
+        // Otherwise, the NPC will be selected.
+        // In case no NPC with that name is found, taterzen is null
+        TaterzenNPC taterzen = null;
+        int count = 0; // number of npcs with identical name
+        for (TaterzenNPC npcIt : TATERZEN_NPCS) {
+            if (npcIt.getName().getString().equals(name)) {
+                taterzen = npcIt;
+                count++;
+
+                if (count > 1) {
+                    source.sendFailure(errorText("taterzens.error.multiple.name", name));
+                    return 0;
+                }
+            }
+        }
+
+        if (count == 0) { // equivalent to taterzen == null
+            source.sendFailure(errorText("taterzens.error.404.name", name));
+            return 0;
+        }
+        else { // if count == 1
+
+            ServerPlayer player = source.getPlayerOrException();
+            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+            if(npc != null) {
+                ((ITaterzenEditor) player).selectNpc(null);
+            }
+            boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
+            if (selected) {
+                source.sendSuccess(
+                        successText("taterzens.command.select", taterzen.getName().getString()),
+                        false
+                );
+                return 1;
+            } else {
+                source.sendFailure(
+                        errorText("taterzens.command.error.locked", taterzen.getName().getString())
+                );
+                return 0;
+            }
+        }
+    }
+
+    private static String[] getAvailableTaterzenUUIDs() {
+        String[] availableUUIDs = new String[TATERZEN_NPCS.size()];
+        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
+        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
+            availableUUIDs[i] = taterzenArray[i].getUUID().toString();
+        }
+        return availableUUIDs;
+    }
+
+    private static int selectTaterzenByUUID(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(StringArgumentType.getString(context, "uuid"));
+        } catch (IllegalArgumentException ex) {
+                source.sendFailure(errorText("argument.uuid.invalid"));
+            return 0;
+        }
+
+        TaterzenNPC taterzen = null;
+        // Iterate through all currently loaded NPCs and check whether their UUID matches the input argument
+        // break the loop if found. If there is no match 'taterzen' will remain null.
+        for(TaterzenNPC npcIt : TATERZEN_NPCS) {
+            if (npcIt.getUUID().equals(uuid)) {
+                taterzen = npcIt;
+                break;
+            }
+        }
+        if (taterzen == null) {
+            source.sendFailure(errorText("taterzens.error.404.uuid", uuid.toString()));
+            return 0;
+        } else {
+            ServerPlayer player = source.getPlayerOrException();
+            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+            if(npc != null) {
+                ((ITaterzenEditor) player).selectNpc(null);
+            }
+            boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
+            if (selected) {
+                source.sendSuccess(
+                        successText("taterzens.command.select", taterzen.getName().getString()),
+                        false
+                );
+                return 1;
+            } else {
+                source.sendFailure(
+                        errorText("taterzens.command.error.locked", taterzen.getName().getString())
+                );
+                return 0;
+            }
+        }
     }
 
 

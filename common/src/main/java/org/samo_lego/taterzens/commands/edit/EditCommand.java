@@ -20,15 +20,16 @@ public class EditCommand {
         CommandsCommand.registerNode(dispatcher, editNode);
         EquipmentCommand.registerNode(editNode);
         MessagesCommand.registerNode(editNode);
+        MountCommand.registerNode(editNode);
         MovementCommand.registerNode(editNode);
         NameCommand.registerNode(editNode);
         PathCommand.registerNode(editNode);
         PoseCommand.registerNode(editNode);
-        MountCommand.registerNode(editNode);
         ProfessionsCommand.registerNode(editNode);
+        RespawnPointCommand.registerNode(editNode);
         SkinCommand.registerNode(editNode);
+        SoundCommand.registerNode(editNode);
         TagsCommand.registerNode(editNode);
         TypeCommand.registerNode(editNode);
-        RespawnPointCommand.registerNode(editNode);
     }
 }

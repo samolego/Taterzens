@@ -26,6 +26,10 @@ permissions = [
    "taterzens.npc.select.bypass",
    #  Selects Taterzens by ID.
    "taterzens.npc.select.id",
+   #  Selects Taterzens by name.
+   "taterzens.npc.select.name",
+   #  Selects Taterzens by UUID.
+   "taterzens.npc.select.uuid",
    #  Deselects Taterzen.
    "taterzens.npc.select.deselect",
    #  Lists Taterzens.
@@ -128,6 +132,15 @@ permissions = [
    "taterzens.npc.edit.pose",
    # Enables editing Taterzen's vehicle
    "taterzens.npc.edit.mount",
+
+   # Enables editing Taterzen's sounds
+   "taterzen.npc.edit.sounds",
+   # Enables listing Taterzen's sounds
+   "taterzen.npc.edit.sounds.list",
+   # Enables adding sounds to Taterzen
+   "taterzen.npc.edit.sounds.add",
+   # Enables adding sounds from Taterzen
+   "taterzen.npc.edit.sounds.remove",
 
    # Enables providing an action to Taterzen
    # Going to block position

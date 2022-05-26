@@ -63,7 +63,7 @@ the player's name when executing the command.
 
 Giving the clicker a gold ingot:
 ```
-/npc edit commands give --clicker-- gold_ingot
+/npc edit commands add give --clicker-- gold_ingot
 ```
 
 

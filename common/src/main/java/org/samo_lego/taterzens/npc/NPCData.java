@@ -70,7 +70,14 @@ public class NPCData {
     public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
     public final Follow follow = new Follow();
-    public boolean allowSounds = !config.defaults.ambientSounds.isEmpty();
+    public boolean allowSounds = !config.defaults.ambientSounds.isEmpty() || !config.defaults.hurtSounds.isEmpty() || !config.defaults.deathSounds.isEmpty();
+
+    public ArrayList<String> ambientSounds = new ArrayList<>();
+
+    public ArrayList<String> hurtSounds = new ArrayList<>();
+
+    public ArrayList<String> deathSounds = new ArrayList<>();
+
     public final ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
     public boolean allowFlight = config.defaults.allowFlight;
     public boolean allowRiding = config.defaults.allowRiding;
