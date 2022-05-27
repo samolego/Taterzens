@@ -399,6 +399,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
         if (this.npcData.allowSwimming)
             this.goalSelector.addGoal(0, new FloatGoal(this));
+    } else {
+            this.goalSelector.removeGoal(0, new FloatGoal(this));
     }
 
     /**
