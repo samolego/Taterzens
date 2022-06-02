@@ -34,9 +34,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
-import java.util.ArrayDeque;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
@@ -60,7 +61,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
-    private final Queue<NpcPlayerUpdate> taterzens$tablistQueue = new ArrayDeque<>();
+    private final Map<UUID, NpcPlayerUpdate> taterzens$tablistQueue = new LinkedHashMap<>();
     @Unique
     private int taterzens$queueTick;
 
@@ -107,7 +108,9 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             if(config.taterzenTablistTimeout != -1) {
-                this.taterzens$tablistQueue.add(new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
+                var uuid = npc.getGameProfile().getId();
+                taterzens$tablistQueue.remove(uuid);
+                taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
             }
 
             this.connection.send(new ClientboundRotateHeadPacket(entity, (byte)((int)(entity.getYHeadRot() * 256.0F / 360.0F))), listener);
@@ -136,7 +139,9 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ((ClientboundPlayerInfoPacketAccessor) packet).getEntries().forEach(entry -> {
                 if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
                     // Fixes unloaded taterzens showing in tablist (disguiselib)
-                    this.taterzens$tablistQueue.add(new NpcPlayerUpdate(entry.getProfile(), entry.getDisplayName(), taterzens$queueTick + config.taterzenTablistTimeout));
+                    var uuid = entry.getProfile().getId();
+                    taterzens$tablistQueue.remove(uuid);
+                    taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(entry.getProfile(), entry.getDisplayName(), taterzens$queueTick + config.taterzenTablistTimeout));
                 }
             });
         }
@@ -149,11 +154,11 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
         taterzens$queueTick++;
 
         List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>(0);
-        while(true) {
-            NpcPlayerUpdate current = taterzens$tablistQueue.peek();
-            if(current == null || current.removeAt() > taterzens$queueTick) break;
+        for(var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
+            var current = iterator.next();
+            if(current.removeAt() > taterzens$queueTick) break;
 
-            taterzens$tablistQueue.remove();
+            iterator.remove();
             toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName()));
         }
 
