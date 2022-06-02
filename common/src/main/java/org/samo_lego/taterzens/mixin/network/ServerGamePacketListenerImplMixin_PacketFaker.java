@@ -153,7 +153,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
         taterzens$queueTick++;
 
-        List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>(0);
+        List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>();
         for(var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
             var current = iterator.next();
             if(current.removeAt() > taterzens$queueTick) break;
@@ -161,6 +161,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             iterator.remove();
             toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName()));
         }
+        if(toRemove.isEmpty()) return;
 
         ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
         //noinspection ConstantConditions
