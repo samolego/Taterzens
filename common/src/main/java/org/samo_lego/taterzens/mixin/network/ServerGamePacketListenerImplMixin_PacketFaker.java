@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -91,7 +92,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
-                List.of(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName()))
+                Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName()))
             );
             this.send(playerAddPacket);
 
