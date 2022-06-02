@@ -85,6 +85,9 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("lock_after_creation")
     public boolean lockAfterCreation = true;
 
+    @SerializedName("// Obsucre Taterzens' names while they are visible on the tab list.")
+    public boolean obscureTabList = true;
+
     @SerializedName("// Default settings for new Taterzens.")
     public final String _comment_defaults = "";
     public Defaults defaults = new Defaults();

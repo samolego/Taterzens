@@ -91,7 +91,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
-                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getName()))
+                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName()))
             );
             this.send(playerAddPacket);
 
@@ -108,7 +108,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             if(config.taterzenTablistTimeout != -1) {
-                this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
+                this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getTabListName()));
                 this.taterzens$queueTimer = config.taterzenTablistTimeout;
             }
 
