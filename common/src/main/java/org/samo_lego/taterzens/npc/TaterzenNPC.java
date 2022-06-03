@@ -9,6 +9,7 @@ import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
 import io.netty.buffer.Unpooled;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -606,6 +607,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     public GameProfile getGameProfile() {
         return this.gameProfile;
+    }
+
+    public Component getTabListName() {
+        if(!config.obscureTabList) return getName();
+
+        var component =  new TextComponent("").withStyle(ChatFormatting.DARK_GRAY);
+        component.append(getName());
+        component.append(" [NPC]");
+        return component;
     }
 
     /**

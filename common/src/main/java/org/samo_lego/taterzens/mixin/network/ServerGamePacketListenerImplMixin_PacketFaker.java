@@ -1,11 +1,9 @@
 package org.samo_lego.taterzens.mixin.network;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Pair;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
@@ -26,6 +24,7 @@ import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccess
 import org.samo_lego.taterzens.mixin.accessors.ClientboundSetEntityDataPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
+import org.samo_lego.taterzens.util.NpcPlayerUpdate;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,10 +33,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
@@ -61,9 +62,9 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
     @Unique
     private boolean taterzens$skipCheck;
     @Unique
-    private final List<Pair<GameProfile, Component>> taterzens$tablistQueue = new ArrayList<>();
+    private final Map<UUID, NpcPlayerUpdate> taterzens$tablistQueue = new LinkedHashMap<>();
     @Unique
-    private int taterzens$queueTimer;
+    private int taterzens$queueTick;
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
@@ -91,7 +92,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
-                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getName()))
+                Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName()))
             );
             this.send(playerAddPacket);
 
@@ -108,8 +109,9 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
             if(config.taterzenTablistTimeout != -1) {
-                this.taterzens$tablistQueue.add(new Pair<>(npc.getGameProfile(), npc.getName()));
-                this.taterzens$queueTimer = config.taterzenTablistTimeout;
+                var uuid = npc.getGameProfile().getId();
+                taterzens$tablistQueue.remove(uuid);
+                taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
             }
 
             this.connection.send(new ClientboundRotateHeadPacket(entity, (byte)((int)(entity.getYHeadRot() * 256.0F / 360.0F))), listener);
@@ -138,36 +140,36 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ((ClientboundPlayerInfoPacketAccessor) packet).getEntries().forEach(entry -> {
                 if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
                     // Fixes unloaded taterzens showing in tablist (disguiselib)
-                    this.taterzens$tablistQueue.add(new Pair<>(entry.getProfile(), entry.getDisplayName()));
+                    var uuid = entry.getProfile().getId();
+                    taterzens$tablistQueue.remove(uuid);
+                    taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(entry.getProfile(), entry.getDisplayName(), taterzens$queueTick + config.taterzenTablistTimeout));
                 }
             });
-            this.taterzens$queueTimer = config.taterzenTablistTimeout;
         }
     }
 
     @Inject(method = "handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V", at = @At("RETURN"))
     private void removeTaterzenFromTablist(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
-        if(!this.taterzens$tablistQueue.isEmpty() && --this.taterzens$queueTimer <= 0) {
-            this.taterzens$skipCheck = true;
+        if(taterzens$tablistQueue.isEmpty()) return;
 
-            ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
-            List<ClientboundPlayerInfoPacket.PlayerUpdate> taterzenList = this.taterzens$tablistQueue
-                    .stream()
-                    .map(pair -> new ClientboundPlayerInfoPacket.PlayerUpdate(
-                                    pair.getFirst(),
-                                    0,
-                                    GameType.SURVIVAL,
-                                    pair.getSecond()
-                            )
-                    )
-                    .collect(Collectors.toList());
-            //noinspection ConstantConditions
-            ((ClientboundPlayerInfoPacketAccessor) taterzensRemovePacket).setEntries(taterzenList);
-            this.send(taterzensRemovePacket);
+        taterzens$queueTick++;
 
-            this.taterzens$tablistQueue.clear();
+        List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>();
+        for(var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
+            var current = iterator.next();
+            if(current.removeAt() > taterzens$queueTick) break;
 
-            this.taterzens$skipCheck = false;
+            iterator.remove();
+            toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName()));
         }
+        if(toRemove.isEmpty()) return;
+
+        ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
+        //noinspection ConstantConditions
+        ((ClientboundPlayerInfoPacketAccessor) taterzensRemovePacket).setEntries(toRemove);
+
+        this.taterzens$skipCheck = true;
+        this.send(taterzensRemovePacket);
+        this.taterzens$skipCheck = false;
     }
 }
