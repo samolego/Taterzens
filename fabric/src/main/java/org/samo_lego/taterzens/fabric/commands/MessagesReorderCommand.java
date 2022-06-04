@@ -7,7 +7,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.fabric.gui.MessagesEditGUI;
+import org.samo_lego.taterzens.gui.MessagesEditGUI;
 
 import static org.samo_lego.taterzens.commands.edit.MessagesCommand.messagesNode;
 

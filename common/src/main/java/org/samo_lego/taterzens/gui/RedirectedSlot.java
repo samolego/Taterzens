@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.fabric.gui;
+package org.samo_lego.taterzens.gui;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

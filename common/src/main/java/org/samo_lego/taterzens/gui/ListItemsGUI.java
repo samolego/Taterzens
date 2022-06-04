@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.fabric.gui;
+package org.samo_lego.taterzens.gui;
 
 import eu.pb4.sgui.api.elements.GuiElement;
 import eu.pb4.sgui.api.gui.SimpleGui;

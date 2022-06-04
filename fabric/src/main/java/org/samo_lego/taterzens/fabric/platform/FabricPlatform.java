@@ -21,7 +21,7 @@ import static net.minecraft.core.Registry.ITEM;
 import static org.samo_lego.taterzens.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
 import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
-import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
+import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 
 public class FabricPlatform extends Platform {
 
