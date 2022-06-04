@@ -9,7 +9,6 @@ import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -17,7 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
@@ -43,7 +41,6 @@ import java.util.UUID;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
 import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 
 /**
  * Used to "fake" the TaterzenNPC entity type.
@@ -85,7 +82,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
         if(packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
             Entity entity = world.getEntity(((ClientboundAddPlayerPacketAccessor) packet).getId());
 
-            if(!(entity instanceof TaterzenNPC npc) || (DISGUISELIB_LOADED && DisguiseLibCompatibility.isDisguised(entity)))
+            if(!(entity instanceof TaterzenNPC npc))
                 return;
 
             GameProfile profile = npc.getGameProfile();
@@ -136,20 +133,11 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             }
 
             ((ClientboundSetEntityDataPacketAccessor) packet).setPackedItems(trackedValues);
-        } else if(packet instanceof ClientboundPlayerInfoPacket && !this.taterzens$skipCheck) {
-            ((ClientboundPlayerInfoPacketAccessor) packet).getEntries().forEach(entry -> {
-                if(entry.getProfile().getName().equals("-" + config.defaults.name + "-")) {
-                    // Fixes unloaded taterzens showing in tablist (disguiselib)
-                    var uuid = entry.getProfile().getId();
-                    taterzens$tablistQueue.remove(uuid);
-                    taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(entry.getProfile(), entry.getDisplayName(), taterzens$queueTick + config.taterzenTablistTimeout));
-                }
-            });
         }
     }
 
-    @Inject(method = "handleMovePlayer(Lnet/minecraft/network/protocol/game/ServerboundMovePlayerPacket;)V", at = @At("RETURN"))
-    private void removeTaterzenFromTablist(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void removeTaterzenFromTablist(CallbackInfo ci) {
         if(taterzens$tablistQueue.isEmpty()) return;
 
         taterzens$queueTick++;

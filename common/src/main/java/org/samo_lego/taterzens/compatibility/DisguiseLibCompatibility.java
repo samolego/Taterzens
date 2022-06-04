@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.compatibility;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.world.entity.Entity;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import xyz.nucleoid.disguiselib.api.EntityDisguise;
@@ -16,15 +15,7 @@ public class DisguiseLibCompatibility {
         ((EntityDisguise) taterzen).disguiseAs(entity);
     }
 
-    public static void setGameProfile(TaterzenNPC taterzen, GameProfile gameProfile) {
-        ((EntityDisguise) taterzen).setGameProfile(gameProfile);
-    }
-
     public static void clearDisguise(TaterzenNPC taterzen) {
         ((EntityDisguise) taterzen).removeDisguise();
-    }
-
-    public static boolean isDisguised(Entity entity) {
-        return ((EntityDisguise) entity).isDisguised();
     }
 }

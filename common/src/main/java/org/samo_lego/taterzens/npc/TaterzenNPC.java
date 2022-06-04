@@ -82,7 +82,6 @@ import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
-import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
@@ -112,7 +111,6 @@ import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -200,9 +198,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.setSpeed(0.4F);
 
         this.gameProfile = new GameProfile(this.getUUID(), this.getName().getString());
-        if(DISGUISELIB_LOADED) {
-            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
-        }
         this.server = world.getServer();
 
         // Null check due top gravity changer incompatibility
@@ -649,15 +644,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public void sendProfileUpdates() {
         if (this.level.isClientSide()) return;
 
-        if(DISGUISELIB_LOADED)
-            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
-        else {
-            ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
-            ChunkMap storage = manager.chunkMap;
-            EntityTrackerEntryAccessor trackerEntry = ((ChunkMapAccessor) storage).getEntityMap().get(this.getId());
-            if(trackerEntry != null)
-                trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
-        }
+        ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
+        ChunkMap storage = manager.chunkMap;
+        EntityTrackerEntryAccessor trackerEntry = ((ChunkMapAccessor) storage).getEntityMap().get(this.getId());
+        if(trackerEntry != null)
+            trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
     }
 
 
@@ -822,9 +813,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
 
         this.gameProfile = new GameProfile(this.getUUID(), profileName);
-        if(DISGUISELIB_LOADED) {
-            DisguiseLibCompatibility.setGameProfile(this, this.gameProfile);
-        }
 
         // Skin is cached
         CompoundTag skinTag = npcTag.getCompound("skin");
