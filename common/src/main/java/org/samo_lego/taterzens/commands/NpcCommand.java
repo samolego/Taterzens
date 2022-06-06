@@ -11,9 +11,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -133,7 +133,7 @@ public class NpcCommand {
             npcConsumer.accept(taterzen);
             return 1;
         }
-        entity.sendMessage(noSelectedTaterzenError(), entity.getUUID());
+        entity.sendSystemMessage(noSelectedTaterzenError());
         return 0;
     }
 
@@ -167,7 +167,7 @@ public class NpcCommand {
 
             response
                     .append(
-                        new TextComponent("\n" + index + "-> " + name)
+                            Component.literal("\n" + index + "-> " + name)
                             .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
                             .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
                             .withStyle(style -> style
@@ -177,7 +177,7 @@ public class NpcCommand {
                             )
                     )
                     .append(
-                            new TextComponent(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
+                            Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
                                 .withStyle(ChatFormatting.GRAY)
                                 .withStyle(style -> style
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
@@ -428,13 +428,8 @@ public class NpcCommand {
         player.getLevel().addFreshEntity(taterzen);
 
         ((ITaterzenEditor) player).selectNpc(taterzen);
-        player.sendMessage(
-                successText("taterzens.command.create", taterzen.getName().getString()),
-                player.getUUID()
-        );
+        player.sendSystemMessage(successText("taterzens.command.create", taterzen.getName().getString()));
 
         return 1;
     }
-
-
 }

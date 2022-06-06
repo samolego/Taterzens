@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.samo_lego.taterzens.Taterzens.config;
@@ -18,10 +20,6 @@ import static org.samo_lego.taterzens.Taterzens.config;
  * Used for taterzen attributes.
  */
 public class NPCData {
-    /**
-     * Whether Taterzen should be able to be put on a lead..
-     */
-    public boolean leashable = config.defaults.leashable;
     /**
      * Current equipment editor for Taterzen.
      */
@@ -43,10 +41,6 @@ public class NPCData {
      */
     public int currentMoveTarget = 0;
     /**
-     * Whether Taterzen should be pushable.
-     */
-    public boolean pushable = config.defaults.pushable;
-    /**
      * Messages of Taterzen.
      * Saved as &lt;Message Text, Delay&gt;
      */
@@ -63,11 +57,6 @@ public class NPCData {
      * Default behaviour of Taterzen.
      */
     public Behaviour behaviour = Behaviour.PASSIVE;
-    /**
-     * Whether to allow dropping equipment on death.
-     */
-    public boolean allowEquipmentDrops = false;
-    public boolean jumpWhileAttacking = config.defaults.jumpWhileAttacking;
 
     public final Follow follow = new Follow();
     public boolean allowSounds = !config.defaults.ambientSounds.isEmpty() || !config.defaults.hurtSounds.isEmpty() || !config.defaults.deathSounds.isEmpty();
@@ -79,11 +68,10 @@ public class NPCData {
     public ArrayList<String> deathSounds = new ArrayList<>();
 
     public final ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
-    public boolean allowFlight = config.defaults.allowFlight;
-    public boolean allowRiding = config.defaults.allowRiding;
     public long minCommandInteractionTime = config.defaults.minInteractionTime;
     public String commandCooldownMessage = config.defaults.commandCooldownMessage;
-    public boolean allowSwimming = config.defaults.allowSwim;
+
+    public final Map<String, Boolean> booleanTags = new HashMap<>();
 
     public static class Follow {
         /**

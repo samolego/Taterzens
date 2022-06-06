@@ -4,10 +4,10 @@ import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.server.network.TextFilter;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,27 +32,27 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
      * @param message message sent by player
      */
     @Inject(
-            method = "handleChat(Lnet/minecraft/server/network/TextFilter$FilteredText;)V",
+            method = "handleChat(Lnet/minecraft/network/protocol/game/ServerboundChatPacket;Lnet/minecraft/server/network/FilteredText;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V",
-                    shift = At.Shift.AFTER
+                    target = "Lnet/minecraft/network/protocol/game/ServerboundChatPacket;signedPreview()Z"
             ),
             cancellable = true
     )
-    private void onMessage(TextFilter.FilteredText message, CallbackInfo ci) {
+    private void onMessage(ServerboundChatPacket packet, FilteredText<String> message, CallbackInfo ci) {
         ITaterzenEditor editor = (ITaterzenEditor) this.player;
         TaterzenNPC taterzen = editor.getNpc();
-        String msg = message.getFiltered();
-        if(taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && !msg.startsWith("/")) {
-            if(msg.startsWith("delay")) {
+        String msg = message.filtered();
+
+        if (taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && msg != null && !msg.startsWith("/")) {
+            if (msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
-                if(split.length > 1) {
+                if (split.length > 1) {
                     try {
                         int delay = Integer.parseInt(split[1]);
                         taterzen.setMessageDelay(editor.getEditingMessageIndex(), delay);
                         this.player.displayClientMessage(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
-                    } catch(NumberFormatException ignored) {
+                    } catch (NumberFormatException ignored) {
 
                     }
                 }
@@ -68,7 +68,7 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
                         return;
                     }
                 } else
-                    text = new TextComponent(msg);
+                    text = Component.literal(msg);
                 if((editor).getEditingMessageIndex() != -1) {
                     // Editing selected message
                     taterzen.editMessage(editor.getEditingMessageIndex(), text); // Editing message

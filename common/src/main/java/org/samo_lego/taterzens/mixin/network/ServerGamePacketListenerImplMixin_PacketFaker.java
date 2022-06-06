@@ -31,8 +31,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +89,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
-                Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName()))
+                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
             );
             this.send(playerAddPacket);
 
@@ -148,7 +148,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             if(current.removeAt() > taterzens$queueTick) break;
 
             iterator.remove();
-            toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName()));
+            toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName(), null));
         }
         if(toRemove.isEmpty()) return;
 

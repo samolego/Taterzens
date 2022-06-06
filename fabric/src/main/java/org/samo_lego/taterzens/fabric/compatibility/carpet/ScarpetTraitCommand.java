@@ -11,9 +11,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.commands.NpcCommand;
@@ -77,10 +77,10 @@ public class ScarpetTraitCommand {
 
                     String id = trait.getString();
                     response.append(
-                            new TextComponent("\n" + index + "-> " + id + " (")
+                            Component.literal("\n" + index + "-> " + id + " (")
                                     .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
                                     .append(
-                                            new TextComponent("X")
+                                            Component.literal("X")
                                                     .withStyle(ChatFormatting.RED)
                                                     .withStyle(ChatFormatting.BOLD)
                                                     .withStyle(style -> style
@@ -88,7 +88,7 @@ public class ScarpetTraitCommand {
                                                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/trait scarpet remove " + id))
                                                     )
                                     )
-                                    .append(new TextComponent(")").withStyle(ChatFormatting.RESET))
+                                    .append(Component.literal(")").withStyle(ChatFormatting.RESET))
                     );
                     i.incrementAndGet();
                 });

@@ -6,7 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Pose;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
@@ -114,7 +114,7 @@ public class TagsCommand {
 
             if(!showName) {
                 String newName = String.valueOf(oldName.toCharArray()[0]);
-                npc.setCustomName(new TextComponent(newName));
+                npc.setCustomName(Component.literal(newName));
 
                 source.sendSuccess(
                         joinText("taterzens.command.tags.hide_name_hint.desc.1", ChatFormatting.GOLD, ChatFormatting.BLUE, newName, POSE.toString())

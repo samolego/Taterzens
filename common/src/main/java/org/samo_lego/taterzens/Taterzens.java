@@ -49,7 +49,6 @@ public class Taterzens {
      */
     public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
 
-    public static final HashMap<ResourceLocation, TaterzenProfession> LEGACY_PROFESSION_TYPES = new HashMap<>();
     public static final HashMap<ResourceLocation, Function<TaterzenNPC, TaterzenProfession>> PROFESSION_TYPES = new HashMap<>();
     public static final Gson GSON;
 

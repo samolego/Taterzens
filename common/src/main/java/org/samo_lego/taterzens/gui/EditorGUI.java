@@ -13,9 +13,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -74,7 +73,7 @@ public class EditorGUI {
             });
 
             // Pre-written  text
-            MutableComponent argTitle = new TextComponent(parentNode.getName()).withStyle(ChatFormatting.YELLOW);
+            MutableComponent argTitle = Component.literal(parentNode.getName()).withStyle(ChatFormatting.YELLOW);
             ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
             nameStack.setHoverName(argTitle);
 
@@ -85,18 +84,18 @@ public class EditorGUI {
             // Default input value
             String[] examples = parentNode.getExamples().toArray(new String[0]);
             if (examples.length > 0)
-                nameStack.setHoverName(new TextComponent(examples[0]));
+                nameStack.setHoverName(Component.literal(examples[0]));
 
             for (int i = 1; i < examples.length; ++i) {
                 ItemStack exampleStack = new ItemStack(Items.PAPER);
                 String example = examples[i];
-                exampleStack.setHoverName(new TextComponent(example));
+                exampleStack.setHoverName(Component.literal(example));
 
                 // 2 being the last slot index in anvil inventory
                 constructedGui.setSlot(i * 2 + 1, new GuiElement(exampleStack, (index, type, action) -> {
                     String input = ((AnvilInputGui) constructedGui).getInput();
                     ((AnvilInputGui) constructedGui).setDefaultInputValue(exampleStack.getHoverName().getString());
-                    exampleStack.setHoverName(new TextComponent(input));
+                    exampleStack.setHoverName(Component.literal(input));
                 }));
             }
         } else {
@@ -105,7 +104,7 @@ public class EditorGUI {
 
             // Close screen button
             ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
-            close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
+            close.setHoverName(Component.translatable("spectatorMenu.close"));
             close.enchant(null, 0);
 
             GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> player.closeContainer());
@@ -126,7 +125,7 @@ public class EditorGUI {
 
                 // Set stack "icon"
                 ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(getFromName(nodeName))).copy();
-                stack.setHoverName(new TextComponent(nodeName));
+                stack.setHoverName(Component.literal(nodeName));
 
                 // Recursively adding the command nodes
                 constructedGui.setSlot(i.getAndAdd(addedSpace), new GuiElement(stack, (index, clickType, slotActionType) -> {
@@ -138,7 +137,7 @@ public class EditorGUI {
 
         // Back button
         ItemStack back = new ItemStack(Items.MAGENTA_GLAZED_TERRACOTTA);
-        back.setHoverName(new TranslatableComponent("gui.back"));
+        back.setHoverName(Component.translatable("gui.back"));
         back.enchant(null, 0);
 
         GuiElement backScreenButton = new GuiElement(back, (i, clickType, slotActionType) -> {
@@ -156,7 +155,7 @@ public class EditorGUI {
         for (String s : currentCommandPath) {
             title.append(s).append(" ");
         }
-        TextComponent textTitle = new TextComponent(title.toString());
+        var textTitle = Component.literal(title.toString());
 
         constructedGui.setTitle(textTitle.withStyle(ChatFormatting.YELLOW));
         constructedGui.setAutoUpdate(true);
@@ -205,7 +204,7 @@ public class EditorGUI {
 
             player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
         } catch (IllegalArgumentException e) {
-            player.sendMessage(new TextComponent(e.getMessage()), player.getUUID());
+            player.sendSystemMessage(Component.literal(e.getMessage()));
         }
     }
 
@@ -216,8 +215,8 @@ public class EditorGUI {
         customData.putInt("CustomModelData", config.guiItemModelData);
         customData.putInt("HideFlags", 127);
 
-        YES_BUTTON.setHoverName(new TranslatableComponent("gui.done"));
-        NO_BUTTON.setHoverName(new TranslatableComponent("gui.cancel"));
+        YES_BUTTON.setHoverName(Component.translatable("gui.done"));
+        NO_BUTTON.setHoverName(Component.translatable("gui.cancel"));
 
         ItemStack create = new ItemStack(Items.PLAYER_HEAD);
         create.setTag(customData.copy());

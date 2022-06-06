@@ -42,7 +42,7 @@ public class TraderCommand {
 				return 1;
 			}
 			// Otherwise send error
-			player.sendMessage(new TextComponent("This npc doesn't have trader profession :'( ..."), false);
+			player.sendMessage(Component.literal("This npc doesn't have trader profession :'( ..."), false);
 		} else
 			player.sendMessage(noSelectedTaterzenError(), false);
 		return 0;

@@ -9,8 +9,8 @@ import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.EntitySummonArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.samo_lego.taterzens.Taterzens;
@@ -81,7 +81,7 @@ public class TypeCommand {
                 source.sendSuccess(
                         translate(
                                 "taterzens.command.entity_type.set",
-                                new TranslatableComponent(entityx.getType().getDescriptionId()).withStyle(ChatFormatting.YELLOW)
+                                Component.translatable(entityx.getType().getDescriptionId()).withStyle(ChatFormatting.YELLOW)
                         ).withStyle(ChatFormatting.GREEN),
                         false
                 );

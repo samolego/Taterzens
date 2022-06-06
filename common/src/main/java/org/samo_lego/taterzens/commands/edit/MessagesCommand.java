@@ -11,7 +11,6 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
@@ -206,7 +205,7 @@ public class MessagesCommand {
             messages.forEach(pair -> {
                 int index = i.get() + 1;
                 response.append(
-                        new TextComponent("\n" + index + "-> ")
+                        Component.literal("\n" + index + "-> ")
                                 .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
                                 .append(pair.getFirst())
                                 .withStyle(style -> style
@@ -216,7 +215,7 @@ public class MessagesCommand {
                 )
                         .append("   ")
                         .append(
-                                new TextComponent("X")
+                                Component.literal("X")
                                         .withStyle(ChatFormatting.RED)
                                         .withStyle(ChatFormatting.BOLD)
                                         .withStyle(style -> style

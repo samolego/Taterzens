@@ -273,6 +273,12 @@ public class TaterConfig implements IBrigadierConfigurator {
         @BrigadierDescription(defaultOption = "true")
         @SerializedName("allow_swim")
         public boolean allowSwim = true;
+
+        @SerializedName("// Whether Taterzens should drop equipment on death.")
+        public final String _comment_dropEquipment = "";
+        @SerializedName("drop_equipment")
+        @BrigadierDescription(defaultOption = "false")
+        public boolean dropEquipment = false;
     }
 
     /**

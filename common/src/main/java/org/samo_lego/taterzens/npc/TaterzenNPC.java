@@ -17,8 +17,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
@@ -106,7 +104,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Function;
 
-import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
@@ -239,7 +236,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
+        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null), null) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -384,16 +381,17 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             if(movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.addGoal(4, directPathGoal);
                 priority = 5;
-            } else if(movement == NPCData.Movement.PATH) {
+            } else if (movement == NPCData.Movement.PATH) {
                 this.goalSelector.addGoal(4, pathGoal);
-            } else if(movement == NPCData.Movement.FREE) {
+            } else if (movement == NPCData.Movement.FREE) {
                 this.goalSelector.addGoal(6, wanderAroundFarGoal);
             }
 
             this.goalSelector.addGoal(priority, lookPlayerGoal);
             this.goalSelector.addGoal(priority + 1, lookAroundGoal);
         }
-        if (this.npcData.allowSwimming)
+
+        if (this.getTag("AllowSwimming", config.defaults.allowSwim))
             this.goalSelector.addGoal(0, new FloatGoal(this));
     }
 
@@ -515,7 +513,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
 
             super.aiStep();
-            if(this.isAggressive() && this.npcData.jumpWhileAttacking && this.onGround && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
+            if (this.isAggressive() && this.getTag("JumpAttack", config.defaults.jumpWhileAttacking) && this.onGround && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
                 this.jumpFromGround();
         } else {
             // As super.aiStep() isn't executed, we check for items that are available to be picked up
@@ -554,10 +552,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 if (msgPos >= this.npcData.messages.size())
                     msgPos = 0;
                 if (this.npcData.messages.get(msgPos).getSecond() < pl.ticksSinceLastMessage(this.getUUID())) {
-                    player.sendMessage(
-                            new TranslatableComponent(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()),
-                            this.uuid
-                    );
+                    player.sendSystemMessage(
+                            Component.translatable(config.messages.structure, this.getName().copy(), this.npcData.messages.get(msgPos).getFirst()));
                     // Resetting message counter
                     pl.resetMessageTicks(this.getUUID());
 
@@ -607,7 +603,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public Component getTabListName() {
         if(!config.obscureTabList) return getName();
 
-        var component =  new TextComponent("").withStyle(ChatFormatting.DARK_GRAY);
+        var component = Component.literal("").withStyle(ChatFormatting.DARK_GRAY);
         component.append(getName());
         component.append(" [NPC]");
         return component;
@@ -729,14 +725,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         // Boolean tags
         CompoundTag tags = npcTag.getCompound("Tags");
-        this.setLeashable(tags.getBoolean("Leashable"));
-        this.setPushable(tags.getBoolean("Pushable"));
-        this.setPerformAttackJumps(tags.getBoolean("JumpAttack"));
-        this.allowEquipmentDrops(tags.getBoolean("DropsAllowed"));
-        this.setShiftKeyDown(tags.getBoolean("SneakNameType"));
-        this.setAllowSounds(tags.getBoolean("AllowSounds"));
-        this.setAllowFlight(tags.getBoolean("AllowFlight"));
-        this.setAllowRiding(tags.getBoolean("AllowRiding"));
+
+        for (String key : tags.getAllKeys()) {
+            this.setTag(key, tags.getBoolean(key));
+        }
 
         // Skin layers
         this.setSkinLayers(npcTag.getByte("SkinLayers"));
@@ -825,22 +817,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 CompoundTag professionCompound = (CompoundTag) professionTag;
 
                 ResourceLocation professionId = new ResourceLocation(professionCompound.getString("ProfessionType"));
-                if(PROFESSION_TYPES.containsKey(professionId)) {
+                if (PROFESSION_TYPES.containsKey(professionId)) {
                     TaterzenProfession profession = PROFESSION_TYPES.get(professionId).apply(this);
                     this.addProfession(professionId, profession);
 
                     // Parsing profession data
                     profession.readNbt(professionCompound.getCompound("ProfessionData"));
-                } else if(LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
-                    // Deprecated
-                    TaterzenProfession profession = LEGACY_PROFESSION_TYPES.get(professionId).create(this);
-                    this.addProfession(professionId, profession);
-
-                    // Parsing profession data
-                    profession.readNbt(professionCompound.getCompound("ProfessionData"));
-                }
-                else
+                } else {
                     Taterzens.LOGGER.error("Taterzen {} was saved with profession id {}, but none of the mods provides it.", this.getName().getString(), professionId);
+                }
             });
         }
 
@@ -871,9 +856,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if (npcTag.contains("LockedBy"))
             this.lockedUuid = npcTag.getUUID("LockedBy");
 
-        this.setAllowFlight(npcTag.getBoolean("AllowFlight"));
 
-        this.setAllowSwimming(npcTag.getBoolean("AllowSwimming"));
+        // ------------------------------------------------------------
+        //  Migration to 1.10.0
+        if (npcTag.contains("AllowFlight"))
+            this.setAllowFlight(npcTag.getBoolean("AllowFlight"));
+        if (npcTag.contains("AllowSwimming"))
+            this.setAllowSwimming(npcTag.getBoolean("AllowSwimming"));
+        // --------------------------------------------------------------
 
         this.setMinCommandInteractionTime(npcTag.getLong("MinCommandInteractionTime"));
     }
@@ -897,14 +887,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Boolean tags
         CompoundTag tags = new CompoundTag();
 
-        tags.putBoolean("Leashable", this.npcData.leashable);
-        tags.putBoolean("Pushable", this.npcData.pushable);
-        tags.putBoolean("JumpAttack", this.npcData.jumpWhileAttacking);
-        tags.putBoolean("DropsAllowed", this.npcData.allowEquipmentDrops);
-        tags.putBoolean("SneakNameType", this.isShiftKeyDown());
-        tags.putBoolean("AllowSounds", this.npcData.allowSounds);
-        tags.putBoolean("AllowFlight", this.npcData.allowFlight);
-        tags.putBoolean("AllowRiding", this.npcData.allowRiding);
+        for (Map.Entry<String, Boolean> entry : this.npcData.booleanTags.entrySet()) {
+            tags.putBoolean(entry.getKey(), entry.getValue());
+        }
 
         npcTag.put("Tags", tags);
 
@@ -1005,10 +990,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if (this.lockedUuid != null)
             npcTag.putUUID("LockedBy", this.lockedUuid);
 
-        npcTag.putBoolean("AllowFlight", this.npcData.allowFlight);
-
-        npcTag.putBoolean("AllowSwimming", this.npcData.allowSwimming);
-
         npcTag.putLong("MinCommandInteractionTime", this.npcData.minCommandInteractionTime);
 
         tag.put("TaterzenNPCTag", npcTag);
@@ -1100,16 +1081,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             ItemStack stack = player.getItemInHand(hand).copy();
 
             if (stack.isEmpty() && player.isShiftKeyDown()) {
-                this.dropCustomDeathLoot(DamageSource.playerAttack(player), 1, this.npcData.allowEquipmentDrops);
-                for(EquipmentSlot slot : EquipmentSlot.values()) {
+                this.dropCustomDeathLoot(DamageSource.playerAttack(player), 1, this.isEquipmentDropsAllowed());
+                for (EquipmentSlot slot : EquipmentSlot.values()) {
                     this.fakePlayer.setItemSlot(slot, ItemStack.EMPTY);
                 }
-            }
-            else if(player.isShiftKeyDown()) {
+            } else if (player.isShiftKeyDown()) {
                 this.setItemSlot(EquipmentSlot.MAINHAND, stack);
                 this.fakePlayer.setItemSlot(EquipmentSlot.MAINHAND, stack);
-            }
-            else {
+            } else {
                 EquipmentSlot slot = getEquipmentSlotForItem(stack);
                 this.setItemSlotAndDropWhenKilled(slot, stack);
                 this.fakePlayer.setItemSlot(slot, stack);
@@ -1126,10 +1105,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             // Select this taterzen
             ((ITaterzenEditor) player).selectNpc(this);
 
-            player.sendMessage(
-                    successText("taterzens.command.select", this.getName().getString()),
-                    this.getUUID()
-            );
+            player.sendSystemMessage(successText("taterzens.command.select", this.getName().getString()));
 
             return InteractionResult.PASS;
         } else if (((ITaterzenEditor) player).getNpc() == this) {
@@ -1183,11 +1159,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 }
             } else {
                 // Inform player about the cooldown
-                player.sendMessage(errorText(this.npcData.commandCooldownMessage,
-                                String.valueOf(this.npcData.minCommandInteractionTime - diff)
-                        ),
-                        this.getUUID()
-                );
+                player.sendSystemMessage(
+                        errorText(this.npcData.commandCooldownMessage,
+                                String.valueOf(this.npcData.minCommandInteractionTime - diff)));
             }
         }
 
@@ -1215,10 +1189,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
         // Additional drop check
-        if(this.npcData.allowEquipmentDrops)
+        if (this.isEquipmentDropsAllowed())
             super.dropCustomDeathLoot(source, lootingMultiplier, allowDrops);
         else {
-            for(EquipmentSlot slot : EquipmentSlot.values()) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
                 this.setItemSlot(slot, ItemStack.EMPTY);
             }
         }
@@ -1226,12 +1200,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     protected boolean shouldDropLoot() {
-        return this.npcData.allowEquipmentDrops;
+        return this.isEquipmentDropsAllowed();
     }
 
     @Override
-    protected boolean shouldDropExperience() {
-        return this.npcData.allowEquipmentDrops;
+    public boolean shouldDropExperience() {
+        return this.isEquipmentDropsAllowed();
     }
 
     /**
@@ -1269,7 +1243,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public Component removeMessage(int index) {
         if(index < this.npcData.messages.size())
             return this.npcData.messages.remove(index).getFirst();
-        return TextComponent.EMPTY;
+        return Component.literal("");
     }
 
     /**
@@ -1305,7 +1279,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public void push(Entity entity) {
-        if(this.npcData.pushable) {
+        if (this.getTag("Pushable", config.defaults.pushable)) {
             super.push(entity);
         }
     }
@@ -1316,7 +1290,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     protected void doPush(Entity entity) {
-        if(this.npcData.pushable) {
+        if (this.getTag("Pushable", config.defaults.pushable)) {
             super.doPush(entity);
         }
     }
@@ -1326,7 +1300,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param pushable whether Taterzen can be pushed
      */
     public void setPushable(boolean pushable) {
-        this.npcData.pushable = pushable;
+        this.setTag("Pushable", pushable);
     }
 
     /**
@@ -1362,15 +1336,25 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public boolean canBeLeashed(Player player) {
-        return !this.isLeashed() && this.npcData.leashable;
+        return !this.isLeashed() && this.isLeashable();
+    }
+
+    /**
+     * Gets whether this NPC is leashable.
+     *
+     * @return whether this NPC is leashable.
+     */
+    private boolean isLeashable() {
+        return this.getTag("Leashable", config.defaults.leashable);
     }
 
     /**
      * Sets whether Taterzen can be leashed.
+     *
      * @param leashable Taterzen leashability.
      */
     public void setLeashable(boolean leashable) {
-        this.npcData.leashable = leashable;
+        this.setTag("Leashable", leashable);
     }
 
     @Override
@@ -1620,7 +1604,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     protected Component getTypeName() {
-        return new TextComponent("-" + config.defaults.name + "-");
+        return Component.literal("-" + config.defaults.name + "-");
     }
 
     public Player getFakePlayer() {
@@ -1629,22 +1613,31 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Toggles whether Taterzen will drop its equipment.
+     *
      * @param drop drop rule
      */
     public void allowEquipmentDrops(boolean drop) {
-        this.npcData.allowEquipmentDrops = drop;
+        this.setTag("DropsAllowed", drop);
+    }
+
+    /**
+     * Gets whether Taterzen will drop its equipment.
+     *
+     * @return drop rule
+     */
+    public boolean isEquipmentDropsAllowed() {
+        return this.getTag("DropsAllowed", config.defaults.dropEquipment);
     }
 
     /**
      * Adds {@link TaterzenProfession} to Taterzen.
      * Profession must be registered with {@link org.samo_lego.taterzens.api.TaterzensAPI#registerProfession(ResourceLocation, Function)}.
+     *
      * @param professionId ResourceLocation of the profession
      */
     public void addProfession(ResourceLocation professionId) {
-        if(PROFESSION_TYPES.containsKey(professionId)) {
+        if (PROFESSION_TYPES.containsKey(professionId)) {
             this.addProfession(professionId, PROFESSION_TYPES.get(professionId).apply(this));
-        } else if(LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
-            this.addProfession(professionId, LEGACY_PROFESSION_TYPES.get(professionId).create(this));
         } else {
             Taterzens.LOGGER.warn("Trying to add unknown profession {} to taterzen {}.", professionId, this.getName().getString());
         }
@@ -1751,7 +1744,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param jumpWhileAttacking whether to jump during attacks.
      */
     public void setPerformAttackJumps(boolean jumpWhileAttacking) {
-        this.npcData.jumpWhileAttacking = jumpWhileAttacking;
+        this.setTag("JumpAttack", jumpWhileAttacking);
     }
 
     /**
@@ -1856,7 +1849,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param allowFlight whether to allow taterzen to fly or not.
      */
     public void setAllowFlight(boolean allowFlight) {
-        this.npcData.allowFlight = allowFlight;
+        this.setTag("AllowFlight", allowFlight);
 
         if (allowFlight) {
             this.moveControl = new FlyingMoveControl(this, 20, false);
@@ -1878,7 +1871,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
-        return !this.npcData.allowFlight && super.causeFallDamage(fallDistance, multiplier, source);
+        return !this.getTag("AllowFlight", config.defaults.allowFlight) && super.causeFallDamage(fallDistance, multiplier, source);
     }
 
     /**
@@ -1905,7 +1898,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @return true if taterzen was able to ride provided entity, otherwise false.
      */
     public boolean startRiding(Entity entity) {
-        if (this.npcData.allowRiding) {
+        if (this.getTag("AllowRiding", config.defaults.allowRiding)) {
             return this.startRiding(entity, false);
         }
         return false;
@@ -1941,7 +1934,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param allow whether to allow riding or not.
      */
     public void setAllowRiding(boolean allow) {
-        this.npcData.allowRiding = allow;
+        this.setTag("AllowRiding", allow);
     }
 
 
@@ -1957,6 +1950,20 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
         this.setSwimming(this.isSwimming() && allowSwimming);
         this.getNavigation().setCanFloat(allowSwimming);
-        this.npcData.allowSwimming = allowSwimming;
+        this.setTag("AllowSwimming", allowSwimming);
+    }
+
+    private void setTag(String name, boolean value) {
+        this.npcData.booleanTags.put(name, value);
+    }
+
+    private void resetTag(String name) {
+        this.npcData.booleanTags.remove(name);
+    }
+
+    private boolean getTag(String name, boolean defaultValue) {
+        if (this.npcData.booleanTags.containsKey(name))
+            return this.npcData.booleanTags.get(name);
+        return defaultValue;
     }
 }

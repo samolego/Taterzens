@@ -8,8 +8,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.contents.LiteralContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
 
 import java.util.Arrays;
 
@@ -22,7 +22,7 @@ public class TextUtil {
      * Inserts colored insertedText in string message.
      */
     public static MutableComponent joinText(String key, ChatFormatting messageColor, ChatFormatting insertedTextColor, String... insertedString) {
-        Object[] texts = Arrays.stream(insertedString).map(s -> new TextComponent(s).withStyle(insertedTextColor)).toArray();
+        Object[] texts = Arrays.stream(insertedString).map(s -> Component.literal(s).withStyle(insertedTextColor)).toArray();
         return translate(key, texts).plainCopy().withStyle(messageColor);
     }
 
@@ -56,12 +56,13 @@ public class TextUtil {
 
     /**
      * Gets the text for the given language key.
+     *
      * @param key lang key.
-     * @return {@link TranslatableComponent} or {@link TextComponent} depending on whether SERVER_TRANSLATIONS is loaded.
+     * @return {@link TranslatableContents} or {@link LiteralContents} depending on whether SERVER_TRANSLATIONS is loaded.
      */
     public static MutableComponent translate(String key, Object... args) {
         if(SERVER_TRANSLATIONS_LOADED) {
-            return new TranslatableComponent(key, args);
+            return Component.translatable(key, args);
         }
 
         String translation;
@@ -69,7 +70,7 @@ public class TextUtil {
             translation = lang.get(key).getAsString();
         else
             translation = key;
-        return new TranslatableComponent(translation, args);
+        return Component.translatable(translation, args);
     }
 
 }

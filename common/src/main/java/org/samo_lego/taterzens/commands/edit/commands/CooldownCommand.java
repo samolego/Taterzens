@@ -42,10 +42,8 @@ public class CooldownCommand {
         String msg = MessageArgument.getMessage(context, "new cooldown message").getString();
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             taterzen.setCooldownMessage(msg);
-            entity.sendMessage(
-                    successText("taterzens.command.commands.cooldown.edit_message", msg, taterzen.getName().getString()),
-                    taterzen.getUUID()
-            );
+            entity.sendSystemMessage(
+                    successText("taterzens.command.commands.cooldown.edit_message", msg, taterzen.getName().getString()));
         });
 
     }
@@ -55,10 +53,8 @@ public class CooldownCommand {
         long cooldown = LongArgumentType.getLong(context, "cooldown");
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             taterzen.setMinCommandInteractionTime(cooldown);
-            entity.sendMessage(
-                    successText("taterzens.command.commands.cooldown.set", String.valueOf(cooldown), taterzen.getName().getString()),
-                    taterzen.getUUID()
-            );
+            entity.sendSystemMessage(
+                    successText("taterzens.command.commands.cooldown.set", String.valueOf(cooldown), taterzen.getName().getString()));
         });
     }
 }

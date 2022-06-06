@@ -9,8 +9,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.Taterzens;
@@ -23,7 +23,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.util.TextUtil.*;
+import static org.samo_lego.taterzens.util.TextUtil.errorText;
+import static org.samo_lego.taterzens.util.TextUtil.successText;
+import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class SoundCommand {
 
@@ -660,7 +662,7 @@ public class SoundCommand {
                     int idx = i + 1;
 
                     response.append(
-                        new TextComponent("\n" + idx + ": " + ambientSounds.get(i))
+                            Component.literal("\n" + idx + ": " + ambientSounds.get(i))
                             .withStyle(i % 2 == 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_BLUE)
                     );
                 }
@@ -668,7 +670,7 @@ public class SoundCommand {
             else
             {
                 response.append(
-                        new TextComponent(" " + translate("taterzens.command.sounds.list.empty").getString())
+                        Component.literal(" " + translate("taterzens.command.sounds.list.empty").getString())
                             .withStyle(ChatFormatting.YELLOW)
                 );
             }
@@ -693,7 +695,7 @@ public class SoundCommand {
                     int idx = i + 1;
 
                     response.append(
-                            new TextComponent("\n" + idx + ": " + hurtSounds.get(i))
+                            Component.literal("\n" + idx + ": " + hurtSounds.get(i))
                                     .withStyle(i % 2 == 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_BLUE)
                     );
                 }
@@ -701,7 +703,7 @@ public class SoundCommand {
             else
             {
                 response.append(
-                        new TextComponent(" " + translate("taterzens.command.sounds.list.empty").getString())
+                        Component.literal(" " + translate("taterzens.command.sounds.list.empty").getString())
                                 .withStyle(ChatFormatting.YELLOW)
                 );
             }
@@ -726,7 +728,7 @@ public class SoundCommand {
                     int idx = i + 1;
 
                     response.append(
-                            new TextComponent("\n" + idx + ": " + deathSounds.get(i))
+                            Component.literal("\n" + idx + ": " + deathSounds.get(i))
                                     .withStyle(i % 2 == 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.DARK_BLUE)
                     );
                 }
@@ -734,7 +736,7 @@ public class SoundCommand {
             else
             {
                 response.append(
-                        new TextComponent(" " + translate("taterzens.command.sounds.list.empty").getString())
+                        Component.literal(" " + translate("taterzens.command.sounds.list.empty").getString())
                                 .withStyle(ChatFormatting.YELLOW)
                 );
             }

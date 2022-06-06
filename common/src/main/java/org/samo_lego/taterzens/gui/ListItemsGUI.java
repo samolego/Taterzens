@@ -5,7 +5,7 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +32,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
     public ListItemsGUI(ServerPlayer player, Component npcName, String titleTranslationKey) {
         super(MenuType.GENERIC_9x6, player, false);
 
-        this.setTitle(new TranslatableComponent(titleTranslationKey).append(": ").withStyle(ChatFormatting.YELLOW).append(npcName.copy()));
+        this.setTitle(Component.translatable(titleTranslationKey).append(": ").withStyle(ChatFormatting.YELLOW).append(npcName.copy()));
 
         // Info (which page)
         ItemStack info = new ItemStack(Items.PAPER);
@@ -45,7 +45,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         // Previous page
         ItemStack back = new ItemStack(Items.MAGENTA_GLAZED_TERRACOTTA);
         back.setTag(customData.copy());
-        back.setHoverName(new TranslatableComponent("spectatorMenu.previous_page"));
+        back.setHoverName(Component.translatable("spectatorMenu.previous_page"));
         back.enchant(null, 0);
 
         GuiElement previousScreenButton = new GuiElement(back, (index, type1, action) -> {
@@ -58,7 +58,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         // Next page
         ItemStack next = new ItemStack(Items.LIGHT_BLUE_GLAZED_TERRACOTTA);
         next.setTag(customData.copy());
-        next.setHoverName(new TranslatableComponent("spectatorMenu.next_page"));
+        next.setHoverName(Component.translatable("spectatorMenu.next_page"));
         next.enchant(null, 0);
 
         GuiElement nextScreenButton = new GuiElement(next, (_i, _clickType, _slotActionType) -> {
@@ -72,7 +72,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         // Close screen button
         ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
         close.setTag(customData.copy());
-        close.setHoverName(new TranslatableComponent("spectatorMenu.close"));
+        close.setHoverName(Component.translatable("spectatorMenu.close"));
         close.enchant(null, 0);
 
         GuiElement closeScreenButton = new GuiElement(close, (_i, _clickType, _slotActionType) -> {
@@ -98,10 +98,11 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
 
     /**
      * Gets current page info (Page X of Y)
+     *
      * @return translated page info text.
      */
-    private TranslatableComponent getCurrentPageMarker() {
-        return new TranslatableComponent("book.pageIndicator", this.currentPage + 1, this.getMaxPages() + 1);
+    private MutableComponent getCurrentPageMarker() {
+        return Component.translatable("book.pageIndicator", this.currentPage + 1, this.getMaxPages() + 1);
     }
 
     public int getCurrentPage() {

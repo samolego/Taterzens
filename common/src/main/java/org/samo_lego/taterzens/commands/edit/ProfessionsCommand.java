@@ -11,9 +11,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.MessageArgument.message;
-import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
@@ -49,14 +48,14 @@ public class ProfessionsCommand {
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions.remove", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests(ProfessionsCommand::suggestRemovableProfessions)
-                                .executes(ctx -> removeProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getContents())))
+                                .executes(ctx -> removeProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getString())))
                         )
                 )
                 .then(literal("add")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.professions.add", config.perms.npcCommandPermissionLevel))
                         .then(argument("profession type", message())
                                 .suggests(PROFESSION_SUGESTIONS)
-                                .executes(ctx -> setProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getContents())))
+                                .executes(ctx -> setProfession(ctx, new ResourceLocation(MessageArgument.getMessage(ctx, "profession type").getString())))
                         )
                 )
                 .then(literal("list")
@@ -80,10 +79,10 @@ public class ProfessionsCommand {
             professionIds.forEach(ResourceLocation -> {
                 int index = i.get() + 1;
                 response.append(
-                        new TextComponent("\n" + index + "-> " + ResourceLocation.toString() + " (")
+                        Component.literal("\n" + index + "-> " + ResourceLocation.toString() + " (")
                                 .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
                                 .append(
-                                        new TextComponent("X")
+                                        Component.literal("X")
                                                 .withStyle(ChatFormatting.RED)
                                                 .withStyle(ChatFormatting.BOLD)
                                                 .withStyle(style -> style
@@ -91,7 +90,7 @@ public class ProfessionsCommand {
                                                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit professions remove " + ResourceLocation))
                                                 )
                                 )
-                                .append(new TextComponent(")").withStyle(ChatFormatting.RESET))
+                                .append(Component.literal(")").withStyle(ChatFormatting.RESET))
                 );
                 i.incrementAndGet();
             });
@@ -113,11 +112,12 @@ public class ProfessionsCommand {
     private static int setProfession(CommandContext<CommandSourceStack> context, ResourceLocation id) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            if(LEGACY_PROFESSION_TYPES.containsKey(id) || PROFESSION_TYPES.containsKey(id)) {
+            if (PROFESSION_TYPES.containsKey(id)) {
                 taterzen.addProfession(id);
                 source.sendSuccess(successText("taterzens.command.profession.add", id.toString()), false);
-            } else
+            } else {
                 context.getSource().sendFailure(errorText("taterzens.command.profession.error.404", id.toString()));
+            }
         });
     }
 
@@ -135,7 +135,6 @@ public class ProfessionsCommand {
 
     static {
         Set<ResourceLocation> availableProfessions = new HashSet<>(PROFESSION_TYPES.keySet());
-        availableProfessions.addAll(LEGACY_PROFESSION_TYPES.keySet());
 
         List<String> professions = availableProfessions.stream().map(ResourceLocation::toString).toList();
         PROFESSION_SUGESTIONS = (context, builder) ->

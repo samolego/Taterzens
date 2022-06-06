@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import static org.samo_lego.taterzens.Taterzens.GSON;
-import static org.samo_lego.taterzens.Taterzens.LEGACY_PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
@@ -148,7 +147,7 @@ public class TaterzensAPI {
 
         taterzen.moveTo(pos.x(), pos.y(), pos.z(), rotations[1], rotations[2]);
         taterzen.setYHeadRot(rotations[0]);
-        taterzen.setCustomName(new TextComponent(displayName));
+        taterzen.setCustomName(Component.literal(displayName));
         SkullBlockEntity.updateGameprofile(taterzen.getGameProfile(), taterzen::applySkin);
 
         return taterzen;
@@ -166,38 +165,17 @@ public class TaterzensAPI {
         return createTaterzen(owner.getLevel(), displayName, owner.position(), new float[]{owner.yHeadRot, owner.getYRot(), owner.getXRot()});
     }
 
-
-
-    /**
-     * Registers a new {@link TaterzenProfession}.
-     * If it already exist, it will error
-     *
-     * @param professionId a unique id of profession.
-     * @param profession profession to register.
-     *
-     * @deprecated
-     */
-    @Deprecated
-    public static void registerProfession(ResourceLocation professionId, TaterzenProfession profession) {
-        if(!LEGACY_PROFESSION_TYPES.containsKey(professionId)) {
-            LEGACY_PROFESSION_TYPES.put(professionId, profession);
-            LOGGER.warn("[Taterzens] Profession {} is using a deprecated way of registering. This is scheduled for removal.", professionId.toString());
-        }
-        else {
-            LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
-        }
-    }
-
     /**
      * Registers a new {@link TaterzenProfession}.
      * @param professionId a unique id of profession.
      * @param professionInitilizer constructor of profession that accepts {@link TaterzenNPC}.
      */
     public static void registerProfession(ResourceLocation professionId, Function<TaterzenNPC, TaterzenProfession> professionInitilizer) {
-        if(!PROFESSION_TYPES.containsKey(professionId))
+        if (!PROFESSION_TYPES.containsKey(professionId)) {
             PROFESSION_TYPES.put(professionId, professionInitilizer);
-        else
-            LOGGER.warn("[Taterzens] A mod tried to register the profession {} which is already present. Ignoring.", professionId.toString());
+        } else {
+            LOGGER.warn("[Taterzens] A mod {} tried to register the profession {} which is already present. Ignoring.", professionId.getNamespace(), professionId.getPath());
+        }
     }
 
 

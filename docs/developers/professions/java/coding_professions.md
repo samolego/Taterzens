@@ -54,7 +54,7 @@ public class MyFirstProfession implements TaterzenProfession {
 
     @Override
     public InteractionResult interactAt(Player player, Vec3d pos, Hand hand) {
-        player.sendMessage(new TextComponent("You have interacted with ").append(this.npc.getName()), false);
+        player.sendMessage(Component.literal("You have interacted with ").append(this.npc.getName()), false);
         return InteractionResult.PASS;
     }
 
