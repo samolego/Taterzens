@@ -22,8 +22,11 @@ import org.samo_lego.taterzens.util.LanguageUtil;
 import org.samo_lego.taterzens.util.PermissionExtractor;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.LUCKPERMS_LOADED;
@@ -47,7 +50,7 @@ public class Taterzens {
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
      */
-    public static final LinkedHashSet<TaterzenNPC> TATERZEN_NPCS = new LinkedHashSet<>();
+    public static final Map<UUID, TaterzenNPC> TATERZEN_NPCS = Collections.synchronizedMap(new LinkedHashMap<>());
 
     public static final HashMap<ResourceLocation, Function<TaterzenNPC, TaterzenProfession>> PROFESSION_TYPES = new HashMap<>();
     public static final Gson GSON;

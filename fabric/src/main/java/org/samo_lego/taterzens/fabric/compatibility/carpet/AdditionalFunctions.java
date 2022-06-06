@@ -9,6 +9,8 @@ import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
+import java.util.UUID;
+
 public class AdditionalFunctions {
 
     /**
@@ -50,7 +52,22 @@ public class AdditionalFunctions {
     public Entity taterzen_by_id(int id) {
         // Check size of TATERZEN_NPCS
         if (id < Taterzens.TATERZEN_NPCS.size()) {
-            return (TaterzenNPC) Taterzens.TATERZEN_NPCS.toArray()[id];
+            return (TaterzenNPC) Taterzens.TATERZEN_NPCS.values().toArray()[id];
+        }
+        return null;
+    }
+
+    @ScarpetFunction
+    public Entity taterzen_by_uuid(UUID uuid) {
+        return Taterzens.TATERZEN_NPCS.get(uuid);
+    }
+
+    @ScarpetFunction
+    public Entity taterzen_by_name(String name) {
+        for (TaterzenNPC npc : Taterzens.TATERZEN_NPCS.values()) {
+            if (npc.getName().getString().equals(name)) {
+                return npc;
+            }
         }
         return null;
     }

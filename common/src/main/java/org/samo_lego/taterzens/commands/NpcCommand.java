@@ -29,6 +29,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -151,39 +152,38 @@ public class NpcCommand {
         boolean console = source.getEntity() == null;
         TaterzenNPC npc = null;
 
-        if(!console) {
+        if (!console) {
             npc = ((ITaterzenEditor) source.getPlayerOrException()).getNpc();
         }
 
         MutableComponent response = translate("taterzens.command.list").withStyle(ChatFormatting.AQUA);
-        Object[] array = TATERZEN_NPCS.toArray();
 
-        for(int i = 0; i < TATERZEN_NPCS.size(); ++i) {
-            int index = i + 1;
-            TaterzenNPC taterzenNPC = (TaterzenNPC) array[i];
+        int i = 1;
+        for (var taterzenNPC : TATERZEN_NPCS.values()) {
             String name = taterzenNPC.getName().getString();
 
             boolean sel = taterzenNPC == npc;
 
             response
                     .append(
-                            Component.literal("\n" + index + "-> " + name)
-                            .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
-                            .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
-                            .withStyle(style -> style
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select " + index))
+                            Component.literal("\n" + i + "-> " + name)
+                                    .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
+                                    .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
+                                    .withStyle(style -> style
+                                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid" + taterzenNPC.getUUID().toString()))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name))
                                     )
-                            )
+                                    )
                     )
                     .append(
                             Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
-                                .withStyle(ChatFormatting.GRAY)
-                                .withStyle(style -> style
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getStringUUID()))
-                    )
-            );
+                                    .withStyle(ChatFormatting.GRAY)
+                                    .withStyle(style -> style
+                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
+                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getStringUUID()))
+                                    )
+                    );
+            ++i;
         }
 
         source.sendSuccess(response, false);
@@ -203,12 +203,14 @@ public class NpcCommand {
         if(id > TATERZEN_NPCS.size()) {
             source.sendFailure(errorText("taterzens.error.404.id", String.valueOf(id)));
         } else {
-            TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.toArray()[id - 1];
+            TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.values().toArray()[id - 1];
             ServerPlayer player = source.getPlayerOrException();
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-            if(npc != null) {
+
+            if (npc != null) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
+
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
                 source.sendSuccess(
@@ -226,14 +228,16 @@ public class NpcCommand {
 
     private static String[] getAvailableTaterzenNames() {
         String[] availableNames = new String[TATERZEN_NPCS.size()];
-        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
-        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
-            availableNames[i] = taterzenArray[i].getName().getString();
+
+        int i = 0;
+        for (var taterzen : TATERZEN_NPCS.values()) {
+            availableNames[i] = taterzen.getName().getString();
             availableNames[i] = "\"" + availableNames[i] + "\""; // Adds quotation marks to the suggested name, such that
-                                                                 // Names containing a whitespace character (ex. the
-                                                                 // name is 'Foo Bar') can be completed and correctly
-                                                                 // used without the user having to enclose the argument
-                                                                 // name with quotation marks themselves.
+            // Names containing a whitespace character (ex. the
+            // name is 'Foo Bar') can be completed and correctly
+            // used without the user having to enclose the argument
+            // name with quotation marks themselves.
+            ++i;
         }
         return availableNames;
     }
@@ -248,7 +252,7 @@ public class NpcCommand {
         // In case no NPC with that name is found, taterzen is null
         TaterzenNPC taterzen = null;
         int count = 0; // number of npcs with identical name
-        for (TaterzenNPC npcIt : TATERZEN_NPCS) {
+        for (TaterzenNPC npcIt : TATERZEN_NPCS.values()) {
             if (npcIt.getName().getString().equals(name)) {
                 taterzen = npcIt;
                 count++;
@@ -263,12 +267,10 @@ public class NpcCommand {
         if (count == 0) { // equivalent to taterzen == null
             source.sendFailure(errorText("taterzens.error.404.name", name));
             return 0;
-        }
-        else { // if count == 1
-
+        } else { // if count == 1
             ServerPlayer player = source.getPlayerOrException();
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-            if(npc != null) {
+            if (npc != null) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
@@ -287,13 +289,8 @@ public class NpcCommand {
         }
     }
 
-    private static String[] getAvailableTaterzenUUIDs() {
-        String[] availableUUIDs = new String[TATERZEN_NPCS.size()];
-        TaterzenNPC[] taterzenArray = TATERZEN_NPCS.toArray(new TaterzenNPC[0]);
-        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
-            availableUUIDs[i] = taterzenArray[i].getUUID().toString();
-        }
-        return availableUUIDs;
+    private static List<String> getAvailableTaterzenUUIDs() {
+        return TATERZEN_NPCS.keySet().stream().map(UUID::toString).toList();
     }
 
     private static int selectTaterzenByUUID(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -303,26 +300,19 @@ public class NpcCommand {
         try {
             uuid = UUID.fromString(StringArgumentType.getString(context, "uuid"));
         } catch (IllegalArgumentException ex) {
-                source.sendFailure(errorText("argument.uuid.invalid"));
+            source.sendFailure(errorText("argument.uuid.invalid"));
             return 0;
         }
 
-        TaterzenNPC taterzen = null;
-        // Iterate through all currently loaded NPCs and check whether their UUID matches the input argument
-        // break the loop if found. If there is no match 'taterzen' will remain null.
-        for(TaterzenNPC npcIt : TATERZEN_NPCS) {
-            if (npcIt.getUUID().equals(uuid)) {
-                taterzen = npcIt;
-                break;
-            }
-        }
+        TaterzenNPC taterzen = TATERZEN_NPCS.get(uuid);
+
         if (taterzen == null) {
             source.sendFailure(errorText("taterzens.error.404.uuid", uuid.toString()));
             return 0;
         } else {
             ServerPlayer player = source.getPlayerOrException();
             TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-            if(npc != null) {
+            if (npc != null) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);

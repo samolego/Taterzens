@@ -27,20 +27,22 @@ public class ServerPlayInteractionManagerMixin {
      * for the path of player's {@link org.samo_lego.taterzens.npc.TaterzenNPC}.
      * Activated only if player is in path edit mode and has a selected Taterzen.
      *
-     * @param blockPos position of the broken block
-     * @param playerAction action the player is trying to do
+     * @param blockPos  position of the broken block
+     * @param action    action the player is trying to do
      * @param direction direction
-     * @param worldHeight world height
+     * @param i
+     * @param j
+     * @param ci
      */
     @Inject(
-            method = "handleBlockBreakAction(Lnet/minecraft/core/BlockPos;Lnet/minecraft/network/protocol/game/ServerboundPlayerActionPacket$Action;Lnet/minecraft/core/Direction;I)V",
+            method = "handleBlockBreakAction",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onAttackBlock(BlockPos blockPos, ServerboundPlayerActionPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
-        if (playerAction == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
+    private void onAttackBlock(BlockPos blockPos, ServerboundPlayerActionPacket.Action action, Direction direction, int i, int j, CallbackInfo ci) {
+        if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
             ITaterzenEditor player = (ITaterzenEditor) this.player;
-            if(player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
+            if (player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
                 player.getNpc().addPathTarget(blockPos);
                 ((ServerPlayer) player).connection.send(new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState()));
                 ci.cancel();

@@ -214,7 +214,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.npcData.deathSounds = new ArrayList<>(config.defaults.deathSounds);
         }
 
-        TATERZEN_NPCS.add(this);
+        TATERZEN_NPCS.put(this.getUUID(), this);
     }
 
     /**
@@ -1385,7 +1385,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setPos(this.respawnPosition);
             this.setPose(pose);
         } else {
-            TATERZEN_NPCS.remove(this);
+            TATERZEN_NPCS.remove(this.getUUID());
 
             for(TaterzenProfession profession : this.professions.values()) {
                 profession.onRemove();
@@ -1696,7 +1696,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Profession event
         ItemStack stack = item.getItem();
         for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.tryPickupItem(item) || profession.tryPickupItem(stack)) {
+            if (profession.tryPickupItem(item)) {
                 this.onItemPickup(item);
                 this.take(item, stack.getCount());
                 stack.setCount(0);

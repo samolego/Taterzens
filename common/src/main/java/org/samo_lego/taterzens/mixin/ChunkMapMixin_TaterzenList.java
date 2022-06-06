@@ -20,7 +20,7 @@ public class ChunkMapMixin_TaterzenList {
     @Inject(method = "addEntity(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
     private void onEntityAdded(Entity entity, CallbackInfo ci) {
         if(entity instanceof TaterzenNPC)
-            TATERZEN_NPCS.add((TaterzenNPC) entity);
+            TATERZEN_NPCS.put(entity.getUUID(), (TaterzenNPC) entity);
     }
 
     /**
