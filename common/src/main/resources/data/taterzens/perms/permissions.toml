@@ -73,6 +73,8 @@ permissions = [
    "taterzens.npc.edit.path",
    #  Clears Taterzen's path.
    "taterzens.npc.edit.path.clear",
+   # Lists all path entries of a Taterzen
+   "taterzens.npc.edit.path.list",
 
    #  Editing Taterzen's messages
    #  Enters message adding mode of Taterzen.

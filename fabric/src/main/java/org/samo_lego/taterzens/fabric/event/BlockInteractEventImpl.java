@@ -25,6 +25,11 @@ public class BlockInteractEventImpl implements UseBlockCallback {
      */
     @Override
     public InteractionResult interact(Player player, Level world, InteractionHand hand, BlockHitResult blockHitResult) {
-        return BlockEvent.onBlockInteract(player, world, blockHitResult.getBlockPos());
+        // check in if clause prevents crash (check for server side) on clients
+        // and prevents executing event handler twice (check for main hand)
+        if (!player.getLevel().isClientSide() && hand == InteractionHand.MAIN_HAND) {
+            return BlockEvent.onBlockInteract(player, world, blockHitResult.getBlockPos());
+        }
+        return InteractionResult.PASS;
     }
 }

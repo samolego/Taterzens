@@ -2,6 +2,7 @@ package org.samo_lego.taterzens.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +15,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static org.samo_lego.taterzens.util.TextUtil.successText;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayInteractionManagerMixin {
@@ -39,10 +42,12 @@ public class ServerPlayInteractionManagerMixin {
     )
     private void onAttackBlock(BlockPos blockPos, ServerboundPlayerActionPacket.Action playerAction, Direction direction, int worldHeight, CallbackInfo ci) {
         if (playerAction == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
-            ITaterzenEditor player = (ITaterzenEditor) this.player;
-            if(player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
-                player.getNpc().addPathTarget(blockPos);
-                ((ServerPlayer) player).connection.send(new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState()));
+            ITaterzenEditor editorPlayer = (ITaterzenEditor) this.player;
+            if(editorPlayer.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
+                editorPlayer.getNpc().addPathTarget(blockPos);
+                ServerPlayer serverPlayer = ((ServerPlayer) editorPlayer);
+                serverPlayer.connection.send(new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState()));
+                serverPlayer.sendMessage(successText("taterzens.command.path_editor.add.success", "(" + blockPos.toShortString() + ")"), ChatType.SYSTEM, serverPlayer.getUUID());
                 ci.cancel();
             }
         }
