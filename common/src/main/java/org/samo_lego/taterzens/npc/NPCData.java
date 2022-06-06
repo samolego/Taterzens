@@ -4,9 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.Nullable;
-import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,10 +47,7 @@ public class NPCData {
      * Permission level of Taterzen.
      */
     public int permissionLevel = config.defaults.commandPermissionLevel;
-    /**
-     * Commands to be executed on right click.
-     */
-    public final ArrayList<String> commands = new ArrayList<>();
+
     /**
      * Default behaviour of Taterzen.
      */
@@ -67,7 +62,6 @@ public class NPCData {
 
     public ArrayList<String> deathSounds = new ArrayList<>();
 
-    public final ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = new ArrayList<>();
     public long minCommandInteractionTime = config.defaults.minInteractionTime;
     public String commandCooldownMessage = config.defaults.commandCooldownMessage;
 

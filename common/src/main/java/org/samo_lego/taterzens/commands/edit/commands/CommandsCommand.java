@@ -17,14 +17,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.lang3.tuple.Triple;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
+import org.samo_lego.taterzens.npc.commands.BungeeCommand;
+import org.samo_lego.taterzens.npc.commands.MinecraftCommand;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +33,7 @@ import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.noSelectedTaterzenError;
-import static org.samo_lego.taterzens.compatibility.BungeeCompatibility.AVAILABLE_SERVERS;
+import static org.samo_lego.taterzens.npc.commands.BungeeCommand.AVAILABLE_SERVERS;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.joinText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -53,42 +51,59 @@ public class CommandsCommand {
                                 .executes(CommandsCommand::setPermissionLevel)
                         )
                 )
-                .then(literal("remove")
-                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
-                        .then(argument("command id", IntegerArgumentType.integer()).executes(CommandsCommand::removeCommand))
-                )
-                .then(literal("add")
-                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
-                        .redirect(dispatcher.getRoot(), context -> {
-                            // Really ugly, but ... works :P
-                            String cmd = addCommand(context);
-                            throw new SimpleCommandExceptionType(
-                                    cmd == null ?
-                                            noSelectedTaterzenError() :
-                                            joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
-                            ).create();
-                        })
-                )
-                .then(literal("addBungee")
-                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.addBungee", config.perms.npcCommandPermissionLevel))
-                        .then(argument("command", string())
-                            .suggests(BUNGEE_COMMANDS)
-                            .then(argument("player", string())
-                                .suggests(PLAYERS)
-                                .then(argument("argument", string())
-                                    .suggests((context, builder) -> SharedSuggestionProvider.suggest(AVAILABLE_SERVERS, builder))
-                                    .executes(CommandsCommand::addBungeeCommand)
+                .then(literal("group")
+                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.group", config.perms.npcCommandPermissionLevel))
+                        .then(argument("group number", IntegerArgumentType.integer(0))
+                                .then(literal("delete")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.group.delete", config.perms.npcCommandPermissionLevel))
+                                        .executes(CommandsCommand::deleteGroup)
                                 )
-                            )
+                                .then(literal("removeCommandFromGroup")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
+                                        .then(argument("command id", IntegerArgumentType.integer()).executes(CommandsCommand::removeCommandFromGroup))
+                                )
+                                .then(literal("add")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
+                                        .redirect(dispatcher.getRoot(), context -> {
+                                            // Really ugly, but ... works :P
+                                            String cmd = addCommand(context);
+                                            throw new SimpleCommandExceptionType(
+                                                    cmd == null ?
+                                                            noSelectedTaterzenError() :
+                                                            joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
+                                            ).create();
+                                        })
+                                )
+                                .then(literal("addBungee")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.addBungee", config.perms.npcCommandPermissionLevel))
+                                        .then(argument("command", string())
+                                                .suggests(BUNGEE_COMMANDS)
+                                                .then(argument("player", string())
+                                                        .suggests(PLAYERS)
+                                                        .then(argument("argument", string())
+                                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(AVAILABLE_SERVERS, builder))
+                                                                .executes(CommandsCommand::addBungeeCommand)
+                                                        )
+                                                )
+                                        )
+                                )
+                                .then(literal("clear")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
+                                        .executes(CommandsCommand::clearGroupCommands)
+                                )
+                                .then(literal("list")
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
+                                        .executes(CommandsCommand::listGroupCommands)
+                                )
                         )
                 )
                 .then(literal("clear")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
-                        .executes(CommandsCommand::clearCommands)
+                        .executes(CommandsCommand::clearAllCommands)
                 )
                 .then(literal("list")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
-                        .executes(CommandsCommand::listTaterzenCommands)
+                        .executes(CommandsCommand::listAllTaterzenCommands)
                 )
                 .build();
 
@@ -96,109 +111,150 @@ public class CommandsCommand {
         editNode.addChild(commandsNode);
     }
 
-
-    private static int removeCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int listGroupCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        int original = IntegerArgumentType.getInteger(context, "command id");
-        int selected = original;
-        boolean bungee = false;
-
-        if(selected < 0) {
-            selected *= -1;
-            bungee = true;
-        }
-        --selected;
-
-        int finalSelected = selected;
-        boolean finalBungee = bungee;
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            ArrayList<?> cmds = finalBungee ? taterzen.getBungeeCommands() : taterzen.getCommands();
-            if(finalSelected >= cmds.size()) {
-                source.sendSuccess(
-                        errorText("taterzens.command.commands.error.404", String.valueOf(original)),
-                        false
-                );
-            } else {
-                source.sendSuccess(successText("taterzens.command.commands.removed", cmds.get(finalSelected).toString()), false);
-                taterzen.removeCommand(finalSelected, finalBungee);
-            }
-        });
-    }
-
-    private static int clearCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
+        int groupIndex = IntegerArgumentType.getInteger(context, "group number") - 1;
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            source.sendSuccess(successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
-            taterzen.clearCommands(true);
-            taterzen.clearCommands(false);
-        });
-    }
-
-    private static int listTaterzenCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        CommandSourceStack source = context.getSource();
-
-        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            ArrayList<String> commands = taterzen.getCommands();
-            ArrayList<Triple<BungeeCompatibility, String, String>> bungeeCommands = taterzen.getBungeeCommands();
+            var commands = taterzen.getGroupCommands(groupIndex);
             final String separator = "\n-------------------------------------------------";
 
             MutableComponent response = joinText("taterzens.command.commands.list", ChatFormatting.AQUA, ChatFormatting.YELLOW, taterzen.getName().getString());
             response.append(separator);
-            if(!commands.isEmpty()) {
-                AtomicInteger i = new AtomicInteger();
 
-                commands.forEach(cmd -> {
-                    int index = i.get() + 1;
-                    response.append(
-                            Component.literal("\n" + index + "-> ")
-                                    .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
-                                    .append(cmd)
-                                    .append("   ")
-                                    .append(
-                                            Component.literal("X")
-                                                    .withStyle(ChatFormatting.RED)
-                                                    .withStyle(ChatFormatting.BOLD)
-                                                    .withStyle(style -> style
-                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
-                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands remove " + index))
-                                                    )
-                                    )
-                    );
-                    i.incrementAndGet();
-                });
-            }
-            if(!bungeeCommands.isEmpty()) {
-                response.append(separator + "\n");
-                response.append(translate("taterzens.command.commands.listBungee").withStyle(ChatFormatting.AQUA));
-
-                if(!config.bungee.enableCommands) {
-                    response.append("\n");
-                    response.append(errorText("taterzens.error.enableBungee").withStyle(ChatFormatting.ITALIC));
-                }
-
+            if (!commands.isEmpty()) {
+                response.append("\n");
+                response.append(
+                        joinText("taterzens.command.commands.group", ChatFormatting.LIGHT_PURPLE, ChatFormatting.DARK_RED, "#" + (groupIndex + 1)));
                 response.append(separator);
 
-                AtomicInteger c = new AtomicInteger();
-                bungeeCommands.forEach(cmd -> {
-                    int index = c.get() - 1;
+
+                for (int i = 0; i < commands.size(); i++) {
+                    var cmd = commands.get(i);
+                    int finalJ = i + 1;
                     response.append(
-                            Component.literal("\n" + index + "-> ")
-                                    .withStyle(index % 2 == 0 ? ChatFormatting.DARK_GREEN : ChatFormatting.BLUE)
-                                    .append(cmd.getLeft() + " " + cmd.getMiddle() + " " + cmd.getRight())
+                            Component.literal("\n" + i + "-> ")
+                                    .withStyle(i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
+                                    .append(cmd.toString())
+                                    .append("   ")
+                                    .append("(" + cmd.getType().toString().toLowerCase() + ")")
                                     .append("   ")
                                     .append(
                                             Component.literal("X")
                                                     .withStyle(ChatFormatting.RED)
                                                     .withStyle(ChatFormatting.BOLD)
                                                     .withStyle(style -> style
-                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
-                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands remove " + index))
+                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
+                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group " + (groupIndex + 1) + "remove " + finalJ))
                                                     )
                                     )
                     );
-                    c.decrementAndGet();
-                });
+                }
+            }
+            source.sendSuccess(response, false);
+        });
+    }
+
+    private static int deleteGroup(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        int groupIndex = IntegerArgumentType.getInteger(context, "group number") - 1;
+
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            var cmds = taterzen.getCommandGroups();
+            if (groupIndex >= cmds.size()) {
+                source.sendSuccess(
+                        errorText("taterzens.command.commands.error.group.404", String.valueOf(groupIndex + 1)),
+                        false
+                );
+            } else {
+                source.sendSuccess(successText("taterzens.command.commands.group.removed", String.valueOf(groupIndex)), false);
+                taterzen.clearGroupCommands(groupIndex);
+            }
+        });
+    }
+
+
+    private static int removeCommandFromGroup(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        int groupIndex = IntegerArgumentType.getInteger(context, "group number") - 1;
+        int cmdIx = IntegerArgumentType.getInteger(context, "command id") - 1;
+
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            var cmds = taterzen.getCommandGroups();
+            if (groupIndex >= cmds.size() || cmdIx >= cmds.get(groupIndex).size()) {
+                source.sendSuccess(
+                        errorText("taterzens.command.commands.error.404", String.valueOf(cmdIx)),
+                        false
+                );
+            } else {
+                source.sendSuccess(successText("taterzens.command.commands.removed", cmds.get(cmdIx).toString()), false);
+                taterzen.removeGroupCommand(groupIndex, cmdIx);
+            }
+        });
+    }
+
+    private static int clearAllCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            source.sendSuccess(successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
+            taterzen.clearAllCommands();
+        });
+    }
+
+
+    private static int clearGroupCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        int groupIndex = IntegerArgumentType.getInteger(context, "group number") - 1;
+
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            source.sendSuccess(successText("taterzens.command.commands.group.cleared", String.valueOf(groupIndex)), false);
+            taterzen.clearGroupCommands(groupIndex);
+        });
+    }
+
+    private static int listAllTaterzenCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            var commands = taterzen.getCommandGroups();
+            final String separator = "\n-------------------------------------------------";
+
+            MutableComponent response = joinText("taterzens.command.commands.list", ChatFormatting.AQUA, ChatFormatting.YELLOW, taterzen.getName().getString());
+            response.append(separator);
+
+            if (!commands.isEmpty()) {
+                for (int i = 0; i < commands.size(); i++) {
+                    var cmdGrp = commands.get(i);
+                    response.append("\n");
+                    response.append(
+                            joinText("taterzens.command.commands.group", ChatFormatting.LIGHT_PURPLE, ChatFormatting.DARK_RED, "#" + (i + 1)));
+                    response.append(separator);
+
+
+                    for (int j = 0; j < cmdGrp.size(); j++) {
+                        var cmd = cmdGrp.get(j);
+                        int finali = i + 1;
+                        int finalJ = j + 1;
+                        response.append(
+                                Component.literal("\n" + j + "-> ")
+                                        .withStyle(j % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
+                                        .append(cmd.toString())
+                                        .append("   ")
+                                        .append("(" + cmd.getType().toString().toLowerCase() + ")")
+                                        .append("   ")
+                                        .append(
+                                                Component.literal("X")
+                                                        .withStyle(ChatFormatting.RED)
+                                                        .withStyle(ChatFormatting.BOLD)
+                                                        .withStyle(style -> style
+                                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
+                                                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group " + finali + "remove " + finalJ))
+                                                        )
+                                        )
+                        );
+                    }
+                }
             }
             source.sendSuccess(response, false);
         });
@@ -232,16 +288,17 @@ public class CommandsCommand {
 
         String finalArgument = argument;
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            boolean added = taterzen.addBungeeCommand(BungeeCompatibility.valueOf(command.toUpperCase()), player, finalArgument);
+            boolean added = taterzen.addCommand(new BungeeCommand(BungeeCommand.BungeeMessage.valueOf(command.toUpperCase()), player, finalArgument));
             Component text;
-            if(added)
+            if (added) {
                 text = joinText("taterzens.command.commands.setBungee",
-                    ChatFormatting.GOLD,
-                    ChatFormatting.GRAY,
-                    "/" + command + " " + player + " " + finalArgument
+                        ChatFormatting.GOLD,
+                        ChatFormatting.GRAY,
+                        "/" + command + " " + player + " " + finalArgument
                 );
-            else
+            } else {
                 text = errorText("taterzens.error.enableBungee");
+            }
             source.sendSuccess(text, false);
         });
     }
@@ -255,7 +312,7 @@ public class CommandsCommand {
             String inputCmd = context.getInput();
             String index = "add ";
             command.set(inputCmd.substring(inputCmd.indexOf(index) + index.length()));
-            taterzen.addCommand(command.get());
+            taterzen.addCommand(new MinecraftCommand(command.get()));
         });
         return command.get();
     }
@@ -265,7 +322,7 @@ public class CommandsCommand {
         BUNGEE_COMMANDS = SuggestionProviders.register(
                 new ResourceLocation(MOD_ID, "bungee_commands"),
                 (context, builder) ->
-                        SharedSuggestionProvider.suggest(Stream.of(BungeeCompatibility.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
+                        SharedSuggestionProvider.suggest(Stream.of(BungeeCommand.BungeeMessage.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
         );
         PLAYERS = SuggestionProviders.register(
                 new ResourceLocation(MOD_ID, "players"),

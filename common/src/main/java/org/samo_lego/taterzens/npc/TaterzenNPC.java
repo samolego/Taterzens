@@ -1,25 +1,19 @@
 package org.samo_lego.taterzens.npc;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
-import io.netty.buffer.Unpooled;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -73,13 +67,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
-import org.samo_lego.taterzens.compatibility.BungeeCompatibility;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
@@ -91,6 +83,8 @@ import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
 import org.samo_lego.taterzens.npc.ai.goal.TrackUuidGoal;
+import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
+import org.samo_lego.taterzens.npc.commands.CommandGroups;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.io.File;
@@ -123,6 +117,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     private final NPCData npcData = new NPCData();
 
     private final MinecraftServer server;
+    private final CommandGroups commandGroups;
     private Player fakePlayer;
     private final LinkedHashMap<ResourceLocation, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
@@ -196,6 +191,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         this.gameProfile = new GameProfile(this.getUUID(), this.getName().getString());
         this.server = world.getServer();
+        this.commandGroups = new CommandGroups(this);
 
         // Null check due top gravity changer incompatibility
         if (this.fakePlayer == null) {
@@ -302,40 +298,56 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * Adds command to the list
      * of commands that will be executed on
      * right-clicking the Taterzen.
+     *
      * @param command command to add
      */
-    public void addCommand(String command) {
-        this.npcData.commands.add(command);
+    public boolean addCommand(AbstractTaterzenCommand command) {
+        if (command.getType() == AbstractTaterzenCommand.CommandType.BUNGEE && !config.bungee.enableCommands) {
+            return false;
+        }
+        return this.commandGroups.addCommand(command);
     }
 
     /**
      * Gets all available commands
-     * @return array list of commands that will be executed on right click
+     *
+     * @return array of groups, each containing array of commands.
      */
-    public ArrayList<String> getCommands() {
-        return new ArrayList<>(this.npcData.commands);
+    public CommandGroups getCommandGroups() {
+        return this.commandGroups;
+    }
+
+    /**
+     * Gets commands from specific group.
+     *
+     * @param group group index.
+     * @return array list of commands that will be executed on right click.
+     */
+    public ArrayList<AbstractTaterzenCommand> getGroupCommands(int group) {
+        return this.commandGroups.get(group);
     }
 
     /**
      * Removes certain command from command list.
-     * @param index index of where to remove command
-     * @param bungee whether command to remove is a bungee or normal one
+     *
+     * @param groupIndex   index of the group.
+     * @param commandIndex index of the command.
      */
-    public void removeCommand(int index, boolean bungee) {
-        ArrayList<?> cmds = bungee ? this.npcData.bungeeCommands : this.npcData.commands;
-        if(index >= 0 && index < cmds.size())
-            cmds.remove(index);
+    public void removeGroupCommand(int groupIndex, int commandIndex) {
+        this.commandGroups.get(groupIndex).remove(commandIndex);
     }
 
     /**
      * Clears all the commands Taterzen
      * executes on right-click.
-     *
-     * @param bungee whether to clear normal or bungee commands
      */
-    public void clearCommands(boolean bungee) {
-        ArrayList<?> cmds = bungee ? this.npcData.bungeeCommands : this.npcData.commands;
-        cmds.clear();
+    public void clearAllCommands() {
+        this.commandGroups.clear();
+    }
+
+
+    public void clearGroupCommands(int index) {
+        this.commandGroups.remove(index);
     }
 
     @Override
@@ -392,7 +404,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         }
 
         if (this.getTag("AllowSwimming", config.defaults.allowSwim))
-            this.goalSelector.addGoal(0, new FloatGoal(this));
+            this.goalSelector.addGoal(0, this.swimGoal);
     }
 
     /**
@@ -752,29 +764,28 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             deathSounds.forEach(snd -> this.addDeathSound(snd.getAsString()));
         }
 
+
+        // -------------------------------------------------------------
+        // Deprecated since 1.10.0
         // Commands
         ListTag commands = (ListTag) npcTag.get("Commands");
-        if(commands != null) {
-            commands.forEach(cmdTag -> this.addCommand(cmdTag.getAsString()));
-        }
-
         // Bungee commands
         ListTag bungeeCommands = (ListTag) npcTag.get("BungeeCommands");
-        if(bungeeCommands != null) {
-            bungeeCommands.forEach(cmdTag -> {
-                ListTag cmdList = (ListTag) cmdTag;
-                String command = cmdList.get(0).getAsString();
-                String player = cmdList.get(1).getAsString();
-                String argument = cmdList.get(2).getAsString();
-                this.addBungeeCommand(BungeeCompatibility.valueOf(command), player, argument);
-            });
+
+        if (commands != null && bungeeCommands != null) {
+            // Scheduled for removal
+            this.commandGroups.fromOldTag(commands, bungeeCommands);
         }
+        // -------------------------------------------------------------
+
+        var cmds = npcTag.getCompound("CommandGroups");
+        this.commandGroups.fromTag(cmds);
 
         ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
-        if(pathTargets != null) {
-            if(pathTargets.size() > 0) {
+        if (pathTargets != null) {
+            if (pathTargets.size() > 0) {
                 pathTargets.forEach(posTag -> {
-                    if(posTag instanceof CompoundTag pos) {
+                    if (posTag instanceof CompoundTag pos) {
                         BlockPos target = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
                         this.addPathTarget(target);
                     }
@@ -910,25 +921,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         npcTag.put("DeathSounds", deathSounds);
 
         // Commands
-        ListTag commands = new ListTag();
-        this.npcData.commands.forEach(cmd -> commands.add(StringTag.valueOf(cmd)));
-        npcTag.put("Commands", commands);
-
-        // Bungee commands
-        ListTag bungee = new ListTag();
-        this.npcData.bungeeCommands.forEach(cmd -> {
-            String command = cmd.getLeft().toString();
-            String player = cmd.getMiddle();
-            String argument = cmd.getRight();
-
-            ListTag triple = new ListTag();
-            triple.add(StringTag.valueOf(command));
-            triple.add(StringTag.valueOf(player));
-            triple.add(StringTag.valueOf(argument));
-
-            bungee.add(triple);
-        });
-        npcTag.put("BungeeCommands", bungee);
+        var cmds = new CompoundTag();
+        this.commandGroups.toTag(cmds);
+        npcTag.put("CommandGroups", cmds);
 
         npcTag.put("skin", writeSkinToTag(this.gameProfile));
 
@@ -1061,12 +1056,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (this.level.isClientSide()) return InteractionResult.PASS;
+
         ITaterzenPlayer ipl = (ITaterzenPlayer) player;
         long lastAction = ((ServerPlayer) player).getLastActionTime();
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
-        if(lastAction - ipl.getLastInteractionTime() < 50)
+        if (lastAction - ipl.getLastInteractionTime() < 50)
             return InteractionResult.FAIL;
         ipl.setLastInteraction(lastAction);
 
@@ -1077,7 +1074,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 return professionResult;
         }
 
-        if(this.isEquipmentEditor(player)) {
+        if (this.isEquipmentEditor(player)) {
             ItemStack stack = player.getItemInHand(hand).copy();
 
             if (stack.isEmpty() && player.isShiftKeyDown()) {
@@ -1099,8 +1096,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             return InteractionResult.PASS;
         } else if(
                 player.getItemInHand(hand).getItem().equals(Items.POTATO) &&
-                player.isShiftKeyDown() &&
-                Taterzens.getInstance().getPlatform().checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
+                        player.isShiftKeyDown() &&
+                        Taterzens.getInstance().getPlatform().checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
         ) {
             // Select this taterzen
             ((ITaterzenEditor) player).selectNpc(this);
@@ -1120,43 +1117,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
             if (diff > this.npcData.minCommandInteractionTime || this.npcData.minCommandInteractionTime == 0) {
                 this.commandTimes.put(player.getUUID(), now);
-                String playername = player.getGameProfile().getName();
-                if(!this.npcData.commands.isEmpty()) {
-                    // Saving commands to a new list in order
-                    // to allow commands to be modified via commands
-                    // Functions are the easiest and cleanest way to do this
-                    ImmutableList<String> commands = ImmutableList.copyOf(this.npcData.commands);
-                    for(String cmd : commands) {
-                        if(cmd.contains("--clicker--")) {
-                            cmd = cmd.replaceAll("--clicker--", playername);
-                        }
-                        this.server.getCommands().performCommand(this.createCommandSourceStack(), cmd);
-                    }
-                }
-
-                for(Triple<BungeeCompatibility, String, String> cmd : this.npcData.bungeeCommands) {
-                    String first = cmd.getLeft().getSubchannel();
-                    String middle = cmd.getMiddle();
-                    if(middle.equals("--clicker--"))
-                        middle = playername;
-
-                    String argument = cmd.getRight();
-                    if(argument.contains("--clicker--")) {
-                        argument = argument.replaceAll("--clicker--", playername);
-                    }
-
-                    // Sending command as CustomPayloadS2CPacket
-                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                    out.writeUTF(first);
-                    out.writeUTF(middle);
-                    out.writeUTF(argument);
-
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    buf.writeBytes(out.toByteArray());
-
-                    ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BungeeCompatibility.BUNGEE_CHANNEL, buf);
-                    ((ServerPlayer) player).connection.send(packet);
-                }
+                this.commandGroups.execute((ServerPlayer) player);
             } else {
                 // Inform player about the cooldown
                 player.sendSystemMessage(
@@ -1364,7 +1325,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     protected void registerGoals() {
-
         this.goalSelector.addGoal(2, new OpenDoorGoal(this, true));
     }
 
@@ -1807,34 +1767,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), skinLayers);
     }
 
-    /**
-     * Adds "bungee" command. It's not a standard command, executed by the server,
-     * but sent as {@link net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket} to player and caught by proxy.
-     *
-     * @see <a href="https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/#wikiPage">Spigot thread</a> on message channels.
-     * @see <a href="https://github.com/VelocityPowered/Velocity/blob/65db0fad6a221205ec001f1f68a032215da402d6/proxy/src/main/java/com/velocitypowered/proxy/connection/backend/BungeeCordMessageResponder.java#L297">Proxy implementation</a> on GitHub.
-     *
-     * @param bungeeCommand bungee command to add, see {@link BungeeCompatibility} for supported commands.
-     * @param playername player to use when executing the command.
-     * @param argument argument for command above.
-     *
-     * @return true if command was added successfully (if enabled in config), otherwise false
-     */
-    public boolean addBungeeCommand(BungeeCompatibility bungeeCommand, String playername, String argument) {
-        if(config.bungee.enableCommands) {
-            Triple<BungeeCompatibility, String, String> command = new BungeeCompatibility.BungeeCommand(bungeeCommand, playername, argument);
-            this.npcData.bungeeCommands.add(command);
-        }
-        return config.bungee.enableCommands;
-    }
 
-    /**
-     * Gets all "bungee" commands that Taterzen will execute when right-clicked upon.
-     * @return arraylist of triples that are constructed into bungee command
-     */
-    public ArrayList<Triple<BungeeCompatibility, String, String>> getBungeeCommands() {
-        return new ArrayList<>(this.npcData.bungeeCommands);
-    }
 
     /**
      * Sets the respawn position for taterzen. Can be null to disable respawning.
