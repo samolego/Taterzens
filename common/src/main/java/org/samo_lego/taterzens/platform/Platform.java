@@ -40,7 +40,6 @@ public abstract class Platform {
 
     /**
      * Registers the taterzen entity type.
-     * @return the taterzen entity type that was registered.
      */
     public abstract void registerTaterzenType();
 
