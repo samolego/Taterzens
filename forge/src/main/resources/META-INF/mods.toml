@@ -55,3 +55,32 @@ mandatory = true
 versionRange = "[1.17.1,)"
 ordering = "NONE"
 side = "BOTH"
+
+# Forgified SGUI
+modLoader = "javafml"
+loaderVersion = "[35,)"
+license = "LGPL-v3.0"
+
+[[mods]]
+modId = "sgui"
+version = "${sgui_version}"
+displayName = "Server GUI lib"
+authors = "patbox"
+contributors = "aws404, samo_lego"
+description = '''
+Library for creating server side guis!
+'''
+
+[[dependencies.sgui]]
+modId = "forge"
+mandatory = true
+versionRange = "[35,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.sgui]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.17.1,)"
+ordering = "NONE"
+side = "BOTH"

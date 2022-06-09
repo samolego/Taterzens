@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 
@@ -73,7 +74,7 @@ public class BungeeCommand extends AbstractTaterzenCommand {
 
     @Override
     public String toString() {
-        return this.proxyMessage.toString() + " " + this.playername + " " + this.argument;
+        return this.proxyMessage.toString().toLowerCase(Locale.ROOT) + " " + this.playername + " " + this.argument;
     }
 
 

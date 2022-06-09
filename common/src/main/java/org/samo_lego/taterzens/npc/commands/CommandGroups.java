@@ -18,6 +18,9 @@ public class CommandGroups extends ArrayList<ArrayList<AbstractTaterzenCommand>>
     }
 
     public boolean addCommand(AbstractTaterzenCommand command) {
+        if (this.groupIndex >= this.size()) {
+            this.add(new ArrayList<>());
+        }
         return this.get(this.groupIndex).add(command);
     }
 

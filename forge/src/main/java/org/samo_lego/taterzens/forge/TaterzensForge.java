@@ -3,10 +3,10 @@ package org.samo_lego.taterzens.forge;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.RegisterEvent;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.forge.event.EventHandler;
 import org.samo_lego.taterzens.forge.platform.ForgePlatform;
@@ -34,12 +34,11 @@ public class TaterzensForge {
     }
 
     @SubscribeEvent
-    public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        TATERZEN_TYPE = (EntityType<TaterzenNPC>) EntityType.Builder
+    public static void registerEntities(RegisterEvent event) {
+        TATERZEN_TYPE = EntityType.Builder
                 .of(TaterzenNPC::new, MobCategory.MISC)
                 .sized(0.6F, 1.8F)
-                .build(NPC_ID.toString())
-                .setRegistryName(NPC_ID.toString());
-        event.getRegistry().registerAll(TATERZEN_TYPE);
+                .build(NPC_ID.toString());
+        event.getForgeRegistry().register(NPC_ID, TATERZEN_TYPE);
     }
 }

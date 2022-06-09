@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
-import org.samo_lego.taterzens.fabric.commands.MessagesReorderCommand;
+import org.samo_lego.taterzens.commands.edit.messages.MessagesReorderCommand;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.AdditionalFunctions;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.ScarpetProfession;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.ScarpetTraitCommand;

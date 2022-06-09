@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.commands.edit;
+package org.samo_lego.taterzens.commands.edit.messages;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;

@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.fabric.commands;
+package org.samo_lego.taterzens.commands.edit.messages;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.gui.MessagesEditGUI;
 
-import static org.samo_lego.taterzens.commands.edit.MessagesCommand.messagesNode;
+import static org.samo_lego.taterzens.commands.edit.messages.MessagesCommand.messagesNode;
 
 public class MessagesReorderCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

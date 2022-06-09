@@ -309,6 +309,21 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
+     * Adds command to the list
+     * of commands that will be executed on
+     * right-clicking the Taterzen.
+     *
+     * @param command    command to add
+     * @param groupIndex index of the group to add the command to
+     */
+    public boolean addCommand(AbstractTaterzenCommand command, int groupIndex) {
+        if (command.getType() == AbstractTaterzenCommand.CommandType.BUNGEE && !config.bungee.enableCommands) {
+            return false;
+        }
+        return this.commandGroups.get(groupIndex).add(command);
+    }
+
+    /**
      * Gets all available commands
      *
      * @return array of groups, each containing array of commands.
