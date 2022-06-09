@@ -15,6 +15,7 @@ title: Editing Actions
 /npc edit commands list
 ```
 
+
 <span style="color:aqua">
 	Taterzen <span style="color:yellow">Taterzen</span> will execute the following commands on right-click.
 </span>
@@ -32,7 +33,7 @@ title: Editing Actions
 
 Then click on the command you'd like to remove or type
 ```
-/npc edit commands remove <id>
+/npc edit commands group id <group id> remove <command id>
 ```
 
 

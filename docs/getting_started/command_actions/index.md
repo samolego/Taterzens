@@ -19,7 +19,7 @@ random player or all players!
 
 NPCs can even edit themselves via commands that they execute! See the following video for example.
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/VjgHzU3wy7A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/mxVgZmFcFPA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 To see all the commands that will be run when Taterzen is right-clicked, use
 
@@ -59,13 +59,13 @@ the player's name when executing the command.
 
 Giving the clicker a gold ingot:
 ```
-/npc edit commands add give --clicker-- gold_ingot
+/npc edit commands add minecraft give --clicker-- gold_ingot
 ```
 
 
 Teleporting the clicker 10 blocks up:
 ```
-/npc edit commands add execute at --clicker-- run tp --clicker-- ~ ~10 ~
+/npc edit commands add minecraft execute at --clicker-- run tp --clicker-- ~ ~10 ~
 ```
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/PYkcRGhlwWw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

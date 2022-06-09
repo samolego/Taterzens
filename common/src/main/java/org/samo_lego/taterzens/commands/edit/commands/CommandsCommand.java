@@ -189,7 +189,7 @@ public class CommandsCommand {
                                                     .withStyle(ChatFormatting.BOLD)
                                                     .withStyle(style -> style
                                                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
-                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group " + (groupIndex + 1) + " removeCommand " + finalJ))
+                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + (groupIndex + 1) + " removeCommand " + finalJ))
                                                     )
                                     )
                     );
@@ -279,7 +279,7 @@ public class CommandsCommand {
                             .withStyle(ChatFormatting.RED)
                             .withStyle(style -> style
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finali)))
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group " + finali + " delete"))));
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + finali + " delete"))));
 
                     for (int j = 0; j < cmdGrp.size(); j++) {
                         var cmd = cmdGrp.get(j);
@@ -297,7 +297,7 @@ public class CommandsCommand {
                                                         .withStyle(ChatFormatting.BOLD)
                                                         .withStyle(style -> style
                                                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
-                                                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group " + finali + " removeCommand " + finalJ))
+                                                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + finali + " removeCommand " + finalJ))
                                                         )
                                         )
                         );

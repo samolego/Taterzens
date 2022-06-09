@@ -12,24 +12,26 @@ title: Adding Command Actions
 
 It's as simple as using
 ```
-/npc edit commands add <command>
+/npc edit commands add minecraft <command>
 ```
 
-*Note: all commands that are added are
+*Note: all commands that are added to the group are
 executed **AT ONCE** when NPC is interacted with.*
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/nXLDvmP4d6g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+Each group of commands is executed on right click.
 
+When npc is clicked the second time, new group is selected and its commands are executed.
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/ygkj7WZlhq0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 ## I want to target the player who interacted with my NPC!
 
-You're in luck! There is built-in `--clicker--` target,
+Nothing easier! There is built-in `--clicker--` target,
 which is replaced by the name of the player that has
 right clicked the NPC.
 
 Let's suppose player with name `samo_lego` interacts with the NPC
 that we previously added the following command:
 ```
-/npc edit commands add give --clicker-- sunflower{display:{Name:'{"text":"--clicker--'s coin"}'}}
+/npc edit commands add minecraft give --clicker-- sunflower{display:{Name:'{"text":"--clicker--'s coin"}'}}
 ```
 
 The command Taterzen will execute will change to the following:
