@@ -53,51 +53,54 @@ public class CommandsCommand {
                 )
                 .then(literal("group")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.group", config.perms.npcCommandPermissionLevel))
-                        .then(argument("group number", IntegerArgumentType.integer(0))
-                                .then(literal("delete")
-                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.group.delete", config.perms.npcCommandPermissionLevel))
-                                        .executes(CommandsCommand::deleteGroup)
-                                )
-                                .then(literal("removeCommand")
-                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
-                                        .then(argument("command id", IntegerArgumentType.integer()).executes(CommandsCommand::removeCommandFromGroup))
-                                )
-                                .then(literal("add")
-                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
-                                        .then(literal("minecraft")
-                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
-                                                .redirect(dispatcher.getRoot(), context -> {
-                                                    // Really ugly, but ... works :P
-                                                    String cmd = addCommand(context);
-                                                    throw new SimpleCommandExceptionType(
-                                                            cmd == null ?
-                                                                    noSelectedTaterzenError() :
-                                                                    joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
-                                                    ).create();
-                                                })
+                        .then(literal("new").executes(CommandsCommand::newGroup))
+                        .then(literal("id")
+                                .then(argument("group number", IntegerArgumentType.integer(0))
+                                        .then(literal("delete")
+                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.group.delete", config.perms.npcCommandPermissionLevel))
+                                                .executes(CommandsCommand::deleteGroup)
                                         )
-                                        .then(literal("bungee")
-                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.bungee", config.perms.npcCommandPermissionLevel))
-                                                .then(argument("command", string())
-                                                        .suggests(BUNGEE_COMMANDS)
-                                                        .then(argument("player", string())
-                                                                .suggests(PLAYERS)
-                                                                .then(argument("argument", string())
-                                                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(AVAILABLE_SERVERS, builder))
+                                        .then(literal("removeCommand")
+                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.remove", config.perms.npcCommandPermissionLevel))
+                                                .then(argument("command id", IntegerArgumentType.integer()).executes(CommandsCommand::removeCommandFromGroup))
+                                        )
+                                        .then(literal("add")
+                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
+                                                .then(literal("minecraft")
+                                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
+                                                        .redirect(dispatcher.getRoot(), context -> {
+                                                            // Really ugly, but ... works :P
+                                                            String cmd = addCommand(context);
+                                                            throw new SimpleCommandExceptionType(
+                                                                    cmd == null ?
+                                                                            noSelectedTaterzenError() :
+                                                                            joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
+                                                            ).create();
+                                                        })
+                                                )
+                                                .then(literal("bungee")
+                                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.bungee", config.perms.npcCommandPermissionLevel))
+                                                        .then(argument("command", string())
+                                                                .suggests(BUNGEE_COMMANDS)
+                                                                .then(argument("player", string())
+                                                                        .suggests(PLAYERS)
+                                                                        .then(argument("argument", string())
+                                                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(AVAILABLE_SERVERS, builder))
+                                                                                .executes(CommandsCommand::addBungeeCommand)
+                                                                        )
                                                                         .executes(CommandsCommand::addBungeeCommand)
                                                                 )
-                                                                .executes(CommandsCommand::addBungeeCommand)
                                                         )
                                                 )
                                         )
-                                )
-                                .then(literal("clear")
-                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
-                                        .executes(CommandsCommand::clearGroupCommands)
-                                )
-                                .then(literal("list")
-                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
-                                        .executes(CommandsCommand::listGroupCommands)
+                                        .then(literal("clear")
+                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.clear", config.perms.npcCommandPermissionLevel))
+                                                .executes(CommandsCommand::clearGroupCommands)
+                                        )
+                                        .then(literal("list")
+                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.list", config.perms.npcCommandPermissionLevel))
+                                                .executes(CommandsCommand::listGroupCommands)
+                                        )
                                 )
                         )
                 )
@@ -142,6 +145,14 @@ public class CommandsCommand {
 
         CooldownCommand.registerNode(commandsNode);
         editNode.addChild(commandsNode);
+    }
+
+    private static int newGroup(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        CommandSourceStack source = context.getSource();
+        return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            int ix = taterzen.getCommandGroups().createGroup();
+            source.sendSuccess(successText("taterzens.command.commands.group.created", String.valueOf(ix + 1)), false);
+        });
     }
 
     private static int listGroupCommands(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

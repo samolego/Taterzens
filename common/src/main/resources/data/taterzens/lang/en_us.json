@@ -40,6 +40,7 @@
   "taterzens.command.commands.group.removed": "Group %s has been removed successfully.",
   "taterzens.command.commands.error.group.404": "No group with id %s was found.",
   "taterzens.command.commands.group.cleared": "Commands for group %s have been cleared.",
+  "taterzens.command.commands.group.created": "Successfully switched to new group with index %s.",
   "taterzens.command.commands.group": "Command group %s:",
   "taterzens.command.preset.export.success": "Taterzen has been exported to %s.",
   "taterzens.command.preset.import.success": "Taterzen was successfully loaded from %s.",

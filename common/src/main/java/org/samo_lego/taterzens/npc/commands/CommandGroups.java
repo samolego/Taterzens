@@ -102,4 +102,10 @@ public class CommandGroups extends ArrayList<ArrayList<AbstractTaterzenCommand>>
         }
         this.add(cmds);
     }
+
+    public int createGroup() {
+        this.add(new ArrayList<>());
+        this.groupIndex = this.size() - 1;
+        return this.groupIndex;
+    }
 }
