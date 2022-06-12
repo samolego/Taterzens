@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -164,17 +165,13 @@ public class NpcCommand {
 
             boolean sel = taterzenNPC == npc;
 
-            response
-                    .append(
+            response.append(
                             Component.literal("\n" + i + "-> " + name)
                                     .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
                                     .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
                                     .withStyle(style -> style
-                                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid" + taterzenNPC.getUUID().toString()))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name))
-                                    )
-                                    )
-                    )
+                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid " + taterzenNPC.getUUID().toString()))
+                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
                     .append(
                             Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
                                     .withStyle(ChatFormatting.GRAY)
@@ -189,18 +186,17 @@ public class NpcCommand {
         source.sendSuccess(response, false);
         return 1;
     }
-    private static String[] getAvailableTaterzenIndices() {
-        String[] availableIDs = new String[TATERZEN_NPCS.size()];
-        for (int i = 0; i < TATERZEN_NPCS.size(); i++) {
-            availableIDs[i] = Integer.toString(i + 1);
-        }
-        return availableIDs;
+
+    private static List<String> getAvailableTaterzenIndices() {
+        return IntStream.range(0, TATERZEN_NPCS.size())
+                .mapToObj(i -> String.valueOf(i + 1))
+                .toList();
     }
 
     private static int selectTaterzenById(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         int id = IntegerArgumentType.getInteger(context, "id");
         CommandSourceStack source = context.getSource();
-        if(id > TATERZEN_NPCS.size()) {
+        if (id > TATERZEN_NPCS.size()) {
             source.sendFailure(errorText("taterzens.error.404.id", String.valueOf(id)));
         } else {
             TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.values().toArray()[id - 1];
@@ -226,20 +222,13 @@ public class NpcCommand {
         return 1;
     }
 
-    private static String[] getAvailableTaterzenNames() {
-        String[] availableNames = new String[TATERZEN_NPCS.size()];
-
-        int i = 0;
-        for (var taterzen : TATERZEN_NPCS.values()) {
-            availableNames[i] = taterzen.getName().getString();
-            availableNames[i] = "\"" + availableNames[i] + "\""; // Adds quotation marks to the suggested name, such that
-            // Names containing a whitespace character (ex. the
-            // name is 'Foo Bar') can be completed and correctly
-            // used without the user having to enclose the argument
-            // name with quotation marks themselves.
-            ++i;
-        }
-        return availableNames;
+    private static List<String> getAvailableTaterzenNames() {
+        // Adds quotation marks to the suggested name, such that
+        // Names containing a whitespace character (ex. the
+        // name is 'Foo Bar') can be completed and correctly
+        // used without the user having to enclose the argument
+        // name with quotation marks themselves.
+        return TATERZEN_NPCS.values().stream().map(npc -> "\"" + npc.getName().getString() + "\"").toList();
     }
 
     private static int selectTaterzenByName(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {

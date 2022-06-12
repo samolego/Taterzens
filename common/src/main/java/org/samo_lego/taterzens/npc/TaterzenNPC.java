@@ -210,7 +210,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.npcData.deathSounds = new ArrayList<>(config.defaults.deathSounds);
         }
 
-        TATERZEN_NPCS.put(this.getUUID(), this);
     }
 
     /**

@@ -19,8 +19,10 @@ public class ChunkMapMixin_TaterzenList {
      */
     @Inject(method = "addEntity(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
     private void onEntityAdded(Entity entity, CallbackInfo ci) {
-        if(entity instanceof TaterzenNPC)
+        if (entity instanceof TaterzenNPC && !TATERZEN_NPCS.containsKey(entity.getUUID())) {
+            System.out.println("Adding " + entity.getName() + " to Taterzen NPCs " + entity.getUUID());
             TATERZEN_NPCS.put(entity.getUUID(), (TaterzenNPC) entity);
+        }
     }
 
     /**
@@ -29,7 +31,8 @@ public class ChunkMapMixin_TaterzenList {
      */
     @Inject(method = "removeEntity(Lnet/minecraft/world/entity/Entity;)V", at = @At("TAIL"))
     private void onEntityRemoved(Entity entity, CallbackInfo ci) {
-        if(entity instanceof TaterzenNPC)
-            TATERZEN_NPCS.remove(entity);
+        if (entity instanceof TaterzenNPC) {
+            TATERZEN_NPCS.remove(entity.getUUID());
+        }
     }
 }

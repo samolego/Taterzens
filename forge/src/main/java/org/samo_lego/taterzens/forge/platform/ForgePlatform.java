@@ -1,9 +1,7 @@
 package org.samo_lego.taterzens.forge.platform;
 
-import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
@@ -17,13 +15,10 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.platform.Platform;
 
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
-import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
-import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
 
 public class ForgePlatform extends Platform {
 
@@ -65,7 +60,7 @@ public class ForgePlatform extends Platform {
 
     @Override
     public void openEditorGui(Player player) {
-        SimpleGui editorGUI = createCommandGui((ServerPlayer) player, null, npcNode, Collections.singletonList("npc"), false);
-        editorGUI.open();
+        /*SimpleGui editorGUI = createCommandGui((ServerPlayer) player, null, npcNode, Collections.singletonList("npc"), false);
+        editorGUI.open();*/
     }
 }
