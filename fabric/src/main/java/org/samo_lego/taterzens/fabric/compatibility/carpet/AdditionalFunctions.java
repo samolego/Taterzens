@@ -58,11 +58,6 @@ public class AdditionalFunctions {
     }
 
     @ScarpetFunction
-    public Entity taterzen_by_entity(Entity entity) {
-        return Taterzens.TATERZEN_NPCS.get(entity.getUUID());
-    }
-
-    @ScarpetFunction
     public Entity taterzen_by_name(String name) {
         for (TaterzenNPC npc : Taterzens.TATERZEN_NPCS.values()) {
             if (npc.getName().getString().equals(name)) {
