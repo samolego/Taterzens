@@ -58,8 +58,8 @@ public class AdditionalFunctions {
     }
 
     @ScarpetFunction
-    public Entity taterzen_by_uuid(UUID uuid) {
-        return Taterzens.TATERZEN_NPCS.get(uuid);
+    public Entity taterzen_by_uuid(String uuid) {
+        return Taterzens.TATERZEN_NPCS.get(UUID.fromString(uuid));
     }
 
     @ScarpetFunction
