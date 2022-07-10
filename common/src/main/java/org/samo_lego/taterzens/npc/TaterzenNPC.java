@@ -592,7 +592,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(!players.isEmpty()) {
             // We tick forced look here, as we already have players list.
             if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-                if (this.lastLookTarget == null || this.distanceTo(this.lastLookTarget) > 5.0D) {
+                if (this.lastLookTarget == null || this.distanceTo(this.lastLookTarget) > 5.0D || this.lastLookTarget.hasDisconnected()) {
                     this.lastLookTarget = players.get(this.random.nextInt(players.size()));
                 }
 

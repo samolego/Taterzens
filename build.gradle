@@ -34,9 +34,9 @@ subprojects {
 
 	dependencies {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-		mappings loom.layered() {
+		mappings loom.layered {
+			//addLayer("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
 			officialMojangMappings()
-			//parchment("org.parchmentmc.data:parchment-1.18.1:2021.12.19@zip")
 		}
 
 		// Thanks Shedaniel :)
