@@ -23,7 +23,7 @@ After that, simply use right click on the Taterzen to open the GUI.
 
 ## Pricing
 
-If you install [Grand Economy](https://www.curseforge.com/minecraft/mc-mods/grand-economy) mod, you can use it instead of defualt item pricing.
+If you install [Grand Economy](https://www.curseforge.com/minecraft/mc-mods/grand-economy) mod, you can use it instead of default item pricing.
 Otherwise you can set the default payment item and how much is it "worth".
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/L8c5hZvJOBU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
