@@ -1,5 +1,5 @@
 ---
-name: Bug report [Forge / Fabric]
+name: Sample Bug Report Title [Forge / Fabric]
 about: Create a report to help us improve
 title: Bug report [Forge / Fabric]
 labels: ''
