@@ -1188,7 +1188,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param text message to add
      */
     public void addMessage(Component text) {
-        this.npcData.messages.add(new Pair<>(text, config.messages.messageDelay));
+        this.addMessage(text, config.messages.messageDelay);
     }
 
     /**

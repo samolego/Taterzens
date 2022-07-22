@@ -31,6 +31,10 @@ public class CommandGroups extends ArrayList<ArrayList<AbstractTaterzenCommand>>
     }
 
     public void execute(ServerPlayer player) {
+        if (this.isEmpty()) {
+            return;
+        }
+
         if (this.groupIndex >= this.size()) {
             this.groupIndex = 0;
         }
