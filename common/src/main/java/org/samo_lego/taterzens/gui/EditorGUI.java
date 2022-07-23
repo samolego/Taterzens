@@ -22,7 +22,6 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,7 +51,7 @@ public class EditorGUI {
 
         }
 
-        Collection<CommandNode<CommandSourceStack>> childNodes = parentNode.getChildren();
+        var childNodes = parentNode.getChildren();
         boolean argumentNode = parentNode instanceof ArgumentCommandNode<?, ?>;
 
         SimpleGui constructedGui;
@@ -151,10 +150,8 @@ public class EditorGUI {
         constructedGui.setSlot(argumentNode && !givenInput ? 1 : 0, backScreenButton);
 
         // GUI Title - each node adds to it
-        StringBuilder title = new StringBuilder();
-        for (String s : currentCommandPath) {
-            title.append(s).append(" ");
-        }
+        var title = new StringBuilder();
+        currentCommandPath.forEach(s -> title.append(s).append(" "));
         var textTitle = Component.literal(title.toString());
 
         constructedGui.setTitle(textTitle.withStyle(ChatFormatting.YELLOW));

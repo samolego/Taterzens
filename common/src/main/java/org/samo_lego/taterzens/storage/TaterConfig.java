@@ -34,18 +34,6 @@ public class TaterConfig implements IBrigadierConfigurator {
     @BrigadierExcluded
     public String language = "en_us";
 
-    @SerializedName("// Whether to remove Taterzens from registry sync. Auto applied in Fabric.")
-    public final String _comment_disableRegistrySync0 = "";
-    @SerializedName("// If using Forge however, this will disable WHOLE registry sync. Proceed with CAUTION.")
-    public final String _comment_disableRegistrySync1 = "";
-    /**
-     * Whether to disable Forge's registry sync.
-     * (This marks mod as serverside.)
-     *
-     * If using Forge, the whole thing is not synced. Use carefully!
-     */
-    @SerializedName("disable_registry_sync")
-    public boolean disableRegistrySync = false;
     @SerializedName("// After how many ticks Taterzens should be cleared from tablist.")
     public final String _comment_taterzenTablistTimeout0 = "";
     @SerializedName("// Some delay is needed, otherwise clients don't fetch their skins.")
@@ -106,9 +94,10 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("// Nodes which prefer execution instead of going in submenus in `/npc` gui. (Swaps the right and left click function to these nodes)")
     public final String _comment_prefersExecution = "";
     @SerializedName("prefer_execution_nodes")
-    public List<String> prefersExecution = new ArrayList<>(List.of(
-            "npc edit messages swap"
-    ));
+    public List<String> prefersExecution = List.of(
+            "npc edit messages swap",
+            "npc edit equipment"
+    );
 
     @SerializedName("// Whether to allow Taterzens to fight players in peaceful mode as well.")
     public final String _comment_combatInPeaceful = "";
@@ -323,7 +312,7 @@ public class TaterConfig implements IBrigadierConfigurator {
          */
         public static class Color {
             public float red = 0;
-            public float green = 255 ;
+            public float green = 255;
             public float blue = 255;
         }
     }
