@@ -19,7 +19,6 @@ public class MinecraftCommand extends AbstractTaterzenCommand {
 
     @Override
     public void execute(TaterzenNPC npc, Player player) {
-        System.out.println("Executing command: " + command);
         npc.getServer().getCommands().performCommand(
                 npc.createCommandSourceStack(), command.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
     }

@@ -16,7 +16,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -98,6 +97,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static net.minecraft.world.InteractionHand.MAIN_HAND;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
@@ -116,7 +116,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     private final NPCData npcData = new NPCData();
 
-    private final MinecraftServer server;
     private final CommandGroups commandGroups;
     private Player fakePlayer;
     private final LinkedHashMap<ResourceLocation, TaterzenProfession> professions = new LinkedHashMap<>();
@@ -136,14 +135,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * Target selectors.
      */
     public final NearestAttackableTargetGoal<LivingEntity> followTargetGoal = new NearestAttackableTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isAlliedTo(target));
-    public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100,false, true, target -> !this.isAlliedTo(target));
+    public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100, false, true, target -> !this.isAlliedTo(target));
 
     /**
      * Tracking movement
      */
     public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> !(target instanceof ServerPlayer) && target.isAlive());
-    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, Player.class, target -> !((ServerPlayer) target).hasDisconnected());
-    public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUUID().equals(this.npcData.follow.targetUuid));
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, ServerPlayer.class, target -> !((ServerPlayer) target).hasDisconnected() && target.isAlive());
+    public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUUID().equals(this.npcData.follow.targetUuid) && entity.isAlive());
 
 
     /**
@@ -166,7 +165,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     private UUID lockedUuid;
     private final Map<UUID, Long> commandTimes = new HashMap<>();
-    private ServerPlayer lastLookTarget;
+    private ServerPlayer lookTarget;
 
     /**
      * Creates a TaterzenNPC.
@@ -190,7 +189,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.setSpeed(0.4F);
 
         this.gameProfile = new GameProfile(this.getUUID(), this.getName().getString());
-        this.server = world.getServer();
         this.commandGroups = new CommandGroups(this);
 
         // Null check due top gravity changer incompatibility
@@ -592,11 +590,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(!players.isEmpty()) {
             // We tick forced look here, as we already have players list.
             if(this.npcData.movement == NPCData.Movement.FORCED_LOOK) {
-                if (this.lastLookTarget == null || this.distanceTo(this.lastLookTarget) > 5.0D || this.lastLookTarget.hasDisconnected()) {
-                    this.lastLookTarget = players.get(this.random.nextInt(players.size()));
+                if (this.lookTarget == null || this.distanceTo(this.lookTarget) > 5.0D || this.lookTarget.hasDisconnected() || !this.lookTarget.isAlive()) {
+                    this.lookTarget = players.get(this.random.nextInt(players.size()));
                 }
 
-                this.lookAt(this.lastLookTarget, 60.0F, 60.0F);
+                this.lookAt(this.lookTarget, 60.0F, 60.0F);
                 this.setYHeadRot(this.getYRot());
             }
             // Tick profession
@@ -1288,7 +1286,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public boolean skipAttackInteraction(Entity attacker) {
         if(attacker instanceof Player && this.isEquipmentEditor((Player) attacker)) {
             ItemStack main = this.getMainHandItem();
-            this.setItemInHand(InteractionHand.MAIN_HAND, this.getOffhandItem());
+            this.setItemInHand(MAIN_HAND, this.getOffhandItem());
             this.setItemInHand(InteractionHand.OFF_HAND, main);
             return true;
         }
@@ -1396,7 +1394,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             profession.onBehaviourSet(level);
         }
 
-
         if(this.npcData.movement == NPCData.Movement.NONE)
             this.setMovement(NPCData.Movement.TICK);
 
@@ -1427,6 +1424,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     private void setAttackGoal() {
         ItemStack mainHandStack = this.getMainHandItem();
         ItemStack offHandStack = this.getOffhandItem();
+
         if(mainHandStack.getItem() instanceof ProjectileWeaponItem || offHandStack.getItem() instanceof ProjectileWeaponItem) {
             this.goalSelector.addGoal(3, projectileAttackGoal);
         } else {
@@ -1461,6 +1459,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public void shootCrossbowProjectile(LivingEntity target, ItemStack crossbow, Projectile projectile, float multiShotSpray) {
+        var weaponHand = ProjectileUtil.getWeaponHoldingHand(this, Items.CROSSBOW);
+        this.fakePlayer.startUsingItem(weaponHand);
+        this.startUsingItem(weaponHand);
         // Crossbow attack
         this.shootProjectile(target, projectile, multiShotSpray);
     }
@@ -1471,22 +1472,24 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public void performRangedAttack(LivingEntity target, float pullProgress) {
-
-        for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.cancelRangedAttack(target))
+        for (TaterzenProfession profession : this.professions.values()) {
+            if (profession.cancelRangedAttack(target))
                 return;
         }
 
         // Ranged attack
-        ItemStack arrowType = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.BOW)));
-        if(arrowType.isEmpty())
+        var weaponHand = ProjectileUtil.getWeaponHoldingHand(this, Items.BOW);
+        var bow = this.getItemInHand(weaponHand);
+        ItemStack arrowType = this.getProjectile(bow);
+        if (arrowType.isEmpty())
             arrowType = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.CROSSBOW)));
 
         AbstractArrow projectile = ProjectileUtil.getMobArrow(this, arrowType.copy(), pullProgress);
 
+        //bow.use(this.level, this.fakePlayer, weaponHand);
+        this.fakePlayer.startUsingItem(weaponHand);
+        this.startUsingItem(weaponHand);
         this.shootProjectile(target, projectile, 0.0F);
-
-
     }
 
     private void shootProjectile(LivingEntity target, Projectile projectile, float multishotSpray) {
@@ -1689,9 +1692,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public boolean interact(BlockPos pos) {
         if(this.position().distanceTo(Vec3.atCenterOf(pos)) < 4.0D && !this.level.isClientSide()) {
             this.lookAt(pos);
-            this.swing(InteractionHand.MAIN_HAND);
-            this.level.getBlockState(pos).use(this.level, this.fakePlayer, InteractionHand.MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.DOWN, pos, false));
-            this.getMainHandItem().use(this.level, this.fakePlayer, InteractionHand.MAIN_HAND);
+            this.swing(MAIN_HAND);
+            this.level.getBlockState(pos).use(this.level, this.fakePlayer, MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.DOWN, pos, false));
+            this.getMainHandItem().use(this.level, this.fakePlayer, MAIN_HAND);
             return true;
         }
         return false;
@@ -1727,8 +1730,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param followType type of target to follow
      */
     public void setFollowType(NPCData.FollowTypes followType) {
-        if(followType != NPCData.FollowTypes.NONE)
+        if (followType != NPCData.FollowTypes.NONE) {
             this.setMovement(NPCData.Movement.TICK);
+        }
         this.npcData.follow.type = followType;
 
         switch (followType) {
