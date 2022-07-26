@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.fabric.mixin.MappedRegistryAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -61,14 +62,15 @@ public class FabricPlatform extends Platform {
 
     @Override
     public void registerTaterzenType() {
-        TATERZEN_TYPE = Registry.register(
+        EntityType<TaterzenNPC> type = Registry.register(
                 Registry.ENTITY_TYPE,
                 NPC_ID,
                 FabricEntityTypeBuilder
-                        .create(MobCategory.MISC, TaterzenNPC::new)
+                        .<TaterzenNPC>create(MobCategory.MISC, TaterzenNPC::new)
                         .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
-                        .build()
-        );
+                        .build());
+
+        TATERZEN_TYPE = () -> type;
     }
 
     @Override

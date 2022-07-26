@@ -24,7 +24,7 @@ public class TaterzensFabric implements ModInitializer {
         // Common initialization
         new Taterzens(new FabricPlatform());
 
-        FabricDefaultAttributeRegistry.register(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes());
+        FabricDefaultAttributeRegistry.register(TATERZEN_TYPE.get(), TaterzenNPC.createTaterzenAttributes());
 
         // CarpetMod
         if (CARPETMOD_LOADED) {

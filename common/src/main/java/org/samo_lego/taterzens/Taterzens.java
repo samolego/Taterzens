@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.LUCKPERMS_LOADED;
 
@@ -59,7 +60,7 @@ public class Taterzens {
      * Taterzen entity type. Used server - only, as it is replaced with vanilla type
      * when packets are sent.
      */
-    public static EntityType<TaterzenNPC> TATERZEN_TYPE;
+    public static Supplier<EntityType<TaterzenNPC>> TATERZEN_TYPE;
     public static final ResourceLocation NPC_ID = new ResourceLocation(MOD_ID, "npc");
 
     private final File configFile;

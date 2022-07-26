@@ -37,7 +37,6 @@ import static org.samo_lego.taterzens.Taterzens.GSON;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
 
 /**
  * Class containing static methods to use with Taterzens.
@@ -58,7 +57,7 @@ public class TaterzensAPI {
     public static TaterzenNPC loadTaterzenFromPreset(File preset, Level world) {
         if (preset.exists()) {
             String name = preset.getName();
-            TaterzenNPC taterzenNPC = new TaterzenNPC(TATERZEN_TYPE, world);
+            TaterzenNPC taterzenNPC = new TaterzenNPC(world);
             taterzenNPC.loadFromPresetFile(preset, name.substring(0, name.lastIndexOf('.')));
 
             return taterzenNPC;
@@ -143,7 +142,7 @@ public class TaterzensAPI {
      * @return TaterzenNPC
      */
     public static TaterzenNPC createTaterzen(ServerLevel world, String displayName, Vec3 pos, float[] rotations) {
-        TaterzenNPC taterzen = new TaterzenNPC(Taterzens.TATERZEN_TYPE, world);
+        TaterzenNPC taterzen = new TaterzenNPC(world);
 
         taterzen.moveTo(pos.x(), pos.y(), pos.z(), rotations[1], rotations[2]);
         taterzen.setYHeadRot(rotations[0]);

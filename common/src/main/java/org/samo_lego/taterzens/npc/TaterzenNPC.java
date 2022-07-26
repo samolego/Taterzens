@@ -101,6 +101,7 @@ import static net.minecraft.world.InteractionHand.MAIN_HAND;
 import static org.samo_lego.taterzens.Taterzens.LOGGER;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
+import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
@@ -166,6 +167,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     private UUID lockedUuid;
     private final Map<UUID, Long> commandTimes = new HashMap<>();
     private ServerPlayer lookTarget;
+
+    public TaterzenNPC(Level world) {
+        this(TATERZEN_TYPE.get(), world);
+    }
 
     /**
      * Creates a TaterzenNPC.
