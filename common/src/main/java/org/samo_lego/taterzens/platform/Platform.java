@@ -1,7 +1,7 @@
 package org.samo_lego.taterzens.platform;
 
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
 
@@ -43,6 +43,6 @@ public abstract class Platform {
      */
     public abstract void registerTaterzenType();
 
-    public void openEditorGui(Player player) {
+    public void openEditorGui(ServerPlayer player) {
     }
 }

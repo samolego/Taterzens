@@ -1119,7 +1119,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             return InteractionResult.PASS;
         } else if (((ITaterzenEditor) player).getNpc() == this) {
             // Opens GUI for editing
-            Taterzens.getInstance().getPlatform().openEditorGui(player);
+            Taterzens.getInstance().getPlatform().openEditorGui((ServerPlayer) player);
         }
 
         // Limiting command usage

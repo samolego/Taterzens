@@ -9,13 +9,14 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.NewRegistryEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.event.BlockEvent;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
+import static org.samo_lego.taterzens.forge.TaterzensForge.TATERZEN;
 
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EventHandler {
@@ -41,12 +42,9 @@ public class EventHandler {
         event.put(TATERZEN_TYPE, TaterzenNPC.createTaterzenAttributes().build());
     }
 
+
     @SubscribeEvent
-    public static void registerEntities(NewRegistryEvent event) {
-        /*TATERZEN_TYPE = EntityType.Builder
-                .of(TaterzenNPC::new, MobCategory.MISC)
-                .sized(0.6F, 1.8F)
-                .build(NPC_ID.getPath());*/
-        /*event.getForgeRegistry().register(NPC_ID, TATERZEN_TYPE);*/
+    public void commonSetup(FMLCommonSetupEvent evt) {
+        TATERZEN_TYPE = TATERZEN.get();
     }
 }

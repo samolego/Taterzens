@@ -9,7 +9,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.player.Player;
 import org.samo_lego.taterzens.fabric.mixin.MappedRegistryAccessor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.platform.Platform;
@@ -73,8 +72,8 @@ public class FabricPlatform extends Platform {
     }
 
     @Override
-    public void openEditorGui(Player player) {
-        SimpleGui editorGUI = createCommandGui((ServerPlayer) player, null, npcNode, Collections.singletonList("npc"), false);
+    public void openEditorGui(ServerPlayer player) {
+        SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
         editorGUI.open();
     }
 }

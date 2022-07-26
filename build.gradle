@@ -2,6 +2,10 @@ plugins {
 	id "architectury-plugin" version "3.4-SNAPSHOT"
 	id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
 
+	id "io.github.juuxel.loom-quiltflower" version "1.7.2" apply false // Quiltflower, a better decompiler
+	id "org.quiltmc.quilt-mappings-on-loom" version "4.2.0"
+	// Quilt Mappings, for parameters and javadoc. Also hashed mojmap.
+
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id "com.modrinth.minotaur" version "1.1.0"
 	// Dokka docs
@@ -15,10 +19,6 @@ repositories {
 		url 'https://jitpack.io'
 	}
 	maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
-	maven {
-		name = "ParchmentMC"
-		url = "https://maven.parchmentmc.net/"
-	}
 }
 
 architectury {
@@ -35,9 +35,18 @@ subprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 		mappings loom.layered {
-			//addLayer("net.fabricmc:yarn:${rootProject.yarn_mappings}:v2")
-			officialMojangMappings()
+			it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.${rootProject.quilt_mappings}:v2"))
+			// https://lambdaurora.dev/tools/import_quilt.html
+			it.officialMojangMappings {
+				setNameSyntheticMembers(false)
+			}
 		}
+
+		/*mappings(loom.layered {
+			mappings("net.fabricmc:yarn:${project.yarn_mappings}:v2")
+			officialMojangMappings()
+		})*/
+
 
 		// Thanks Shedaniel :)
 		implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.20-M1'
@@ -63,10 +72,6 @@ allprojects {
 			url = "https://maven.nucleoid.xyz/"
 		}
 		maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
-		maven {
-			name = "ParchmentMC"
-			url = "https://maven.parchmentmc.net/"
-		}
 	}
 
 	tasks.withType(JavaCompile).configureEach {
