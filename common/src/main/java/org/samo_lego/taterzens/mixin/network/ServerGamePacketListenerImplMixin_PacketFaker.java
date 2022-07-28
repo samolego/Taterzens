@@ -1,9 +1,8 @@
 package org.samo_lego.taterzens.mixin.network;
 
 import com.mojang.authlib.GameProfile;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
@@ -16,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
@@ -48,13 +48,18 @@ import static org.samo_lego.taterzens.Taterzens.config;
 @Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
 public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
-    @Shadow public ServerPlayer player;
+    @Shadow
+    public ServerPlayer player;
 
     @Final
     @Shadow
     public Connection connection;
 
-    @Shadow public abstract void send(Packet<?> packet);
+    @Shadow
+    public abstract void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener);
+
+    @Shadow
+    public abstract void send(Packet<?> packet);
 
     @Unique
     private boolean taterzens$skipCheck;
@@ -65,24 +70,21 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
-     *
-     * @param packet packet to change
-     * @param listener
      */
     @Inject(
-            method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V",
+            method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/util/concurrent/GenericFutureListener;)V"
+                    target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"
             ),
             cancellable = true
     )
-    private void changeEntityType(Packet<?> packet, GenericFutureListener<? extends Future<? super Void>> listener, CallbackInfo ci) {
+    private void changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
         Level world = player.getLevel();
-        if(packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
+        if (packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
             Entity entity = world.getEntity(((ClientboundAddPlayerPacketAccessor) packet).getId());
 
-            if(!(entity instanceof TaterzenNPC npc))
+            if (!(entity instanceof TaterzenNPC npc))
                 return;
 
             GameProfile profile = npc.getGameProfile();
@@ -91,13 +93,13 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
                     Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
             );
-            this.send(playerAddPacket);
+            this.send(playerAddPacket, listener);
 
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't
             // show it ... :mojank:
             this.taterzens$skipCheck = true;
-            this.send(packet);
+            this.send(packet, listener);
             this.taterzens$skipCheck = false;
 
             // And now we can remove it from tablist
@@ -143,14 +145,14 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
         taterzens$queueTick++;
 
         List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>();
-        for(var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
+        for (var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
             var current = iterator.next();
-            if(current.removeAt() > taterzens$queueTick) break;
+            if (current.removeAt() > taterzens$queueTick) break;
 
             iterator.remove();
             toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName(), null));
         }
-        if(toRemove.isEmpty()) return;
+        if (toRemove.isEmpty()) return;
 
         ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
         //noinspection ConstantConditions

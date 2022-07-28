@@ -199,7 +199,7 @@ public class EditorGUI {
 
             player.closeContainer();
 
-            player.getServer().getCommands().performCommand(player.createCommandSourceStack(), builder.toString());
+            player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack(), builder.toString());
         } catch (IllegalArgumentException e) {
             player.sendSystemMessage(Component.literal(e.getMessage()));
         }

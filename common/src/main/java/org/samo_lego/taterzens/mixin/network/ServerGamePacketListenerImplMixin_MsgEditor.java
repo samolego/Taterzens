@@ -3,55 +3,53 @@ package org.samo_lego.taterzens.mixin.network;
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ChatSender;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.FilteredText;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.players.PlayerList;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.function.Predicate;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
-@Mixin(ServerGamePacketListenerImpl.class)
+@Mixin(PlayerList.class)
 public class ServerGamePacketListenerImplMixin_MsgEditor {
-    @Shadow public ServerPlayer player;
 
     /**
      * Catches messages; if player is in
      * message edit mode, messages sent to chat
      * will be saved to taterzen instead.
-     *
-     * @param message message sent by player
      */
     @Inject(
-            method = "handleChat(Lnet/minecraft/network/protocol/game/ServerboundChatPacket;Lnet/minecraft/server/network/FilteredText;)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/network/protocol/game/ServerboundChatPacket;signedPreview()Z"
-            ),
+            method = "broadcastChatMessage(Lnet/minecraft/network/chat/PlayerChatMessage;Ljava/util/function/Predicate;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/chat/ChatSender;Lnet/minecraft/network/chat/ChatType$Bound;)V",
+            at = @At(value = "HEAD"),
             cancellable = true
     )
-    private void onMessage(ServerboundChatPacket packet, FilteredText<String> message, CallbackInfo ci) {
-        ITaterzenEditor editor = (ITaterzenEditor) this.player;
-        TaterzenNPC taterzen = editor.getNpc();
-        String msg = message.filtered();
+    private void taterzens_chatBroadcast(PlayerChatMessage playerChatMessage, Predicate<ServerPlayer> predicate, ServerPlayer player, ChatSender chatSender, ChatType.Bound bound, CallbackInfo ci) {
+        if (player == null) return;
 
-        if (taterzen != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && msg != null && !msg.startsWith("/")) {
+        ITaterzenEditor editor = (ITaterzenEditor) player;
+        TaterzenNPC taterzen = editor.getNpc();
+        String msg = playerChatMessage.serverContent().getString();
+
+        if (taterzen != null && ((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && msg != null && !msg.startsWith("/")) {
             if (msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if (split.length > 1) {
                     try {
                         int delay = Integer.parseInt(split[1]);
                         taterzen.setMessageDelay(editor.getEditingMessageIndex(), delay);
-                        this.player.displayClientMessage(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
+                        player.displayClientMessage(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
                     } catch (NumberFormatException ignored) {
 
                     }
@@ -76,7 +74,7 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
 
                     // Exiting the editor
                     if(config.messages.exitEditorAfterMsgEdit) {
-                        ((ITaterzenEditor) this.player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
+                        ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                         (editor).setEditingMessageIndex(-1);
                         player.displayClientMessage(translate("taterzens.command.equipment.exit").withStyle(ChatFormatting.LIGHT_PURPLE), false);
                     }
