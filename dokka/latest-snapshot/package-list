@@ -30,7 +30,3 @@ org.samo_lego.taterzens.fabric.compatibility.carpet
 org.samo_lego.taterzens.fabric.event
 org.samo_lego.taterzens.fabric.mixin
 org.samo_lego.taterzens.fabric.platform
-module:forge
-org.samo_lego.taterzens.forge
-org.samo_lego.taterzens.forge.event
-org.samo_lego.taterzens.forge.platform
