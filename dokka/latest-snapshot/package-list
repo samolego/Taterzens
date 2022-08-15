@@ -8,7 +8,6 @@ org.samo_lego.taterzens.api.professions
 org.samo_lego.taterzens.commands
 org.samo_lego.taterzens.commands.edit
 org.samo_lego.taterzens.commands.edit.commands
-org.samo_lego.taterzens.commands.edit.messages
 org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.event
 org.samo_lego.taterzens.gui
@@ -19,7 +18,6 @@ org.samo_lego.taterzens.mixin.network
 org.samo_lego.taterzens.mixin.player
 org.samo_lego.taterzens.npc
 org.samo_lego.taterzens.npc.ai.goal
-org.samo_lego.taterzens.npc.commands
 org.samo_lego.taterzens.platform
 org.samo_lego.taterzens.storage
 org.samo_lego.taterzens.util
