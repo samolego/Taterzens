@@ -105,6 +105,13 @@ public class TaterConfig implements IBrigadierConfigurator {
     @SerializedName("combat_in_peaceful")
     public boolean combatInPeaceful = true;
 
+
+    @SerializedName("// Whether give fake glowing effect to Taterzen when selected.")
+    public final String _comment_glowSelectedNpc = "";
+    @BrigadierDescription(defaultOption = "true")
+    @SerializedName("glow_selected_npc")
+    public boolean glowSelectedNpc = true;
+
     @Override
     public void save() {
         this.saveConfigFile(Taterzens.getInstance().getConfigFile());

@@ -115,28 +115,28 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             // the client to fetch skin.
             // If player is immediately removed from the tablist,
             // client doesn't care about the skin.
-            if(config.taterzenTablistTimeout != -1) {
+            if (config.taterzenTablistTimeout != -1) {
                 var uuid = npc.getGameProfile().getId();
                 taterzens$tablistQueue.remove(uuid);
                 taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
             }
 
-            this.connection.send(new ClientboundRotateHeadPacket(entity, (byte)((int)(entity.getYHeadRot() * 256.0F / 360.0F))), listener);
+            this.connection.send(new ClientboundRotateHeadPacket(entity, (byte) ((int) (entity.getYHeadRot() * 256.0F / 360.0F))), listener);
 
             ci.cancel();
-        } else if(packet instanceof ClientboundSetEntityDataPacket) {
+        } else if (packet instanceof ClientboundSetEntityDataPacket) {
             Entity entity = world.getEntity(((ClientboundSetEntityDataPacketAccessor) packet).getEntityId());
 
-            if(!(entity instanceof TaterzenNPC taterzen))
+            if (!(entity instanceof TaterzenNPC taterzen))
                 return;
             Player fakePlayer = taterzen.getFakePlayer();
             List<SynchedEntityData.DataItem<?>> trackedValues = fakePlayer.getEntityData().getAll();
 
-            if(taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null) {
+            if (taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null && config.glowSelectedNpc) {
                 trackedValues.removeIf(value -> value.getAccessor().getId() == 0);
                 Byte flags = fakePlayer.getEntityData().get(EntityAccessor.getFLAGS());
                 // Modify Taterzen to have fake glowing effect for the player
-                flags = (byte)(flags | 1 << EntityAccessor.getFLAG_GLOWING());
+                flags = (byte) (flags | 1 << EntityAccessor.getFLAG_GLOWING());
 
                 SynchedEntityData.DataItem<Byte> glowingTag = new SynchedEntityData.DataItem<>(EntityAccessor.getFLAGS(), flags);
                 trackedValues.add(glowingTag);
