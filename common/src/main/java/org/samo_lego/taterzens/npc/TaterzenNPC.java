@@ -766,19 +766,19 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Sounds
         ListTag ambientSounds = (ListTag) npcTag.get("AmbientSounds");
         if (ambientSounds != null) {
-            this.npcData.ambientSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.ambientSounds.clear(); // removes default loaded sounds
             ambientSounds.forEach(snd -> this.addAmbientSound(snd.getAsString()));
         }
 
         ListTag hurtSounds = (ListTag) npcTag.get("HurtSounds");
         if (hurtSounds != null) {
-            this.npcData.hurtSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.hurtSounds.clear(); // removes default loaded sounds
             hurtSounds.forEach(snd -> this.addHurtSound(snd.getAsString()));
         }
 
         ListTag deathSounds = (ListTag) npcTag.get("DeathSounds");
         if (deathSounds != null) {
-            this.npcData.deathSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.deathSounds.clear(); // removes default loaded sounds
             deathSounds.forEach(snd -> this.addDeathSound(snd.getAsString()));
         }
 
@@ -1017,8 +1017,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         String preset = tag.getString("PresetOverride") + ".json";
         File presetFile = new File(Taterzens.getInstance().getPresetDirectory() + "/" + preset);
 
-        if (presetFile.exists())
+        if (presetFile.exists()) {
             this.loadFromPresetFile(presetFile, preset);
+        }
     }
 
     /**
@@ -1045,8 +1046,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             // Team stuff
             String savedTeam = npcTag.getString("SavedTeam");
             PlayerTeam team = this.getLevel().getScoreboard().getPlayerTeam(savedTeam);
-            if (team != null)
+            if (team != null) {
                 this.getLevel().getScoreboard().addPlayerToTeam(this.getScoreboardName(), team);
+            }
         }
     }
 

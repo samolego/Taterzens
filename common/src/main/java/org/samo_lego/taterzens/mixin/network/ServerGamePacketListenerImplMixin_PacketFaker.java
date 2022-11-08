@@ -148,7 +148,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
     @Inject(method = "handleMovePlayer", at = @At("RETURN"))
     private void removeTaterzenFromTablist(CallbackInfo ci) {
-        if(taterzens$tablistQueue.isEmpty()) return;
+        if (taterzens$tablistQueue.isEmpty()) return;
 
         taterzens$queueTick++;
 
