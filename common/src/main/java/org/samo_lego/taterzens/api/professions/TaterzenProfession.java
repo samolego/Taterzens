@@ -17,9 +17,10 @@ import java.util.List;
 /**
  * Profession interface, providing hooks
  * for Taterzen's behaviour.
- *
+ * <p>
  * Booleans instead of voids are there to allow you to cancel
  * the base Taterzen method.
+ * </p>
  */
 public interface TaterzenProfession {
 
@@ -73,10 +74,24 @@ public interface TaterzenProfession {
 
     /**
      * Called when Taterzen is attacked.
+     *
+     * @param attacker entity that is attacking taterzen.
+     * @return true to cancel the attack, otherwise false.
+     * @deprecated use {@link TaterzenProfession#skipAttackFrom(Entity)} instead. (Same method, but with different name)
+     */
+    @Deprecated
+    default boolean handleAttack(Entity attacker) {
+        return this.skipAttackFrom(attacker);
+    }
+
+
+    /**
+     * Called when Taterzen is attacked.
+     *
      * @param attacker entity that is attacking taterzen.
      * @return true to cancel the attack, otherwise false.
      */
-    default boolean handleAttack(Entity attacker) {
+    default boolean skipAttackFrom(Entity attacker) {
         return false;
     }
 

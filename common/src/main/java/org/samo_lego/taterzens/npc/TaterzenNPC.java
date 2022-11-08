@@ -8,6 +8,7 @@ import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -821,10 +822,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         this.setPermissionLevel(npcTag.getInt("PermissionLevel"));
 
-        if (npcTag.contains("Behaviour"))
+        if (npcTag.contains("Behaviour")) {
             this.setBehaviour(NPCData.Behaviour.valueOf(npcTag.getString("Behaviour")));
-        else
+        } else {
             this.setBehaviour(NPCData.Behaviour.PASSIVE);
+        }
 
         String profileName = this.getName().getString();
         if(profileName.length() > 16) {
@@ -1289,15 +1291,16 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public boolean skipAttackInteraction(Entity attacker) {
-        if(attacker instanceof Player && this.isEquipmentEditor((Player) attacker)) {
+        if (attacker instanceof Player pl && this.isEquipmentEditor(pl)) {
             ItemStack main = this.getMainHandItem();
             this.setItemInHand(MAIN_HAND, this.getOffhandItem());
             this.setItemInHand(InteractionHand.OFF_HAND, main);
             return true;
         }
         for(TaterzenProfession profession : this.professions.values()) {
-            if(profession.handleAttack(attacker))
+            if (profession.handleAttack(attacker)) {
                 return true;
+            }
         }
         return this.isInvulnerable();
     }
@@ -1373,7 +1376,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void remove(Entity.RemovalReason reason) {
         super.remove(reason);
-        TATERZEN_NPCS.remove(this);
+        TATERZEN_NPCS.remove(this.getUUID());
 
         for(TaterzenProfession profession : this.professions.values()) {
             profession.onRemove();
@@ -1398,9 +1401,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         for(TaterzenProfession profession : this.professions.values()) {
             profession.onBehaviourSet(level);
         }
-
-        if(this.npcData.movement == NPCData.Movement.NONE)
-            this.setMovement(NPCData.Movement.TICK);
 
         switch (level) {
             case DEFENSIVE -> {
@@ -1524,11 +1524,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(!this.npcData.allowSounds || this.npcData.ambientSounds.isEmpty())
             return null;
 
-        ResourceLocation sound;
         int rnd = this.random.nextInt(this.npcData.ambientSounds.size());
-        sound = new ResourceLocation(this.npcData.ambientSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(this.npcData.ambientSounds.get(rnd));
 
-        return new SoundEvent(sound);
+        return Registry.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getAmbientSoundData() {
@@ -1544,11 +1543,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(!this.npcData.allowSounds || this.npcData.hurtSounds.isEmpty())
             return null;
 
-        ResourceLocation sound;
         int rnd = this.random.nextInt(this.npcData.hurtSounds.size());
-        sound = new ResourceLocation(this.npcData.hurtSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(this.npcData.hurtSounds.get(rnd));
 
-        return new SoundEvent(sound);
+        return Registry.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getHurtSoundData() {
@@ -1564,11 +1562,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(!this.npcData.allowSounds || this.npcData.deathSounds.isEmpty())
             return null;
 
-        ResourceLocation sound;
         int rnd = this.random.nextInt(this.npcData.deathSounds.size());
-        sound = new ResourceLocation(this.npcData.deathSounds.get(rnd));
+        ResourceLocation sound = new ResourceLocation(this.npcData.deathSounds.get(rnd));
 
-        return new SoundEvent(sound);
+        return Registry.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getDeathSoundData() {
