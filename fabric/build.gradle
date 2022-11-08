@@ -18,115 +18,11 @@ repositories {
     }
 }
 
-architectury {
-    platformSetupLoomIde()
-    fabric()
-}
-
-configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
-
-}
-
 def ENV = System.getenv();
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-
-    // C2B
-    modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
-
-    // Permission API
-    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
-
-    // Server translations
-    modImplementation include("fr.catcore:server-translations-api:${project.translations_api}")
-
-    // SGUI
-    modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
-
     // Carpet
-    //modImplementation("carpet:fabric-carpet:${rootProject.minecraft_version}-${project.carpet_core_version}")
-    //modCompileOnly("carpet:fabric-carpet:1.18-pre4-${project.carpet_core_version}")
-    // Masa's maven is down atm
     modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
-
-shadowJar {
-    configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
-}
-
-remapJar {
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-    classifier "fabric"
-}
-
-jar {
-    classifier "dev"
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
-}
-
-publishing {
-    publications {
-        mavenFabric(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-        }
-        mavenJava(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                classifier null
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/samolego/Taterzens")
-            credentials {
-                username = ENV.USERNAME
-                password = ENV.PASSWORD
-            }
-        }
-        // uncomment to publish to the local maven
-        mavenLocal()
-    }
-
 }
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {

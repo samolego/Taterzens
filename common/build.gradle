@@ -4,24 +4,7 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-dependencies {
-    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
-    // Do NOT use other classes from fabric loader
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
-
-    modCompileOnly "xyz.nucleoid:disguiselib-fabric:${rootProject.disguiselib_version}"
-    modCompileOnly "com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"
-
-    // Built using vanillagradle, no need for remapping
-    //compileOnly("com.github.samolego:Config2Brigadier:55370d49b3")
-    modCompileOnly "eu.pb4:sgui:${rootProject.sgui_version}"
-}
-
 def ENV = System.getenv();
-
-architectury {
-    common(rootProject.enable_forge.toBoolean())
-}
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
     pluginsMapConfiguration.set(

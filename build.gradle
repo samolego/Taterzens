@@ -1,13 +1,13 @@
 plugins {
-	id "architectury-plugin" version "3.4-SNAPSHOT"
-	id "dev.architectury.loom" version "0.12.0-SNAPSHOT" apply false
-
-	id "io.github.juuxel.loom-quiltflower" version "1.7.2" apply false // Quiltflower, a better decompiler
 	// Quilt Mappings, for parameters and javadoc. Also hashed mojmap.
-	id "org.quiltmc.quilt-mappings-on-loom" version "4.2.0"
+	id "org.quiltmc.quilt-mappings-on-loom" version "4.2.0" apply false
+	// Fabric loom
+	id "fabric-loom" version "1.0-SNAPSHOT" apply false
+	// Forge Gradle
+	id 'net.minecraftforge.gradle' version '5.1.+' apply false
 
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
-	id "com.modrinth.minotaur" version "1.1.0"
+	id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+	id "com.modrinth.minotaur" version "1.1.0" apply false
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.5.31"
 	id("org.jetbrains.dokka") version "1.5.30"
@@ -21,44 +21,11 @@ repositories {
 	maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
 }
 
-architectury {
-	minecraft = rootProject.minecraft_version
-}
-
-subprojects {
-	apply plugin: "dev.architectury.loom"
-
-	loom {
-		silentMojangMappingsLicense()
-	}
-
-	dependencies {
-		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-		mappings loom.layered {
-			it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.${rootProject.quilt_mappings}:v2"))
-			// https://lambdaurora.dev/tools/import_quilt.html
-			it.officialMojangMappings {
-				setNameSyntheticMembers(false)
-			}
-		}
-
-		/*mappings(loom.layered {
-			mappings("net.fabricmc:yarn:${project.yarn_mappings}:v2")
-			officialMojangMappings()
-		})*/
-
-
-		// Thanks Shedaniel :)
-		implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.20-M1'
-	}
-}
-
 allprojects {
 	apply plugin: "java"
-	apply plugin: "architectury-plugin"
 	apply plugin: "maven-publish"
 
-	archivesBaseName = rootProject.archives_base_name
+	archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + rootProject.minecraft_version
 	version = rootProject.mod_version
 	group = rootProject.maven_group
 
@@ -67,26 +34,128 @@ allprojects {
 		maven {
 			url 'https://jitpack.io'
 		}
-		maven {
-			name = "Nucleoid maven"
-			url = "https://maven.nucleoid.xyz/"
-		}
-		maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
+		maven { url 'https://maven.nucleoid.xyz' }
 	}
 
 	tasks.withType(JavaCompile).configureEach {
-		// ensure that the encoding is set to UTF-8, no matter what the system default is
-		// this fixes some edge cases with special characters not displaying correctly
-		// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-		// If Javadoc is generated, this must be specified in that task too.
 		it.options.encoding = "UTF-8"
 
-		// Minecraft 1.17 (21w19a) upwards uses Java 16.
-		it.options.release = 17
+		def javaTarget = 17
+		it.options.release = javaTarget
+
+		sourceCompatibility = JavaVersion.toVersion(javaTarget)
+		targetCompatibility = JavaVersion.toVersion(javaTarget)
+
+		if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
+			toolchain.languageVersion.set(JavaLanguageVersion.of(javaTarget))
+		}
+	}
+}
+
+subprojects {
+	if (it.name != "common") {
+		apply plugin: "com.modrinth.minotaur"
+		apply plugin: "com.matthewprenger.cursegradle"
 	}
 
+	if (it.name != "forge") {
+		apply plugin: "fabric-loom"
+		apply plugin: "org.quiltmc.quilt-mappings-on-loom"
+		repositories {
+			maven {
+				url 'https://oss.sonatype.org/content/repositories/snapshots'
+			}
+			maven {
+				url 'https://masa.dy.fi/maven'
+			}
+		}
+
+		dependencies {
+			// To change the versions see the gradle.properties file
+			modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+			modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
+			minecraft "com.mojang:minecraft:${project.minecraft_version}"
+			mappings loom.layered {
+				it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.3:v2"))
+				// https://lambdaurora.dev/tools/import_quilt.html
+				it.officialMojangMappings {
+					setNameSyntheticMembers(false)
+				}
+			}
+
+			// C2B
+			modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
+
+			// Permission API
+			modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
+
+			// Server translations
+			modImplementation include("fr.catcore:server-translations-api:${rootProject.translations_api}")
+
+			// SGUI
+			modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
+		}
+
+		processResources {
+			inputs.property "version", rootProject.version
+
+			filesMatching("fabric.mod.json") {
+				expand "version": rootProject.version
+			}
+		}
+	}
+
+	dependencies {
+		compileOnly project(":common")
+	}
+
+	processResources {
+		from project(":common").sourceSets.main.resources
+	}
+
+	tasks.withType(JavaCompile) {
+		source(project(":common").sourceSets.main.allSource)
+	}
 
 	java {
+		// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+		// if it is present.
+		// If you remove this line, sources will not be generated.
 		withSourcesJar()
+	}
+
+	jar {
+		from("LICENSE") {
+			rename { "${it}_${project.archivesBaseName}" }
+		}
+		manifest {
+			attributes([
+					"Specification-Title"     : rootProject.archives_base_name,
+					"Specification-Vendor"    : "",
+					"Specification-Version"   : rootProject.mod_version,
+					"Implementation-Title"    : project.name,
+					"Implementation-Version"  : project.jar.archiveVersion,
+					"Implementation-Vendor"   : "",
+					"MixinConfigs"            : "${rootProject.archives_base_name}.mixins.json",
+					"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+			])
+		}
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				artifactId = rootProject.maven_group + "-" + project.name
+				from components.java
+			}
+		}
+
+		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+		repositories {
+			// Add repositories to publish to here.
+			// Notice: This block does NOT have the same function as the block in the top level.
+			// The repositories here will be used for publishing your artifact, not for
+			// retrieving dependencies.
+		}
 	}
 }
