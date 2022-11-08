@@ -16,7 +16,7 @@ import java.nio.file.Path;
 
 import static org.samo_lego.taterzens.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
-import static org.samo_lego.taterzens.forge.TaterzensForge.ENTITIES;
+import static org.samo_lego.taterzens.forge.TaterzensForge.ENTITY_TYPE_REGISTER;
 
 public class ForgePlatform extends Platform {
 
@@ -45,7 +45,7 @@ public class ForgePlatform extends Platform {
 
     @Override
     public void registerTaterzenType() {
-        TATERZEN_TYPE = ENTITIES.register(NPC_ID.getPath(), () -> EntityType.Builder
+        TATERZEN_TYPE = ENTITY_TYPE_REGISTER.register(NPC_ID.getPath(), () -> EntityType.Builder
                 .<TaterzenNPC>of(TaterzenNPC::new, MobCategory.MISC)
                 .sized(0.6F, 1.8F)
                 .build(NPC_ID.getPath()));
@@ -54,7 +54,5 @@ public class ForgePlatform extends Platform {
     @Override
     public void openEditorGui(ServerPlayer player) {
         player.sendSystemMessage(TextUtil.translate("taterzens.gui.forge"));
-        /*var editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
-        editorGUI.open();*/
     }
 }

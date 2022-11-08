@@ -94,6 +94,8 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
                     Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
             );
             this.send(playerAddPacket, listener);
+            // Vanilla sends the packet twice
+            this.send(playerAddPacket, listener);
 
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't

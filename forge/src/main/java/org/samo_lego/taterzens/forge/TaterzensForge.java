@@ -15,12 +15,12 @@ import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(MOD_ID)
 public class TaterzensForge {
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPE_REGISTER = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MOD_ID);
 
     public TaterzensForge() {
         var evtBus = FMLJavaModLoadingContext.get().getModEventBus();
         MinecraftForge.EVENT_BUS.register(new EventHandler());
-        ENTITIES.register(evtBus);
+        ENTITY_TYPE_REGISTER.register(evtBus);
 
         new Taterzens(new ForgePlatform());
     }
