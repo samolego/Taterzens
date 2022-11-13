@@ -1,0 +1,35 @@
+name: Docs new version release
+
+on:
+    workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.8"
+    - id: releasetag
+      uses: pozetroninc/github-action-get-latest-release@master
+      with:
+          repository: ${{ github.repository }}
+          excludes: prerelease, draft
+    - name: Set release notes tag
+      run: |
+        export RELEASE_TAG_VERSION=${{ steps.releasetag.outputs.release }}
+        echo "RELEASE_TAG_VERSION=${RELEASE_TAG_VERSION:1}" >> $GITHUB_ENV
+    - name: Install dependencies
+      run: make dev
+    - name: Setup doc deploy
+      run: |
+        git config --global user.name samo_lego
+        git config --global user.email 34912839+samolego@users.noreply.github.com
+    - name: Release docs website and API reference
+      run: |
+        poetry run mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
+        poetry run mike set-default --push latest
