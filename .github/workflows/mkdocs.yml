@@ -13,7 +13,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: "3.8"
+        python-version: 3.x
     - id: releasetag
       uses: pozetroninc/github-action-get-latest-release@master
       with:
@@ -22,7 +22,7 @@ jobs:
     - name: Set release notes tag
       run: |
         export RELEASE_TAG_VERSION=${{ steps.releasetag.outputs.release }}
-        echo "RELEASE_TAG_VERSION=${RELEASE_TAG_VERSION:1}" >> $GITHUB_ENV
+        echo "RELEASE_TAG_VERSION=${RELEASE_TAG_VERSION}" >> $GITHUB_ENV
     - run: pip install mkdocs-material
     - run: pip install mike
     - run: pip install mkdocs-awesome-pages-plugin
