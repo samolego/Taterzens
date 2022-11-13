@@ -23,13 +23,14 @@ jobs:
       run: |
         export RELEASE_TAG_VERSION=${{ steps.releasetag.outputs.release }}
         echo "RELEASE_TAG_VERSION=${RELEASE_TAG_VERSION:1}" >> $GITHUB_ENV
-    - name: Install dependencies
-      run: make dev
+    - run: pip install mkdocs-material
+    - run: pip install mike
+    - run: pip install mkdocs-awesome-pages-plugin
     - name: Setup doc deploy
       run: |
         git config --global user.name samo_lego
         git config --global user.email 34912839+samolego@users.noreply.github.com
-    - name: Release docs website and API reference
+    - name: Release docs website
       run: |
-        poetry run mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
-        poetry run mike set-default --push latest
+        mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
+        mike set-default --push latest
