@@ -168,7 +168,6 @@ def ENV = System.getenv();
 processResources {
     inputs.property "version", project.version
     inputs.property "c2b_version", rootProject.c2b_version
-    inputs.property "sgui_version", project.fsgui_version
 
     filesMatching("META-INF/mods.toml") {
         expand("version": project.version,
