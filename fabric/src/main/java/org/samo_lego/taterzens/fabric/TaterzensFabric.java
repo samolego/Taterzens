@@ -34,7 +34,7 @@ public class TaterzensFabric implements ModInitializer {
 
         // Events
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
-            Taterzens.registerCommands(dispatcher);
+            Taterzens.registerCommands(dispatcher, context);
             MessagesReorderCommand.register(dispatcher);
             ScarpetTraitCommand.register();
         });
