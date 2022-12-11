@@ -35,7 +35,7 @@ subprojects {
 	dependencies {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 		mappings loom.layered {
-			it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.${rootProject.quilt_mappings}:v2"))
+			//it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.${rootProject.quilt_mappings}:v2"))
 			// https://lambdaurora.dev/tools/import_quilt.html
 			it.officialMojangMappings {
 				setNameSyntheticMembers(false)

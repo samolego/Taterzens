@@ -3,7 +3,6 @@ package org.samo_lego.taterzens.mixin.network;
 import com.google.gson.JsonParseException;
 import com.mojang.brigadier.StringReader;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.ChatSender;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -31,18 +30,18 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
      * will be saved to taterzen instead.
      */
     @Inject(
-            method = "broadcastChatMessage(Lnet/minecraft/network/chat/PlayerChatMessage;Ljava/util/function/Predicate;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/chat/ChatSender;Lnet/minecraft/network/chat/ChatType$Bound;)V",
+            method = "broadcastChatMessage(Lnet/minecraft/network/chat/PlayerChatMessage;Ljava/util/function/Predicate;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/chat/ChatType$Bound;)V",
             at = @At(value = "HEAD"),
             cancellable = true
     )
-    private void taterzens_chatBroadcast(PlayerChatMessage playerChatMessage, Predicate<ServerPlayer> predicate, ServerPlayer player, ChatSender chatSender, ChatType.Bound bound, CallbackInfo ci) {
+    private void taterzens_chatBroadcast(PlayerChatMessage playerChatMessage, Predicate<ServerPlayer> predicate, ServerPlayer player, ChatType.Bound bound, CallbackInfo ci) {
         if (player == null) return;
 
         ITaterzenEditor editor = (ITaterzenEditor) player;
         TaterzenNPC taterzen = editor.getNpc();
-        String msg = playerChatMessage.serverContent().getString();
+        String msg = playerChatMessage.decoratedContent().getString();
 
-        if (taterzen != null && ((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && msg != null && !msg.startsWith("/")) {
+        if (taterzen != null && ((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && !msg.startsWith("/")) {
             if (msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if (split.length > 1) {

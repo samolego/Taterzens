@@ -13,7 +13,8 @@ public interface ClientboundSetEntityDataPacketAccessor {
     @Mutable
     @Accessor("id")
     int getEntityId();
+
     @Mutable
     @Accessor("packedItems")
-    void setPackedItems(List<SynchedEntityData.DataItem<?>> packedItems);
+    void setPackedItems(List<SynchedEntityData.DataValue<?>> packedItems);
 }

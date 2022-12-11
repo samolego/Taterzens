@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.mixin.player;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -9,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -57,12 +57,11 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
                                 config.path.color.green / 255.0F,
                                 config.path.color.blue / 255.0F
                         ),
-                        1.0F
-                );
+                        1.0F);
 
-                for(int i = 0; i < pathTargets.size(); ++i) {
+                for (int i = 0; i < pathTargets.size(); ++i) {
                     BlockPos pos = pathTargets.get(i);
-                    BlockPos nextPos = pathTargets.get(i +1 == pathTargets.size() ? 0 : i + 1);
+                    BlockPos nextPos = pathTargets.get(i + 1 == pathTargets.size() ? 0 : i + 1);
 
                     int deltaX = pos.getX() - nextPos.getX();
                     int deltaY = pos.getY() - nextPos.getY();

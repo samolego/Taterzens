@@ -4,10 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
-import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -31,15 +28,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.ADD_PLAYER;
-import static net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER;
 import static org.samo_lego.taterzens.Taterzens.config;
 
 /**
@@ -88,20 +78,19 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
                 return;
 
             GameProfile profile = npc.getGameProfile();
-            ClientboundPlayerInfoPacket playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
+            ClientboundPlayerInfoUpdatePacket playerAddPacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, this.player);
             //noinspection ConstantConditions
-            ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
-                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
-            );
+            var entry = new ClientboundPlayerInfoUpdatePacket.Entry(profile.getId(), profile, false, 0, GameType.SURVIVAL, npc.getDisplayName(), null);
+            ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(Collections.singletonList(entry));
             this.send(playerAddPacket, listener);
 
             // Vanilla sends the packet twice
-            playerAddPacket = new ClientboundPlayerInfoPacket(ADD_PLAYER);
+            /*playerAddPacket = new ClientboundPlayerInfoUpdatePacket();
             //noinspection ConstantConditions
             ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
                     Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
             );
-            this.send(playerAddPacket, listener);
+            this.send(playerAddPacket, listener);*/
 
             // Before we send this packet, we have
             // added player to tablist, otherwise client doesn't
@@ -130,15 +119,15 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             if (!(entity instanceof TaterzenNPC taterzen))
                 return;
             Player fakePlayer = taterzen.getFakePlayer();
-            List<SynchedEntityData.DataItem<?>> trackedValues = fakePlayer.getEntityData().getAll();
+            List<SynchedEntityData.DataValue<?>> trackedValues = fakePlayer.getEntityData().getNonDefaultValues();
 
             if (taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null && config.glowSelectedNpc) {
-                trackedValues.removeIf(value -> value.getAccessor().getId() == 0);
+                trackedValues.removeIf(value -> value.id() == 0);
                 Byte flags = fakePlayer.getEntityData().get(EntityAccessor.getFLAGS());
                 // Modify Taterzen to have fake glowing effect for the player
                 flags = (byte) (flags | 1 << EntityAccessor.getFLAG_GLOWING());
 
-                SynchedEntityData.DataItem<Byte> glowingTag = new SynchedEntityData.DataItem<>(EntityAccessor.getFLAGS(), flags);
+                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(EntityAccessor.getFLAGS(), flags);
                 trackedValues.add(glowingTag);
             }
 
@@ -152,19 +141,17 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
         taterzens$queueTick++;
 
-        List<ClientboundPlayerInfoPacket.PlayerUpdate> toRemove = new ArrayList<>();
+        List<UUID> toRemove = new ArrayList<>();
         for (var iterator = taterzens$tablistQueue.values().iterator(); iterator.hasNext(); ) {
             var current = iterator.next();
             if (current.removeAt() > taterzens$queueTick) break;
 
             iterator.remove();
-            toRemove.add(new ClientboundPlayerInfoPacket.PlayerUpdate(current.profile(), 0, GameType.SURVIVAL, current.displayName(), null));
+            toRemove.add(current.profile().getId());
         }
         if (toRemove.isEmpty()) return;
 
-        ClientboundPlayerInfoPacket taterzensRemovePacket = new ClientboundPlayerInfoPacket(REMOVE_PLAYER);
-        //noinspection ConstantConditions
-        ((ClientboundPlayerInfoPacketAccessor) taterzensRemovePacket).setEntries(toRemove);
+        ClientboundPlayerInfoRemovePacket taterzensRemovePacket = new ClientboundPlayerInfoRemovePacket(toRemove);
 
         this.taterzens$skipCheck = true;
         this.send(taterzensRemovePacket);

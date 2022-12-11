@@ -28,9 +28,7 @@ import static org.samo_lego.taterzens.Taterzens.GSON;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.FABRICTAILOR_LOADED;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 import static org.samo_lego.taterzens.util.WebUtil.urlRequest;
 
 public class SkinCommand {
@@ -43,7 +41,7 @@ public class SkinCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
         LiteralCommandNode<CommandSourceStack> skinNode = literal("skin")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.skin", config.perms.npcCommandPermissionLevel))
-                .then(argument("mineskin URL | playername", message())
+                .then(argument("mineskin|player", message())
                         .executes(SkinCommand::setCustomSkin)
                 )
                 .executes(SkinCommand::copySkinLayers)
@@ -54,7 +52,7 @@ public class SkinCommand {
 
     private static int setCustomSkin(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        String id = MessageArgument.getMessage(context, "mineskin URL | playername").getString();
+        String id = MessageArgument.getMessage(context, "mineskin|player").getString();
         Entity entity = source.getEntityOrException();
 
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {

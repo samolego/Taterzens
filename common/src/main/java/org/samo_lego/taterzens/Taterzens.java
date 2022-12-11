@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -21,11 +22,7 @@ import org.samo_lego.taterzens.storage.TaterConfig;
 import org.samo_lego.taterzens.util.LanguageUtil;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -124,10 +121,12 @@ public class Taterzens {
 
     /**
      * Handles command registration.
+     *
      * @param dispatcher dispatcher to register commands to.
+     * @param context
      */
-    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-        NpcCommand.register(dispatcher);
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
+        NpcCommand.register(dispatcher, context);
         TaterzensCommand.register(dispatcher);
         NpcGUICommand.register(dispatcher);
 
