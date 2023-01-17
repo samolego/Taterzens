@@ -13,12 +13,14 @@ dependencies {
     modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
 }
 
-tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
-    pluginsMapConfiguration.set(
-            ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
-    )
-}
 
+processResources {
+    inputs.property "version", rootProject.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": rootProject.version
+    }
+}
 
 // from FAPI https://github.com/FabricMC/fabric/blob/1.16/build.gradle
 curseforge {
