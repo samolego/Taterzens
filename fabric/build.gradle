@@ -1,23 +1,12 @@
 import com.modrinth.minotaur.TaskModrinthUpload
 
-plugins {
-    id 'com.matthewprenger.cursegradle'
-    id "com.modrinth.minotaur"
-    // Dokka docs
-    id "org.jetbrains.kotlin.jvm"
-    id("org.jetbrains.dokka")
-}
-
 repositories {
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
-    }
     maven {
         url 'https://masa.dy.fi/maven'
     }
 }
 
-def ENV = System.getenv();
+def ENV = System.getenv()
 
 dependencies {
     // Carpet
@@ -74,4 +63,5 @@ task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
 
     addGameVersion("${project.minecraft_version}")
     addLoader('fabric')
+    addLoader('quilt')
 }

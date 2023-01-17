@@ -4,37 +4,10 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-def ENV = System.getenv();
+def ENV = System.getenv()
 
 tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
     pluginsMapConfiguration.set(
             ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
     )
-}
-
-publishing {
-    publications {
-        mavenCommon(MavenPublication) {
-            artifactId = rootProject.archives_base_name
-            // add all the jars that should be included when publishing to maven
-            artifact remapJar
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/samolego/Taterzens")
-            credentials {
-                username = ENV.USERNAME
-                password = ENV.PASSWORD
-            }
-        }
-        // uncomment to publish to the local maven
-        mavenLocal()
-    }
 }

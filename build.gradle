@@ -53,14 +53,18 @@ allprojects {
 }
 
 subprojects {
+
+	// Dokka docs
+	apply plugin: "org.jetbrains.kotlin.jvm"
+	apply plugin: "org.jetbrains.dokka"
 	if (it.name != "common") {
 		apply plugin: "com.modrinth.minotaur"
 		apply plugin: "com.matthewprenger.cursegradle"
 	}
 
+
 	if (it.name != "forge") {
 		apply plugin: "fabric-loom"
-		apply plugin: "org.quiltmc.quilt-mappings-on-loom"
 		repositories {
 			maven {
 				url 'https://oss.sonatype.org/content/repositories/snapshots'
@@ -76,11 +80,8 @@ subprojects {
 			modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
 			minecraft "com.mojang:minecraft:${project.minecraft_version}"
 			mappings loom.layered {
-				it.addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${rootProject.minecraft_version}+build.3:v2"))
-				// https://lambdaurora.dev/tools/import_quilt.html
-				it.officialMojangMappings {
-					setNameSyntheticMembers(false)
-				}
+				//mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
+				it.officialMojangMappings()
 			}
 
 			// C2B
@@ -94,6 +95,9 @@ subprojects {
 
 			// SGUI
 			modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
+
+			// Disguiselib
+			modImplementation("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
 		}
 
 		processResources {
@@ -105,16 +109,18 @@ subprojects {
 		}
 	}
 
-	dependencies {
-		compileOnly project(":common")
-	}
+	if (it.name != "common") {
+		dependencies {
+			compileOnly project(":common")
+		}
 
-	processResources {
-		from project(":common").sourceSets.main.resources
-	}
+		processResources {
+			from project(":common").sourceSets.main.resources
+		}
 
-	tasks.withType(JavaCompile) {
-		source(project(":common").sourceSets.main.allSource)
+		tasks.withType(JavaCompile) {
+			source(project(":common").sourceSets.main.allSource)
+		}
 	}
 
 	java {
@@ -157,5 +163,6 @@ subprojects {
 			// The repositories here will be used for publishing your artifact, not for
 			// retrieving dependencies.
 		}
+
 	}
 }
