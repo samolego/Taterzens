@@ -4,16 +4,16 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.math.Vector3f;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
@@ -28,25 +28,12 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -69,6 +56,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
@@ -77,33 +65,17 @@ import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
-import org.samo_lego.taterzens.npc.ai.goal.DirectPathGoal;
-import org.samo_lego.taterzens.npc.ai.goal.LazyPathGoal;
-import org.samo_lego.taterzens.npc.ai.goal.ReachMeleeAttackGoal;
-import org.samo_lego.taterzens.npc.ai.goal.TeamRevengeGoal;
-import org.samo_lego.taterzens.npc.ai.goal.TrackEntityGoal;
-import org.samo_lego.taterzens.npc.ai.goal.TrackUuidGoal;
+import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
 import org.samo_lego.taterzens.npc.commands.CommandGroups;
 import org.samo_lego.taterzens.util.TextUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 import static net.minecraft.world.InteractionHand.MAIN_HAND;
-import static org.samo_lego.taterzens.Taterzens.LOGGER;
-import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
-import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
-import static org.samo_lego.taterzens.Taterzens.config;
+import static org.samo_lego.taterzens.Taterzens.*;
 import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -235,7 +207,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null), null) {
+        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -611,7 +583,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         ClientboundAddPlayerPacket ClientboundAddPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
         //noinspection ConstantConditions
         ClientboundAddPlayerPacketAccessor addPlayerPacketAccessor = (ClientboundAddPlayerPacketAccessor) ClientboundAddPlayerPacket;
@@ -620,8 +592,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         addPlayerPacketAccessor.setX(this.getX());
         addPlayerPacketAccessor.setY(this.getY());
         addPlayerPacketAccessor.setZ(this.getZ());
-        addPlayerPacketAccessor.setYRot((byte)((int)(this.getYHeadRot() * 256.0F / 360.0F)));
-        addPlayerPacketAccessor.setXRot((byte)((int)(this.getXRot() * 256.0F / 360.0F)));
+        addPlayerPacketAccessor.setYRot((byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
+        addPlayerPacketAccessor.setXRot((byte) ((int) (this.getXRot() * 256.0F / 360.0F)));
 
         return ClientboundAddPlayerPacket;
     }
@@ -766,19 +738,19 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Sounds
         ListTag ambientSounds = (ListTag) npcTag.get("AmbientSounds");
         if (ambientSounds != null) {
-            this.npcData.ambientSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.ambientSounds.clear(); // removes default loaded sounds
             ambientSounds.forEach(snd -> this.addAmbientSound(snd.getAsString()));
         }
 
         ListTag hurtSounds = (ListTag) npcTag.get("HurtSounds");
         if (hurtSounds != null) {
-            this.npcData.hurtSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.hurtSounds.clear(); // removes default loaded sounds
             hurtSounds.forEach(snd -> this.addHurtSound(snd.getAsString()));
         }
 
         ListTag deathSounds = (ListTag) npcTag.get("DeathSounds");
         if (deathSounds != null) {
-            this.npcData.deathSounds = new ArrayList<>(); // removes default loaded sounds
+            this.npcData.deathSounds.clear(); // removes default loaded sounds
             deathSounds.forEach(snd -> this.addDeathSound(snd.getAsString()));
         }
 
@@ -1017,8 +989,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         String preset = tag.getString("PresetOverride") + ".json";
         File presetFile = new File(Taterzens.getInstance().getPresetDirectory() + "/" + preset);
 
-        if (presetFile.exists())
+        if (presetFile.exists()) {
             this.loadFromPresetFile(presetFile, preset);
+        }
     }
 
     /**
@@ -1045,8 +1018,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             // Team stuff
             String savedTeam = npcTag.getString("SavedTeam");
             PlayerTeam team = this.getLevel().getScoreboard().getPlayerTeam(savedTeam);
-            if (team != null)
+            if (team != null) {
                 this.getLevel().getScoreboard().addPlayerToTeam(this.getScoreboardName(), team);
+            }
         }
     }
 
@@ -1527,7 +1501,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.ambientSounds.size());
         ResourceLocation sound = new ResourceLocation(this.npcData.ambientSounds.get(rnd));
 
-        return Registry.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getAmbientSoundData() {
@@ -1546,7 +1520,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.hurtSounds.size());
         ResourceLocation sound = new ResourceLocation(this.npcData.hurtSounds.get(rnd));
 
-        return Registry.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getHurtSoundData() {
@@ -1565,7 +1539,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.deathSounds.size());
         ResourceLocation sound = new ResourceLocation(this.npcData.deathSounds.get(rnd));
 
-        return Registry.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
 
     public ArrayList<String> getDeathSoundData() {

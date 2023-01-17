@@ -4,9 +4,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.CompoundTagArgument;
-import net.minecraft.commands.arguments.EntitySummonArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -26,10 +28,10 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class TypeCommand {
-    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
+    public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode, CommandBuildContext commandBuildContext) {
         LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
-                .then(argument("entity type", EntitySummonArgument.id())
+                .then(argument("entity type", ResourceArgument.resource(commandBuildContext, Registries.ENTITY_TYPE))
                         .suggests(SUMMONABLE_ENTITIES)
                         .executes(TypeCommand::changeType)
                         .then(argument("nbt", CompoundTagArgument.compoundTag())
@@ -66,7 +68,7 @@ public class TypeCommand {
             return -1;
         }
 
-        ResourceLocation disguise = EntitySummonArgument.getSummonableEntity(context, "entity type");
+        ResourceLocation disguise = ResourceArgument.getSummonableEntityType(context, "entity type").key().location();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             CompoundTag nbt;
             try {

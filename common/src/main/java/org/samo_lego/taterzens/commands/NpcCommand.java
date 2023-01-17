@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.MessageArgument;
@@ -39,9 +40,7 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_NPCS;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class NpcCommand {
     public static LiteralCommandNode<CommandSourceStack> npcNode;
@@ -49,9 +48,9 @@ public class NpcCommand {
     private static final double MAX_DISTANCE = 8.02;
     private static final double SQRD_DIST = MAX_DISTANCE * MAX_DISTANCE;
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext) {
         npcNode = dispatcher.register(literal("npc")
-                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src,  "taterzens.npc", config.perms.npcCommandPermissionLevel))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc", config.perms.npcCommandPermissionLevel))
                 .then(literal("create")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.create", config.perms.npcCommandPermissionLevel))
                         .then(argument("name", message())
@@ -99,7 +98,7 @@ public class NpcCommand {
                 )
         );
 
-        EditCommand.registerNode(dispatcher, npcNode);
+        EditCommand.registerNode(dispatcher, npcNode, commandBuildContext);
         PresetCommand.registerNode(npcNode);
         TeleportCommand.registerNode(npcNode);
         ActionCommand.registerNode(npcNode);
@@ -170,7 +169,7 @@ public class NpcCommand {
                                     .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
                                     .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
                                     .withStyle(style -> style
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid " + taterzenNPC.getUUID().toString()))
+                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid " + taterzenNPC.getUUID()))
                                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
                     .append(
                             Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")

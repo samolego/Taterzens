@@ -22,7 +22,7 @@ with spawn eggs.
 ### Spawning with presets
 Let's assume we have a [taterzen preset](../presets) named `my_npc`.
 This command gives you a spawn egg that will spawn a taterzen from that preset.
-```
-/give @s chicken_spawn_egg{EntityTag:{id:"taterzens:npc"}, PresetOverride:"my_npc"} 1
+```brigadier
+/give @s chicken_spawn_egg{EntityTag:{id:"taterzens:npc", PresetOverride:"my_npc"}} 1
 ```
 To change the preset to load, edit the `PresetOverride` tag.

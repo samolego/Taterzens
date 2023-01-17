@@ -1,0 +1,38 @@
+name: Docs new version release
+
+on:
+    workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+    - name: Get latest release tag
+      uses: rez0n/actions-github-release@main
+      id: releasetag
+      env:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: "samolego/Taterzens"
+        type: "stable"
+    - name: Set release notes tag
+      run: |
+        export RELEASE_TAG_VERSION=${{ steps.node_release.outputs.release }}
+        echo "RELEASE_TAG_VERSION=${RELEASE_TAG_VERSION}" >> $GITHUB_ENV
+    - run: pip install mkdocs-material
+    - run: pip install mike
+    - run: pip install mkdocs-awesome-pages-plugin
+    - name: Setup doc deploy
+      run: |
+        git config --global user.name samo_lego
+        git config --global user.email 34912839+samolego@users.noreply.github.com
+    - name: Release docs website
+      run: |
+        mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
+        mike set-default --push latest
