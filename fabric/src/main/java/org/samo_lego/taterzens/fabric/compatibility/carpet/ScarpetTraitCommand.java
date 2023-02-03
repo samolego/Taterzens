@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import org.samo_lego.taterzens.Taterzens;
+import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
@@ -35,9 +36,13 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
 import static org.samo_lego.taterzens.util.TextUtil.translate;
 
 public class ScarpetTraitCommand {
+    static {
+        TaterzensAPI.registerProfession(ScarpetProfession.ID, ScarpetProfession::new);
+    }
+
     public static void register() {
         LiteralCommandNode<CommandSourceStack> scarpet = literal("scarpetTraits")
-                .requires(src -> CARPETMOD_LOADED && Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.profession.scarpet", config.perms.professionCommandPL))
+                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.profession.scarpet", config.perms.professionCommandPL))
                 .then(literal("add")
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.profession.scarpet.add", config.perms.professionCommandPL))
                         .then(argument("id", StringArgumentType.word())
