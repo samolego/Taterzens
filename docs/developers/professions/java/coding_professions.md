@@ -39,9 +39,9 @@ If you don't know what certain methods mean, you can always check out
 For methods using `InteractionResult`, your return variable can mean the following:
 
 * `InteractionResult#PASS` - Default; continues ticking other professions.
-* `InteractionResult#CONSUME` - Stops processing others, but continues with base Taterzen movement tick.
-* `InteractionResult#FAIL` - Stops whole movement tick.
-* `InteractionResult#SUCCESS` - Continues with super.tickMovement(), but skips Taterzen's movement tick.
+* `InteractionResult#CONSUME` - Stops processing others, but continues with base Taterzen method.
+* `InteractionResult#FAIL` - Cancels whole movement method.
+* `InteractionResult#SUCCESS` - Continues with super.tickMovement(), but skips Taterzen's method.
 
 ```java
 public class MyFirstProfession implements TaterzenProfession {
@@ -56,21 +56,6 @@ public class MyFirstProfession implements TaterzenProfession {
     public InteractionResult interactAt(Player player, Vec3d pos, Hand hand) {
         player.sendMessage(Component.literal("You have interacted with ").append(this.npc.getName()), false);
         return InteractionResult.PASS;
-    }
-
-    /**
-     * Method used for creating the new profession for given taterzen.
-     *
-     * @param taterzen taterzen to create profession for
-     * @return new profession object of taterzen.
-     */
-    @Override
-    public TaterzenProfession create(TaterzenNPC taterzen) {
-        MyFirstProfession profession = new MyFirstProfession();
-		
-        // Assigning the Taterzen to the profession so we can use it later.
-        profession.npc = taterzen;
-        return profession;
     }
 }
 ```

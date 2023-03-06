@@ -28,7 +28,6 @@ public class TaterConfig implements IBrigadierConfigurator {
     public final String _comment_language = "";
     /**
      * Language file used by Taterzens.
-     *
      * Located at $minecraftFolder/config/Taterzens/$lang.json
      */
     @BrigadierExcluded
