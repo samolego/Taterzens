@@ -29,7 +29,6 @@
     "taterzens.mixins.json",
     "taterzens.common.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": ">=0.48.0"
@@ -39,5 +38,19 @@
   },
   "breaks": {
     "disguiselib": "<1.2.1"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net.minecraft.class_2370": [
+        "org/samo_lego/taterzens/fabric/mixin/AMappedRegistry"
+      ],
+      "net.minecraft.class_3222": [
+        "org/samo_lego/taterzens/interfaces/ITaterzenEditor",
+        "org/samo_lego/taterzens/interfaces/ITaterzenPlayer"
+      ],
+      "net.minecraft.class_2613": [
+        "org/samo_lego/taterzens/mixin/accessors/AClientboundAddPlayerPacket"
+      ]
+    }
   }
 }

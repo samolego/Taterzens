@@ -25,7 +25,7 @@ import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.commands.edit.EditCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.mixin.accessors.CommandSourceStackAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ACommandSourceStack;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.ArrayList;
@@ -397,7 +397,7 @@ public class NpcCommand {
 
         TaterzenNPC taterzen = TaterzensAPI.createTaterzen(player, taterzenName);
         // Making sure permission level is as high as owner's, to prevent permission bypassing.
-        taterzen.setPermissionLevel(((CommandSourceStackAccessor) source).getPermissionLevel());
+        taterzen.setPermissionLevel(((ACommandSourceStack) source).getPermissionLevel());
 
         // Lock if needed
         if (config.lockAfterCreation)

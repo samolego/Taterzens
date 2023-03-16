@@ -27,7 +27,7 @@ import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.GSON;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.compatibility.ModDiscovery.FABRICTAILOR_LOADED;
-import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
+import static org.samo_lego.taterzens.mixin.accessors.APlayer.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.*;
 import static org.samo_lego.taterzens.util.WebUtil.urlRequest;
 

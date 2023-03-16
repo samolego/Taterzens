@@ -8,9 +8,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Set;
 
 @Mixin(targets = "net.minecraft.server.level.ChunkMap$TrackedEntity")
-public interface EntityTrackerEntryAccessor {
+public interface AEntityTrackerEntry {
     @Accessor("serverEntity")
     ServerEntity getPlayer();
+
     @Accessor("seenBy")
     Set<ServerPlayerConnection> getSeenBy();
 }

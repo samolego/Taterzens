@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Player.class)
-public interface PlayerAccessor {
+public interface APlayer {
     @Accessor("DATA_PLAYER_MODE_CUSTOMISATION")
     static EntityDataAccessor<Byte> getPLAYER_MODE_CUSTOMISATION() {
         throw new AssertionError();

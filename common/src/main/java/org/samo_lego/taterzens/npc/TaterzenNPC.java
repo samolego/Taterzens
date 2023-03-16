@@ -63,10 +63,10 @@ import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
-import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
-import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
+import org.samo_lego.taterzens.mixin.accessors.AChunkMap;
+import org.samo_lego.taterzens.mixin.accessors.AClientboundAddPlayerPacket;
+import org.samo_lego.taterzens.mixin.accessors.AClientboundPlayerInfoPacket;
+import org.samo_lego.taterzens.mixin.accessors.AEntityTrackerEntry;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
 import org.samo_lego.taterzens.npc.commands.CommandGroups;
@@ -78,7 +78,7 @@ import java.util.function.Function;
 
 import static net.minecraft.world.InteractionHand.MAIN_HAND;
 import static org.samo_lego.taterzens.Taterzens.*;
-import static org.samo_lego.taterzens.mixin.accessors.PlayerAccessor.getPLAYER_MODE_CUSTOMISATION;
+import static org.samo_lego.taterzens.mixin.accessors.APlayer.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
 
@@ -587,12 +587,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         final var playerAddPacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, this.fakePlayer);
         //noinspection ConstantConditions
         var entry = new ClientboundPlayerInfoUpdatePacket.Entry(this.gameProfile.getId(), this.gameProfile, false, 0, GameType.SURVIVAL, this.getDisplayName(), null);
-        ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(Collections.singletonList(entry));
+        ((AClientboundPlayerInfoPacket) playerAddPacket).setEntries(Collections.singletonList(entry));
         packets.add(playerAddPacket);
 
         // Spawn player
         final var spawnPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
-        ClientboundAddPlayerPacketAccessor addPlayerPacketAccessor = (ClientboundAddPlayerPacketAccessor) spawnPlayerPacket;
+        AClientboundAddPlayerPacket addPlayerPacketAccessor = (AClientboundAddPlayerPacket) spawnPlayerPacket;
         addPlayerPacketAccessor.setId(this.getId());
         addPlayerPacketAccessor.setUuid(this.getUUID());
         addPlayerPacketAccessor.setX(this.getX());
@@ -655,7 +655,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
         ChunkMap storage = manager.chunkMap;
-        EntityTrackerEntryAccessor trackerEntry = ((ChunkMapAccessor) storage).getEntityMap().get(this.getId());
+        AEntityTrackerEntry trackerEntry = ((AChunkMap) storage).getEntityMap().get(this.getId());
         if(trackerEntry != null)
             trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
     }
@@ -728,7 +728,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         super.readAdditionalSaveData(tag);
 
         // Has a "preset" tag
-        // We want to override other data
+        // We want to overwrite self data from that provided by preset
         if (tag.contains("PresetOverride")) {
             this.loadPresetTag(tag);
             return;  // Other data doesn't need to be loaded as it will be handled by preset
@@ -1617,8 +1617,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
-     * GetsTaterzen's professions.
-     * @return all professions ids of Taterzen's professions.
+     * Gets taterzen's professions.
+     *
+     * @return all professions ids of taterzen's professions.
      */
     public Collection<ResourceLocation> getProfessionIds() {
         return this.professions.keySet();
@@ -1629,7 +1630,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
     public void removeProfession(ResourceLocation professionId) {
-        TaterzenProfession toRemove = this.professions.getOrDefault(professionId, null);
+        TaterzenProfession toRemove = this.professions.get(professionId);
 
         if (toRemove != null) {
             toRemove.onProfessionRemoved();
@@ -1643,7 +1644,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Nullable
     public TaterzenProfession getProfession(ResourceLocation professionId) {
-        return this.professions.getOrDefault(professionId, null);
+        return this.professions.get(professionId);
     }
 
     @Override
@@ -1659,7 +1660,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     protected void pickUpItem(ItemEntity item) {
         // Profession event
         ItemStack stack = item.getItem();
-        for(TaterzenProfession profession : this.professions.values()) {
+        for (TaterzenProfession profession : this.professions.values()) {
             if (profession.tryPickupItem(item)) {
                 this.onItemPickup(item);
                 this.take(item, stack.getCount());

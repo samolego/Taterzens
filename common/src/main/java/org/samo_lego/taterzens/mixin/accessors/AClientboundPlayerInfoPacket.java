@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 
 @Mixin(ClientboundPlayerInfoUpdatePacket.class)
-public interface ClientboundPlayerInfoPacketAccessor {
+public interface AClientboundPlayerInfoPacket {
     @Mutable
     @Accessor("entries")
     void setEntries(List<ClientboundPlayerInfoUpdatePacket.Entry> entries);

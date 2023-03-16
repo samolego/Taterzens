@@ -4,6 +4,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,8 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.mixin.accessors.ClientboundSetEntityDataPacketAccessor;
-import org.samo_lego.taterzens.mixin.accessors.EntityAccessor;
+import org.samo_lego.taterzens.mixin.accessors.AClientboundSetEntityDataPacket;
+import org.samo_lego.taterzens.mixin.accessors.AEntity;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.util.NpcPlayerUpdate;
 import org.spongepowered.asm.mixin.Final;
@@ -61,27 +62,23 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
      */
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"),
-            cancellable = true)
+                    target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"))
     private void changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
         Level world = player.getLevel();
-        if (packet instanceof BundlePacket<?> && !this.taterzens$skipCheck) {
-            System.out.println("BundlePacket, todo - remove from tablist");
-            /*if (!(entity instanceof TaterzenNPC npc))
-                return;
+        if (packet instanceof BundlePacket<?> bPacket && !this.taterzens$skipCheck) {
+            for (Packet<?> subPacket : bPacket.subPackets()) {
+                if (subPacket instanceof ClientboundAddPlayerPacket playerAddPacket) {
+                    Entity entity = player.getLevel().getEntity(playerAddPacket.getEntityId());
 
-            // And now we can remove it from tablist
-            // we must delay the tablist packet so as to allow
-            // the client to fetch skin.
-            // If player is immediately removed from the tablist,
-            // client doesn't care about the skin.
-            if (config.taterzenTablistTimeout != -1) {
-                var uuid = npc.getGameProfile().getId();
-                taterzens$tablistQueue.remove(uuid);
-                taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
-            }*/
+                    if (entity instanceof TaterzenNPC npc) {
+                        var uuid = npc.getGameProfile().getId();
+                        this.taterzens$tablistQueue.remove(uuid);
+                        this.taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
+                    }
+                }
+            }
         } else if (packet instanceof ClientboundSetEntityDataPacket) {
-            Entity entity = world.getEntity(((ClientboundSetEntityDataPacketAccessor) packet).getEntityId());
+            Entity entity = world.getEntity(((AClientboundSetEntityDataPacket) packet).getEntityId());
 
             if (!(entity instanceof TaterzenNPC taterzen))
                 return;
@@ -90,15 +87,15 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
             if (taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null && config.glowSelectedNpc) {
                 trackedValues.removeIf(value -> value.id() == 0);
-                Byte flags = fakePlayer.getEntityData().get(EntityAccessor.getFLAGS());
+                Byte flags = fakePlayer.getEntityData().get(AEntity.getFLAGS());
                 // Modify Taterzen to have fake glowing effect for the player
-                flags = (byte) (flags | 1 << EntityAccessor.getFLAG_GLOWING());
+                flags = (byte) (flags | 1 << AEntity.getFLAG_GLOWING());
 
-                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(EntityAccessor.getFLAGS(), flags);
+                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(AEntity.getFLAGS(), flags);
                 trackedValues.add(glowingTag);
             }
 
-            ((ClientboundSetEntityDataPacketAccessor) packet).setPackedItems(trackedValues);
+            ((AClientboundSetEntityDataPacket) packet).setPackedItems(trackedValues);
         }
     }
 

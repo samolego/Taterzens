@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import org.samo_lego.taterzens.fabric.mixin.MappedRegistryAccessor;
+import org.samo_lego.taterzens.fabric.mixin.AMappedRegistry;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.platform.Platform;
 
@@ -25,7 +25,7 @@ import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
 
 public class FabricPlatform extends Platform {
 
-    private static final int REGISTRY_ITEMS_SIZE = ((MappedRegistryAccessor) BuiltInRegistries.ITEM).getById().size();
+    private static final int REGISTRY_ITEMS_SIZE = ((AMappedRegistry<?>) BuiltInRegistries.ITEM).getById().size();
 
     @Override
     public Path getConfigDirPath() {

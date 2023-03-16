@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 
 @Mixin(ClientboundSetEntityDataPacket.class)
-public interface ClientboundSetEntityDataPacketAccessor {
+public interface AClientboundSetEntityDataPacket {
     @Mutable
     @Accessor("id")
     int getEntityId();

@@ -8,10 +8,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.UUID;
 
 @Mixin(ClientboundAddPlayerPacket.class)
-public interface ClientboundAddPlayerPacketAccessor {
+public interface AClientboundAddPlayerPacket {
     @Mutable
     @Accessor("entityId")
     void setId(int id);
+
     @Mutable
     @Accessor("entityId")
     int getId();
