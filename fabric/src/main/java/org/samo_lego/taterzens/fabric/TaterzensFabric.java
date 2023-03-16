@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.samo_lego.taterzens.Taterzens;
-import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.fabric.commands.MessagesReorderCommand;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.AdditionalFunctions;
 import org.samo_lego.taterzens.fabric.compatibility.carpet.ScarpetProfession;
@@ -30,7 +29,6 @@ public class TaterzensFabric implements ModInitializer {
 
         // CarpetMod
         if (CARPETMOD_LOADED) {
-            TaterzensAPI.registerProfession(ScarpetProfession.ID, ScarpetProfession::new);
             AdditionalFunctions.init();
         }
 
@@ -38,7 +36,9 @@ public class TaterzensFabric implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
             Taterzens.registerCommands(dispatcher, context);
             MessagesReorderCommand.register(dispatcher);
-            ScarpetTraitCommand.register();
+            if (CARPETMOD_LOADED) {
+                ScarpetTraitCommand.register(); // also registers profession on first init
+            }
         });
 
         UseBlockCallback.EVENT.register(new BlockInteractEventImpl());
