@@ -11,7 +11,6 @@ org.samo_lego.taterzens.commands.edit.commands
 org.samo_lego.taterzens.commands.edit.messages
 org.samo_lego.taterzens.compatibility
 org.samo_lego.taterzens.event
-org.samo_lego.taterzens.gui
 org.samo_lego.taterzens.interfaces
 org.samo_lego.taterzens.mixin
 org.samo_lego.taterzens.mixin.accessors
@@ -26,7 +25,9 @@ org.samo_lego.taterzens.util
 module:fabric
 org.samo_lego.taterzens.fabric
 org.samo_lego.taterzens.fabric.client_fix
+org.samo_lego.taterzens.fabric.commands
 org.samo_lego.taterzens.fabric.compatibility.carpet
 org.samo_lego.taterzens.fabric.event
+org.samo_lego.taterzens.fabric.gui
 org.samo_lego.taterzens.fabric.mixin
 org.samo_lego.taterzens.fabric.platform
