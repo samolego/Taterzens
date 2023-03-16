@@ -21,7 +21,7 @@ import java.util.Collections;
 import static org.samo_lego.taterzens.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.Taterzens.TATERZEN_TYPE;
 import static org.samo_lego.taterzens.commands.NpcCommand.npcNode;
-import static org.samo_lego.taterzens.gui.EditorGUI.createCommandGui;
+import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
 
 public class FabricPlatform extends Platform {
 
@@ -62,12 +62,12 @@ public class FabricPlatform extends Platform {
 
     @Override
     public void registerTaterzenType() {
-        EntityType<TaterzenNPC> type = Registry.register(
+        final EntityType<TaterzenNPC> type = Registry.register(
                 BuiltInRegistries.ENTITY_TYPE,
                 NPC_ID,
                 FabricEntityTypeBuilder
                         .<TaterzenNPC>create(MobCategory.MISC, TaterzenNPC::new)
-                        .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+                        .dimensions(EntityDimensions.scalable(0.6F, 1.8F))
                         .build());
 
         TATERZEN_TYPE = () -> type;

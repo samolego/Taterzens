@@ -13,8 +13,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkMap;
@@ -28,6 +27,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -48,6 +48,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
@@ -64,6 +65,7 @@ import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.ChunkMapAccessor;
 import org.samo_lego.taterzens.mixin.accessors.ClientboundAddPlayerPacketAccessor;
+import org.samo_lego.taterzens.mixin.accessors.ClientboundPlayerInfoPacketAccessor;
 import org.samo_lego.taterzens.mixin.accessors.EntityTrackerEntryAccessor;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
@@ -91,7 +93,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     private final NPCData npcData = new NPCData();
 
     private final CommandGroups commandGroups;
-    private Player fakePlayer;
+    private ServerPlayer fakePlayer;
     private final LinkedHashMap<ResourceLocation, TaterzenProfession> professions = new LinkedHashMap<>();
     private GameProfile gameProfile;
 
@@ -157,7 +159,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
-        this.maxUpStep = 0.6F;
+        this.setMaxUpStep(0.6F);
         this.setCanPickUpLoot(true);
         this.setCustomNameVisible(true);
         this.setCustomName(this.getName());
@@ -207,18 +209,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new Player(this.level, this.blockPosition(), this.yHeadRot, new GameProfile(this.uuid, null)) {
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return false;
-            }
-        };
+        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level, new GameProfile(this.uuid, null));
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
+        this.fakePlayer.setPos(this.getX(), this.getY(), this.getZ());
+        this.fakePlayer.setXRot(this.getXRot());
+        this.fakePlayer.setYRot(this.getYRot());
+        this.fakePlayer.setYHeadRot(this.yHeadRot);
     }
 
     /**
@@ -378,9 +374,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             profession.onMovementSet(movement);
         }
 
-        if(movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
+        if (movement != NPCData.Movement.NONE && movement != NPCData.Movement.FORCED_LOOK) {
             int priority = 8;
-            if(movement == NPCData.Movement.FORCED_PATH) {
+            if (movement == NPCData.Movement.FORCED_PATH) {
                 this.goalSelector.addGoal(4, directPathGoal);
                 priority = 5;
             } else if (movement == NPCData.Movement.PATH) {
@@ -393,8 +389,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.goalSelector.addGoal(priority + 1, lookAroundGoal);
         }
 
-        if (this.getTag("AllowSwimming", config.defaults.allowSwim))
+        if (this.getTag("AllowSwimming", config.defaults.allowSwim)) {
             this.goalSelector.addGoal(0, this.swimGoal);
+        }
     }
 
     /**
@@ -584,9 +581,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        ClientboundAddPlayerPacket ClientboundAddPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
+        final List<Packet<ClientGamePacketListener>> packets = new ArrayList<>();
+
+        // Add to tab list
+        final var playerAddPacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, this.fakePlayer);
         //noinspection ConstantConditions
-        ClientboundAddPlayerPacketAccessor addPlayerPacketAccessor = (ClientboundAddPlayerPacketAccessor) ClientboundAddPlayerPacket;
+        var entry = new ClientboundPlayerInfoUpdatePacket.Entry(this.gameProfile.getId(), this.gameProfile, false, 0, GameType.SURVIVAL, this.getDisplayName(), null);
+        ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(Collections.singletonList(entry));
+        packets.add(playerAddPacket);
+
+        // Spawn player
+        final var spawnPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
+        ClientboundAddPlayerPacketAccessor addPlayerPacketAccessor = (ClientboundAddPlayerPacketAccessor) spawnPlayerPacket;
         addPlayerPacketAccessor.setId(this.getId());
         addPlayerPacketAccessor.setUuid(this.getUUID());
         addPlayerPacketAccessor.setX(this.getX());
@@ -594,8 +600,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         addPlayerPacketAccessor.setZ(this.getZ());
         addPlayerPacketAccessor.setYRot((byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
         addPlayerPacketAccessor.setXRot((byte) ((int) (this.getXRot() * 256.0F / 360.0F)));
+        packets.add(spawnPlayerPacket);
 
-        return ClientboundAddPlayerPacket;
+        // Rotation
+        final var rotateHeadPacket = new ClientboundRotateHeadPacket(this, (byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
+        packets.add(rotateHeadPacket);
+
+        return new ClientboundBundlePacket(packets);
     }
 
     public GameProfile getGameProfile() {
@@ -603,7 +614,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     public Component getTabListName() {
-        if(!config.obscureTabList) return getName();
+        if (!config.obscureTabList) return getName();
 
         var component = Component.literal("").withStyle(ChatFormatting.DARK_GRAY);
         component.append(getName());
@@ -1071,7 +1082,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             ItemStack stack = player.getItemInHand(hand).copy();
 
             if (stack.isEmpty() && player.isShiftKeyDown()) {
-                this.dropCustomDeathLoot(DamageSource.playerAttack(player), 1, this.isEquipmentDropsAllowed());
+                this.dropCustomDeathLoot(this.damageSources().playerAttack(player), 1, this.isEquipmentDropsAllowed());
                 for (EquipmentSlot slot : EquipmentSlot.values()) {
                     this.fakePlayer.setItemSlot(slot, ItemStack.EMPTY);
                 }
@@ -1281,7 +1292,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return this.isRemoved() || this.isInvulnerable() && damageSource != DamageSource.OUT_OF_WORLD;
+        return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.OUT_OF_WORLD);
     }
 
     @Override

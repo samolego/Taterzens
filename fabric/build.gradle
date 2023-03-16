@@ -11,6 +11,18 @@ def ENV = System.getenv()
 dependencies {
     // Carpet
     modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
+
+    // Patbox's library for registry sync manipulation
+    modImplementation include("eu.pb4:polymer-reg-sync-manipulator:${project.polymer_registry_sync_version}")
+
+    // Permission API
+    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
+
+    // Server translations
+    modImplementation include("xyz.nucleoid:server-translations-api:${project.translations_api}")
+
+    // SGUI
+    modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
 }
 
 

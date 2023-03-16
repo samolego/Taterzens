@@ -79,7 +79,7 @@ public abstract class ServerPlayerMixinCast_ITaterzenPlayer implements ITaterzen
      */
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void postTick(CallbackInfo ci) {
-        for(UUID npcId : this.taterzens$lastMessageTicks.keySet()) {
+        for (UUID npcId : this.taterzens$lastMessageTicks.keySet()) {
             int ticks = this.taterzens$lastMessageTicks.get(npcId) + 1;
             this.taterzens$lastMessageTicks.put(npcId, ticks);
         }

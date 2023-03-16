@@ -85,14 +85,6 @@ subprojects {
 			// C2B
 			modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
 
-			// Permission API
-			modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
-
-			// Server translations
-			modImplementation include("fr.catcore:server-translations-api:${rootProject.translations_api}")
-
-			// SGUI
-			modImplementation(include("eu.pb4:sgui:${rootProject.sgui_version}"))
 
 			// Disguiselib
 			modImplementation("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")

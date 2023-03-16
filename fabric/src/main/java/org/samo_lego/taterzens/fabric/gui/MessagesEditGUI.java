@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.gui;
+package org.samo_lego.taterzens.fabric.gui;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.Component;

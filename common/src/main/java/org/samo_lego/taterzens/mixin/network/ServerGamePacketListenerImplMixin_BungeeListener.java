@@ -43,7 +43,7 @@ public class ServerGamePacketListenerImplMixin_BungeeListener {
         CommandSourceStack commandSourceStack = player.createCommandSourceStack();
         boolean hasPermission = Taterzens.getInstance().getPlatform().checkPermission(commandSourceStack, taterzens$permission, config.perms.npcCommandPermissionLevel);
 
-        if(AVAILABLE_SERVERS.isEmpty() && config.bungee.enableCommands && hasPermission) {
+        if (AVAILABLE_SERVERS.isEmpty() && config.bungee.enableCommands && hasPermission) {
             if (packetId.equals(BUNGEE_CHANNEL)) {
                 // Reading data
                 byte[] bytes = new byte[packet.getData().readableBytes()];

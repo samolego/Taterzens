@@ -18,11 +18,9 @@ import static org.samo_lego.taterzens.Taterzens.config;
 public class CommandSourceStackMixin_HideTaterzenExecutor {
     @Shadow @Final @Nullable private Entity entity;
 
-    @Inject(
-            method = "broadcastToAdmins(Lnet/minecraft/network/chat/Component;)V",
+    @Inject(method = "broadcastToAdmins(Lnet/minecraft/network/chat/Component;)V",
             at = @At("HEAD"),
-            cancellable = true
-    )
+            cancellable = true)
     public void cancelSendingToOps(Component message, CallbackInfo ci) {
         if(this.entity instanceof TaterzenNPC && config.hideOpsMessage) {
             ci.cancel();

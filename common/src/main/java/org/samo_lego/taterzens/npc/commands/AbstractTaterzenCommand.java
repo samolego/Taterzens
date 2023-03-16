@@ -6,7 +6,7 @@ import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 public abstract class AbstractTaterzenCommand {
     public static final String CLICKER_PLACEHOLDER = "--clicker--";
-    private CommandType type;
+    private final CommandType type;
 
     public AbstractTaterzenCommand(CommandType type) {
         this.type = type;

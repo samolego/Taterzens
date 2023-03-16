@@ -1,4 +1,4 @@
-package org.samo_lego.taterzens.gui;
+package org.samo_lego.taterzens.fabric.gui;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.gui.ListItemsGUI.getFromName;
 
 public class EditorGUI {
 
@@ -123,7 +122,7 @@ public class EditorGUI {
                     parents.add(nodeName);
 
                 // Set stack "icon"
-                ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(getFromName(nodeName))).copy();
+                ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(ListItemsGUI.getFromName(nodeName))).copy();
                 stack.setHoverName(Component.literal(nodeName));
 
                 // Recursively adding the command nodes
