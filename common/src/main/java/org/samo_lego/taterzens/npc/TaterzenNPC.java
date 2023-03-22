@@ -209,7 +209,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level, new GameProfile(this.uuid, null));
+        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level, this.gameProfile);
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
         this.fakePlayer.setPos(this.getX(), this.getY(), this.getZ());
         this.fakePlayer.setXRot(this.getXRot());
@@ -656,8 +656,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
         ChunkMap storage = manager.chunkMap;
         AEntityTrackerEntry trackerEntry = ((AChunkMap) storage).getEntityMap().get(this.getId());
-        if(trackerEntry != null)
+        if (trackerEntry != null) {
             trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
+        }
     }
 
 
@@ -693,7 +694,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             String value = tag.getString("value");
             String signature = tag.getString("signature");
 
-            if(value != null && signature != null && !value.isEmpty() && !signature.isEmpty()) {
+            if (!value.isEmpty() && !signature.isEmpty()) {
                 PropertyMap propertyMap = this.gameProfile.getProperties();
                 propertyMap.put("textures", new Property("textures", value, signature));
             }

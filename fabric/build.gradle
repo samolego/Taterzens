@@ -1,5 +1,3 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-
 repositories {
     maven {
         url 'https://masa.dy.fi/maven'
@@ -23,6 +21,12 @@ dependencies {
 
     // SGUI
     modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
+
+    // C2B
+    include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}")
+
+    // Disguiselib
+    modImplementation("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
 }
 
 
@@ -61,21 +65,20 @@ curseforge {
     }
 }
 
-task modrinth(type: TaskModrinthUpload, dependsOn: remapJar) {
-    onlyIf {
-        ENV.MODRINTH_TOKEN
-    }
-
+modrinth {
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
     versionNumber = project.minecraft_version + "+" + version + "-fabric"
+    versionType = "release"
     changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
     versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
-    releaseType = "release"
 
     uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")
 
-    addGameVersion("${project.minecraft_version}")
-    addLoader('fabric')
-    addLoader('quilt')
+    gameVersions = ["${project.minecraft_version}"]
+    loaders = ['fabric', 'quilt']
+
+    dependencies { // A special DSL for creating dependencies
+        required.project "fabric-api" // Creates a new required dependency on Fabric API
+    }
 }

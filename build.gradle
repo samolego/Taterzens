@@ -1,11 +1,11 @@
 plugins {
 	// Fabric loom
-	id "fabric-loom" version "1.0-SNAPSHOT" apply false
+	id "fabric-loom" version "1.1-SNAPSHOT" apply false
 	// Forge Gradle
 	id 'net.minecraftforge.gradle' version '5.1.+' apply false
 
 	id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
-	id "com.modrinth.minotaur" version "1.1.0" apply false
+	id "com.modrinth.minotaur" version "2.+" apply false
 	// Dokka docs
 	id "org.jetbrains.kotlin.jvm" version "1.5.31"
 	id("org.jetbrains.dokka") version "1.5.30"
@@ -83,7 +83,7 @@ subprojects {
 			}
 
 			// C2B
-			modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}"))
+			modImplementation("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}")
 
 
 			// Disguiselib
