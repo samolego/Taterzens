@@ -40,7 +40,7 @@ https://user-images.githubusercontent.com/34912839/142493879-6f642eb1-e226-4798-
 
 **Warning!**
 
-Taterzens mod uses **[ParchmentMC](https://parchmentmc.org/) mappings.**
+Taterzens mod uses **official mojang mappings.**
 If you're a [Yarn](https://github.com/FabricMC/yarn) contributor, you might **not want** to see the source!
 
 ### Dependency
