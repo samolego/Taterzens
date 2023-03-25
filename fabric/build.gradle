@@ -29,7 +29,6 @@ dependencies {
     modImplementation("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
 }
 
-
 processResources {
     inputs.property "version", rootProject.version
 
