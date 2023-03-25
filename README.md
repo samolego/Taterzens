@@ -47,11 +47,9 @@ If you're a [Yarn](https://github.com/FabricMC/yarn) contributor, you might **no
 Add `jitpack.io` maven repository.
 ```gradle
 repositories {
-    maven { url 'https://jitpack.io' }
-    maven {
-        // LuckPerms maven
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
-    }
+    maven { url 'https://jitpack.io' }  // Taterzens itself
+    maven { url 'https://maven.nucleoid.xyz' }  // Nucleoid (good stuff)
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }  // Permission API
 }
 ```
 
