@@ -87,11 +87,11 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
             if (taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null && config.glowSelectedNpc) {
                 trackedValues.removeIf(value -> value.id() == 0);
-                Byte flags = fakePlayer.getEntityData().get(AEntity.getFLAGS());
+                Byte flags = fakePlayer.getEntityData().get(AEntity.FLAGS());
                 // Modify Taterzen to have fake glowing effect for the player
-                flags = (byte) (flags | 1 << AEntity.getFLAG_GLOWING());
+                flags = (byte) (flags | 1 << AEntity.FLAG_GLOWING());
 
-                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(AEntity.getFLAGS(), flags);
+                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(AEntity.FLAGS(), flags);
                 trackedValues.add(glowingTag);
             }
 
