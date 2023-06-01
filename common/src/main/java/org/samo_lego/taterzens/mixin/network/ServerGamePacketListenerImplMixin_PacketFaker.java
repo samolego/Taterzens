@@ -16,7 +16,6 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.AClientboundSetEntityDataPacket;
-import org.samo_lego.taterzens.mixin.accessors.AEntity;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.util.NpcPlayerUpdate;
 import org.spongepowered.asm.mixin.Final;
@@ -87,11 +86,11 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
 
             if (taterzen.equals(((ITaterzenEditor) this.player).getNpc()) && trackedValues != null && config.glowSelectedNpc) {
                 trackedValues.removeIf(value -> value.id() == 0);
-                Byte flags = fakePlayer.getEntityData().get(AEntity.FLAGS());
+                Byte flags = fakePlayer.getEntityData().get(Entity.DATA_SHARED_FLAGS_ID);
                 // Modify Taterzen to have fake glowing effect for the player
-                flags = (byte) (flags | 1 << AEntity.FLAG_GLOWING());
+                flags = (byte) (flags | 1 << Entity.FLAG_GLOWING);
 
-                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(AEntity.FLAGS(), flags);
+                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, flags);
                 trackedValues.add(glowingTag);
             }
 

@@ -90,6 +90,10 @@ subprojects {
 			}
 		}
 
+		loom {
+			accessWidenerPath = file("${project.rootDir}/common/src/main/resources/taterzens.accesswidener")
+		}
+
 		dependencies {
 			// To change the versions see the gradle.properties file
 			modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"

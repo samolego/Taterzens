@@ -12,7 +12,6 @@
     "accessors.AClientboundPlayerInfoPacket",
     "accessors.AClientboundSetEntityDataPacket",
     "accessors.ACommandSourceStack",
-    "accessors.AEntity",
     "accessors.AEntityTrackerEntry",
     "accessors.APlayer",
     "network.ServerGamePacketListenerImplMixin_BungeeListener",

@@ -1,0 +1,4 @@
+accessWidener   v1  named
+
+accessible field net/minecraft/world/entity/Entity DATA_SHARED_FLAGS_ID Lnet/minecraft/network/syncher/EntityDataAccessor;
+accessible field net/minecraft/world/entity/Entity FLAG_GLOWING I
