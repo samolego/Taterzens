@@ -24,5 +24,6 @@
   "client": [],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "refmap": "${refmap}"
 }
