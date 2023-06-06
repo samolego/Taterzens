@@ -15,7 +15,7 @@ Taterzens support changing their pose
 /npc edit pose <pose to use>
 ```
 
-When [entity type](./types.md) is set to `PLAYER`, "working" poses are
+When [entity type](types.md) is set to `PLAYER`, "working" poses are
 
 * standing (default)
 * swimming

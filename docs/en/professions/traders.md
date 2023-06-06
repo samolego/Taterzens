@@ -16,7 +16,8 @@ Players can simply click on them to open the trading GUI and get infinite goods.
 
 ## Usage
 
-Make sure to [assign](./assigning_professions.md#giving-taterzen-a-profession) the `tradernpcs:trader` profession to your Taterzen.
+Make sure to [assign](assigning_professions.md#giving-taterzen-a-profession) the `tradernpcs:trader` profession to your
+Taterzen.
 After that, simply use the following command to edit trades:
 ```
 /profession trader edit

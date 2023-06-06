@@ -39,7 +39,7 @@ Makes the Taterzen look at a player in radious of 4 blocks
 === "Command"
 	<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/X9z0ykvXUUE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-2. For following the [path](./path.md) strictly with no rests
+2. For following the [path](path.md) strictly with no rests
 ```
 /npc edit movement FORCED_PATH
 ```
@@ -68,8 +68,7 @@ as it makes the Taterzen move around freely with no restrictions.
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Mv3TnTVJ2aM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-
-2. For following the [path](./path.md) but enabling *long* rests and looking around, use
+2. For following the [path](path.md) but enabling *long* rests and looking around, use
 ```
 /npc edit movement PATH
 ```

@@ -10,6 +10,7 @@ title: Actions
 ## Actions
 
 Taterzens can perform certain player-like actions. Currently those are:
+
 * interacting with blocks (aka "right-clicking")
 * going to block position
 

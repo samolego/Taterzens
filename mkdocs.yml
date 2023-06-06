@@ -7,6 +7,7 @@ repo_name: samolego/Taterzens
 theme:
   name: material
   custom_dir: docs/overrides
+  language: en
   features:
     - navigation.instant
     - navigation.top
@@ -37,10 +38,6 @@ plugins:
   - search
   - mike:
       version_selector: true   # set to false to leave out the version selector
-  - awesome-pages:
-      filename: .pages
-      collapse_single_pages: true
-      strict: true
 
 
 markdown_extensions:
@@ -57,4 +54,7 @@ markdown_extensions:
 extra:
   version:
     provider: mike
-
+  alternate:
+    - name: English
+      link: /Taterzens/en/
+      lang: en

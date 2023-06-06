@@ -1,5 +1,5 @@
 ---
-title: Start
+title: First steps
 ---
 
 # Playing with Taterzens
@@ -14,7 +14,7 @@ It's a rather silly nickname for NPC, which stands for **Non-Player-Character**.
 It can be summoned with `/npc create <name of the taterzen>`.
 If you prefer using a `GUI`, just run `/npc` and navigate to `create` node.
 
-![screenshot](../assets/img/main_background.png)
+![screenshot](../../assets/img/main_background.png)
 
 ## GUI navigation
 

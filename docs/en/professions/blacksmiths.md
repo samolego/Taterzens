@@ -16,7 +16,8 @@ They can be configured how much durability per second they repair, whether they 
 
 ## Usage
 
-Make sure to [assign](./assigning_professions.md#giving-taterzen-a-profession) the `blacksmiths:blacksmith` profession to your Taterzen.
+Make sure to [assign](assigning_professions.md#giving-taterzen-a-profession) the `blacksmiths:blacksmith` profession to
+your Taterzen.
 After that, simply use right click on the Taterzen to open the GUI.
 
 <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/9gJV5l_lSlI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

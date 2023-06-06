@@ -14,7 +14,7 @@ title: Skins
 * By player name.
 
 Taterzens mod supports setting custom skins to NPCs
-if their [type](./types.md) is set to `PLAYER`.
+if their [type](types.md) is set to `PLAYER`.
 All skins are **cached** after being set, meaning that they
 will stay the same *even if player that skin was fetched from changes their skin*.
 You can set any skin from any minecraft player using
