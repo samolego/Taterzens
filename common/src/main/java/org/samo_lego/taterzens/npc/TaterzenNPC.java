@@ -13,7 +13,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkMap;
@@ -48,7 +49,6 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
@@ -65,7 +65,6 @@ import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.AChunkMap;
 import org.samo_lego.taterzens.mixin.accessors.AClientboundAddPlayerPacket;
-import org.samo_lego.taterzens.mixin.accessors.AClientboundPlayerInfoPacket;
 import org.samo_lego.taterzens.mixin.accessors.AEntityTrackerEntry;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
@@ -581,18 +580,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        final List<Packet<ClientGamePacketListener>> packets = new ArrayList<>();
-
-        // Add to tab list
-        final var playerAddPacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, this.fakePlayer);
+        ClientboundAddPlayerPacket addPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
         //noinspection ConstantConditions
-        var entry = new ClientboundPlayerInfoUpdatePacket.Entry(this.gameProfile.getId(), this.gameProfile, false, 0, GameType.SURVIVAL, this.getDisplayName(), null);
-        ((AClientboundPlayerInfoPacket) playerAddPacket).setEntries(Collections.singletonList(entry));
-        packets.add(playerAddPacket);
-
-        // Spawn player
-        final var spawnPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
-        AClientboundAddPlayerPacket addPlayerPacketAccessor = (AClientboundAddPlayerPacket) spawnPlayerPacket;
+        AClientboundAddPlayerPacket addPlayerPacketAccessor = (AClientboundAddPlayerPacket) addPlayerPacket;
         addPlayerPacketAccessor.setId(this.getId());
         addPlayerPacketAccessor.setUuid(this.getUUID());
         addPlayerPacketAccessor.setX(this.getX());
@@ -600,13 +590,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         addPlayerPacketAccessor.setZ(this.getZ());
         addPlayerPacketAccessor.setYRot((byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
         addPlayerPacketAccessor.setXRot((byte) ((int) (this.getXRot() * 256.0F / 360.0F)));
-        packets.add(spawnPlayerPacket);
 
-        // Rotation
-        final var rotateHeadPacket = new ClientboundRotateHeadPacket(this, (byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
-        packets.add(rotateHeadPacket);
+        return addPlayerPacket;
 
-        return new ClientboundBundlePacket(packets);
     }
 
     public GameProfile getGameProfile() {

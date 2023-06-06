@@ -1,20 +1,21 @@
 package org.samo_lego.taterzens.mixin.network;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
-import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.mixin.accessors.AClientboundAddPlayerPacket;
+import org.samo_lego.taterzens.mixin.accessors.AClientboundPlayerInfoUpdatePacket;
 import org.samo_lego.taterzens.mixin.accessors.AClientboundSetEntityDataPacket;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.util.NpcPlayerUpdate;
@@ -64,18 +65,49 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
                     target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"))
     private void changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
         Level world = player.getLevel();
-        if (packet instanceof BundlePacket<?> bPacket && !this.taterzens$skipCheck) {
-            for (Packet<?> subPacket : bPacket.subPackets()) {
-                if (subPacket instanceof ClientboundAddPlayerPacket playerAddPacket) {
-                    Entity entity = player.getLevel().getEntity(playerAddPacket.getEntityId());
+        if (packet instanceof ClientboundAddPlayerPacket && !this.taterzens$skipCheck) {
+            Entity entity = world.getEntity(((AClientboundAddPlayerPacket) packet).getId());
 
-                    if (entity instanceof TaterzenNPC npc) {
-                        var uuid = npc.getGameProfile().getId();
-                        this.taterzens$tablistQueue.remove(uuid);
-                        this.taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
-                    }
-                }
+            if (!(entity instanceof TaterzenNPC npc))
+                return;
+
+            GameProfile profile = npc.getGameProfile();
+            ClientboundPlayerInfoUpdatePacket playerAddPacket = new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, this.player);
+            //noinspection ConstantConditions
+            var entry = new ClientboundPlayerInfoUpdatePacket.Entry(profile.getId(), profile, false, 0, GameType.SURVIVAL, npc.getDisplayName(), null);
+            ((AClientboundPlayerInfoUpdatePacket) playerAddPacket).setEntries(Collections.singletonList(entry));
+            this.send(playerAddPacket, listener);
+
+            // Vanilla sends the packet twice
+            /*playerAddPacket = new ClientboundPlayerInfoUpdatePacket();
+            //noinspection ConstantConditions
+            ((ClientboundPlayerInfoPacketAccessor) playerAddPacket).setEntries(
+                    Arrays.asList(new ClientboundPlayerInfoPacket.PlayerUpdate(profile, 0, GameType.SURVIVAL, npc.getTabListName(), null))
+            );
+            this.send(playerAddPacket, listener);*/
+
+            // Before we send this packet, we have
+            // added player to tablist, otherwise client doesn't
+            // show it ... :mojank:
+            this.taterzens$skipCheck = true;
+            this.send(packet, listener);
+            this.taterzens$skipCheck = false;
+
+            // And now we can remove it from tablist
+            // we must delay the tablist packet so as to allow
+            // the client to fetch skin.
+            // If player is immediately removed from the tablist,
+            // client doesn't care about the skin.
+            if (config.taterzenTablistTimeout != -1) {
+                var uuid = npc.getGameProfile().getId();
+                taterzens$tablistQueue.remove(uuid);
+                taterzens$tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), taterzens$queueTick + config.taterzenTablistTimeout));
             }
+
+            this.connection.send(new ClientboundRotateHeadPacket(entity, (byte) ((int) (entity.getYHeadRot() * 256.0F / 360.0F))), listener);
+
+            ci.cancel();
+
         } else if (packet instanceof ClientboundSetEntityDataPacket) {
             Entity entity = world.getEntity(((AClientboundSetEntityDataPacket) packet).getEntityId());
 
