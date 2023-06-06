@@ -34,5 +34,6 @@ jobs:
         git config --global user.email 34912839+samolego@users.noreply.github.com
     - name: Release docs website
       run: |
+        mike delete --push latest
         mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
         mike set-default --push latest
