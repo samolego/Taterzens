@@ -23,9 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class SoundCommand {
 
@@ -251,8 +249,8 @@ public class SoundCommand {
             taterzen -> taterzen.setAmbientSoundData(new ArrayList<>()));
 
         if (result == 1) {
-            source.sendSuccess(successText("taterzens.command.sounds.remove.all.success",
-                translate("taterzens.command.sounds.ambient").getString()), false);
+            source.sendSuccess(() -> successText("taterzens.command.sounds.remove.all.success",
+                    translate("taterzens.command.sounds.ambient").getString()), false);
         }
         else {
             source.sendFailure(errorText("taterzens.command.sounds.remove.all.failure",
@@ -277,11 +275,11 @@ public class SoundCommand {
                 {
                     soundResource.set(taterzen.getAmbientSoundData().get(idx));
                     taterzen.removeAmbientSound(idx);
-                    source.sendSuccess(successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
                 }
                 else
                 {
-                    source.sendSuccess(successText("taterzens.command.sounds.list.empty"), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.list.empty"), false);
                 }
 
                 success.set(true);
@@ -326,7 +324,7 @@ public class SoundCommand {
             if (idx >= 0)
             {
                 taterzen.removeAmbientSound(idx);
-                source.sendSuccess(successText("taterzens.command.sounds.remove.success", resource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", resource), false);
                 success.set(true);
             }
             else
@@ -358,7 +356,7 @@ public class SoundCommand {
             taterzen -> taterzen.setHurtSoundData(new ArrayList<>()));
 
         if (result == 1) {
-            source.sendSuccess(successText("taterzens.command.sounds.remove.all.success",
+            source.sendSuccess(() -> successText("taterzens.command.sounds.remove.all.success",
                     translate("taterzens.command.sounds.hurt").getString()), false);
         }
         else {
@@ -384,11 +382,11 @@ public class SoundCommand {
                 {
                     soundResource.set(taterzen.getHurtSoundData().get(idx));
                     taterzen.removeHurtSound(idx);
-                    source.sendSuccess(successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
                 }
                 else
                 {
-                    source.sendSuccess(successText("taterzens.command.sounds.list.empty"), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.list.empty"), false);
                 }
 
                 success.set(true);
@@ -432,7 +430,7 @@ public class SoundCommand {
             if (idx >= 0)
             {
                 taterzen.removeHurtSound(idx);
-                source.sendSuccess(successText("taterzens.command.sounds.remove.success", resource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", resource), false);
                 success.set(true);
             }
             else
@@ -464,7 +462,7 @@ public class SoundCommand {
             taterzen -> taterzen.setDeathSoundData(new ArrayList<>()));
 
         if (result == 1) {
-            source.sendSuccess(successText("taterzens.command.sounds.remove.all.success",
+            source.sendSuccess(() -> successText("taterzens.command.sounds.remove.all.success",
                     translate("taterzens.command.sounds.death").getString()), false);
         }
         else {
@@ -490,11 +488,11 @@ public class SoundCommand {
                 {
                     soundResource.set(taterzen.getDeathSoundData().get(idx));
                     taterzen.removeDeathSound(idx);
-                    source.sendSuccess(successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", soundResource.get()), false);
                 }
                 else
                 {
-                    source.sendSuccess(successText("taterzens.command.sounds.list.empty"), false);
+                    source.sendSuccess(() -> successText("taterzens.command.sounds.list.empty"), false);
                 }
 
                 success.set(true);
@@ -538,7 +536,7 @@ public class SoundCommand {
             if (idx >= 0)
             {
                 taterzen.removeDeathSound(idx);
-                source.sendSuccess(successText("taterzens.command.sounds.remove.success", resource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.remove.success", resource), false);
                 success.set(true);
             }
             else
@@ -578,7 +576,7 @@ public class SoundCommand {
                 taterzen -> taterzen.addAmbientSound(soundResource));
 
             if (result == 1) {
-                source.sendSuccess(successText("taterzens.command.sounds.add.success", soundResource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.add.success", soundResource), false);
             }
             else {// if 0 or anything else
                 source.sendFailure(errorText("taterzens.command.sounds.add.failure", soundResource));
@@ -605,7 +603,7 @@ public class SoundCommand {
                 taterzen -> taterzen.addHurtSound(soundResource));
 
             if (result == 1) {
-                source.sendSuccess(successText("taterzens.command.sounds.add.success", soundResource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.add.success", soundResource), false);
             }
             else { // if 0 or anything else
                 source.sendFailure(errorText("taterzens.command.sounds.add.failure", soundResource));
@@ -631,7 +629,7 @@ public class SoundCommand {
                 taterzen -> taterzen.addDeathSound(soundResource));
 
             if (result == 1) {
-                source.sendSuccess(successText("taterzens.command.sounds.add.success", soundResource), false);
+                source.sendSuccess(() -> successText("taterzens.command.sounds.add.success", soundResource), false);
             }
             else { // if 0 or anything else
                 source.sendFailure(errorText("taterzens.command.sounds.add.failure", soundResource));
@@ -675,7 +673,7 @@ public class SoundCommand {
                 );
             }
 
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 
@@ -708,7 +706,7 @@ public class SoundCommand {
                 );
             }
 
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 
@@ -741,7 +739,7 @@ public class SoundCommand {
                 );
             }
 
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 

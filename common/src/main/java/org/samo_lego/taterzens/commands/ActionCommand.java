@@ -40,14 +40,14 @@ public class ActionCommand {
         BlockPos pos = BlockPosArgument.getSpawnablePos(context, "block pos");
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             if(taterzen.interact(pos)) {
-                source.sendSuccess(
-                        successText("taterzens.command.action.interact.success", taterzen.getName().getString(), pos.toShortString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.action.interact.success", taterzen.getName().getString(), pos.toShortString()),
                         false
                 );
             } else {
 
-                source.sendSuccess(
-                        errorText("taterzens.command.action.interact.fail", pos.toShortString()),
+                source.sendSuccess(() ->
+                                errorText("taterzens.command.action.interact.fail", pos.toShortString()),
                         false
                 );
             }
@@ -62,8 +62,8 @@ public class ActionCommand {
 
             taterzen.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1);
 
-            source.sendSuccess(
-                    successText("taterzens.command.action.goto.success", taterzen.getName().getString(), pos.toShortString()),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.action.goto.success", taterzen.getName().getString(), pos.toShortString()),
                     false
             );
         });

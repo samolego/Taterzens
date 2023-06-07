@@ -34,13 +34,13 @@ public class LockCommand {
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             if (lock) {
                 taterzen.setLocked(entity);
-                source.sendSuccess(
-                        successText("taterzens.command.lock.success", taterzen.getName().getString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.lock.success", taterzen.getName().getString()),
                         false
                 );
             } else {
-                source.sendSuccess(
-                        successText("taterzens.command.unlock.success", taterzen.getName().getString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.unlock.success", taterzen.getName().getString()),
                         false
                 );
             }

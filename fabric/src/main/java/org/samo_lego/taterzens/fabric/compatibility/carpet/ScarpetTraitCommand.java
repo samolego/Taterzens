@@ -29,11 +29,7 @@ import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.ProfessionCommand.PROFESSION_COMMAND_NODE;
-import static org.samo_lego.taterzens.compatibility.ModDiscovery.CARPETMOD_LOADED;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.joinText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class ScarpetTraitCommand {
     static {
@@ -97,7 +93,7 @@ public class ScarpetTraitCommand {
                     );
                     i.incrementAndGet();
                 });
-                source.sendSuccess(response, false);
+                source.sendSuccess(() -> response, false);
             } else {
                 source.sendFailure(errorText("taterzens.profession.lacking", ScarpetProfession.ID.toString()));
             }
@@ -111,7 +107,7 @@ public class ScarpetTraitCommand {
             TaterzenProfession profession = taterzen.getProfession(ScarpetProfession.ID);
             if (profession instanceof ScarpetProfession scarpetProfession) {
                 if (scarpetProfession.removeTrait(id))
-                    source.sendSuccess(successText("taterzens.command.trait.remove", id), false);
+                    source.sendSuccess(() -> successText("taterzens.command.trait.remove", id), false);
                 else
                     context.getSource().sendFailure(errorText("taterzens.command.trait.error.404", id));
             } else {
@@ -127,7 +123,7 @@ public class ScarpetTraitCommand {
             TaterzenProfession profession = taterzen.getProfession(ScarpetProfession.ID);
             if (profession instanceof ScarpetProfession scarpetProfession) {
                 scarpetProfession.addTrait(id);
-                source.sendSuccess(successText("taterzens.command.trait.add", id), false);
+                source.sendSuccess(() -> successText("taterzens.command.trait.add", id), false);
             } else {
                 source.sendFailure(errorText("taterzens.profession.lacking", ScarpetProfession.ID.toString()));
             }

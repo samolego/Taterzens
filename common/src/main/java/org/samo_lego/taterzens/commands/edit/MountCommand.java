@@ -48,7 +48,7 @@ public class MountCommand {
                 feedbackText = successText("taterzens.command.mount", taterzen.getName().getString(), finalToMount.getName().getString());
             }
             taterzen.sendProfileUpdates();
-            src.sendSuccess(feedbackText, false);
+            src.sendSuccess(() -> feedbackText, false);
         });
     }
 }

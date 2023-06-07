@@ -59,7 +59,7 @@ public class SkinCommand {
             // Shameless self-promotion
             if(config.fabricTailorAdvert) {
                 if(FABRICTAILOR_LOADED) {
-                    source.sendSuccess(translate("advert.fabrictailor.skin_command")
+                    source.sendSuccess(() -> translate("advert.fabrictailor.skin_command")
                                     .withStyle(ChatFormatting.GOLD)
                                     .withStyle(style ->
                                             style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
@@ -67,7 +67,7 @@ public class SkinCommand {
                             false
                     );
                 } else {
-                    source.sendSuccess(translate("advert.fabrictailor")
+                    source.sendSuccess(() -> translate("advert.fabrictailor")
                                     .withStyle(ChatFormatting.ITALIC)
                                     .withStyle(ChatFormatting.GOLD)
                                     .withStyle(style -> style
@@ -123,8 +123,8 @@ public class SkinCommand {
                                 taterzen.sendProfileUpdates();
 
 
-                                context.getSource().sendSuccess(
-                                        successText("taterzens.command.skin.fetched", id),
+                                context.getSource().sendSuccess(() ->
+                                                successText("taterzens.command.skin.fetched", id),
                                         false
                                 );
                             }
@@ -148,8 +148,8 @@ public class SkinCommand {
             taterzen.setSkinLayers(skinLayers);
 
             taterzen.sendProfileUpdates();
-            source.sendSuccess(
-                    successText("taterzens.command.skin.mirrored", taterzen.getName().getString()),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.skin.mirrored", taterzen.getName().getString()),
                     false
             );
         });

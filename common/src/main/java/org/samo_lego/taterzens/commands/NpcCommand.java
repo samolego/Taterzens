@@ -142,7 +142,7 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
         ((ITaterzenEditor) player).selectNpc(null);
-        source.sendSuccess(translate("taterzens.command.deselect").withStyle(ChatFormatting.GREEN), false);
+        source.sendSuccess(() -> translate("taterzens.command.deselect").withStyle(ChatFormatting.GREEN), false);
         return 1;
     }
 
@@ -182,7 +182,7 @@ public class NpcCommand {
             ++i;
         }
 
-        source.sendSuccess(response, false);
+        source.sendSuccess(() -> response, false);
         return 1;
     }
 
@@ -208,8 +208,8 @@ public class NpcCommand {
 
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
-                source.sendSuccess(
-                        successText("taterzens.command.select", taterzen.getName().getString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.select", taterzen.getName().getString()),
                         false
                 );
             } else {
@@ -263,8 +263,9 @@ public class NpcCommand {
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
-                source.sendSuccess(
-                        successText("taterzens.command.select", taterzen.getName().getString()),
+                TaterzenNPC finalTaterzen = taterzen;
+                source.sendSuccess(() ->
+                                successText("taterzens.command.select", finalTaterzen.getName().getString()),
                         false
                 );
                 return 1;
@@ -305,8 +306,8 @@ public class NpcCommand {
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
-                source.sendSuccess(
-                        successText("taterzens.command.select", taterzen.getName().getString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.select", taterzen.getName().getString()),
                         false
                 );
                 return 1;
@@ -325,8 +326,8 @@ public class NpcCommand {
         ServerPlayer player = source.getPlayerOrException();
         return selectedTaterzenExecutor(player, taterzen -> {
             taterzen.kill();
-            source.sendSuccess(
-                    successText("taterzens.command.remove", taterzen.getName().getString()),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.remove", taterzen.getName().getString()),
                     false
             );
             ((ITaterzenEditor) player).selectNpc(null);
@@ -350,8 +351,8 @@ public class NpcCommand {
             TaterzenNPC taterzen = (TaterzenNPC) hit.getEntity();
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
             if (selected) {
-                source.sendSuccess(
-                        successText("taterzens.command.select", taterzen.getName().getString()),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.select", taterzen.getName().getString()),
                         false
                 );
             } else {
@@ -403,7 +404,7 @@ public class NpcCommand {
         if (config.lockAfterCreation)
             taterzen.setLocked(player);
 
-        player.getLevel().addFreshEntity(taterzen);
+        player.level().addFreshEntity(taterzen);
 
         ((ITaterzenEditor) player).selectNpc(taterzen);
         player.sendSystemMessage(successText("taterzens.command.create", taterzen.getName().getString()));

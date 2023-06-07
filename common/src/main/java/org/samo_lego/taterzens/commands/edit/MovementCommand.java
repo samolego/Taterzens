@@ -73,8 +73,8 @@ public class MovementCommand {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.setMovement(NPCData.Movement.valueOf(movement));
-            source.sendSuccess(
-                    successText("taterzens.command.movement.set", movement),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.movement.set", movement),
                     false
             );
         });
@@ -93,7 +93,7 @@ public class MovementCommand {
                 }
             }
 
-            source.sendSuccess(successText("taterzens.command.movement.follow.set", followType.toString()), false);
+            source.sendSuccess(() -> successText("taterzens.command.movement.follow.set", followType.toString()), false);
         });
     }
 

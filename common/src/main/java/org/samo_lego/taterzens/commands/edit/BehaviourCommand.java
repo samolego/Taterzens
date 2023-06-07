@@ -48,9 +48,9 @@ public class BehaviourCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             NPCData.Behaviour behaviour = NPCData.Behaviour.valueOf(StringArgumentType.getString(context, "behaviour"));
             taterzen.setBehaviour(behaviour);
-            source.sendSuccess(successText("taterzens.command.behaviour.set", String.valueOf(behaviour)), false);
+            source.sendSuccess(() -> successText("taterzens.command.behaviour.set", String.valueOf(behaviour)), false);
             if(behaviour != NPCData.Behaviour.PASSIVE && taterzen.isInvulnerable())
-                source.sendSuccess(translate("taterzens.command.behaviour.suggest.invulnerable.false")
+                source.sendSuccess(() -> translate("taterzens.command.behaviour.suggest.invulnerable.false")
                                 .withStyle(ChatFormatting.GOLD)
                                 .withStyle(ChatFormatting.ITALIC)
                                 .withStyle(style -> style

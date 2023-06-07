@@ -80,11 +80,11 @@ public class TypeCommand {
 
             EntityType.loadEntityRecursive(nbt, source.getLevel(), (entityx) -> {
                 DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
-                source.sendSuccess(
-                        translate(
-                                "taterzens.command.entity_type.set",
-                                Component.translatable(entityx.getType().getDescriptionId()).withStyle(ChatFormatting.YELLOW)
-                        ).withStyle(ChatFormatting.GREEN),
+                source.sendSuccess(() ->
+                                translate(
+                                        "taterzens.command.entity_type.set",
+                                        Component.translatable(entityx.getType().getDescriptionId()).withStyle(ChatFormatting.YELLOW)
+                                ).withStyle(ChatFormatting.GREEN),
                         false
                 );
                 return entityx;
@@ -106,8 +106,8 @@ public class TypeCommand {
         }
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             DisguiseLibCompatibility.clearDisguise(taterzen);
-            source.sendSuccess(
-                    successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
                     false
             );
         });

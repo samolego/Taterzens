@@ -17,9 +17,7 @@ import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 
 import static net.minecraft.commands.Commands.literal;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.util.TextUtil.joinText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class PathCommand {
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode) {
@@ -46,8 +44,8 @@ public class PathCommand {
                         new ClientboundBlockUpdatePacket(blockPos, world.getBlockState(blockPos))
                 ));
             taterzen.clearPathTargets();
-            context.getSource().sendSuccess(
-                    successText("taterzens.command.path_editor.clear", taterzen.getName().getString()),
+            context.getSource().sendSuccess(() ->
+                            successText("taterzens.command.path_editor.clear", taterzen.getName().getString()),
                     false
             );
         });
@@ -59,25 +57,25 @@ public class PathCommand {
         return NpcCommand.selectedTaterzenExecutor(player, taterzen -> {
             if(((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
                 ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
-                source.sendSuccess(
-                        translate("taterzens.command.equipment.exit").withStyle(ChatFormatting.LIGHT_PURPLE),
+                source.sendSuccess(() ->
+                                translate("taterzens.command.equipment.exit").withStyle(ChatFormatting.LIGHT_PURPLE),
                         false
                 );
 
             } else {
 
-                source.sendSuccess(
-                        joinText("taterzens.command.path_editor.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
-                                .withStyle(ChatFormatting.BOLD)
-                                .withStyle(style -> style
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
-                                ),
+                source.sendSuccess(() ->
+                                joinText("taterzens.command.path_editor.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
+                                        .withStyle(ChatFormatting.BOLD)
+                                        .withStyle(style -> style
+                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
+                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
+                                        ),
                         false
                 );
-                source.sendSuccess(
-                        translate("taterzens.command.path_editor.desc.1").append("\n").withStyle(ChatFormatting.BLUE)
-                                .append(translate("taterzens.command.path_editor.desc.2").withStyle(ChatFormatting.RED)),
+                source.sendSuccess(() ->
+                                translate("taterzens.command.path_editor.desc.1").append("\n").withStyle(ChatFormatting.BLUE)
+                                        .append(translate("taterzens.command.path_editor.desc.2").withStyle(ChatFormatting.RED)),
                         false
                 );
 

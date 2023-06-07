@@ -29,7 +29,7 @@ public class AdditionalFunctions {
     @ScarpetFunction
     public Entity spawn_taterzen(ServerPlayer player, String name) {
         TaterzenNPC npc = TaterzensAPI.createTaterzen(player, name);
-        player.getLevel().addFreshEntity(npc);
+        player.level().addFreshEntity(npc);
         return npc;
     }
 

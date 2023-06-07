@@ -42,7 +42,7 @@ public class RespawnPointCommand {
         Vec3 respawnPos = BoolArgumentType.getBool(context, "do respawn") ? context.getSource().getPosition() : null;
         return NpcCommand.selectedTaterzenExecutor(src.getEntityOrException(), taterzen -> {
             taterzen.setRespawnPos(respawnPos);
-            src.sendSuccess(successText("taterzens.command.respawn.toggle", String.valueOf(respawnPos == null)), false);
+            src.sendSuccess(() -> successText("taterzens.command.respawn.toggle", String.valueOf(respawnPos == null)), false);
         });
 
     }
@@ -52,7 +52,7 @@ public class RespawnPointCommand {
         BlockPos respawnPos = BlockPosArgument.getSpawnablePos(context, "coordinates");
         return NpcCommand.selectedTaterzenExecutor(src.getEntityOrException(), taterzen -> {
             taterzen.setRespawnPos(Vec3.atCenterOf(respawnPos));
-            src.sendSuccess(successText("taterzens.command.respawn.coordinates", respawnPos.toShortString()), false);
+            src.sendSuccess(() -> successText("taterzens.command.respawn.coordinates", respawnPos.toShortString()), false);
         });
     }
 }

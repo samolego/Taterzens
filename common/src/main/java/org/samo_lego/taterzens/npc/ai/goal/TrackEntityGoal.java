@@ -1,7 +1,5 @@
 package org.samo_lego.taterzens.npc.ai.goal;
 
-import java.util.EnumSet;
-import java.util.function.Predicate;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,6 +9,9 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.EnumSet;
+import java.util.function.Predicate;
 
 import static net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat;
 
@@ -57,9 +58,9 @@ public class TrackEntityGoal extends Goal {
 
     private void findClosestTarget() {
         if (this.trackingClass != Player.class && this.trackingClass != ServerPlayer.class) {
-            this.trackingEntity = this.mob.level.getNearestEntity(this.trackingClass, this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ(), this.getSearchBox());
+            this.trackingEntity = this.mob.level().getNearestEntity(this.trackingClass, this.targetPredicate, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ(), this.getSearchBox());
         } else {
-            this.trackingEntity = this.mob.level.getNearestPlayer(this.targetPredicate, this.mob);
+            this.trackingEntity = this.mob.level().getNearestPlayer(this.targetPredicate, this.mob);
         }
     }
 

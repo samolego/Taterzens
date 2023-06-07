@@ -32,8 +32,8 @@ public class NameCommand {
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             taterzen.setCustomName(newName);
-            context.getSource().sendSuccess(
-                    successText("taterzens.command.rename.success", newName.getString()),
+            context.getSource().sendSuccess(() ->
+                            successText("taterzens.command.rename.success", newName.getString()),
                     false
             );
         });

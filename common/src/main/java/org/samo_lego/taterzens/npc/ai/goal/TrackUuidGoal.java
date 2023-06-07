@@ -1,13 +1,14 @@
 package org.samo_lego.taterzens.npc.ai.goal;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.function.Predicate;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class TrackUuidGoal extends Goal {
     private final PathfinderMob mob;
@@ -44,7 +45,7 @@ public class TrackUuidGoal extends Goal {
     }
 
     private void findClosestTarget() {
-        List<Entity> entities = this.mob.level.getEntitiesOfClass(Entity.class, this.getSearchBox(), this.trackingUuid);
+        List<Entity> entities = this.mob.level().getEntitiesOfClass(Entity.class, this.getSearchBox(), this.trackingUuid);
         this.trackingEntity = entities.isEmpty() ? null : entities.get(0);
     }
 

@@ -30,11 +30,11 @@ public class TaterzenScarpetEvent extends CarpetEventServer.Event {
                     valArgs.add(EntityValue.of(taterzen));
                     valArgs.add(ListValue.wrap(traits.stream()));
                     for (Object o: args) {
-                        valArgs.add(ValueConversions.guess((ServerLevel) taterzen.level, o));
+                        valArgs.add(ValueConversions.guess((ServerLevel) taterzen.level(), o));
                     }
                     return valArgs;
                 },
-                () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel((ServerLevel) taterzen.level)
+                () -> CarpetServer.minecraft_server.createCommandSourceStack().withLevel((ServerLevel) taterzen.level())
         );
     }
 }

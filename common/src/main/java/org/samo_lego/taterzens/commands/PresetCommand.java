@@ -62,8 +62,8 @@ public class PresetCommand {
 
                 taterzenNPC.sendProfileUpdates();
 
-                source.sendSuccess(
-                        successText("taterzens.command.preset.import.success", filename),
+                source.sendSuccess(() ->
+                                successText("taterzens.command.preset.import.success", filename),
                         false
                 );
             }
@@ -83,8 +83,8 @@ public class PresetCommand {
             File preset = new File(Taterzens.getInstance().getPresetDirectory() + "/" + filename);
             TaterzensAPI.saveTaterzenToPreset(taterzen, preset);
 
-            source.sendSuccess(
-                    successText("taterzens.command.preset.export.success", filename),
+            source.sendSuccess(() ->
+                            successText("taterzens.command.preset.export.success", filename),
                     false
             );
         });

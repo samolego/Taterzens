@@ -116,11 +116,11 @@ public class TagsCommand {
                 String newName = String.valueOf(oldName.toCharArray()[0]);
                 npc.setCustomName(Component.literal(newName));
 
-                source.sendSuccess(
-                        joinText("taterzens.command.tags.hide_name_hint.desc.1", ChatFormatting.GOLD, ChatFormatting.BLUE, newName, POSE.toString())
-                                .append("\n")
-                                .append(joinText("taterzens.command.tags.hide_name_hint.desc.2", ChatFormatting.GOLD, ChatFormatting.BLUE, oldName))
-                                .withStyle(ChatFormatting.GOLD),
+                source.sendSuccess(() ->
+                                joinText("taterzens.command.tags.hide_name_hint.desc.1", ChatFormatting.GOLD, ChatFormatting.BLUE, newName, POSE.toString())
+                                        .append("\n")
+                                        .append(joinText("taterzens.command.tags.hide_name_hint.desc.2", ChatFormatting.GOLD, ChatFormatting.BLUE, oldName))
+                                        .withStyle(ChatFormatting.GOLD),
                         false
                 );
             }
@@ -132,7 +132,7 @@ public class TagsCommand {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             flag.accept(taterzen);
-            source.sendSuccess(successText("taterzens.command.tags.changed", flagName, String.valueOf(flagValue)), false);
+            source.sendSuccess(() -> successText("taterzens.command.tags.changed", flagName, String.valueOf(flagValue)), false);
         });
     }
 }

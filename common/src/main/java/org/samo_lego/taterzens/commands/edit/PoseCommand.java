@@ -37,7 +37,7 @@ public class PoseCommand {
         return NpcCommand.selectedTaterzenExecutor(src.getEntityOrException(), taterzen -> {
             String pose = StringArgumentType.getString(context, "pose name");
             taterzen.setPose(Pose.valueOf(pose));
-            src.sendSuccess(successText("taterzens.command.pose", pose), false);
+            src.sendSuccess(() -> successText("taterzens.command.pose", pose), false);
         });
     }
 }

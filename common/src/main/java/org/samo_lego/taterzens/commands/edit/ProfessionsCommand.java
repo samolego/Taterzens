@@ -32,10 +32,7 @@ import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.arguments.MessageArgument.message;
 import static org.samo_lego.taterzens.Taterzens.PROFESSION_TYPES;
 import static org.samo_lego.taterzens.Taterzens.config;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.joinText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class ProfessionsCommand {
 
@@ -94,7 +91,7 @@ public class ProfessionsCommand {
                 );
                 i.incrementAndGet();
             });
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 
@@ -103,7 +100,7 @@ public class ProfessionsCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             if(taterzen.getProfessionIds().contains(id)) {
                 taterzen.removeProfession(id);
-                source.sendSuccess(successText("taterzens.command.profession.remove", id.toString()), false);
+                source.sendSuccess(() -> successText("taterzens.command.profession.remove", id.toString()), false);
             } else
                 context.getSource().sendFailure(errorText("taterzens.command.profession.error.404", id.toString()));
         });
@@ -114,7 +111,7 @@ public class ProfessionsCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             if (PROFESSION_TYPES.containsKey(id)) {
                 taterzen.addProfession(id);
-                source.sendSuccess(successText("taterzens.command.profession.add", id.toString()), false);
+                source.sendSuccess(() -> successText("taterzens.command.profession.add", id.toString()), false);
             } else {
                 context.getSource().sendFailure(errorText("taterzens.command.profession.error.404", id.toString()));
             }

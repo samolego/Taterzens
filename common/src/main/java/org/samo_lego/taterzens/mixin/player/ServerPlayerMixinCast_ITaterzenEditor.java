@@ -90,7 +90,7 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
         ITaterzenEditor editor = (ITaterzenEditor) this.self;
 
         if (editor.getNpc() != null) {
-            Level world = self.getLevel();
+            Level world = self.level();
             if (this.editorMode == EditorMode.PATH && mode != EditorMode.PATH) {
                 editor.getNpc().getPathTargets().forEach(blockPos -> self.connection.send(
                         new ClientboundBlockUpdatePacket(blockPos, world.getBlockState(blockPos))

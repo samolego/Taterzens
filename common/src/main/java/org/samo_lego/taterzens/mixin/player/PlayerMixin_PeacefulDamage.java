@@ -32,7 +32,7 @@ public abstract class PlayerMixin_PeacefulDamage extends LivingEntity {
     )
     private void enableTaterzenPeacefulDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity attacker = source.getEntity();
-        if (attacker instanceof TaterzenNPC && this.self.getLevel().getDifficulty() == Difficulty.PEACEFUL) {
+        if (attacker instanceof TaterzenNPC && this.self.level().getDifficulty() == Difficulty.PEACEFUL) {
             // Vanilla cancels damage if the world is in peaceful mode
             cir.setReturnValue(amount == 0.0f || super.hurt(source, amount));
         }

@@ -34,10 +34,7 @@ import static org.samo_lego.taterzens.Taterzens.MOD_ID;
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.commands.NpcCommand.noSelectedTaterzenError;
 import static org.samo_lego.taterzens.npc.commands.BungeeCommand.AVAILABLE_SERVERS;
-import static org.samo_lego.taterzens.util.TextUtil.errorText;
-import static org.samo_lego.taterzens.util.TextUtil.joinText;
-import static org.samo_lego.taterzens.util.TextUtil.successText;
-import static org.samo_lego.taterzens.util.TextUtil.translate;
+import static org.samo_lego.taterzens.util.TextUtil.*;
 
 public class CommandsCommand {
     private static final SuggestionProvider<CommandSourceStack> BUNGEE_COMMANDS;
@@ -151,7 +148,7 @@ public class CommandsCommand {
         CommandSourceStack source = context.getSource();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             int ix = taterzen.getCommandGroups().createGroup();
-            source.sendSuccess(successText("taterzens.command.commands.group.created", String.valueOf(ix + 1)), false);
+            source.sendSuccess(() -> successText("taterzens.command.commands.group.created", String.valueOf(ix + 1)), false);
         });
     }
 
@@ -195,7 +192,7 @@ public class CommandsCommand {
                     );
                 }
             }
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 
@@ -206,12 +203,12 @@ public class CommandsCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             var cmds = taterzen.getCommandGroups();
             if (groupIndex >= cmds.size()) {
-                source.sendSuccess(
-                        errorText("taterzens.command.commands.error.group.404", String.valueOf(groupIndex + 1)),
+                source.sendSuccess(() ->
+                                errorText("taterzens.command.commands.error.group.404", String.valueOf(groupIndex + 1)),
                         false
                 );
             } else {
-                source.sendSuccess(successText("taterzens.command.commands.group.removed", String.valueOf(groupIndex)), false);
+                source.sendSuccess(() -> successText("taterzens.command.commands.group.removed", String.valueOf(groupIndex)), false);
                 taterzen.clearGroupCommands(groupIndex);
             }
         });
@@ -226,12 +223,12 @@ public class CommandsCommand {
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             var cmds = taterzen.getCommandGroups();
             if (groupIndex >= cmds.size() || cmdIx >= cmds.get(groupIndex).size()) {
-                source.sendSuccess(
-                        errorText("taterzens.command.commands.error.404", String.valueOf(cmdIx)),
+                source.sendSuccess(() ->
+                                errorText("taterzens.command.commands.error.404", String.valueOf(cmdIx)),
                         false
                 );
             } else {
-                source.sendSuccess(successText("taterzens.command.commands.removed", cmds.get(groupIndex).get(cmdIx).toString()), false);
+                source.sendSuccess(() -> successText("taterzens.command.commands.removed", cmds.get(groupIndex).get(cmdIx).toString()), false);
                 taterzen.removeGroupCommand(groupIndex, cmdIx);
             }
         });
@@ -241,7 +238,7 @@ public class CommandsCommand {
         CommandSourceStack source = context.getSource();
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            source.sendSuccess(successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
+            source.sendSuccess(() -> successText("taterzens.command.commands.cleared", taterzen.getName().getString()), false);
             taterzen.clearAllCommands();
         });
     }
@@ -252,7 +249,7 @@ public class CommandsCommand {
         int groupIndex = IntegerArgumentType.getInteger(context, "group number") - 1;
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            source.sendSuccess(successText("taterzens.command.commands.group.cleared", String.valueOf(groupIndex)), false);
+            source.sendSuccess(() -> successText("taterzens.command.commands.group.cleared", String.valueOf(groupIndex)), false);
             taterzen.clearGroupCommands(groupIndex);
         });
     }
@@ -307,7 +304,7 @@ public class CommandsCommand {
                     response.append(separator);
                 }
             }
-            source.sendSuccess(response, false);
+            source.sendSuccess(() -> response, false);
         });
     }
 
@@ -321,7 +318,7 @@ public class CommandsCommand {
         }
 
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            source.sendSuccess(successText("taterzens.command.commands.permission.set", String.valueOf(newPermLevel)), false);
+            source.sendSuccess(() -> successText("taterzens.command.commands.permission.set", String.valueOf(newPermLevel)), false);
             taterzen.setPermissionLevel(newPermLevel);
 
         });
@@ -366,7 +363,7 @@ public class CommandsCommand {
             } else {
                 text = errorText("taterzens.error.enableBungee");
             }
-            source.sendSuccess(text, false);
+            source.sendSuccess(() -> text, false);
         });
     }
 

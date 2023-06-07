@@ -208,7 +208,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level, this.gameProfile);
+        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level(), this.gameProfile);
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
         this.fakePlayer.setPos(this.getX(), this.getY(), this.getZ());
         this.fakePlayer.setXRot(this.getXRot());
@@ -512,12 +512,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
 
             super.aiStep();
-            if (this.isAggressive() && this.getTag("JumpAttack", config.defaults.jumpWhileAttacking) && this.onGround && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
+            if (this.isAggressive() && this.getTag("JumpAttack", config.defaults.jumpWhileAttacking) && this.onGround() && target != null && this.distanceToSqr(target) < 4.0D && this.random.nextInt(5) == 0)
                 this.jumpFromGround();
         } else {
             // As super.aiStep() isn't executed, we check for items that are available to be picked up
             if (this.isAlive() && !this.dead) {
-                List<ItemEntity> list = this.level.getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D));
+                List<ItemEntity> list = this.level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D));
 
                 for (ItemEntity itemEntity : list) {
                     if (!itemEntity.isRemoved() && !itemEntity.getItem().isEmpty() && !itemEntity.hasPickUpDelay() && this.wantsToPickUp(itemEntity.getItem())) {
@@ -537,7 +537,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         super.tick();
 
         AABB box = this.getBoundingBox().inflate(4.0D);
-        List<ServerPlayer> players = this.level.getEntitiesOfClass(ServerPlayer.class, box);
+        List<ServerPlayer> players = this.level().getEntitiesOfClass(ServerPlayer.class, box);
 
         if(!this.npcData.messages.isEmpty()) {
             for(ServerPlayer player: players) {
@@ -638,9 +638,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * Updates Taterzen's {@link GameProfile} for others.
      */
     public void sendProfileUpdates() {
-        if (this.level.isClientSide()) return;
+        if (this.level().isClientSide()) return;
 
-        ServerChunkCache manager = (ServerChunkCache) this.level.getChunkSource();
+        ServerChunkCache manager = (ServerChunkCache) this.level().getChunkSource();
         ChunkMap storage = manager.chunkMap;
         AEntityTrackerEntry trackerEntry = ((AChunkMap) storage).getEntityMap().get(this.getId());
         if (trackerEntry != null) {
@@ -1016,9 +1016,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if (npcTag != null) {
             // Team stuff
             String savedTeam = npcTag.getString("SavedTeam");
-            PlayerTeam team = this.getLevel().getScoreboard().getPlayerTeam(savedTeam);
+            PlayerTeam team = this.level().getScoreboard().getPlayerTeam(savedTeam);
             if (team != null) {
-                this.getLevel().getScoreboard().addPlayerToTeam(this.getScoreboardName(), team);
+                this.level().getScoreboard().addPlayerToTeam(this.getScoreboardName(), team);
             }
         }
     }
@@ -1048,7 +1048,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (this.level.isClientSide()) return InteractionResult.PASS;
+        if (this.level().isClientSide()) return InteractionResult.PASS;
 
         ITaterzenPlayer ipl = (ITaterzenPlayer) player;
         long lastAction = ((ServerPlayer) player).getLastActionTime();
@@ -1280,7 +1280,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.OUT_OF_WORLD);
+        return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.FELL_OUT_OF_WORLD);
     }
 
     @Override
@@ -1331,7 +1331,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         super.die(source);
         if (this.respawnPosition != null) {
             // Taterzen should be respawned instead
-            this.getLevel().broadcastEntityEvent(this, EntityEvent.DEATH);
+            this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
             this.dead = false;
             this.setHealth(this.getMaxHealth());
             this.setDeltaMovement(0.0D, 0.1D, 0.0D);
@@ -1480,7 +1480,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         projectile.shoot(launchVelocity.x(), launchVelocity.y(), launchVelocity.z(), 1.6F, 0);
 
         this.playSound(SoundEvents.ARROW_SHOOT, 1.0F, 0.125F);
-        this.level.addFreshEntity(projectile);
+        this.level().addFreshEntity(projectile);
     }
 
     @Override
@@ -1666,11 +1666,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @return true if interaction was successfull, otherwise false.
      */
     public boolean interact(BlockPos pos) {
-        if(this.position().distanceTo(Vec3.atCenterOf(pos)) < 4.0D && !this.level.isClientSide()) {
+        if (this.position().distanceTo(Vec3.atCenterOf(pos)) < 4.0D && !this.level().isClientSide()) {
             this.lookAt(pos);
             this.swing(MAIN_HAND);
-            this.level.getBlockState(pos).use(this.level, this.fakePlayer, MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.DOWN, pos, false));
-            this.getMainHandItem().use(this.level, this.fakePlayer, MAIN_HAND);
+            this.level().getBlockState(pos).use(this.level(), this.fakePlayer, MAIN_HAND, new BlockHitResult(Vec3.atCenterOf(pos), Direction.DOWN, pos, false));
+            this.getMainHandItem().use(this.level(), this.fakePlayer, MAIN_HAND);
             return true;
         }
         return false;
@@ -1780,11 +1780,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         if (allowFlight) {
             this.moveControl = new FlyingMoveControl(this, 20, false);
-            this.navigation = new FlyingPathNavigation(this, level);
+            this.navigation = new FlyingPathNavigation(this, this.level());
             this.getNavigation().setCanFloat(true);
         } else {
             this.moveControl = new MoveControl(this);
-            this.navigation = new GroundPathNavigation(this, level);
+            this.navigation = new GroundPathNavigation(this, this.level());
             ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
         }
     }
@@ -1867,7 +1867,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public boolean canAttack(LivingEntity target) {
-        return (!(target instanceof Player) || (this.level.getDifficulty() != Difficulty.PEACEFUL || config.combatInPeaceful)) && target.canBeSeenAsEnemy();
+        return (!(target instanceof Player) || (this.level().getDifficulty() != Difficulty.PEACEFUL || config.combatInPeaceful)) && target.canBeSeenAsEnemy();
     }
 
     public void setAllowSwimming(boolean allowSwimming) {

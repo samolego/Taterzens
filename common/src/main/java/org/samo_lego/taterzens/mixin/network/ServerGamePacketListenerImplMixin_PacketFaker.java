@@ -58,7 +58,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"),
             cancellable = true)
     private void changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
-        Level world = player.getLevel();
+        Level world = player.level();
         if (packet instanceof BundlePacket<?> bPacket && !this.skipCheck) {
             for (Packet<?> subPacket : bPacket.subPackets()) {
                 if (subPacket instanceof ClientboundAddPlayerPacket) {
