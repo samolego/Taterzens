@@ -214,6 +214,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.fakePlayer.setXRot(this.getXRot());
         this.fakePlayer.setYRot(this.getYRot());
         this.fakePlayer.setYHeadRot(this.yHeadRot);
+        this.fakePlayer.setCustomName(this.getDisplayName());
     }
 
     /**
@@ -1558,7 +1559,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         return Component.literal("-" + config.defaults.name + "-");
     }
 
-    public Player getFakePlayer() {
+    public ServerPlayer getFakePlayer() {
         return this.fakePlayer;
     }
 
