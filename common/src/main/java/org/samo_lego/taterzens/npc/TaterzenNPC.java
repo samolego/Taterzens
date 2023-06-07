@@ -782,6 +782,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 this.restrictTo(this.npcData.pathTargets.get(0), 1);
             }
         }
+        this.npcData.currentMoveTarget = npcTag.getInt("CurrentMoveTarget");
 
         ListTag messages = (ListTag) npcTag.get("Messages");
         if(messages != null && messages.size() > 0) {
@@ -849,13 +850,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setYRot(bodyRotations.getFloat("YRot"));
         }
 
-        if (npcTag.contains("movement"))
+        if (npcTag.contains("movement")) {
             this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
-        else
+        } else {
             this.setMovement(NPCData.Movement.NONE);
+        }
 
-        if (npcTag.contains("LockedBy"))
+        if (npcTag.contains("LockedBy")) {
             this.lockedUuid = npcTag.getUUID("LockedBy");
+        }
 
 
         // ------------------------------------------------------------
@@ -926,6 +929,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             pathTargets.add(pos);
         });
         npcTag.put("PathTargets", pathTargets);
+        npcTag.putInt("CurrentMoveTarget", this.npcData.currentMoveTarget);
 
         // Messages
         ListTag messages = new ListTag();
