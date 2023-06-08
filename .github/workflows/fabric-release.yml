@@ -31,15 +31,19 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build and publish with Gradle
-        run: ./gradlew fabric:build fabric:modrinth fabric:curseforge --stacktrace
-        env:
-           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
-           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-           CHANGELOG: ${{ github.event.release.body }}
+      - name: Build with Gradle
+        run: ./gradlew fabric:build --stacktrace
 
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
           files: 'fabric/build/libs/*-fabric.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish with Gradle
+        run: ./gradlew fabric:modrinth fabric:curseforge --stacktrace
+        env:
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CHANGELOG: ${{ github.event.release.body }}
+
