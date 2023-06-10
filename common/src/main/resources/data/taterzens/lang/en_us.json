@@ -107,7 +107,7 @@
   "taterzens.command.sounds.remove.failure": "Could not remove sound %s.",
   "taterzens.command.sounds.remove.outofbounds": "Could not remove sound with index %s. Minimum index is %s, maximum is %s.",
   "taterzens.command.sounds.remove.all.success": "All %s sounds successfully removed.",
-  "taterzens.command.sounds.remove.all.failure": "Could nor remove all %s sounds.",
+  "taterzens.command.sounds.remove.all.failure": "Could not remove all %s sounds.",
   "taterzens.gui.forge": "GUIs are not supported in Forge version. Please install Fabric one.",
   "taterzens.npc.interact.cooldown": "You have to wait %s seconds before you can interact with me again.",
   "taterzens.tooltip.current_editor": "Current editor: %s.",

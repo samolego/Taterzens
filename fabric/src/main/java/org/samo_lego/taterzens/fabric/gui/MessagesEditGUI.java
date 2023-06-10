@@ -44,7 +44,7 @@ public class MessagesEditGUI extends ListItemsGUI {
     @Override
     public ItemStack getItem(int index) {
         ItemStack itemStack;
-        index = getSlot2MessageIndex(index);
+        index = this.getActualPageIndex(index);
 
         if(index < this.messages.size()) {
             itemStack = getItem(this.messages.get(index));
@@ -62,7 +62,7 @@ public class MessagesEditGUI extends ListItemsGUI {
     @Override
     public ItemStack removeItemNoUpdate(int index) {
         ItemStack itemStack = this.getItem(index);
-        index = getSlot2MessageIndex(index);
+        index = this.getActualPageIndex(index);
         if(index < this.messages.size()) {
             Pair<Component, Integer> removed = this.messages.remove(index);
             itemStack.setHoverName(this.getItem(removed).getHoverName());
@@ -74,7 +74,7 @@ public class MessagesEditGUI extends ListItemsGUI {
     @Override
     public void setItem(int index, ItemStack stack) {
         if (!stack.isEmpty()) {
-            index = getSlot2MessageIndex(index);
+            index = this.getActualPageIndex(index);
             if (index > messages.size())
                 index = messages.size();
             this.messages.add(index, new Pair<>(stack.getHoverName(), config.messages.messageDelay));

@@ -61,15 +61,16 @@ public class TextUtil {
      * @return {@link TranslatableContents} or {@link LiteralContents} depending on whether SERVER_TRANSLATIONS is loaded.
      */
     public static MutableComponent translate(String key, Object... args) {
-        if(SERVER_TRANSLATIONS_LOADED) {
+        if (SERVER_TRANSLATIONS_LOADED) {
             return Component.translatable(key, args);
         }
 
         String translation;
-        if(lang.has(key))
+        if (lang.has(key)) {
             translation = lang.get(key).getAsString();
-        else
+        } else {
             translation = key;
+        }
         return Component.translatable(translation, args);
     }
 

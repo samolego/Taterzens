@@ -1285,7 +1285,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public boolean isInvulnerableTo(DamageSource damageSource) {
-        return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.FELL_OUT_OF_WORLD);
+        return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.GENERIC_KILL);
     }
 
     @Override

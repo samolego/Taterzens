@@ -106,7 +106,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
     }
 
     public int getCurrentPage() {
-       return this.currentPage;
+        return this.currentPage;
     }
 
 
@@ -115,7 +115,19 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
         return 9 * 6;
     }
 
+    /**
+     * Gets the actual index in case of multiple pages GUI.
+     *
+     * @param slotIndex slot index in menu
+     * @return actual index
+     * @deprecated use {@link #getActualPageIndex(int)} instead.
+     */
+    @Deprecated
     protected int getSlot2MessageIndex(int slotIndex) {
+        return this.getActualPageIndex(slotIndex);
+    }
+
+    protected int getActualPageIndex(int slotIndex) {
         return this.getCurrentPage() * this.getSize() + slotIndex;
     }
 

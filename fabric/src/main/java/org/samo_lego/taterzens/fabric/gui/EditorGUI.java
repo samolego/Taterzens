@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
+import org.samo_lego.taterzens.Taterzens;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class EditorGUI {
             // Pre-written  text
             MutableComponent argTitle = Component.literal(parentNode.getName()).withStyle(ChatFormatting.YELLOW);
             ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
-            nameStack.setHoverName(argTitle);
+            nameStack.setHoverName(getComandName(argTitle.getString()));
 
             // Buttons
             constructedGui.setSlot(2, confirmButton);
@@ -81,8 +82,9 @@ public class EditorGUI {
 
             // Default input value
             String[] examples = parentNode.getExamples().toArray(new String[0]);
-            if (examples.length > 0)
+            if (examples.length > 0) {
                 nameStack.setHoverName(Component.literal(examples[0]));
+            }
 
             for (int i = 1; i < examples.length; ++i) {
                 ItemStack exampleStack = new ItemStack(Items.PAPER);
@@ -123,7 +125,7 @@ public class EditorGUI {
 
                 // Set stack "icon"
                 ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(ListItemsGUI.getFromName(nodeName))).copy();
-                stack.setHoverName(Component.literal(nodeName));
+                stack.setHoverName(getComandName(nodeName));
 
                 // Recursively adding the command nodes
                 constructedGui.setSlot(i.getAndAdd(addedSpace), new GuiElement(stack, (index, clickType, slotActionType) -> {
@@ -157,6 +159,27 @@ public class EditorGUI {
         constructedGui.setAutoUpdate(true);
 
         return constructedGui;
+    }
+
+    /**
+     * Gets prettier name for command node if available.
+     *
+     * @param defaultText default name
+     * @return "translated" name if available, default name otherwise
+     */
+    private static Component getComandName(String defaultText) {
+        // Try to search for the command translation in the language file
+        String text = defaultText;
+
+        if (Taterzens.lang.has("gui.taterzens." + text)) {
+            return Component.literal(Taterzens.lang.get("gui.taterzens." + text).getAsString());
+        }
+
+        // Upper case first letter
+        char[] chars = text.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+
+        return Component.literal(new String(chars));
     }
 
     private static void proccessClick(ClickType clickType, CommandNode<CommandSourceStack> node, SimpleGui gui, List<String> currentCommandPath, ServerPlayer player, boolean givenInput) {

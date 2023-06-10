@@ -81,7 +81,7 @@ public class TaterzensCommand {
 
             LanguageUtil.setupLanguage();
             source.sendSuccess(() -> successText("taterzens.command.language.success", language), false);
-            if(SERVER_TRANSLATIONS_LOADED) {
+            if (SERVER_TRANSLATIONS_LOADED) {
                 source.sendSuccess(() -> successText("taterzens.command.language.server_translations_hint.1"), false);
                 source.sendSuccess(() -> successText("taterzens.command.language.server_translations_hint.2"), false);
             }
