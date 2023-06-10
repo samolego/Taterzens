@@ -37,7 +37,7 @@ jobs:
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'fabric/build/libs/*-fabric.jar'
+          files: 'fabric/build/libs/*.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish with Gradle
