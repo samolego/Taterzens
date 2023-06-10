@@ -42,8 +42,8 @@ public class ServerPlayInteractionManagerMixin {
     private void onAttackBlock(BlockPos blockPos, ServerboundPlayerActionPacket.Action action, Direction direction, int i, int j, CallbackInfo ci) {
         if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
             ITaterzenEditor player = (ITaterzenEditor) this.player;
-            if (player.getNpc() != null && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
-                player.getNpc().addPathTarget(blockPos);
+            if (player.getSelectedNpc().isPresent() && ((ITaterzenEditor) this.player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
+                player.getSelectedNpc().get().addPathTarget(blockPos);
                 ((ServerPlayer) player).connection.send(new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState()));
                 ci.cancel();
             }

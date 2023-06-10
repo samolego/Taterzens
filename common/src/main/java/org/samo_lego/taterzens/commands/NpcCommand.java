@@ -28,10 +28,7 @@ import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.mixin.accessors.ACommandSourceStack;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -125,15 +122,20 @@ public class NpcCommand {
      * @return 1 if player has npc selected and predicate test passed, otherwise 0
      */
     public static int selectedTaterzenExecutor(@NotNull Entity entity, Consumer<TaterzenNPC> npcConsumer) {
-        TaterzenNPC taterzen = null;
-        if(entity instanceof ITaterzenEditor player)
-            taterzen = player.getNpc();
-        else if(entity instanceof TaterzenNPC taterzenNPC)
-            taterzen = taterzenNPC;
-        if(taterzen != null) {
-            npcConsumer.accept(taterzen);
+        Optional<TaterzenNPC> taterzen = Optional.empty();
+
+        if (entity instanceof ITaterzenEditor player) {
+            taterzen = player.getSelectedNpc();
+        } else if (entity instanceof TaterzenNPC taterzenNPC) {
+            taterzen = Optional.of(taterzenNPC);
+        }
+
+
+        if (taterzen.isPresent()) {
+            npcConsumer.accept(taterzen.get());
             return 1;
         }
+
         entity.sendSystemMessage(noSelectedTaterzenError());
         return 0;
     }
@@ -150,10 +152,10 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
 
         boolean console = source.getEntity() == null;
-        TaterzenNPC npc = null;
+        Optional<TaterzenNPC> npc = Optional.empty();
 
         if (!console) {
-            npc = ((ITaterzenEditor) source.getPlayerOrException()).getNpc();
+            npc = ((ITaterzenEditor) source.getPlayerOrException()).getSelectedNpc();
         }
 
         MutableComponent response = translate("taterzens.command.list").withStyle(ChatFormatting.AQUA);
@@ -162,7 +164,7 @@ public class NpcCommand {
         for (var taterzenNPC : TATERZEN_NPCS.values()) {
             String name = taterzenNPC.getName().getString();
 
-            boolean sel = taterzenNPC == npc;
+            boolean sel = Optional.of(taterzenNPC).equals(npc);
 
             response.append(
                             Component.literal("\n" + i + "-> " + name)
@@ -200,9 +202,9 @@ public class NpcCommand {
         } else {
             TaterzenNPC taterzen = (TaterzenNPC) TATERZEN_NPCS.values().toArray()[id - 1];
             ServerPlayer player = source.getPlayerOrException();
-            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
+            Optional<TaterzenNPC> npc = ((ITaterzenEditor) player).getSelectedNpc();
 
-            if (npc != null) {
+            if (npc.isPresent()) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
 
@@ -257,8 +259,8 @@ public class NpcCommand {
             return 0;
         } else { // if count == 1
             ServerPlayer player = source.getPlayerOrException();
-            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-            if (npc != null) {
+            Optional<TaterzenNPC> npc = ((ITaterzenEditor) player).getSelectedNpc();
+            if (npc.isPresent()) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
@@ -300,8 +302,8 @@ public class NpcCommand {
             return 0;
         } else {
             ServerPlayer player = source.getPlayerOrException();
-            TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-            if (npc != null) {
+            Optional<TaterzenNPC> npc = ((ITaterzenEditor) player).getSelectedNpc();
+            if (npc.isPresent()) {
                 ((ITaterzenEditor) player).selectNpc(null);
             }
             boolean selected = ((ITaterzenEditor) player).selectNpc(taterzen);
@@ -383,15 +385,15 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
 
-        TaterzenNPC npc = ((ITaterzenEditor) player).getNpc();
-        if(npc != null) {
+        Optional<TaterzenNPC> npc = ((ITaterzenEditor) player).getSelectedNpc();
+        if (npc.isPresent()) {
             ((ITaterzenEditor) player).selectNpc(null);
         }
 
         String taterzenName;
         try {
             taterzenName = MessageArgument.getMessage(context, "name").getString();
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
             // no name was provided, defaulting to player's own name
             taterzenName = player.getGameProfile().getName();
         }

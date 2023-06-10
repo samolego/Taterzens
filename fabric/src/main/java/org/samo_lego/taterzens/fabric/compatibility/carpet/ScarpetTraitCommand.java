@@ -19,7 +19,6 @@ import org.samo_lego.taterzens.api.TaterzensAPI;
 import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
@@ -133,11 +132,13 @@ public class ScarpetTraitCommand {
     private static CompletableFuture<Suggestions> suggestRemovableTraits(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         HashSet<Value> traits = new HashSet<>();
         try {
-            TaterzenNPC taterzen = ((ITaterzenEditor) ctx.getSource().getPlayerOrException()).getNpc();
-            if(taterzen != null && taterzen.getProfession(ScarpetProfession.ID) instanceof ScarpetProfession scarpetProfession) {
+            var taterzen = ((ITaterzenEditor) ctx.getSource().getPlayerOrException()).getSelectedNpc();
+
+            if (taterzen.isPresent() && taterzen.get().getProfession(ScarpetProfession.ID) instanceof ScarpetProfession scarpetProfession) {
                 traits = scarpetProfession.getTraits();
             }
         } catch(CommandSyntaxException ignored) { }
+
         return SharedSuggestionProvider.suggest(traits.stream().map(Value::getPrettyString), builder);
     }
 }

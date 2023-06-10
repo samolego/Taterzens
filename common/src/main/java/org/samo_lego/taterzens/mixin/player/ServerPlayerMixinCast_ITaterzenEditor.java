@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.samo_lego.taterzens.Taterzens.config;
 import static org.samo_lego.taterzens.util.TextUtil.successText;
@@ -27,7 +28,7 @@ import static org.samo_lego.taterzens.util.TextUtil.successText;
  * Additional methods for players to track {@link TaterzenNPC}
  */
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
+public class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
 
     @Unique
     private final ServerPlayer self = (ServerPlayer) (Object) this;
@@ -48,9 +49,9 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
         ITaterzenEditor editor = (ITaterzenEditor) this.self;
-        if (editor.getNpc() != null && lastRenderTick++ > 4) {
+        if (editor.getSelectedNpc().isPresent() && lastRenderTick++ > 4) {
             if (this.editorMode == EditorMode.PATH) {
-                ArrayList<BlockPos> pathTargets = editor.getNpc().getPathTargets();
+                ArrayList<BlockPos> pathTargets = editor.getSelectedNpc().get().getPathTargets();
                 DustParticleOptions effect = new DustParticleOptions(
                         new Vector3f(
                                 config.path.color.red / 255.0F,
@@ -89,14 +90,14 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
     public void setEditorMode(EditorMode mode) {
         ITaterzenEditor editor = (ITaterzenEditor) this.self;
 
-        if (editor.getNpc() != null) {
+        if (editor.getSelectedNpc().isPresent()) {
             Level world = self.level();
             if (this.editorMode == EditorMode.PATH && mode != EditorMode.PATH) {
-                editor.getNpc().getPathTargets().forEach(blockPos -> self.connection.send(
+                editor.getSelectedNpc().get().getPathTargets().forEach(blockPos -> self.connection.send(
                         new ClientboundBlockUpdatePacket(blockPos, world.getBlockState(blockPos))
                 ));
             } else if (this.editorMode != EditorMode.PATH && mode == EditorMode.PATH) {
-                editor.getNpc().getPathTargets().forEach(blockPos -> self.connection.send(
+                editor.getSelectedNpc().get().getPathTargets().forEach(blockPos -> self.connection.send(
                         new ClientboundBlockUpdatePacket(blockPos, Blocks.REDSTONE_BLOCK.defaultBlockState())
                 ));
             }
@@ -114,14 +115,10 @@ public abstract class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzen
         return this.editorMode;
     }
 
-    /**
-     * Gets the selected {@link TaterzenNPC} if player has it.
-     * @return TaterzenNPC if player has one selected, otherwise null.
-     */
-    @Nullable
+
     @Override
-    public TaterzenNPC getNpc() {
-        return this.selectedNpc;
+    public Optional<TaterzenNPC> getSelectedNpc() {
+        return Optional.ofNullable(this.selectedNpc);
     }
 
     @Override

@@ -9,7 +9,6 @@ import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,16 +37,16 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
         if (player == null) return;
 
         ITaterzenEditor editor = (ITaterzenEditor) player;
-        TaterzenNPC taterzen = editor.getNpc();
+        var taterzen = editor.getSelectedNpc();
         String msg = playerChatMessage.decoratedContent().getString();
 
-        if (taterzen != null && ((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && !msg.startsWith("/")) {
+        if (taterzen.isPresent() && ((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES && !msg.startsWith("/")) {
             if (msg.startsWith("delay")) {
                 String[] split = msg.split(" ");
                 if (split.length > 1) {
                     try {
                         int delay = Integer.parseInt(split[1]);
-                        taterzen.setMessageDelay(editor.getEditingMessageIndex(), delay);
+                        taterzen.get().setMessageDelay(editor.getEditingMessageIndex(), delay);
                         player.displayClientMessage(successText("taterzens.command.message.delay", String.valueOf(delay)), false);
                     } catch (NumberFormatException ignored) {
 
@@ -55,30 +54,33 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
                 }
             } else {
                 Component text;
-                if((msg.startsWith("{") && msg.endsWith("}") || (msg.startsWith("[") && msg.endsWith("]")))) {
+                if ((msg.startsWith("{") && msg.endsWith("}") || (msg.startsWith("[") && msg.endsWith("]")))) {
                     // NBT tellraw message structure, try parse it
                     try {
                         text = Component.Serializer.fromJson(new StringReader(msg));
-                    } catch(JsonParseException ignored) {
+                    } catch (JsonParseException ignored) {
                         player.displayClientMessage(translate("taterzens.error.invalid.text").withStyle(ChatFormatting.RED), false);
                         ci.cancel();
                         return;
                     }
-                } else
+                } else {
                     text = Component.literal(msg);
-                if((editor).getEditingMessageIndex() != -1) {
+                }
+
+
+                if ((editor).getEditingMessageIndex() != -1) {
                     // Editing selected message
-                    taterzen.editMessage(editor.getEditingMessageIndex(), text); // Editing message
+                    taterzen.get().editMessage(editor.getEditingMessageIndex(), text); // Editing message
                     player.displayClientMessage(successText("taterzens.command.message.changed", text.getString()), false);
 
                     // Exiting the editor
-                    if(config.messages.exitEditorAfterMsgEdit) {
+                    if (config.messages.exitEditorAfterMsgEdit) {
                         ((ITaterzenEditor) player).setEditorMode(ITaterzenEditor.EditorMode.NONE);
                         (editor).setEditingMessageIndex(-1);
                         player.displayClientMessage(translate("taterzens.command.equipment.exit").withStyle(ChatFormatting.LIGHT_PURPLE), false);
                     }
                 } else {
-                    taterzen.addMessage(text); // Adding message
+                    taterzen.get().addMessage(text); // Adding message
                     player.displayClientMessage(successText("taterzens.command.message.editor.add", text.getString()), false);
                 }
 

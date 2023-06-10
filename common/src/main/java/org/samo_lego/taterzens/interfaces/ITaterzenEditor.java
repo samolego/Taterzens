@@ -3,20 +3,36 @@ package org.samo_lego.taterzens.interfaces;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
+import java.util.Optional;
+
 /**
  * Interface for players who edit TaterzenNPCs.
  */
 public interface ITaterzenEditor {
     /**
      * Gets the selected Taterzen of player.
+     *
+     * @return selected Taterzen
+     * @deprecated use {@link #getSelectedNpc()} instead
+     */
+    @Deprecated
+    @Nullable
+    default TaterzenNPC getNpc() {
+        return this.getSelectedNpc().orElse(null);
+    }
+
+
+    /**
+     * Gets the selected Taterzen of player.
+     *
      * @return selected Taterzen
      */
-    @Nullable
-    TaterzenNPC getNpc();
+    Optional<TaterzenNPC> getSelectedNpc();
 
     /**
      * Selects {@link TaterzenNPC} to be editoed.
-     * @param npc Taterzen to select
+     *
+     * @param npc Taterzen to select, can be null to deselect.
      * @return true if successful, false if taterzen is locked and cannot be selected by this player.
      */
     boolean selectNpc(@Nullable TaterzenNPC npc);

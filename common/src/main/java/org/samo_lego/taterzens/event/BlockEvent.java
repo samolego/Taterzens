@@ -23,8 +23,8 @@ public class BlockEvent {
     public static InteractionResult onBlockInteract(Player Player, Level world, BlockPos blockPos) {
         if(Player instanceof ServerPlayer) { // Prevents crash on client
             ITaterzenEditor player = (ITaterzenEditor) Player;
-            if(player.getNpc() != null && ((ITaterzenEditor) Player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
-                player.getNpc().removePathTarget(blockPos);
+            if (player.getSelectedNpc().isPresent() && ((ITaterzenEditor) Player).getEditorMode() == ITaterzenEditor.EditorMode.PATH) {
+                player.getSelectedNpc().get().removePathTarget(blockPos);
                 ((ServerPlayer) player).connection.send(new ClientboundBlockUpdatePacket(blockPos, world.getBlockState(blockPos)));
                 return InteractionResult.FAIL;
             }

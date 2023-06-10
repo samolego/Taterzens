@@ -20,10 +20,7 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -121,9 +118,10 @@ public class ProfessionsCommand {
     private static CompletableFuture<Suggestions> suggestRemovableProfessions(CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
         Collection<ResourceLocation> professions = new HashSet<>();
         try {
-            TaterzenNPC taterzen = ((ITaterzenEditor) ctx.getSource().getPlayerOrException()).getNpc();
-            if(taterzen != null) {
-                professions = taterzen.getProfessionIds();
+            Optional<TaterzenNPC> taterzen = ((ITaterzenEditor) ctx.getSource().getPlayerOrException()).getSelectedNpc();
+
+            if (taterzen.isPresent()) {
+                professions = taterzen.get().getProfessionIds();
             }
         } catch(CommandSyntaxException ignored) {
         }
