@@ -840,16 +840,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if(followTag.contains("UUID"))
             this.setFollowUuid(followTag.getUUID("UUID"));
 
-        if(npcTag.contains("Pose"))
+        if (npcTag.contains("Pose")) {
             this.setPose(Pose.valueOf(npcTag.getString("Pose")));
-        else
+        } else {
             this.setPose(Pose.STANDING);
-
-        CompoundTag bodyRotations = npcTag.getCompound("BodyRotations");
-        if(!bodyRotations.isEmpty()) {
-            this.setXRot(bodyRotations.getFloat("XRot"));
-            this.setYRot(bodyRotations.getFloat("YRot"));
         }
+
 
         if (npcTag.contains("movement")) {
             this.setMovement(NPCData.Movement.valueOf(npcTag.getString("movement")));
@@ -970,11 +966,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         npcTag.putString("Pose", this.getPose().toString());
 
-        CompoundTag bodyRotations = new CompoundTag();
-        //fixme rotations are not getting saved
-        bodyRotations.putFloat("XRot", this.getXRot());
-        bodyRotations.putFloat("YRot", this.getYRot());
-        npcTag.put("BodyRotations", bodyRotations);
 
         // Locking
         if (this.lockedUuid != null)

@@ -36,4 +36,4 @@ jobs:
       run: |
         mike delete --push latest
         mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
-        mike set-default --push latest
+        mike set-default --push ${RELEASE_TAG_VERSION}
