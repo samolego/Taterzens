@@ -28,6 +28,6 @@ jobs:
     - name: Release docs website
       run: |
         mike delete --push latest
-        mike deploy --push  --update-aliases latest ${{ steps.releasetag.outputs.release }}
+        mike deploy --push  --update-aliases ${{ steps.releasetag.outputs.release }} latest
         echo "Setting default: ${{ steps.releasetag.outputs.release }}"
         mike set-default ${{ steps.releasetag.outputs.release }} --push
