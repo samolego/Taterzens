@@ -35,6 +35,6 @@ jobs:
     - name: Release docs website
       run: |
         mike delete latest
-        mike deploy ${RELEASE_TAG_VERSION} --update-aliases latest
-        echo "Setting default: $RELEASE_TAG_VERSION"
-        mike set-default ${RELEASE_TAG_VERSION} --push
+        mike deploy ${{ steps.node_release.outputs.release }} --update-aliases latest
+        echo "Setting default: ${{ steps.node_release.outputs.release }}"
+        mike set-default ${{ steps.node_release.outputs.release }} --push
