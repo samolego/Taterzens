@@ -34,6 +34,7 @@ jobs:
         git config --global user.email 34912839+samolego@users.noreply.github.com
     - name: Release docs website
       run: |
-        mike delete --push latest
-        mike deploy --push --update-aliases ${RELEASE_TAG_VERSION} latest
-        mike set-default --push ${RELEASE_TAG_VERSION}
+        mike delete latest
+        mike deploy ${RELEASE_TAG_VERSION} --update-aliases latest
+        echo "Setting default: $RELEASE_TAG_VERSION"
+        mike set-default ${RELEASE_TAG_VERSION} --push
