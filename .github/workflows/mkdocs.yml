@@ -27,7 +27,7 @@ jobs:
             repository: ${{ github.repository }}
     - name: Release docs website
       run: |
-        mike delete latest
-        mike deploy ${{ steps.releasetag.outputs.release }} --update-aliases latest
+        mike delete --push latest
+        mike deploy --push  --update-aliases latest ${{ steps.releasetag.outputs.release }}
         echo "Setting default: ${{ steps.releasetag.outputs.release }}"
         mike set-default ${{ steps.releasetag.outputs.release }} --push
