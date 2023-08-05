@@ -17,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import org.samo_lego.taterzens.Taterzens;
 import org.samo_lego.taterzens.commands.NpcCommand;
-import org.samo_lego.taterzens.compatibility.DisguiseLibCompatibility;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -57,7 +56,7 @@ public class TypeCommand {
 
     private static int changeType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        if(!DISGUISELIB_LOADED) {
+        if (!DISGUISELIB_LOADED) {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
@@ -79,7 +78,7 @@ public class TypeCommand {
             nbt.putString("id", disguise.toString());
 
             EntityType.loadEntityRecursive(nbt, source.getLevel(), (entityx) -> {
-                DisguiseLibCompatibility.disguiseAs(taterzen, entityx);
+                Taterzens.getInstance().getPlatform().disguiseAs(taterzen, entityx);
                 source.sendSuccess(() ->
                                 translate(
                                         "taterzens.command.entity_type.set",
@@ -105,7 +104,7 @@ public class TypeCommand {
             return -1;
         }
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
-            DisguiseLibCompatibility.clearDisguise(taterzen);
+            Taterzens.getInstance().getPlatform().clearDisguise(taterzen);
             source.sendSuccess(() ->
                             successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
                     false

@@ -8,12 +8,14 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import org.samo_lego.taterzens.fabric.mixin.AMappedRegistry;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
 import org.samo_lego.taterzens.platform.Platform;
+import xyz.nucleoid.disguiselib.api.EntityDisguise;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -78,4 +80,15 @@ public class FabricPlatform extends Platform {
         SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
         editorGUI.open();
     }
+
+    @Override
+    public void disguiseAs(TaterzenNPC taterzen, Entity entity) {
+        ((EntityDisguise) taterzen).disguiseAs(entity);
+    }
+
+    @Override
+    public void clearDisguise(TaterzenNPC taterzen) {
+        ((EntityDisguise) taterzen).removeDisguise();
+    }
+
 }

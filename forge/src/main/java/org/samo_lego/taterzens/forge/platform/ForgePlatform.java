@@ -52,6 +52,16 @@ public class ForgePlatform extends Platform {
     }
 
     @Override
+    public void clearDisguise(TaterzenNPC taterzen) {
+
+    }
+
+    @Override
+    public void disguiseAs(TaterzenNPC taterzen, Entity entity) {
+
+    }
+
+    @Override
     public void openEditorGui(ServerPlayer player) {
         player.sendSystemMessage(TextUtil.translate("taterzens.gui.forge"));
     }

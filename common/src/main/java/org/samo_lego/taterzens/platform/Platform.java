@@ -2,6 +2,8 @@ package org.samo_lego.taterzens.platform;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import org.samo_lego.taterzens.npc.TaterzenNPC;
 
 import java.nio.file.Path;
 
@@ -45,4 +47,9 @@ public abstract class Platform {
 
     public void openEditorGui(ServerPlayer player) {
     }
+
+
+    public abstract void disguiseAs(TaterzenNPC taterzen, Entity entity);
+
+    public abstract void clearDisguise(TaterzenNPC taterzen);
 }
