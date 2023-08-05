@@ -29,6 +29,7 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": rootProject.version
     }
+
     filesMatching("taterzens.common.mixins.json") {
         expand "refmap": "taterzens-${project.name}-${rootProject.minecraft_version}-refmap.json"
     }

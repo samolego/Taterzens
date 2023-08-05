@@ -1,5 +1,3 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-
 plugins {
     id 'net.minecraftforge.gradle'
 }
@@ -133,6 +131,7 @@ dependencies {
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    implementation "com.github.samolego.Config2Brigadier:config2brigadier-forge:${rootProject.c2b_version}"
 }
 
 // This block of code expands all the gradle properties in the specified resource targets.
@@ -151,6 +150,7 @@ processResources {
                 "c2b_version": rootProject.c2b_version
         )
     }
+
     intoTargets.each { target ->
         if (file(target).exists()) {
             copy {
@@ -187,20 +187,18 @@ curseforge {
     }
 }
 
-task modrinth(type: TaskModrinthUpload) {
-    onlyIf {
-        ENV.MODRINTH_TOKEN
-    }
 
+modrinth {
     token = ENV.MODRINTH_TOKEN
     projectId = "vE972Kux"
     versionNumber = project.minecraft_version + "+" + version + "-forge"
+    versionType = "release"
     changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
     versionName = "[${project.minecraft_version}] Taterzens ${version} [Forge]"
-    releaseType = "release"
 
     uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-forge.jar")
 
-    addGameVersion("${project.minecraft_version}")
-    addLoader('forge')
+    gameVersions = ["${project.minecraft_version}"]
+    loaders = ['forge']
+
 }

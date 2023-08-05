@@ -2,13 +2,10 @@ plugins {
 	// Fabric loom
 	id "fabric-loom" version "1.1-SNAPSHOT" apply false
 	// Forge Gradle
-	id 'net.minecraftforge.gradle' version '5.1.+' apply false
+	id 'net.minecraftforge.gradle' version '6.0.+' apply false
 
 	id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
 	id "com.modrinth.minotaur" version "2.+" apply false
-	// Dokka docs
-	id "org.jetbrains.kotlin.jvm" version "1.5.31"
-	id("org.jetbrains.dokka") version "1.5.30"
 }
 
 repositories {
@@ -69,9 +66,6 @@ allprojects {
 }
 
 subprojects {
-	// Dokka docs
-	apply plugin: "org.jetbrains.kotlin.jvm"
-	apply plugin: "org.jetbrains.dokka"
 
 	// Publishing plugins
 	if (it.name != "common") {
@@ -125,12 +119,6 @@ subprojects {
 		tasks.withType(JavaCompile) {
 			source(project(":common").sourceSets.main.allSource)
 		}
-	}
-
-	tasks.withType(dokkaHtmlPartial.getClass()).configureEach {
-		pluginsMapConfiguration.set(
-				["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
-		)
 	}
 
 	jar {
