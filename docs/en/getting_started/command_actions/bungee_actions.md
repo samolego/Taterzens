@@ -24,7 +24,7 @@ where
 ## Available commands
 * `server` - transfers player to another server (parameter: server name)
 * `message` - sends message to the player
-* `message_raw` - sends message to the player in [tellraw](https://minecraft.fandom.com/wiki/Raw_JSON_text_format) format
+* `message_raw` - sends message to the player in [tellraw](https://minecraft.wiki/w/Raw_JSON_text_format) format
 * `kick` - kicks player (parameter: reason for kick)
 
 ## Server redirect

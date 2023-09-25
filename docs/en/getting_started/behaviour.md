@@ -28,7 +28,7 @@ To achieve that, use
 
 ## Teaming them up
 
-Taterzen teams use the vanilla teams system. For extra docs on the team command, see the [wiki](https://minecraft.fandom.com/wiki/Commands/team#Syntax).
+Taterzen teams use the vanilla teams system. For extra docs on the team command, see the [wiki](https://minecraft.wiki/w/Commands/team#Syntax).
 To create and add taterzens to a team, you can simply do
 ```
 /team add teamName
