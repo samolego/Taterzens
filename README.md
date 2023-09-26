@@ -27,7 +27,7 @@ https://user-images.githubusercontent.com/34912839/142493879-6f642eb1-e226-4798-
 
 ## Translation contributions
 1. Fork the repository
-2. Add [language file](https://github.com/samolego/Taterzens/tree/master/common/src/main/resources/data/taterzens/lang) (make sure to follow the [Minecraft language codes](https://minecraft.gamepedia.com/Language)) as json.
+2. Add [language file](https://github.com/samolego/Taterzens/tree/master/common/src/main/resources/data/taterzens/lang) (make sure to follow the [Minecraft language codes](https://minecraft.wiki/w/Language)) as json.
     1. Name it e.g. `en_us.json` for American English
     2. Translate the messages
 3. Commit the file and submit a PR :wink:

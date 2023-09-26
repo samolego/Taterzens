@@ -51,7 +51,7 @@ Taterzen's `to-say` list instead.
 ### I want colored messages!
 
 No problem, Taterzens mod has you covered!
-It supports [tellraw json text format](https://minecraft.gamepedia.com/Commands/tellraw) as well.
+It supports [tellraw json text format](https://minecraft.wiki/w/Commands/tellraw) as well.
 
 1. Generate any tellraw command with the text you want.
 There are online tools that can do it, I recommend using [MCStacker](https://mcstacker.net/).
