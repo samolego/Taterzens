@@ -24,7 +24,7 @@ title: 跨服操作
 ## 可用指令
 * `server` - 将玩家传送到另外一个服务器上。（参数：服务器名称）
 * `message` - 向玩家发送的信息。
-* `message_raw` - 以[tellraw](https://minecraft.fandom.com/wiki/Raw_JSON_text_format)格式向玩家发送信息。
+* `message_raw` - 以[tellraw](https://minecraft.wiki/w/Raw_JSON_text_format)格式向玩家发送信息。
 * `kick` - 踢出玩家（参数：踢出原因）
 
 ## 服务器切换

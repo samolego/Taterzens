@@ -141,6 +141,6 @@ NPC将会彻底静音！
 
 `/npc edit sounds remove ambient resource entity.villager.ambient`
 
-如果想根据索引来处理声音的话，需要在声音的类型中添加索引的关键字，不使用关键词将无法删除声音，从技术上来说这指的是声音资源路径，详细请参考[我的世界wiki](https://minecraft.fandom.com/wiki/Resource_location)
+如果想根据索引来处理声音的话，需要在声音的类型中添加索引的关键字，不使用关键词将无法删除声音，从技术上来说这指的是声音资源路径，详细请参考[我的世界wiki](https://minecraft.wiki/w/Resource_location)
 
 _Remember:_ 使用Tab键来补全指令会让操作更简单！

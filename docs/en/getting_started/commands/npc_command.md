@@ -31,7 +31,7 @@ You can select NPCs by their ID, name, UUID or based on proximity and look direc
 _Note:_ The ID means the list index number which is shown when you run the `/npc list` command. 
 (The first number before the name.) Contrary, the UUID is the _**u**niversally **u**nique **id**entifier_
 as used internally by Minecraft to uniquely distinguish between entities. 
-(See Minecraft Wiki: https://minecraft.fandom.com/wiki/Universally_unique_identifier )
+(See Minecraft Wiki: https://minecraft.wiki/w/Universally_unique_identifier )
 
 #### **Id**
 1. Run `/npc list` to view the IDs of available NPCs.

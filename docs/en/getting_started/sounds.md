@@ -157,6 +157,6 @@ Alternatively without the namespace:
 
 Note that for addressing the sound with the index, you need the `index` keyword after you specified the sound category, 
 while you have to use the `resource` keyword in order to remove the sound by using its name. (Technically the name 
-represents a so-called _resource location_. See Minecraft-Wiki: https://minecraft.fandom.com/wiki/Resource_location )
+represents a so-called _resource location_. See Minecraft-Wiki: https://minecraft.wiki/w/Resource_location )
 
 _Remember:_ Tab-completion makes your life easier!
