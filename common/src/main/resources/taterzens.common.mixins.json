@@ -8,7 +8,6 @@
     "CommandSourceStackMixin_HideTaterzenExecutor",
     "ServerPlayInteractionManagerMixin",
     "accessors.AChunkMap",
-    "accessors.AClientboundAddPlayerPacket",
     "accessors.AClientboundPlayerInfoPacket",
     "accessors.AClientboundPlayerInfoUpdatePacket",
     "accessors.AClientboundSetEntityDataPacket",

@@ -5,7 +5,7 @@ import com.google.common.io.ByteStreams;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -34,7 +34,7 @@ public class BungeeCommand extends AbstractTaterzenCommand {
 
     /**
      * "Bungee" command. It's not a standard command, executed by the server,
-     * but sent as {@link net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket} to player and caught by proxy.
+     * but sent as {@link ClientboundCustomPayloadPacket} to player and caught by proxy.
      *
      * @param proxyMessage proxy command to add, see {@link BungeeMessage} for supported commands.
      * @param playername   player to use when executing the command.
@@ -56,20 +56,19 @@ public class BungeeCommand extends AbstractTaterzenCommand {
         this.argument = "";
     }
 
-    @Override
-    public void execute(TaterzenNPC npc, Player player) {
-        if (!config.bungee.enableCommands) return;
-        // Sending command as CustomPayloadS2CPacket
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF(this.proxyMessage.getSubchannel());
-        out.writeUTF(this.playername.replace(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
-        out.writeUTF(this.argument.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
-
+    /**
+     * Sends a packet to proxy.
+     *
+     * @param connection connection to use for sending packet.
+     * @param data       data to sent in the packet.
+     */
+    public static void sendProxyPacket(ServerGamePacketListenerImpl connection, byte[] data) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBytes(out.toByteArray());
+        buf.writeResourceLocation(BUNGEE_CHANNEL);
+        buf.writeBytes(data);
 
-        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BUNGEE_CHANNEL, buf);
-        ((ServerPlayer) player).connection.send(packet);
+        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
+        connection.send(packet);
     }
 
     @Override
@@ -93,18 +92,21 @@ public class BungeeCommand extends AbstractTaterzenCommand {
         this.argument = cmdTag.getString("Argument");
     }
 
-    /**
-     * Sends a packet to proxy.
-     *
-     * @param connection connection to use for sending packet.
-     * @param data       data to sent in the packet.
-     */
-    public static void sendProxyPacket(ServerGamePacketListenerImpl connection, byte[] data) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBytes(data);
+    @Override
+    public void execute(TaterzenNPC npc, Player player) {
+        if (!config.bungee.enableCommands) return;
+        // Sending command as CustomPayloadS2CPacket
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF(this.proxyMessage.getSubchannel());
+        out.writeUTF(this.playername.replace(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
+        out.writeUTF(this.argument.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
 
-        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(BUNGEE_CHANNEL, buf);
-        connection.send(packet);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeResourceLocation(BUNGEE_CHANNEL);
+        buf.writeBytes(out.toByteArray());
+
+        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
+        ((ServerPlayer) player).connection.send(packet);
     }
 
 

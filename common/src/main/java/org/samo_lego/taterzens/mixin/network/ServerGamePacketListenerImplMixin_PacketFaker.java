@@ -1,20 +1,22 @@
 package org.samo_lego.taterzens.mixin.network;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.mixin.accessors.AClientboundAddPlayerPacket;
 import org.samo_lego.taterzens.mixin.accessors.AClientboundPlayerInfoUpdatePacket;
 import org.samo_lego.taterzens.mixin.accessors.AClientboundSetEntityDataPacket;
 import org.samo_lego.taterzens.npc.TaterzenNPC;
@@ -34,7 +36,7 @@ import static org.samo_lego.taterzens.Taterzens.config;
  * Used to "fake" the TaterzenNPC entity type.
  */
 @Mixin(value = ServerGamePacketListenerImpl.class, priority = 900)
-public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
+public abstract class ServerGamePacketListenerImplMixin_PacketFaker extends ServerCommonPacketListenerImpl {
 
     @Unique
     private final Map<UUID, NpcPlayerUpdate> tablistQueue = new LinkedHashMap<>();
@@ -45,24 +47,26 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
     @Unique
     private int queueTick;
 
-    @Shadow
-    public abstract void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener);
+    @Unique
+    private final ServerGamePacketListenerImpl self = (ServerGamePacketListenerImpl) (Object) this;
 
-    @Shadow
-    public abstract void send(Packet<?> packet);
+    public ServerGamePacketListenerImplMixin_PacketFaker(MinecraftServer minecraftServer, Connection connection, CommonListenerCookie commonListenerCookie) {
+        super(minecraftServer, connection, commonListenerCookie);
+    }
+
 
     /**
      * Changes entity type if entity is an instance of {@link TaterzenNPC}.
      */
-    @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
+    @Inject(method = "send",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V"),
             cancellable = true)
-    private void changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
+    private void taterzen_changeEntityType(Packet<?> packet, PacketSendListener listener, CallbackInfo ci) {
         Level world = player.level();
         if (packet instanceof BundlePacket<?> bPacket && !this.skipCheck) {
             for (Packet<?> subPacket : bPacket.subPackets()) {
-                if (subPacket instanceof ClientboundAddPlayerPacket) {
-                    Entity entity = world.getEntity(((AClientboundAddPlayerPacket) subPacket).getId());
+                if (subPacket instanceof ClientboundAddEntityPacket) {
+                    Entity entity = world.getEntity(((ClientboundAddEntityPacket) subPacket).getId());
 
                     if (!(entity instanceof TaterzenNPC npc)) return;
 
@@ -72,13 +76,13 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
                     //noinspection ConstantConditions
                     var entry = new ClientboundPlayerInfoUpdatePacket.Entry(profile.getId(), profile, false, 0, GameType.SURVIVAL, npc.getDisplayName(), null);
                     ((AClientboundPlayerInfoUpdatePacket) playerAddPacket).setEntries(Collections.singletonList(entry));
-                    this.send(playerAddPacket, listener);
+                    self.send(playerAddPacket, listener);
 
                     // Before we send this packet, we have
                     // added player to tablist, otherwise client doesn't
                     // show it ... :mojank:
                     this.skipCheck = true;
-                    this.send(packet, listener);
+                    self.send(packet, listener);
                     this.skipCheck = false;
 
                     // And now we can remove it from tablist
@@ -92,7 +96,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
                         tablistQueue.put(uuid, new NpcPlayerUpdate(npc.getGameProfile(), npc.getTabListName(), queueTick + config.taterzenTablistTimeout));
                     }
 
-                    this.send(new ClientboundRotateHeadPacket(entity, (byte) ((int) (entity.getYHeadRot() * 256.0F / 360.0F))), listener);
+                    self.send(new ClientboundRotateHeadPacket(entity, (byte) ((int) (entity.getYHeadRot() * 256.0F / 360.0F))), listener);
 
                     ci.cancel();
                 } else if (subPacket instanceof ClientboundSetEntityDataPacket) {
@@ -137,7 +141,7 @@ public abstract class ServerGamePacketListenerImplMixin_PacketFaker {
         ClientboundPlayerInfoRemovePacket taterzensRemovePacket = new ClientboundPlayerInfoRemovePacket(toRemove);
 
         this.skipCheck = true;
-        this.send(taterzensRemovePacket);
+        self.send(taterzensRemovePacket);
         this.skipCheck = false;
     }
 }

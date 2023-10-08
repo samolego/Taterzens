@@ -14,13 +14,10 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.*;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -42,6 +39,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -64,7 +62,6 @@ import org.samo_lego.taterzens.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.mixin.accessors.AChunkMap;
-import org.samo_lego.taterzens.mixin.accessors.AClientboundAddPlayerPacket;
 import org.samo_lego.taterzens.mixin.accessors.AEntityTrackerEntry;
 import org.samo_lego.taterzens.npc.ai.goal.*;
 import org.samo_lego.taterzens.npc.commands.AbstractTaterzenCommand;
@@ -154,7 +151,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * instead, as this one doesn't set the position and custom name.
      *
      * @param entityType Taterzen entity type
-     * @param world Taterzen's world
+     * @param world      Taterzen's world
      */
     public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
@@ -191,6 +188,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Creates default taterzen attributes.
+     *
      * @return attribute supplier builder.
      */
     public static AttributeSupplier.Builder createTaterzenAttributes() {
@@ -208,7 +206,16 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * player synched data.
      */
     public void constructFakePlayer() {
-        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level(), this.gameProfile);
+        this.fakePlayer = new ServerPlayer(this.getServer(), (ServerLevel) this.level(), this.gameProfile, new ClientInformation(
+                "en_US",
+                0,
+                ChatVisiblity.FULL,
+                true,
+                0x7f,
+                HumanoidArm.RIGHT,
+                false,
+                false
+        ));
         this.fakePlayer.getEntityData().set(getPLAYER_MODE_CUSTOMISATION(), (byte) 0x7f);
         this.fakePlayer.setPos(this.getX(), this.getY(), this.getZ());
         this.fakePlayer.setXRot(this.getXRot());
@@ -219,6 +226,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds sounds to the list of ambient sounds of a Taterzen.
+     *
      * @param ambientSound The ambient sound resource location to add.
      */
     public void addAmbientSound(String ambientSound) {
@@ -227,6 +235,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds sounds to the list of hurt sounds of a Taterzen.
+     *
      * @param hurtSound The hurt sound resource location to add.
      */
     public void addHurtSound(String hurtSound) {
@@ -235,6 +244,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds sounds to the list of death sounds of a Taterzen.
+     *
      * @param deathSound The death sound resource location to add.
      */
     public void addDeathSound(String deathSound) {
@@ -243,6 +253,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes sounds from the list of ambient sounds of a Taterzen.
+     *
      * @param index The index of the ambient sound resource location within the NPCData structure.
      */
     public void removeAmbientSound(int index) {
@@ -251,6 +262,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes sounds from the list of hurt sounds of a Taterzen.
+     *
      * @param index The index of the hurt sound resource location within the NPCData structure.
      */
     public void removeHurtSound(int index) {
@@ -259,6 +271,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes sounds from the list of death sounds of a Taterzen.
+     *
      * @param index The index of the death sound resource location within the NPCData structure.
      */
     public void removeDeathSound(int index) {
@@ -396,6 +409,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets current movement of taterzen.
+     *
      * @return current movement
      */
     public NPCData.Movement getMovement() {
@@ -404,6 +418,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds block position as a node in path of Taterzen.
+     *
      * @param blockPos position to add.
      */
     public void addPathTarget(BlockPos blockPos) {
@@ -422,6 +437,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Handles name visibility on sneaking
+     *
      * @param sneaking whether npc's name should look like on sneaking.
      */
     @Override
@@ -432,6 +448,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the npc pose.
+     *
      * @param pose entity pose.
      */
     @Override
@@ -442,6 +459,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes node from path targets.
+     *
      * @param blockPos position from path to remove
      */
     public void removePathTarget(BlockPos blockPos) {
@@ -450,6 +468,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets the path nodes / targets.
+     *
      * @return array list of block positions.
      */
     public ArrayList<BlockPos> getPathTargets() {
@@ -476,7 +495,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         professionLoop:
         for (TaterzenProfession profession : this.professions.values()) {
             InteractionResult result = profession.tickMovement();
-            switch(result) {
+            switch (result) {
                 case CONSUME: // Stop processing others, but continue with base Taterzen movement tick
                     break professionLoop;
                 case FAIL: // Stop whole movement tick
@@ -495,7 +514,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             LivingEntity target = this.getTarget();
 
             if ((this.npcData.movement == NPCData.Movement.FORCED_PATH ||
-                this.npcData.movement == NPCData.Movement.PATH ) &&
+                    this.npcData.movement == NPCData.Movement.PATH) &&
                     !this.npcData.pathTargets.isEmpty() &&
                     !this.isPathFinding()) {
                 // Checking here as well (if path targets size was changed during the previous tick)
@@ -582,18 +601,19 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        ClientboundAddPlayerPacket addPlayerPacket = new ClientboundAddPlayerPacket(this.fakePlayer);
-        //noinspection ConstantConditions
-        AClientboundAddPlayerPacket addPlayerPacketAccessor = (AClientboundAddPlayerPacket) addPlayerPacket;
-        addPlayerPacketAccessor.setId(this.getId());
-        addPlayerPacketAccessor.setUuid(this.getUUID());
-        addPlayerPacketAccessor.setX(this.getX());
-        addPlayerPacketAccessor.setY(this.getY());
-        addPlayerPacketAccessor.setZ(this.getZ());
-        addPlayerPacketAccessor.setYRot((byte) ((int) (this.getYHeadRot() * 256.0F / 360.0F)));
-        addPlayerPacketAccessor.setXRot((byte) ((int) (this.getXRot() * 256.0F / 360.0F)));
-
-        return addPlayerPacket;
+        return new ClientboundAddEntityPacket(
+                this.getId(),
+                this.getUUID(),
+                this.getX(),
+                this.getY(),
+                this.getZ(),
+                this.getXRot(),
+                this.getYRot(),
+                EntityType.PLAYER,
+                0,
+                this.getDeltaMovement(),
+                this.getYHeadRot()
+        );
 
     }
 
@@ -612,6 +632,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the custom name
+     *
      * @param name new name to be set.
      */
     @Override
@@ -668,6 +689,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the Taterzen skin from tag
+     *
      * @param tag compound tag containing the skin
      */
     public void setSkinFromTag(CompoundTag tag) {
@@ -676,7 +698,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             PropertyMap map = this.gameProfile.getProperties();
             Property skin = map.get("textures").iterator().next();
             map.remove("textures", skin);
-        } catch (NoSuchElementException ignored) { }
+        } catch (NoSuchElementException ignored) {
+        }
         // Setting the skin
         try {
             String value = tag.getString("value");
@@ -687,13 +710,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 propertyMap.put("textures", new Property("textures", value, signature));
             }
 
-        } catch (Error ignored) { }
+        } catch (Error ignored) {
+        }
     }
 
     /**
      * Writes skin to tag
-     * @param profile game profile containing skin
      *
+     * @param profile game profile containing skin
      * @return compound tag with skin values
      */
     public CompoundTag writeSkinToTag(GameProfile profile) {
@@ -702,14 +726,17 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             PropertyMap propertyMap = profile.getProperties();
             Property skin = propertyMap.get("textures").iterator().next();
 
-            skinTag.putString("value", skin.getValue());
-            skinTag.putString("signature", skin.getSignature());
-        } catch (NoSuchElementException ignored) { }
+            skinTag.putString("value", skin.value());
+            skinTag.putString("signature", skin.signature());
+        } catch (NoSuchElementException ignored) {
+        }
 
         return skinTag;
     }
+
     /**
      * Loads Taterzen from {@link CompoundTag}.
+     *
      * @param tag tag to load Taterzen from.
      */
     @Override
@@ -978,6 +1005,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Loads Taterzen data from preset file.
+     *
      * @param tag tag containing preset name.
      */
     private void loadPresetTag(CompoundTag tag) {
@@ -991,6 +1019,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Loads Taterzen data from preset file. Loads team data as well.
+     *
      * @param presetFile file containing a taterzen preset.
      * @param presetName name of the preset.
      */
@@ -1021,6 +1050,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets player as equipment editor.
+     *
      * @param player player that will be marked as equipment editor.
      */
     public void setEquipmentEditor(@Nullable Player player) {
@@ -1029,6 +1059,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets player as equipment editor.
+     *
      * @param player player to check.
      * @return true if player is equipment editor of the NPC, otherwise false.
      */
@@ -1038,8 +1069,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Handles interaction (right clicking on the NPC).
+     *
      * @param player player interacting with NPC
-     * @param hand player's interacting hand
+     * @param hand   player's interacting hand
      * @return {@link InteractionResult#PASS} if NPC has a right click action, otherwise {@link InteractionResult#FAIL}
      */
     @Override
@@ -1120,6 +1152,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the cooldown message.
+     *
      * @param message new cooldown message.
      */
     public void setCooldownMessage(String message) {
@@ -1128,6 +1161,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the minimum time between command usage.
+     *
      * @param time new minimum time.
      */
     public void setMinCommandInteractionTime(long time) {
@@ -1159,6 +1193,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds the message to taterzen's message list.
+     *
      * @param text message to add
      */
     public void addMessage(Component text) {
@@ -1167,7 +1202,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds the message to taterzen's message list.
-     * @param text message to add
+     *
+     * @param text  message to add
      * @param delay message delay, in ticks
      */
     public void addMessage(Component text, int delay) {
@@ -1176,8 +1212,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Edits the message from taterzen's message list at index.
+     *
      * @param index index of the message to edit
-     * @param text new text message
+     * @param text  new text message
      */
     public void editMessage(int index, Component text) {
         if (index >= 0 && index < this.npcData.messages.size())
@@ -1186,6 +1223,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes message at index.
+     *
      * @param index index of message to be removed.
      * @return removed message
      */
@@ -1217,6 +1255,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets {@link ArrayList} of {@link Pair}s of messages and their delays.
+     *
      * @return arraylist of pairs with texts and delays.
      */
     public ArrayList<Pair<Component, Integer>> getMessages() {
@@ -1225,6 +1264,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Used for disabling pushing
+     *
      * @param entity colliding entity
      */
     @Override
@@ -1236,6 +1276,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Used for disabling pushing
+     *
      * @param entity colliding entity
      */
     @Override
@@ -1247,6 +1288,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets the pushable flag
+     *
      * @param pushable whether Taterzen can be pushed
      */
     public void setPushable(boolean pushable) {
@@ -1320,6 +1362,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Handles death of NPC.
+     *
      * @param source damage source responsible for death.
      */
     @Override
@@ -1355,6 +1398,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets Taterzen's {@link NPCData.Behaviour}.
+     *
      * @param level behaviour level
      */
     public void setBehaviour(NPCData.Behaviour level) {
@@ -1409,6 +1453,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets the Taterzen's target selector.
+     *
      * @return target selector of Taterzen.
      */
     public GoalSelector getTargetSelector() {
@@ -1417,6 +1462,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets the Taterzen's goal selector.
+     *
      * @return goal selector of Taterzen.
      */
     public GoalSelector getGoalSelector() {
@@ -1594,8 +1640,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Adds {@link TaterzenProfession} to Taterzen.
+     *
      * @param professionId ResourceLocation of the profession
-     * @param profession profession object (implementing {@link TaterzenProfession})
+     * @param profession   profession object (implementing {@link TaterzenProfession})
      */
     public void addProfession(ResourceLocation professionId, TaterzenProfession profession) {
         this.professions.put(professionId, profession);
@@ -1612,6 +1659,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Removes Taterzen's profession and triggers the corresponding {@link TaterzenProfession#onRemove()} event.
+     *
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
     public void removeProfession(ResourceLocation professionId) {
@@ -1625,6 +1673,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Gets Taterzen's profession.
+     *
      * @param professionId id of the profession that is in Taterzen's profession map.
      */
     @Nullable
@@ -1639,6 +1688,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Manages item pickup.
+     *
      * @param item item to pick up.
      */
     @Override
@@ -1659,6 +1709,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Makes Taterzen interact with block at given position.
      * It doesn't work if given position is too far away (>4 blocks)
+     *
      * @param pos position of block to interact with.
      * @return true if interaction was successfull, otherwise false.
      */
@@ -1675,6 +1726,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Makes Taterzen look at given block position.
+     *
      * @param target target block to look at.
      */
     public void lookAt(BlockPos target) {
@@ -1683,14 +1735,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         double e = target.getY() - vec3d.y;
         double f = target.getZ() - vec3d.z;
         double g = Math.sqrt(d * d + f * f);
-        this.setXRot(Mth.wrapDegrees((float)(-(Mth.atan2(e, g) * 57.2957763671875D))));
-        this.setYBodyRot(Mth.wrapDegrees((float)(Mth.atan2(f, d) * 57.2957763671875D) - 90.0F));
+        this.setXRot(Mth.wrapDegrees((float) (-(Mth.atan2(e, g) * 57.2957763671875D))));
+        this.setYBodyRot(Mth.wrapDegrees((float) (Mth.atan2(f, d) * 57.2957763671875D) - 90.0F));
         this.setYHeadRot(this.getYHeadRot());
     }
 
     /**
      * Sets whether Taterzen can perform jumps when in
      * proximity of target that it is attacking.
+     *
      * @param jumpWhileAttacking whether to jump during attacks.
      */
     public void setPerformAttackJumps(boolean jumpWhileAttacking) {
@@ -1698,8 +1751,18 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
+     * Gets follow type for taterzen.
+     *
+     * @return follow type
+     */
+    public NPCData.FollowTypes getFollowType() {
+        return this.npcData.follow.type;
+    }
+
+    /**
      * Sets the target type to follow.
      * Changes movement to {@link NPCData.Movement#PATH} as well.
+     *
      * @param followType type of target to follow
      */
     public void setFollowType(NPCData.FollowTypes followType) {
@@ -1718,23 +1781,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
-     * Gets follow type for taterzen.
-     * @return follow type
-     */
-    public NPCData.FollowTypes getFollowType() {
-        return this.npcData.follow.type;
-    }
-
-    /**
-     * Sets the target uuid to follow.
-     * @param followUuid uuid of target to follow
-     */
-    public void setFollowUuid(@Nullable UUID followUuid) {
-        this.npcData.follow.targetUuid = followUuid;
-    }
-
-    /**
      * Gets the UUID of the entity that taterzen is following.
+     *
      * @return entity UUID if following, otherwise null.
      */
     @Nullable
@@ -1743,7 +1791,17 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     /**
+     * Sets the target uuid to follow.
+     *
+     * @param followUuid uuid of target to follow
+     */
+    public void setFollowUuid(@Nullable UUID followUuid) {
+        this.npcData.follow.targetUuid = followUuid;
+    }
+
+    /**
      * Whether this Taterzen should make sound.
+     *
      * @param allowSounds whether to allow sounds or not.
      */
     public void setAllowSounds(boolean allowSounds) {
@@ -1752,6 +1810,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets which skin layers should be shown to clients
+     *
      * @param skinLayers byte of skin layers, see wiki.wg for more info.
      */
     public void setSkinLayers(Byte skinLayers) {
@@ -1759,9 +1818,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
 
-
     /**
      * Sets the respawn position for taterzen. Can be null to disable respawning.
+     *
      * @param respawnPos new respawn position.
      */
     public void setRespawnPos(@Nullable Vec3 respawnPos) {
@@ -1770,6 +1829,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets whether taterzen should be able to fly.
+     *
      * @param allowFlight whether to allow taterzen to fly or not.
      */
     public void setAllowFlight(boolean allowFlight) {
@@ -1788,9 +1848,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Whether taterzen can take fall damage.
+     *
      * @param fallDistance fall distance.
-     * @param multiplier damage multiplier.
-     * @param source source of damage.
+     * @param multiplier   damage multiplier.
+     * @param source       source of damage.
      * @return true if damage should be taken, otherwise false.
      */
     @Override
@@ -1800,6 +1861,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Whether taterzen should be allowed to be edited by entity.
+     *
      * @param entity entity to check.
      * @return true if taterzen can be edited by entity, otherwise false.
      */
@@ -1809,6 +1871,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Whether taterzen should be allowed to be edited by provided uuid.
+     *
      * @param uuid uuid to check.
      * @return true if taterzen can be edited by provided uuid, otherwise false.
      */
@@ -1818,6 +1881,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Tries to make taterzen to ride provided entity.
+     *
      * @param entity entity to ride.
      * @return true if taterzen was able to ride provided entity, otherwise false.
      */
@@ -1830,6 +1894,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Whether taterzen is locked.
+     *
      * @return true if taterzen is locked, otherwise false.
      */
     public boolean isLocked() {
@@ -1838,6 +1903,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets taterzen to be locked by provided owner's uuid.
+     *
      * @param owner entity to lock taterzen to.
      */
     public void setLocked(Entity owner) {
@@ -1846,6 +1912,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     /**
      * Sets taterzen to be locked by provided uuid.
+     *
      * @param uuid uuid to lock taterzen to.
      */
     public void setLocked(UUID uuid) {
@@ -1855,6 +1922,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Sets whether taterzen should be allowed to be ride entities.
      * (Mainly used for preventing them being picked up by boats / minecarts.)
+     *
      * @param allow whether to allow riding or not.
      */
     public void setAllowRiding(boolean allow) {
