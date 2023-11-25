@@ -18,19 +18,18 @@ public class MinecraftCommand extends AbstractTaterzenCommand {
     public MinecraftCommand(String command) {
         super(CommandType.DEFAULT);
         this.command = command;
-        this.executor = CommandExecutor.TARTERZEN;
+        this.executor = CommandExecutor.TATERZEN;
     }
 
     public MinecraftCommand() {
         super(CommandType.DEFAULT);
         this.command = "";
-        this.executor = CommandExecutor.TARTERZEN;
+        this.executor = CommandExecutor.TATERZEN;
     }
 
     @Override
     public void execute(TaterzenNPC npc, Player player) {
-        CommandSourceStack source = executor == CommandExecutor.TARTERZEN ?
-                npc.createCommandSourceStack() : player.createCommandSourceStack();
+        CommandSourceStack source = executor == CommandExecutor.TATERZEN ? npc.createCommandSourceStack() : player.createCommandSourceStack();
         npc.getServer().getCommands().performPrefixedCommand(source, command.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
     }
 
@@ -56,7 +55,7 @@ public class MinecraftCommand extends AbstractTaterzenCommand {
     }
 
     public enum CommandExecutor {
-        TARTERZEN("taterzen"),
+        TATERZEN("taterzen"),
         PLAYER("player");
 
         private final String argName;

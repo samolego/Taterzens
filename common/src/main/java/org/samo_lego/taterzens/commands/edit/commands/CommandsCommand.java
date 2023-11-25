@@ -384,7 +384,7 @@ public class CommandsCommand {
         CommandSourceStack source = context.getSource();
         String executorName = StringArgumentType.getString(context, "executor");
         Optional<MinecraftCommand.CommandExecutor> executorOptional = Arrays.stream(MinecraftCommand.CommandExecutor.values())
-                .filter(e -> e.name().equalsIgnoreCase(executorName))
+                .filter(e -> e.getArgName().equalsIgnoreCase(executorName))
                 .findFirst();
         if (executorOptional.isEmpty())
             throw new IllegalArgumentException("Invalid executor: " + executorName);
