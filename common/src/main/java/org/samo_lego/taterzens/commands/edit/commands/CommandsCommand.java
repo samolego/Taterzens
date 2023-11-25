@@ -22,7 +22,10 @@ import org.samo_lego.taterzens.commands.NpcCommand;
 import org.samo_lego.taterzens.npc.commands.BungeeCommand;
 import org.samo_lego.taterzens.npc.commands.MinecraftCommand;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,15 +68,20 @@ public class CommandsCommand {
                                                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                                                 .then(literal("minecraft")
                                                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
-                                                        .redirect(dispatcher.getRoot(), context -> {
-                                                            // Really ugly, but ... works :P
-                                                            String cmd = addCommand(context);
-                                                            throw new SimpleCommandExceptionType(
-                                                                    cmd == null ?
-                                                                            noSelectedTaterzenError() :
-                                                                            joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
-                                                            ).create();
-                                                        })
+                                                        .then(argument("executor", string())
+                                                                .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
+                                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(MinecraftCommand.CommandExecutor.values())
+                                                                                .map(MinecraftCommand.CommandExecutor::getArgName)
+                                                                                .collect(Collectors.toList()), builder))
+                                                                .redirect(dispatcher.getRoot(), context -> {
+                                                                    // Really ugly, but ... works :P
+                                                                    String cmd = addCommand(context);
+                                                                    throw new SimpleCommandExceptionType(
+                                                                            cmd == null ?
+                                                                                    noSelectedTaterzenError() :
+                                                                                    joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
+                                                                    ).create();
+                                                                }))
                                                 )
                                                 .then(literal("bungee")
                                                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.bungee", config.perms.npcCommandPermissionLevel))
@@ -105,15 +113,20 @@ public class CommandsCommand {
                         .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add", config.perms.npcCommandPermissionLevel))
                         .then(literal("minecraft")
                                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
-                                .redirect(dispatcher.getRoot(), context -> {
-                                    // Really ugly, but ... works :P
-                                    String cmd = addCommand(context);
-                                    throw new SimpleCommandExceptionType(
-                                            cmd == null ?
-                                                    noSelectedTaterzenError() :
-                                                    joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
-                                    ).create();
-                                })
+                                .then(argument("executor", string())
+                                        .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.minecraft", config.perms.npcCommandPermissionLevel))
+                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(Arrays.stream(MinecraftCommand.CommandExecutor.values())
+                                                .map(MinecraftCommand.CommandExecutor::getArgName)
+                                                .collect(Collectors.toList()), builder))
+                                        .redirect(dispatcher.getRoot(), context -> {
+                                            // Really ugly, but ... works :P
+                                            String cmd = addCommand(context);
+                                            throw new SimpleCommandExceptionType(
+                                                    cmd == null ?
+                                                            noSelectedTaterzenError() :
+                                                            joinText("taterzens.command.commands.set", ChatFormatting.GOLD, ChatFormatting.GRAY, "/" + cmd)
+                                            ).create();
+                                        }))
                         )
                         .then(literal("bungee")
                                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.commands.add.bungee", config.perms.npcCommandPermissionLevel))
@@ -369,6 +382,13 @@ public class CommandsCommand {
 
     private static String addCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
+        String executorName = StringArgumentType.getString(context, "executor");
+        Optional<MinecraftCommand.CommandExecutor> executorOptional = Arrays.stream(MinecraftCommand.CommandExecutor.values())
+                .filter(e -> e.name().equalsIgnoreCase(executorName))
+                .findFirst();
+        if (executorOptional.isEmpty())
+            throw new IllegalArgumentException("Invalid executor: " + executorName);
+        MinecraftCommand.CommandExecutor executor = executorOptional.get();
         int group = 0;
         boolean latest;
         try {
@@ -385,12 +405,12 @@ public class CommandsCommand {
             // Extremely :concern:
             // I know it
             String inputCmd = context.getInput();
-            String index = "add minecraft ";
+            String index = "add minecraft " + executorName;
             command.set(inputCmd.substring(inputCmd.indexOf(index) + index.length()));
             if (finalLatest) {
-                taterzen.addCommand(new MinecraftCommand(command.get()));
+                taterzen.addCommand(new MinecraftCommand(command.get(), executor));
             } else {
-                taterzen.addCommand(new MinecraftCommand(command.get()), finalGroup);
+                taterzen.addCommand(new MinecraftCommand(command.get(), executor), finalGroup);
             }
         });
         return command.get();
