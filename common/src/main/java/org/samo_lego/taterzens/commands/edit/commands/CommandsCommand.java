@@ -405,7 +405,7 @@ public class CommandsCommand {
             // Extremely :concern:
             // I know it
             String inputCmd = context.getInput();
-            String index = "add minecraft " + executorName;
+            String index = "add minecraft " + executorName + " ";
             command.set(inputCmd.substring(inputCmd.indexOf(index) + index.length()));
             if (finalLatest) {
                 taterzen.addCommand(new MinecraftCommand(command.get(), executor));
