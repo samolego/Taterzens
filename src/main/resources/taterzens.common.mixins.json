@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.samo_lego.taterzens.common.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "ChunkMapMixin_TaterzenList",
+    "CommandSourceStackMixin_HideTaterzenExecutor",
+    "ServerPlayInteractionManagerMixin",
+    "accessors.AChunkMap",
+    "accessors.AClientboundPlayerInfoPacket",
+    "accessors.AClientboundPlayerInfoUpdatePacket",
+    "accessors.AClientboundSetEntityDataPacket",
+    "accessors.ACommandSourceStack",
+    "accessors.AEntityTrackerEntry",
+    "accessors.APlayer",
+    "network.ServerGamePacketListenerImplMixin_BungeeListener",
+    "network.ServerGamePacketListenerImplMixin_MsgEditor",
+    "player.PlayerMixin_PeacefulDamage",
+    "player.ServerPlayerMixinCast_ITaterzenEditor",
+    "player.ServerPlayerMixinCast_ITaterzenPlayer"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "${refmap}"
+}
