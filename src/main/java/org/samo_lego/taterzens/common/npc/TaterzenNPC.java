@@ -77,6 +77,7 @@ import java.util.function.Function;
 
 import static net.minecraft.world.InteractionHand.MAIN_HAND;
 import static org.samo_lego.taterzens.common.Taterzens.*;
+import static org.samo_lego.taterzens.common.mixin.accessors.APlayer.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.common.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
 
@@ -591,7 +592,10 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         ChunkMap storage = manager.chunkMap;
         AEntityTrackerEntry trackerEntry = ((AChunkMap) storage).getEntityMap().get(this.getId());
         if (trackerEntry != null) {
-            trackerEntry.getSeenBy().forEach(tracking -> trackerEntry.getPlayer().addPairing(tracking.getPlayer()));
+            trackerEntry.getSeenBy().forEach(tracking -> {
+                trackerEntry.getPlayer().removePairing(tracking.getPlayer());
+                trackerEntry.getPlayer().addPairing(tracking.getPlayer());
+            });
         }
     }
 
@@ -1008,8 +1012,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         // As weird as it sounds, this gets triggered twice, first time with the item stack player is holding
         // then with "air" if fake type is player / armor stand
-        if (lastAction - ipl.getLastInteractionTime() < 50)
+        if (lastAction - ipl.getLastInteractionTime() < 50) {
             return InteractionResult.FAIL;
+        }
         ipl.setLastInteraction(lastAction);
 
 
@@ -1033,6 +1038,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             // Updating behaviour (if npc had a sword and now has a bow, it won't
             // be able to attack otherwise.)
             this.setBehaviour(this.npcData.behaviour);
+
             return InteractionResult.PASS;
         } else if (
                 player.getItemInHand(hand).getItem().equals(Items.POTATO) &&
@@ -1882,18 +1888,24 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
-        // Change game profile + skin layers
+        // Fake selection glow
         ((ITaterzenEditor) player).getSelectedNpc().ifPresent(npc -> {
             if (this == npc && config.glowSelectedNpc) {
-                data.removeIf(value -> value.id() == 7);
+                data.removeIf(value -> value.id() == Entity.DATA_SHARED_FLAGS_ID.getId());
                 // Modify Taterzen to have fake glowing effect for the player
-                var flags = this.entityData.get(Entity.DATA_SHARED_FLAGS_ID);
+                byte flags = this.entityData.get(Entity.DATA_SHARED_FLAGS_ID);
                 flags = (byte) (flags | 1 << Entity.FLAG_GLOWING);
 
                 SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, flags);
                 data.add(glowingTag);
             }
         });
+
+        // Skin layer settings
+        data.removeIf(value -> value.id() == getPLAYER_MODE_CUSTOMISATION().getId());
+
+        SynchedEntityData.DataValue<Byte> skinLayerTag = SynchedEntityData.DataValue.create(getPLAYER_MODE_CUSTOMISATION(), this.npcData.skinLayers);
+        data.add(skinLayerTag);
     }
 
     @Override
