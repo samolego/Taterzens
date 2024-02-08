@@ -42,7 +42,7 @@ public class EditorGUI {
             CommandNode<CommandSourceStack> childNode = (CommandNode<CommandSourceStack>) parentNode.getChildren().toArray()[0];
             if (childNode instanceof ArgumentCommandNode) {
                 givenInput = false;
-            } else if (childNode.getChildren().size() > 0) {
+            } else if (!childNode.getChildren().isEmpty()) {
                 currentCommandPath.add(parentNode.getName());
             } else {
                 break;

@@ -24,7 +24,7 @@ import static org.samo_lego.taterzens.common.Taterzens.TATERZEN_TYPE;
 import static org.samo_lego.taterzens.common.commands.NpcCommand.npcNode;
 import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
 
-public class FabricPlatform extends Platform {
+public class FabricPlatform implements Platform {
 
     private static final int REGISTRY_ITEMS_SIZE = ((AMappedRegistry<?>) BuiltInRegistries.ITEM).getById().size();
 

@@ -60,7 +60,7 @@ public class PresetCommand {
 
                 ((ITaterzenEditor) source.getPlayerOrException()).selectNpc(taterzenNPC);
 
-                taterzenNPC.sendProfileUpdates();
+                taterzenNPC.broadcastProfileUpdates();
 
                 source.sendSuccess(() ->
                                 successText("taterzens.command.preset.import.success", filename),

@@ -45,12 +45,13 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // Dependencies
+    // Mod Dependencies
+
     // Carpet Mod
     modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
     // Disguiselib
     //modCompileOnly("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
-    //modCompileOnly 'com.github.NucleoidMC:DisguiseLib:1.20.4-SNAPSHOT'
+    //modImplementation(include('com.github.NucleoidMC:DisguiseLib:90bf223196'))
 
     // Permission API
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))

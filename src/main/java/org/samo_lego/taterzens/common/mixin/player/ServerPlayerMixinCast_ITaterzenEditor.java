@@ -137,11 +137,11 @@ public class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
         this.selectedNpc = npc;
 
         if (npc != null) {
-            npc.sendProfileUpdates();
+            npc.broadcastProfileUpdates();
         }
 
         if (selectedNpc != null) {
-            selectedNpc.sendProfileUpdates();
+            selectedNpc.broadcastProfileUpdates();
         }
 
         return true;

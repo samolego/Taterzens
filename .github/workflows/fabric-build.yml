@@ -37,10 +37,10 @@ jobs:
         if: ${{ runner.os != 'Windows' }}
         run: chmod +x ./gradlew
       - name: build
-        run: ./gradlew fabric:build
+        run: ./gradlew build
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' }}
         uses: actions/upload-artifact@v2
         with:
           name: Artifacts
-          path: fabric/build/libs/
+          path: build/libs/

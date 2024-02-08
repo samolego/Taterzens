@@ -120,7 +120,7 @@ public class SkinCommand {
                                 skinTag.putString("signature", signature);
 
                                 taterzen.setSkinFromTag(skinTag);
-                                taterzen.sendProfileUpdates();
+                                taterzen.broadcastProfileUpdates();
 
 
                                 context.getSource().sendSuccess(() ->
@@ -147,7 +147,7 @@ public class SkinCommand {
             Byte skinLayers = player.getEntityData().get(getPLAYER_MODE_CUSTOMISATION());
             taterzen.setSkinLayers(skinLayers);
 
-            taterzen.sendProfileUpdates();
+            taterzen.broadcastProfileUpdates();
             source.sendSuccess(() ->
                             successText("taterzens.command.skin.mirrored", taterzen.getName().getString()),
                     false

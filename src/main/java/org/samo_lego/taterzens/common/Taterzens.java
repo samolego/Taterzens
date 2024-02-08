@@ -87,7 +87,6 @@ public class Taterzens {
         LanguageUtil.setupLanguage();
 
         PolymerEntityUtils.registerType(TATERZEN_TYPE.get());
-
     }
 
     /**

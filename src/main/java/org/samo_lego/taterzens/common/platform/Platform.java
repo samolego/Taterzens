@@ -10,26 +10,26 @@ import java.nio.file.Path;
 /**
  * Base class for platform implementations.
  */
-public abstract class Platform {
+public interface Platform {
 
     /**
      * Gets the path to the directory where the config files are stored.
      * @return the path to the directory where the config files are stored.
      */
-    public abstract Path getConfigDirPath();
+    Path getConfigDirPath();
 
     /**
      * Checks whether certain mod is loaded.
      * @param modId the mod id.
      * @return true if the mod is loaded, false otherwise.
      */
-    public abstract boolean isModLoaded(String modId);
+    boolean isModLoaded(String modId);
 
     /**
      * Gets size of item registry.
      * @return size of item registry.
      */
-    public abstract int getItemRegistrySize();
+    int getItemRegistrySize();
 
     /**
      * Checks for permission of provided command source.
@@ -38,18 +38,17 @@ public abstract class Platform {
      * @param fallbackLevel the fallback level to use if the permission node is not set.
      * @return true if the command source has the permission node, false otherwise.
      */
-    public abstract boolean checkPermission(CommandSourceStack source, String permissionNode, int fallbackLevel);
+    boolean checkPermission(CommandSourceStack source, String permissionNode, int fallbackLevel);
 
     /**
      * Registers the taterzen entity type.
      */
-    public abstract void registerTaterzenType();
+    void registerTaterzenType();
 
-    public void openEditorGui(ServerPlayer player) {
-    }
+    void openEditorGui(ServerPlayer player);
 
 
-    public abstract void disguiseAs(TaterzenNPC taterzen, Entity entity);
+    void disguiseAs(TaterzenNPC taterzen, Entity entity);
 
-    public abstract void clearDisguise(TaterzenNPC taterzen);
+    void clearDisguise(TaterzenNPC taterzen);
 }

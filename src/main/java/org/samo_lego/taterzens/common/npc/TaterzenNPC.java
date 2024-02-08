@@ -1,6 +1,5 @@
 package org.samo_lego.taterzens.common.npc;
 
-import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -578,14 +577,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.gameProfile = new GameProfile(this.getUUID(), profileName);
         if (skin != null) {
             this.setSkinFromTag(skin);
-            this.sendProfileUpdates();
+            this.broadcastProfileUpdates();
         }
     }
 
     /**
      * Updates Taterzen's {@link GameProfile} for others.
      */
-    public void sendProfileUpdates() {
+    public void broadcastProfileUpdates() {
         if (this.level().isClientSide()) return;
 
         ServerChunkCache manager = (ServerChunkCache) this.level().getChunkSource();
@@ -610,7 +609,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         setSkinFromTag(writeSkinToTag(texturesProfile));
 
         // Sending updates
-        this.sendProfileUpdates();
+        this.broadcastProfileUpdates();
     }
 
     /**
@@ -726,7 +725,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         ListTag pathTargets = (ListTag) npcTag.get("PathTargets");
         if (pathTargets != null) {
-            if (pathTargets.size() > 0) {
+            if (!pathTargets.isEmpty()) {
                 pathTargets.forEach(posTag -> {
                     if (posTag instanceof CompoundTag pos) {
                         BlockPos target = new BlockPos(pos.getInt("x"), pos.getInt("y"), pos.getInt("z"));
@@ -739,7 +738,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.npcData.currentMoveTarget = npcTag.getInt("CurrentMoveTarget");
 
         ListTag messages = (ListTag) npcTag.get("Messages");
-        if (messages != null && messages.size() > 0) {
+        if (messages != null && !messages.isEmpty()) {
             messages.forEach(msgTag -> {
                 CompoundTag msgCompound = (CompoundTag) msgTag;
                 this.addMessage(TextUtil.fromNbtElement(msgCompound.get("Message")), msgCompound.getInt("Delay"));
@@ -768,7 +767,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
         // Profession initialising
         ListTag professions = (ListTag) npcTag.get("Professions");
-        if (professions != null && professions.size() > 0) {
+        if (professions != null && !professions.isEmpty()) {
             professions.forEach(professionTag -> {
                 CompoundTag professionCompound = (CompoundTag) professionTag;
 
@@ -1884,17 +1883,17 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
         // Change game profile + skin layers
-    }
+        ((ITaterzenEditor) player).getSelectedNpc().ifPresent(npc -> {
+            if (this == npc && config.glowSelectedNpc) {
+                data.removeIf(value -> value.id() == 7);
+                // Modify Taterzen to have fake glowing effect for the player
+                var flags = this.entityData.get(Entity.DATA_SHARED_FLAGS_ID);
+                flags = (byte) (flags | 1 << Entity.FLAG_GLOWING);
 
-    @Override
-    public List<Pair<EquipmentSlot, ItemStack>> getPolymerVisibleEquipment(List<Pair<EquipmentSlot, ItemStack>> items, ServerPlayer player) {
-        List<Pair<EquipmentSlot, ItemStack>> list = Lists.newArrayListWithCapacity(EquipmentSlot.values().length);
-
-        for (var slot : EquipmentSlot.values()) {
-            list.add(Pair.of(slot, this.getItemBySlot(slot)));
-        }
-
-        return list;
+                SynchedEntityData.DataValue<Byte> glowingTag = SynchedEntityData.DataValue.create(Entity.DATA_SHARED_FLAGS_ID, flags);
+                data.add(glowingTag);
+            }
+        });
     }
 
     @Override
