@@ -66,7 +66,7 @@ public class NPCData {
     public String commandCooldownMessage = config.defaults.commandCooldownMessage;
 
     public final Map<String, Boolean> booleanTags = new HashMap<>();
-    public byte skinLayers = 0xF;
+    public byte skinLayers = 127;
 
     public static class Follow {
         /**
