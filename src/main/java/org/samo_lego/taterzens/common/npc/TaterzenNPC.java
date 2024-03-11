@@ -499,14 +499,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     public void tick() {
         super.tick();
 
-        AABB box = this.getBoundingBox().inflate(4.0D);
+        AABB box = this.getBoundingBox().inflate(config.messages.speakDistance);
         List<ServerPlayer> players = this.level().getEntitiesOfClass(ServerPlayer.class, box);
 
         if (!this.npcData.messages.isEmpty()) {
             for (ServerPlayer player : players) {
                 // Filter them here (not use a predicate above)
                 // as we need the original list below
-                if (((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES || this.distanceTo(player) > config.messages.speakDistance) {
+                if (((ITaterzenEditor) player).getEditorMode() == ITaterzenEditor.EditorMode.MESSAGES) {
                     continue;
                 }
 
