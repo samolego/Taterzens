@@ -41,7 +41,7 @@ public class Taterzens {
     /**
      * Language file.
      */
-    public static JsonObject lang;
+    public static JsonObject lang = new JsonObject;
 
     /**
      * List of **loaded** {@link TaterzenNPC TaterzenNPCs}.
