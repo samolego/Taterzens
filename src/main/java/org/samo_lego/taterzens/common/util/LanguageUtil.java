@@ -22,7 +22,7 @@ import static org.samo_lego.taterzens.common.Taterzens.*;
 
 public class LanguageUtil {
 
-    public static final InputStream DEFAULT_LANG_STREAM = Taterzens.class.getResourceAsStream("/data/taterzens/lang/en_us.json");
+    public static final InputStream DEFAULT_LANG_STREAM = Taterzens.class.getResourceAsStream("/lang/en_us.json");
     public static final List<String> LANG_LIST = new ArrayList<>();
     private static final String API_URL = "https://api.github.com/repos/samolego/taterzens/contents/common/src/main/resources/data/taterzens/lang";
     private static final String LANG_FILE_URL = "https://raw.githubusercontent.com/samolego/Taterzens/master/common/src/main/resources/data/taterzens/lang/%s.json";
@@ -31,7 +31,7 @@ public class LanguageUtil {
      * Initializes the mod's language json object.
      */
     public static void setupLanguage() {
-        String langPath = String.format("/data/taterzens/lang/%s.json", config.language);
+        String langPath = String.format("/lang/%s.json", config.language);
         InputStream stream = Taterzens.class.getResourceAsStream(langPath);
         if (stream == null) {
             // Try to fetch language, as it's not present in jar
