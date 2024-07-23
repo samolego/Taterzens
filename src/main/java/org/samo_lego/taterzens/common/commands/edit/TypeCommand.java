@@ -26,7 +26,14 @@ import static org.samo_lego.taterzens.common.compatibility.ModDiscovery.DISGUISE
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
 import static org.samo_lego.taterzens.common.util.TextUtil.translate;
 
+import org.samo_lego.taterzens.common.npc.NPCData;
+import static org.apache.logging.log4j.LogManager.getLogger;
+
+
 public class TypeCommand {
+
+    public final NPCData npcData = new NPCData();
+
     public static void registerNode(LiteralCommandNode<CommandSourceStack> editNode, CommandBuildContext commandBuildContext) {
         LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
@@ -78,6 +85,19 @@ public class TypeCommand {
             nbt.putString("id", disguise.toString());
 
             EntityType.loadEntityRecursive(nbt, source.getLevel(), (entityx) -> {
+                // We can do some manipulation based on the detail returned
+                // taterzen.modEntity() is a short all-caps descriptor of the current TYPE.
+                var removeSub = "entity.minecraft.";
+				
+		    	var interim = entityx.getType().getDescriptionId();
+		    	
+		    	
+		    	String stripped = interim.replace(removeSub, "").toUpperCase();
+		    	
+		    	getLogger("Taterzens").info("[Taterzens]: Setting the order to change the type - {}", stripped);
+
+		    	taterzen.modEntity(stripped);
+
                 Taterzens.getInstance().getPlatform().disguiseAs(taterzen, entityx);
                 source.sendSuccess(() ->
                                 translate(
@@ -104,6 +124,10 @@ public class TypeCommand {
             return -1;
         }
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
+            
+        	// The Reset is to PLAYER
+        	taterzen.modEntity("PLAYER");
+            
             Taterzens.getInstance().getPlatform().clearDisguise(taterzen);
             source.sendSuccess(() ->
                             successText("taterzens.command.entity_type.reset", taterzen.getName().getString()),
