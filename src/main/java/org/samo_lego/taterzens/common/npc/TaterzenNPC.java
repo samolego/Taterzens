@@ -199,7 +199,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     		npcTag.putString("Entity", "PLAYER");
             npcData.playerEntity.put("Entity", "PLAYER");
-         }
+        }
 
         // We only want to do this ONCE, and it gets fussy if placed anywhere else.
         // So, we check to see if the list is empty and then fill it if it is
@@ -339,9 +339,6 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     	this.npcData.playerEntity.put("Entity", entType);
     }
     
-
-        
-    }
 
     /**
      * Creates default taterzen attributes.
