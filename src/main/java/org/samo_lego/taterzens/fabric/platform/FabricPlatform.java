@@ -22,7 +22,12 @@ import java.util.Collections;
 import static org.samo_lego.taterzens.common.Taterzens.NPC_ID;
 import static org.samo_lego.taterzens.common.Taterzens.TATERZEN_TYPE;
 import static org.samo_lego.taterzens.common.commands.NpcCommand.npcNode;
-import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
+// Commented out for now as the EditorGUI is being temporarily disable
+//import static org.samo_lego.taterzens.fabric.gui.EditorGUI.createCommandGui;
+import eu.pb4.polymer.core.api.entity.PolymerEntity;
+
+
+
 
 public class FabricPlatform implements Platform {
 
@@ -76,8 +81,9 @@ public class FabricPlatform implements Platform {
 
     @Override
     public void openEditorGui(ServerPlayer player) {
-        SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
-        editorGUI.open();
+        // Commentinog out since we've disabled the Editor GUI for now with the 1.21 update
+        // SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
+       //editorGUI.open();
     }
 
     @Override
