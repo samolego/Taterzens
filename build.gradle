@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
 
     id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -49,7 +49,9 @@ dependencies {
 
     // Carpet Mod
     modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
+	
     // Disguiselib
+    // Commented out of main codebase for now, as TYPE change is achieved by Poylmer
     //modCompileOnly("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
     //modImplementation(include('com.github.NucleoidMC:DisguiseLib:90bf223196'))
 
@@ -57,7 +59,8 @@ dependencies {
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // Server translations
-    modImplementation(include("xyz.nucleoid:server-translations-api:${project.translations_api}"))
+    // Commented out for now until we can confirm the 1.21 supported version.  Does not impact general mod function
+    //modImplementation(include("xyz.nucleoid:server-translations-api:${project.translations_api}"))
 
     // SGUI
     modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
@@ -79,7 +82,8 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 17
+    // One of the big changes to 1.21 is a requirement for at least Java 21, using 22 as it's current at time of dev.
+    it.options.release = 22
 }
 
 java {
@@ -88,8 +92,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_22
+    targetCompatibility = JavaVersion.VERSION_22
 }
 
 jar {
