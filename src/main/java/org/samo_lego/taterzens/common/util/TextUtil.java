@@ -40,7 +40,7 @@ public class TextUtil {
      * @return NbtElement generated from text.
      */
     public static Tag toNbtElement(Component text) {
-        JsonElement json = JsonParser.parseString(Component.Serializer.toJson(text));
+        JsonElement json = JsonParser.parseString(Component.Serializer.toJson(text, null));
         return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
     }
 
@@ -51,7 +51,7 @@ public class TextUtil {
      */
     public static MutableComponent fromNbtElement(Tag textNbtElement) {
         JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textNbtElement);
-        return Component.Serializer.fromJson(json);
+        return Component.Serializer.fromJson(json, null);
     }
 
     /**
