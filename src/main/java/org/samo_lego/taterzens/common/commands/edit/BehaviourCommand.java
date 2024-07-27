@@ -64,7 +64,7 @@ public class BehaviourCommand {
 
     static {
         HOSTILITY_TYPES = SuggestionProviders.register(
-                new ResourceLocation.fromNamespaceAndPath(MOD_ID, "hostility_types"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "hostility_types"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(NPCData.Behaviour.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
