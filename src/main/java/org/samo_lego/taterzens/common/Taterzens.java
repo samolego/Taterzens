@@ -56,7 +56,8 @@ public class Taterzens {
      * when packets are sent.
      */
     public static Supplier<EntityType<TaterzenNPC>> TATERZEN_TYPE;
-    public static final ResourceLocation NPC_ID = new ResourceLocation(MOD_ID, "npc");
+    // Updated to 1.21 ResourceLocation changes
+    public static final ResourceLocation NPC_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "npc");
 
     private final File configFile;
 
