@@ -99,13 +99,13 @@ public class MovementCommand {
 
     static {
         MOVEMENT_TYPES = SuggestionProviders.register(
-                new ResourceLocation(MOD_ID, "movement_types"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "movement_types"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(NPCData.Movement.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
 
         FOLLOW_TYPES = SuggestionProviders.register(
-                new ResourceLocation(MOD_ID, "follow_types"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "follow_types"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(NPCData.FollowTypes.values()).map(Enum::name).collect(Collectors.toList()), builder)
         );
