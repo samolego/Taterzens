@@ -133,7 +133,7 @@ public class TaterzensCommand {
 
     static {
         AVAILABLE_LANGUAGES = SuggestionProviders.register(
-                new ResourceLocation.fromNamespaceAndPath(MOD_ID, "languages"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "languages"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(LANG_LIST, builder)
         );
