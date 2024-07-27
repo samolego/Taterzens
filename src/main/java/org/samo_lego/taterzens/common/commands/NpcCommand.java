@@ -97,7 +97,10 @@ public class NpcCommand {
 
         EditCommand.registerNode(dispatcher, npcNode, commandBuildContext);
         PresetCommand.registerNode(npcNode);
-        TeleportCommand.registerNode(npcNode);
+
+        // TODO: Fix the Teleport implementation to meet the 1.21 changes
+        //TeleportCommand.registerNode(npcNode);
+
         ActionCommand.registerNode(npcNode);
         LockCommand.registerNode(npcNode);
     }
