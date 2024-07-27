@@ -16,6 +16,9 @@ import static org.samo_lego.taterzens.common.commands.NpcCommand.selectedTaterze
 
 public class TeleportCommand {
 
+    // TODO: Fix this implementation to match up with the 1.21 Teleport implementation
+    
+    /*
     public static void registerNode(LiteralCommandNode<CommandSourceStack> npcNode) {
         LiteralCommandNode<CommandSourceStack> tpNode = literal("tp")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.tp", config.perms.npcCommandPermissionLevel))
@@ -29,9 +32,12 @@ public class TeleportCommand {
 
         npcNode.addChild(tpNode);
     }
+    */
 
+    /*
     private static int teleportTaterzen(CommandContext<CommandSourceStack> context, Vec3 destination) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         return selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> taterzen.teleportToWithTicket(destination.x(), destination.y(), destination.z()));
     }
+    */
 }
