@@ -34,6 +34,9 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
 
         this.setTitle(Component.translatable(titleTranslationKey).append(": ").withStyle(ChatFormatting.YELLOW).append(npcName.copy()));
 
+        // TODO: Fix this to meet the 1.21 itemStack implementation
+
+        /*
         // Info (which page)
         ItemStack info = new ItemStack(Items.PAPER);
         info.setTag(customData.copy());
@@ -80,6 +83,7 @@ public abstract class ListItemsGUI extends SimpleGui implements Container {
             player.closeContainer();
         });
         this.setSlot(8, closeScreenButton);
+        */
     }
 
     /**
