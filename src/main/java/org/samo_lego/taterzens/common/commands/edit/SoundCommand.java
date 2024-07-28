@@ -565,7 +565,7 @@ public class SoundCommand {
         ServerPlayer player = source.getPlayerOrException();
 
         String soundResource = ResourceLocationArgument.getId(context, "ambientSound").toString();
-        if (!ResourceLocation.isValidResourceLocation(soundResource))
+        if (!ResourceLocation.isValidNamespace(soundResource))
         {
             source.sendFailure(errorText("taterzens.command.sounds.invalid"));
             return 0;
@@ -592,7 +592,7 @@ public class SoundCommand {
         ServerPlayer player = source.getPlayerOrException();
 
         String soundResource = ResourceLocationArgument.getId(context, "hurtSound").toString();
-        if (!ResourceLocation.isValidResourceLocation(soundResource))
+        if (!ResourceLocation.isValidNamespace(soundResource))
         {
             source.sendFailure(errorText("taterzens.command.sounds.invalid"));
             return 0;
@@ -618,7 +618,7 @@ public class SoundCommand {
         ServerPlayer player = source.getPlayerOrException();
 
         String soundResource = ResourceLocationArgument.getId(context, "deathSound").toString();
-        if (!ResourceLocation.isValidResourceLocation(soundResource))
+        if (!ResourceLocation.isValidNamespace(soundResource))
         {
             source.sendFailure(errorText("taterzens.command.sounds.invalid"));
             return 0;
