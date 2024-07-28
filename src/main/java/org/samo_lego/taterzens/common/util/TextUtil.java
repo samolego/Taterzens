@@ -61,9 +61,15 @@ public class TextUtil {
      * @return {@link TranslatableContents} or {@link PlainTextContents.LiteralContents} depending on whether SERVER_TRANSLATIONS is loaded.
      */
     public static MutableComponent translate(String key, Object... args) {
+        /*
+        
+        // Commenting this out because SERVER_TRANSLATIONS doesn't seem to do anything, particularly when we have translation files available and loaded
+        // Because this always seems to be loaded, it's always going to prevent the follow on translation thanks to that return...
+        
         if (SERVER_TRANSLATIONS_LOADED) {
             return Component.translatable(key, args);
         }
+        */
 
         String translation;
         if (lang.has(key)) {

@@ -3,6 +3,7 @@ package org.samo_lego.taterzens.common.npc;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,4 +142,11 @@ public class NPCData {
         PLAYERS,
         MOBS
     }
+
+    // We build a hashmap of entities to make our lives a little easier when changing and keeping TYPE
+    public HashMap<String, EntityType<?>> entityList = new HashMap<>();
+
+    // We set the player TYPE using a similar approach, since the data likes to be in a hashmap format.
+    public HashMap<String, String> playerEntity = new HashMap<>();
+
 }

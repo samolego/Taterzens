@@ -81,6 +81,8 @@ import static org.samo_lego.taterzens.common.mixin.accessors.APlayer.getPLAYER_M
 import static org.samo_lego.taterzens.common.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
 
+import static org.apache.logging.log4j.LogManager.getLogger;
+
 /**
  * The NPC itself.
  */
@@ -152,7 +154,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * {@link TaterzensAPI#createTaterzen(ServerPlayer, String)}
      * instead, as this one doesn't set the position and custom name.
      *
-     * @param entityType Taterzen entity type
+     * @param npcData.entityList.put
+ Taterzen entity type
      * @param world      Taterzen's world
      */
     public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
@@ -182,7 +185,160 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.npcData.deathSounds = new ArrayList<>(config.defaults.deathSounds);
         }
 
+        // This is where the magic happens for changing entity type...
+        CompoundTag npcTag = new CompoundTag();
+        if (npcTag.contains("Entity")) {
+        	// Update it to the current settting
+           	getLogger("Taterzens").info("[Taterzens]: We have a valid Entity setting and are putting it in the Tag - Map -  {}, - Tag -", npcData.playerEntity.get("Entity"), npcTag.getString("Entity"));
+    		 //
+           	npcTag.putString("Entity", npcData.playerEntity.get("Entity"));
+           	// It's actually this we need to update since we have it stored, and the playerEntity hashmap is what we're using
+           	npcData.playerEntity.put("Entity", npcTag.getString("Entity"));
+        } else { // Initial NPC creation we go to PLAYER
+        	getLogger("Taterzens").info("[Taterzens]: No valid Entity set, so it's PLAYER time.");
+
+    		npcTag.putString("Entity", "PLAYER");
+            npcData.playerEntity.put("Entity", "PLAYER");
+        }
+
+        // We only want to do this ONCE, and it gets fussy if placed anywhere else.
+        // So, we check to see if the list is empty and then fill it if it is
+        if (this.npcData.entityList.isEmpty()) {
+        	  
+            npcData.entityList.put("ALLAY", EntityType.ALLAY);
+        	npcData.entityList.put("AREA_EFFECT_CLOUD", EntityType.AREA_EFFECT_CLOUD); 
+        	npcData.entityList.put("ARMOR_STAND", EntityType.ARMOR_STAND);
+        	npcData.entityList.put("ARROW", EntityType.ARROW);
+        	npcData.entityList.put("AXOLOTL", EntityType.AXOLOTL);
+        	npcData.entityList.put("BAT", EntityType.BAT);
+        	npcData.entityList.put("BEE", EntityType.BEE);
+        	npcData.entityList.put("BLAZE", EntityType.BLAZE);
+        	npcData.entityList.put("BLOCK_DISPLAY", EntityType.BLOCK_DISPLAY);
+        	npcData.entityList.put("BOAT", EntityType.BOAT);
+        	npcData.entityList.put("BREEZE", EntityType.BREEZE);
+        	npcData.entityList.put("CAMEL", EntityType.CAMEL);
+        	npcData.entityList.put("CAT", EntityType.CAT);
+        	npcData.entityList.put("CAVE_SPIDER", EntityType.CAVE_SPIDER);
+        	npcData.entityList.put("CHEST_BOAT", EntityType.CHEST_BOAT);
+        	npcData.entityList.put("CHEST_MINECART", EntityType.CHEST_MINECART);
+        	npcData.entityList.put("CHICKEN", EntityType.CHICKEN);
+        	npcData.entityList.put("COD", EntityType.COD);
+        	npcData.entityList.put("COMMAND_BLOCK_MINECART", EntityType.COMMAND_BLOCK_MINECART);
+        	npcData.entityList.put("COW", EntityType.COW);
+        	npcData.entityList.put("CREEPER", EntityType.CREEPER);
+        	npcData.entityList.put("DOLPHIN", EntityType.DOLPHIN);
+        	npcData.entityList.put("DONKEY", EntityType.DONKEY);
+        	npcData.entityList.put("DRAGON_FIREBALL", EntityType.DRAGON_FIREBALL);
+        	npcData.entityList.put("DROWNED", EntityType.DROWNED);
+        	npcData.entityList.put("EGG", EntityType.EGG);
+        	npcData.entityList.put("ELDER_GUARDIAN", EntityType.ELDER_GUARDIAN);
+        	npcData.entityList.put("END_CRYSTAL", EntityType.END_CRYSTAL);
+        	npcData.entityList.put("ENDER_DRAGON", EntityType.ENDER_DRAGON);
+        	npcData.entityList.put("ENDER_PEARL", EntityType.ENDER_PEARL);
+        	npcData.entityList.put("ENDERMAN", EntityType.ENDERMAN);
+        	npcData.entityList.put("ENDERMITE", EntityType.ENDERMITE);
+        	npcData.entityList.put("EVOKER", EntityType.EVOKER);
+        	npcData.entityList.put("EVOKER_FANGS", EntityType.EVOKER_FANGS);
+        	npcData.entityList.put("EXPERIENCE_BOTTLE", EntityType.EXPERIENCE_BOTTLE);
+        	npcData.entityList.put("EXPERIENCE_ORB", EntityType.EXPERIENCE_ORB);
+        	npcData.entityList.put("EYE_OF_ENDER", EntityType.EYE_OF_ENDER);
+        	npcData.entityList.put("FALLING_BLOCK", EntityType.FALLING_BLOCK);
+        	npcData.entityList.put("FIREBALL", EntityType.FIREBALL);
+        	npcData.entityList.put("FIREWORK_ROCKET", EntityType.FIREWORK_ROCKET);
+        	npcData.entityList.put("FISHING_BOBBER", EntityType.FISHING_BOBBER);
+        	npcData.entityList.put("FOX", EntityType.FOX);
+        	npcData.entityList.put("FROG", EntityType.FROG);
+        	npcData.entityList.put("FURNACE_MINECART", EntityType.FURNACE_MINECART);
+        	npcData.entityList.put("GHAST", EntityType.GHAST);
+        	npcData.entityList.put("GIANT", EntityType.GIANT);
+        	npcData.entityList.put("GLOW_ITEM_FRAME", EntityType.GLOW_ITEM_FRAME);
+        	npcData.entityList.put("GLOW_SQUID", EntityType.GLOW_SQUID);
+        	npcData.entityList.put("GOAT", EntityType.GOAT);
+        	npcData.entityList.put("GUARDIAN", EntityType.GUARDIAN);
+        	npcData.entityList.put("HOGLIN", EntityType.HOGLIN);
+        	npcData.entityList.put("HOPPER_MINECART", EntityType.HOPPER_MINECART);
+        	npcData.entityList.put("HORSE", EntityType.HORSE);
+        	npcData.entityList.put("HUSK", EntityType.HUSK);
+        	npcData.entityList.put("ILLUSIONER", EntityType.ILLUSIONER);
+        	npcData.entityList.put("INTERACTION", EntityType.INTERACTION);
+        	npcData.entityList.put("IRON_GOLEM", EntityType.IRON_GOLEM);
+        	npcData.entityList.put("ITEM", EntityType.ITEM);
+        	npcData.entityList.put("ITEM_DISPLAY", EntityType.ITEM_DISPLAY);
+        	npcData.entityList.put("ITEM_FRAME", EntityType.ITEM_FRAME);
+        	npcData.entityList.put("LEASH_KNOT", EntityType.LEASH_KNOT);
+        	npcData.entityList.put("LIGHTNING_BOLT", EntityType.LIGHTNING_BOLT);
+        	npcData.entityList.put("LLAMA", EntityType.LLAMA);
+        	npcData.entityList.put("LLAMA_SPIT", EntityType.LLAMA_SPIT);
+        	npcData.entityList.put("MAGMA_CUBE", EntityType.MAGMA_CUBE);
+        	npcData.entityList.put("MARKER", EntityType.MARKER);
+        	npcData.entityList.put("MINECART", EntityType.MINECART);
+        	npcData.entityList.put("MOOSHROOM", EntityType.MOOSHROOM);
+        	npcData.entityList.put("MULE", EntityType.MULE);
+        	npcData.entityList.put("OCELOT", EntityType.OCELOT);
+        	npcData.entityList.put("PAINTING", EntityType.PAINTING);
+        	npcData.entityList.put("PANDA", EntityType.PANDA);
+        	npcData.entityList.put("PARROT", EntityType.PARROT);
+        	npcData.entityList.put("PHANTOM", EntityType.PHANTOM);
+        	npcData.entityList.put("PIG", EntityType.PIG);
+        	npcData.entityList.put("PIGLIN", EntityType.PIGLIN);
+        	npcData.entityList.put("PIGLIN_BRUTE", EntityType.PIGLIN_BRUTE);
+        	npcData.entityList.put("PILLAGER", EntityType.PILLAGER);
+        	npcData.entityList.put("PLAYER", EntityType.PLAYER); 
+        	npcData.entityList.put("POLAR_BEAR", EntityType.POLAR_BEAR);
+        	npcData.entityList.put("POTION", EntityType.POTION);
+        	npcData.entityList.put("PUFFERFISH", EntityType.PUFFERFISH);
+        	npcData.entityList.put("RABBIT", EntityType.RABBIT);
+        	npcData.entityList.put("RAVAGER", EntityType.RAVAGER);
+        	npcData.entityList.put("SALMON", EntityType.SALMON);
+        	npcData.entityList.put("SHEEP", EntityType.SHEEP);
+        	npcData.entityList.put("SHULKER", EntityType.SHULKER);
+        	npcData.entityList.put("SHULKER_BULLET", EntityType.SHULKER_BULLET);
+        	npcData.entityList.put("SILVERFISH", EntityType.SILVERFISH);
+        	npcData.entityList.put("SKELETON", EntityType.SKELETON);
+        	npcData.entityList.put("SKELETON_HORSE", EntityType.SKELETON_HORSE);
+        	npcData.entityList.put("SLIME", EntityType.SLIME);
+        	npcData.entityList.put("SMALL_FIREBALL", EntityType.SMALL_FIREBALL);
+        	npcData.entityList.put("SNIFFER", EntityType.SNIFFER);
+        	npcData.entityList.put("SNOW_GOLEM", EntityType.SNOW_GOLEM);
+        	npcData.entityList.put("SNOWBALL", EntityType.SNOWBALL);
+        	npcData.entityList.put("SPAWNER_MINECART", EntityType.SPAWNER_MINECART);
+        	npcData.entityList.put("SPECTRAL_ARROW", EntityType.SPECTRAL_ARROW);
+        	npcData.entityList.put("SPIDER", EntityType.SPIDER);
+        	npcData.entityList.put("SQUID", EntityType.SQUID);
+        	npcData.entityList.put("STRAY", EntityType.STRAY);
+        	npcData.entityList.put("STRIDER", EntityType.STRIDER);
+        	npcData.entityList.put("TADPOLE", EntityType.TADPOLE);
+        	npcData.entityList.put("TEXT_DISPLAY", EntityType.TEXT_DISPLAY);
+        	npcData.entityList.put("TNT", EntityType.TNT);
+        	npcData.entityList.put("TNT_MINECART", EntityType.TNT_MINECART);
+        	npcData.entityList.put("TRADER_LLAMA", EntityType.TRADER_LLAMA);
+        	npcData.entityList.put("TRIDENT", EntityType.TRIDENT);
+        	npcData.entityList.put("TROPICAL_FISH", EntityType.TROPICAL_FISH);
+        	npcData.entityList.put("TURTLE", EntityType.TURTLE);
+        	npcData.entityList.put("VEX", EntityType.VEX);
+        	npcData.entityList.put("VILLAGER", EntityType.VILLAGER);
+        	npcData.entityList.put("VINDICATOR", EntityType.VINDICATOR);
+        	npcData.entityList.put("WANDERING_TRADER", EntityType.WANDERING_TRADER);
+        	npcData.entityList.put("WARDEN", EntityType.WARDEN);
+        	npcData.entityList.put("WIND_CHARGE", EntityType.WIND_CHARGE);
+        	npcData.entityList.put("WITCH", EntityType.WITCH);
+        	npcData.entityList.put("WITHER", EntityType.WITHER);
+        	npcData.entityList.put("WITHER_SKELETON", EntityType.WITHER_SKELETON);
+        	npcData.entityList.put("WITHER_SKULL", EntityType.WITHER_SKULL);
+        	npcData.entityList.put("WOLF", EntityType.WOLF);
+        	npcData.entityList.put("ZOGLIN", EntityType.ZOGLIN);
+        	npcData.entityList.put("ZOMBIE", EntityType.ZOMBIE);
+        	npcData.entityList.put("ZOMBIE_HORSE", EntityType.ZOMBIE_HORSE);
+        	npcData.entityList.put("ZOMBIE_VILLAGER", EntityType.ZOMBIE_VILLAGER);
+        	npcData.entityList.put("ZOMBIFIED_PIGLIN", EntityType.ZOMBIFIED_PIGLIN);
+        }
+        
     }
+
+    public void modEntity(String entType) {
+    	this.npcData.playerEntity.put("Entity", entType);
+    }
+    
 
     /**
      * Creates default taterzen attributes.
@@ -822,6 +978,30 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             this.setAllowSwimming(npcTag.getBoolean("AllowSwimming"));
         // --------------------------------------------------------------
 
+        
+        // This magic is where we check on loading in whether the NPC has a different TYPE to what is expected
+        // Normally, it will default to PLAYER, but we want the TYPE changes to be persistent
+        // The logger is pushing details to the minecraft log so you can see it actually parsing things
+
+        getLogger("Taterzens").info("[Taterzens]: Out of interest, the Tag Entity is {}.", npcTag.get("Entity"));
+ 
+        if (npcTag.contains("Entity")) {
+        	// Update it to the current settting
+        	if (npcTag.get("Entity") == null) {
+            	getLogger("Taterzens").error("[Taterzens]: In the SaveDataread.");
+
+        		npcTag.putString("Entity", "PLAYER");
+                npcData.playerEntity.put("Entity", "PLAYER");
+        	} else {
+            	getLogger("Taterzens").info("[Taterzens]: We have a valid Entity setting and are putting it in the Tag");
+        		//
+            	// It's actually this we need to update since we have it stored, and the playerEntity hashmap is what we're using
+            	npcData.playerEntity.put("Entity", npcTag.getString("Entity"));
+            	// And we need to override the other setting
+            	npcTag.putString("Entity", npcTag.getString("Entity"));
+        	}
+        }
+        
         this.setMinCommandInteractionTime(npcTag.getLong("MinCommandInteractionTime"));
     }
 
@@ -928,6 +1108,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             npcTag.putUUID("LockedBy", this.lockedUuid);
 
         npcTag.putLong("MinCommandInteractionTime", this.npcData.minCommandInteractionTime);
+
+
+        getLogger("Taterzens").info("[Taterzens]: The Game is paused or saving. We're setting NPC entity to {}", npcData.playerEntity.get("Entity"));
+       
+        // We take whatever the npc has been changed to and shove it in the tag.
+    	// Only end up in here on pausing or saving to quit
+    	if (npcData.playerEntity.get("Entity") != null) {
+    		npcTag.putString("Entity", npcData.playerEntity.get("Entity"));
+    	}
 
         tag.put("TaterzenNPCTag", npcTag);
     }
@@ -1867,7 +2056,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.setTag("AllowSwimming", allowSwimming);
     }
 
-    private void setTag(String name, boolean value) {
+    // Change this to public, since we want to use it elsewhere
+    public void setTag(String name, boolean value) {
         this.npcData.booleanTags.put(name, value);
     }
 
@@ -1883,7 +2073,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
 
     @Override
     public EntityType<?> getPolymerEntityType(ServerPlayer player) {
-        return EntityType.PLAYER;
+        // All that other work for such a pretty little line of code
+        return npcData.entityList.get(npcData.playerEntity.get("Entity"));
     }
 
     @Override
