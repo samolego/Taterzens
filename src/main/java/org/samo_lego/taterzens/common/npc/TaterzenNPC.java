@@ -65,6 +65,7 @@ import org.samo_lego.taterzens.common.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.common.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.common.mixin.accessors.AChunkMap;
 import org.samo_lego.taterzens.common.mixin.accessors.AEntityTrackerEntry;
+import org.samo_lego.taterzens.common.npc.NPCData;
 import org.samo_lego.taterzens.common.npc.ai.goal.*;
 import org.samo_lego.taterzens.common.npc.commands.AbstractTaterzenCommand;
 import org.samo_lego.taterzens.common.npc.commands.CommandGroups;
@@ -160,7 +161,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      */
     public TaterzenNPC(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
-        this.setMaxUpStep(0.6F);
+        // this.setMaxUpStep(0.6F); // Removed in 1.20.5
         this.setCanPickUpLoot(true);
         this.setCustomNameVisible(true);
         this.setCustomName(this.getName());
@@ -931,7 +932,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             professions.forEach(professionTag -> {
                 CompoundTag professionCompound = (CompoundTag) professionTag;
 
-                ResourceLocation professionId = new ResourceLocation(professionCompound.getString("ProfessionType"));
+                ResourceLocation professionId = ResourceLocation.parse(professionCompound.getString("ProfessionType"));
                 if (PROFESSION_TYPES.containsKey(professionId)) {
                     TaterzenProfession profession = PROFESSION_TYPES.get(professionId).apply(this);
                     this.addProfession(professionId, profession);
@@ -1217,7 +1218,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             ItemStack stack = player.getItemInHand(hand).copy();
 
             if (stack.isEmpty() && player.isShiftKeyDown()) {
-                this.dropCustomDeathLoot(this.damageSources().playerAttack(player), 1, this.isEquipmentDropsAllowed());
+                // TODO fix the Custom DeathLoot drops.  They've changed with 1.21.
+                // this.dropCustomDeathLoot(this.damageSources().playerAttack(player), 1, this.isEquipmentDropsAllowed());
             } else if (player.isShiftKeyDown()) {
                 this.setItemSlot(EquipmentSlot.MAINHAND, stack);
             } else {
@@ -1283,7 +1285,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.npcData.minCommandInteractionTime = time;
     }
 
-
+/*
+    // TODO: Fix the dropCustomDeathLoot code to match 1.21.  Mainly it needs Serverlevel to be provided.
     @Override
     protected void dropCustomDeathLoot(DamageSource source, int lootingMultiplier, boolean allowDrops) {
         // Additional drop check
@@ -1295,7 +1298,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             }
         }
     }
-
+*/
     @Override
     protected boolean shouldDropLoot() {
         return this.isEquipmentDropsAllowed();
@@ -1442,11 +1445,13 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         return false;
     }
 
+    /*
+        // TODO: Fix the isLeashed code in accordance with the 1.21 changes.
     @Override
     public boolean canBeLeashed(Player player) {
         return !this.isLeashed() && this.isLeashable();
     }
-
+    */
     /**
      * Gets whether this NPC is leashable.
      *
@@ -1592,6 +1597,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void setChargingCrossbow(boolean charging) {
     }
+    /*
+
+    //  TODO: Fix the shootProjectile code to match the 1.21 implementation
 
     @Override
     public void shootCrossbowProjectile(LivingEntity target, ItemStack crossbow, Projectile projectile, float multiShotSpray) {
@@ -1600,7 +1608,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Crossbow attack
         this.shootProjectile(target, projectile, multiShotSpray);
     }
-
+    */
     @Override
     public void onCrossbowAttackPerformed() {
     }
@@ -1619,7 +1627,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         if (arrowType.isEmpty())
             arrowType = this.getProjectile(this.getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, Items.CROSSBOW)));
 
-        AbstractArrow projectile = ProjectileUtil.getMobArrow(this, arrowType.copy(), pullProgress);
+        AbstractArrow projectile = ProjectileUtil.getMobArrow(this, arrowType.copy(), pullProgress, null);
 
         //bow.use(this.level, this.fakePlayer, weaponHand);
         this.startUsingItem(weaponHand);
@@ -1631,9 +1639,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         double y = target.getY(0.3333333333333333D) - projectile.getY();
         double deltaZ = target.getZ() - this.getZ();
         double planeDistance = Mth.sqrt((float) (deltaX * deltaX + deltaZ * deltaZ));
-        Vector3f launchVelocity = this.getProjectileShotVector(this, new Vec3(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
 
-        projectile.shoot(launchVelocity.x(), launchVelocity.y(), launchVelocity.z(), 1.6F, 0);
+        // TODO: Fix this projectile related code to meet the 1.21 implementation
+        
+        // Vector3f launchVelocity = this.getProjectileShotVector(this, new Vec3(deltaX, y + planeDistance * 0.2D, deltaZ), multishotSpray);
+
+        // projectile.shoot(launchVelocity.x(), launchVelocity.y(), launchVelocity.z(), 1.6F, 0);
 
         this.playSound(SoundEvents.ARROW_SHOOT, 1.0F, 0.125F);
         this.level().addFreshEntity(projectile);
@@ -1654,7 +1665,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             return null;
 
         int rnd = this.random.nextInt(this.npcData.ambientSounds.size());
-        ResourceLocation sound = new ResourceLocation(this.npcData.ambientSounds.get(rnd));
+        ResourceLocation sound = ResourceLocation.parse(this.npcData.ambientSounds.get(rnd));
 
         return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
@@ -1673,7 +1684,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             return null;
 
         int rnd = this.random.nextInt(this.npcData.hurtSounds.size());
-        ResourceLocation sound = new ResourceLocation(this.npcData.hurtSounds.get(rnd));
+        ResourceLocation sound = ResourceLocation.parse(this.npcData.hurtSounds.get(rnd));
 
         return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
@@ -1692,7 +1703,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
             return null;
 
         int rnd = this.random.nextInt(this.npcData.deathSounds.size());
-        ResourceLocation sound = new ResourceLocation(this.npcData.deathSounds.get(rnd));
+        ResourceLocation sound = ResourceLocation.parse(this.npcData.deathSounds.get(rnd));
 
         return BuiltInRegistries.SOUND_EVENT.get(sound);
     }
@@ -2082,7 +2093,11 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         // Fake selection glow
         ((ITaterzenEditor) player).getSelectedNpc().ifPresent(npc -> {
             if (this == npc && config.glowSelectedNpc) {
-                data.removeIf(value -> value.id() == Entity.DATA_SHARED_FLAGS_ID.getId());
+
+                // TODO: Fix this particular line.  There's issues with what's being returned
+                
+                //data.removeIf(value -> value.id() == Entity.DATA_SHARED_FLAGS_ID.getId());
+
                 // Modify Taterzen to have fake glowing effect for the player
                 byte flags = this.entityData.get(Entity.DATA_SHARED_FLAGS_ID);
                 flags = (byte) (flags | 1 << Entity.FLAG_GLOWING);
@@ -2093,7 +2108,9 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         });
 
         // Skin layer settings
-        data.removeIf(value -> value.id() == getPLAYER_MODE_CUSTOMISATION().getId());
+
+        // TODO: Fix this for the same reasons as the above commented out line.
+        // data.removeIf(value -> value.id() == getPLAYER_MODE_CUSTOMISATION().getId());
 
         SynchedEntityData.DataValue<Byte> skinLayerTag = SynchedEntityData.DataValue.create(getPLAYER_MODE_CUSTOMISATION(), this.npcData.skinLayers);
         data.add(skinLayerTag);
