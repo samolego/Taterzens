@@ -56,7 +56,7 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
                 if ((msg.startsWith("{") && msg.endsWith("}") || (msg.startsWith("[") && msg.endsWith("]")))) {
                     // NBT tellraw message structure, try parse it
                     try {
-                        text = Component.Serializer.fromJson(msg);
+                        text = Component.Serializer.fromJson(msg, null);
                     } catch (JsonParseException ignored) {
                         player.displayClientMessage(translate("taterzens.error.invalid.text").withStyle(ChatFormatting.RED), false);
                         ci.cancel();
