@@ -399,12 +399,12 @@ public class CommandsCommand {
 
     static {
         BUNGEE_COMMANDS = SuggestionProviders.register(
-                new ResourceLocation(MOD_ID, "bungee_commands"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "bungee_commands"),
                 (context, builder) ->
                         SharedSuggestionProvider.suggest(Stream.of(BungeeCommand.BungeeMessage.values()).map(cmd -> cmd.toString().toLowerCase()).collect(Collectors.toList()), builder)
         );
         PLAYERS = SuggestionProviders.register(
-                new ResourceLocation(MOD_ID, "players"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "players"),
                 (context, builder) -> {
                     Collection<String> names = context.getSource().getOnlinePlayerNames();
                     names.add("--clicker--");
