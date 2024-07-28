@@ -34,8 +34,11 @@ public class MessagesEditGUI extends ListItemsGUI {
     private ItemStack getItem(Pair<Component, Integer> pair) {
         Component message = pair.getFirst();
         ItemStack itemStack = new ItemStack(getFromName(message.getString()));
-        itemStack.setTag(customData.copy());
-        itemStack.setHoverName(message);
+        
+        // TODO: Fix the itemStack implementation to meet 1.21 standard
+        
+        //itemStack.setTag(customData.copy());
+        //itemStack.setHoverName(message);
 
         return itemStack;
     }
@@ -65,7 +68,10 @@ public class MessagesEditGUI extends ListItemsGUI {
         index = this.getActualPageIndex(index);
         if(index < this.messages.size()) {
             Pair<Component, Integer> removed = this.messages.remove(index);
-            itemStack.setHoverName(this.getItem(removed).getHoverName());
+
+            // TODO: Fix the itemStack implementation to meet 1.21 standard
+            
+            //itemStack.setHoverName(this.getItem(removed).getHoverName());
         }
 
         return itemStack;
