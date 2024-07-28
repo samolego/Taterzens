@@ -37,6 +37,10 @@ public class EditorGUI {
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
+    // TODO: Fix the itemStack implementation to match 1.21 throughout.  Otherwise we'll disable the GUI.
+
+    /*
+	
     @SuppressWarnings("unchecked")
     public static SimpleGui createCommandGui(ServerPlayer player, @Nullable SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
         // If node is not an argument, we skip to first child node that is an argument or has more than 1 child node
@@ -162,13 +166,16 @@ public class EditorGUI {
 
         return constructedGui;
     }
-
+    */
+	
     /**
      * Gets prettier name for command node if available.
      *
      * @param defaultText default name
      * @return "translated" name if available, default name otherwise
      */
+
+    /*
     private static Component getComandName(String defaultText) {
         // Try to search for the command translation in the language file
         String text = defaultText;
@@ -203,13 +210,15 @@ public class EditorGUI {
         }
         gui.close();
     }
-
+    */
 
     /**
      * Executes the command
      * @param player player to execute command as.
      * @param commandTree command tree to execute.
      */
+
+    /*
     private static void execute(ServerPlayer player, List<String> commandTree) {
         try {
             // Execute
@@ -390,4 +399,5 @@ public class EditorGUI {
         itemCommandMap.put("player", player);
         itemCommandMap.put("reset", player);
     }
+    */
 }
