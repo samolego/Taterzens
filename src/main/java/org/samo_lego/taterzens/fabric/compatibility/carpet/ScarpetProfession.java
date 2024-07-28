@@ -39,7 +39,7 @@ public class ScarpetProfession extends AbstractProfession {
     private static final TaterzenScarpetEvent PLAYERS_NEARBY_EVENT = new TaterzenScarpetEvent("taterzen_approached_by", 3);
 
     private final HashSet<Value> SCARPET_TRAITS = new HashSet<>();
-    public static final ResourceLocation ID = new ResourceLocation(MOD_ID, "scarpet_profession");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "scarpet_profession");
 
     public ScarpetProfession(TaterzenNPC npc) {
         super(npc);
