@@ -17,7 +17,12 @@ import java.util.Locale;
 
 import static org.samo_lego.taterzens.common.Taterzens.config;
 
+/*
 
+    Query as to viability of Bungee Server support.  Is this a function that still needs to be implemented in the mod?
+    If not, we can remove Bungee Command and Server code and solve some 1.21 implemntation issues quickly.
+
+*/
 public class BungeeCommand extends AbstractTaterzenCommand {
     /**
      * Contains all available proxy servers.
@@ -27,7 +32,7 @@ public class BungeeCommand extends AbstractTaterzenCommand {
     /**
      * Identifier of the proxy message channel.
      */
-    public static final ResourceLocation BUNGEE_CHANNEL = new ResourceLocation("bungeecord", "main");
+    public static final ResourceLocation BUNGEE_CHANNEL = ResourceLocation.fromNamespaceAndPath("bungeecord", "main");
     private String argument;
     private BungeeMessage proxyMessage;
     private String playername;
@@ -67,8 +72,10 @@ public class BungeeCommand extends AbstractTaterzenCommand {
         buf.writeResourceLocation(BUNGEE_CHANNEL);
         buf.writeBytes(data);
 
-        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
-        connection.send(packet);
+        // TODO: If we're keeping Bungee support, fix this
+
+        // ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
+        // connection.send(packet);
     }
 
     @Override
@@ -105,8 +112,10 @@ public class BungeeCommand extends AbstractTaterzenCommand {
         buf.writeResourceLocation(BUNGEE_CHANNEL);
         buf.writeBytes(out.toByteArray());
 
-        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
-        ((ServerPlayer) player).connection.send(packet);
+        // TODO: If we're keeping Bungee support, fix this
+
+        //ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(buf);
+        //((ServerPlayer) player).connection.send(packet);
     }
 
 
