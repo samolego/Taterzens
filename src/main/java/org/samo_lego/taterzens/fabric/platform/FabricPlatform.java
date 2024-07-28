@@ -81,7 +81,7 @@ public class FabricPlatform implements Platform {
 
     @Override
     public void openEditorGui(ServerPlayer player) {
-        // Commentinog out since we've disabled the Editor GUI for now with the 1.21 update
+        // Commenting out since we've disabled the Editor GUI for now with the 1.21 update
         // SimpleGui editorGUI = createCommandGui(player, null, npcNode, Collections.singletonList("npc"), false);
        //editorGUI.open();
     }
