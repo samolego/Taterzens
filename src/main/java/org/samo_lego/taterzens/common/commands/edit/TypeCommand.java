@@ -63,6 +63,8 @@ public class TypeCommand {
 
     private static int changeType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
+	/*
+	    Commenting out for now, as polymer provides the interface for setting type.
         if (!DISGUISELIB_LOADED) {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
@@ -73,7 +75,7 @@ public class TypeCommand {
             );
             return -1;
         }
-
+	*/
         ResourceLocation disguise = ResourceArgument.getSummonableEntityType(context, "entity type").key().location();
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             CompoundTag nbt;
@@ -113,7 +115,10 @@ public class TypeCommand {
 
     private static int resetType(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
-        if(!DISGUISELIB_LOADED) {
+	    
+	/*
+	    Commenting out for now, as polymer provides the interface for setting type.
+	if(!DISGUISELIB_LOADED) {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
@@ -123,6 +128,8 @@ public class TypeCommand {
             );
             return -1;
         }
+	*/
+	    
         return NpcCommand.selectedTaterzenExecutor(source.getEntityOrException(), taterzen -> {
             
         	// The Reset is to PLAYER
