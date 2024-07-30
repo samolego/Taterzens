@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.samo_lego.taterzens.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AMappedRegistry"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

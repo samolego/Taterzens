@@ -1,141 +1,168 @@
 plugins {
-	// Fabric loom
-	id "fabric-loom" version "1.1-SNAPSHOT" apply false
-	// Forge Gradle
-	id 'net.minecraftforge.gradle' version '6.0.+' apply false
+    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'maven-publish'
 
-	id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
-	id "com.modrinth.minotaur" version "2.+" apply false
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id "com.modrinth.minotaur" version "2.+"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
 }
 
 repositories {
-	mavenCentral()
-	maven {
-		url 'https://jitpack.io'
-	}
-	maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" }
+    maven { url 'https://maven.nucleoid.xyz' }
+    maven {
+        url 'https://masa.dy.fi/maven'
+    }
+    maven { url 'https://jitpack.io' }
 }
 
-allprojects {
-	apply plugin: "java"
-	apply plugin: "maven-publish"
+loom {
+    splitEnvironmentSourceSets()
 
-	archivesBaseName = rootProject.archives_base_name + "-" + project.name + "-" + rootProject.minecraft_version
-	version = rootProject.mod_version
-	group = rootProject.maven_group
+    mods {
+        "taterzens" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
 
-	repositories {
-		mavenCentral()
-		maven {
-			url 'https://jitpack.io'
-		}
-		maven { url 'https://maven.nucleoid.xyz' }
-	}
-
-	tasks.withType(JavaCompile).configureEach {
-		it.options.encoding = "UTF-8"
-
-		def javaTarget = 17
-		it.options.release = javaTarget
-
-		sourceCompatibility = JavaVersion.toVersion(javaTarget)
-		targetCompatibility = JavaVersion.toVersion(javaTarget)
-
-		if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
-			toolchain.languageVersion.set(JavaLanguageVersion.of(javaTarget))
-		}
-	}
-
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				artifactId = rootProject.archives_base_name + "-" + project.name
-				from components.java
-			}
-		}
-
-		// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-		repositories {
-			// Add repositories to publish to here.
-			// Notice: This block does NOT have the same function as the block in the top level.
-			// The repositories here will be used for publishing your artifact, not for
-			// retrieving dependencies.
-			mavenLocal()
-		}
-	}
 }
 
-subprojects {
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.layered {
+        //mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
+        it.officialMojangMappings()
+    }
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Publishing plugins
-	if (it.name != "common") {
-		apply plugin: "com.modrinth.minotaur"
-		apply plugin: "com.matthewprenger.cursegradle"
-	}
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	if (it.name != "forge") {
-		apply plugin: "fabric-loom"
-		repositories {
-			maven {
-				url 'https://oss.sonatype.org/content/repositories/snapshots'
-			}
-			maven {
-				url 'https://masa.dy.fi/maven'
-			}
-		}
+    // Mod Dependencies
 
-		loom {
-			accessWidenerPath = file("${project.rootDir}/common/src/main/resources/taterzens.accesswidener")
-		}
+    // Carpet Mod
+    modCompileOnly("com.github.gnembon:fabric-carpet:${project.carpet_core_version}")
+	
+    // Disguiselib
+    // Commented out of main codebase for now, as TYPE change is achieved by Poylmer
+    //modCompileOnly("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
+    //modImplementation(include('com.github.NucleoidMC:DisguiseLib:90bf223196'))
 
-		dependencies {
-			// To change the versions see the gradle.properties file
-			modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
-			modImplementation "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_version}"
-			minecraft "com.mojang:minecraft:${project.minecraft_version}"
-			mappings loom.layered {
-				//mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
-				it.officialMojangMappings()
-			}
+    // Permission API
+    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
-			// C2B
-			modImplementation("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${rootProject.c2b_version}")
+    // Server translations
+    // Commented out for now until we can confirm the 1.21 supported version.  Does not impact general mod function
+    //modImplementation(include("xyz.nucleoid:server-translations-api:${project.translations_api}"))
 
+    // SGUI
+    modImplementation(include("eu.pb4:sgui:${project.sgui_version}"))
 
-			// Disguiselib
-			modImplementation("xyz.nucleoid:disguiselib-fabric:${project.disguiselib_version}")
-		}
-	}
+    // C2B
+    modImplementation(include("com.github.samolego.Config2Brigadier:config2brigadier-fabric:${project.c2b_version}"))
 
-	if (it.name != "common") {
-		dependencies {
-			compileOnly project(":common")
-		}
+    // Polymer
+    modImplementation(include("eu.pb4:polymer-core:${project.polymer_version}"))
 
-		processResources {
-			from project(":common").sourceSets.main.resources
-		}
+}
 
-		tasks.withType(JavaCompile) {
-			source(project(":common").sourceSets.main.allSource)
-		}
-	}
+processResources {
+    inputs.property "version", project.version
 
-	jar {
-		from("LICENSE") {
-			rename { "${it}_${project.archivesBaseName}" }
-		}
-		manifest {
-			attributes([
-					"Specification-Title"     : rootProject.archives_base_name,
-					"Specification-Vendor"    : "",
-					"Specification-Version"   : rootProject.mod_version,
-					"Implementation-Title"    : project.name,
-					"Implementation-Version"  : project.jar.archiveVersion,
-					"Implementation-Vendor"   : "",
-					"MixinConfigs"            : "${rootProject.archives_base_name}.mixins.json",
-					"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-			])
-		}
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // One of the big changes to 1.21 is a requirement for at least Java 21, using 22 as it's current at time of dev.
+    it.options.release = 22
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_22
+    targetCompatibility = JavaVersion.VERSION_22
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}
+
+def ENV = System.getenv()
+
+// from FAPI https://github.com/FabricMC/fabric/blob/1.16/build.gradle
+curseforge {
+    if (ENV.CURSEFORGE_API_KEY) {
+        apiKey = ENV.CURSEFORGE_API_KEY
+    }
+
+    project {
+        id = "446499"
+        changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+        releaseType = "release"
+        addGameVersion "${project.minecraft_version}"
+        addGameVersion "Fabric"
+        addGameVersion "Quilt"
+
+        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")) {
+            displayName = "[${project.minecraft_version}] Taterzens ${version}"
+        }
+
+        afterEvaluate {
+            uploadTask.dependsOn("remapJar")
+        }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
+}
+
+modrinth {
+    token = ENV.MODRINTH_TOKEN
+    projectId = "vE972Kux"
+    versionNumber = project.minecraft_version + "+" + version + "-fabric"
+    versionType = "release"
+    changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
+    versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
+
+    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")
+
+    gameVersions = ["${project.minecraft_version}"]
+    loaders = ['fabric', 'quilt']
+
+    dependencies { // A special DSL for creating dependencies
+        required.project "fabric-api" // Creates a new required dependency on Fabric API
+    }
 }

@@ -1,16 +1,10 @@
 pluginManagement {
-    repositories {
-        maven { url "https://maven.fabricmc.net/" }
-        maven { url = "https://maven.quiltmc.org/repository/release" }
-        maven { url "https://maven.minecraftforge.net/" }
-        gradlePluginPortal()
-    }
-}
-
-include("common")
-include("fabric")
-
-// Include only if "enable_forge" in gradle.properties is true
-if (enable_forge.toBoolean()) {
-    include("forge")
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
 }
