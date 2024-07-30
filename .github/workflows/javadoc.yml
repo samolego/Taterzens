@@ -11,24 +11,23 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: 17
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew javadoc
-    - name: GitHub Pages Javadoc
-      if: success()
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        enable_jekyll: true
-        publish_dir: build/docs
-        destination_dir: dokka/v${{ github.event.release.tag_name }}
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 23
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew javadoc
+      - name: GitHub Pages Javadoc
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          enable_jekyll: true
+          publish_dir: build/docs
+          destination_dir: dokka/v${{ github.event.release.tag_name }}
