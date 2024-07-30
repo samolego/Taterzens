@@ -26,7 +26,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: 23
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -37,7 +37,7 @@ jobs:
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'fabric/build/libs/*.jar'
+          files: "fabric/build/libs/*.jar"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish with Gradle
@@ -46,4 +46,3 @@ jobs:
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CHANGELOG: ${{ github.event.release.body }}
-
