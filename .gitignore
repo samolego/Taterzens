@@ -32,5 +32,9 @@ bin/
 
 run/
 
-# Architectury
-.architectury-transformer
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr

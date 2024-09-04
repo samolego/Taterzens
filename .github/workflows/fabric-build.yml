@@ -30,7 +30,7 @@ jobs:
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
-        run: ./gradlew fabric:build
+        run: ./gradlew build
       - name: capture build artifacts
         uses: actions/upload-artifact@v2
         with:

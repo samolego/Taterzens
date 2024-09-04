@@ -32,16 +32,16 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew fabric:build --stacktrace
+        run: ./gradlew :build --stacktrace
 
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: "fabric/build/libs/*.jar"
+          files: 'build/libs/*.jar'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish with Gradle
-        run: ./gradlew fabric:modrinth fabric:curseforge --stacktrace
+        run: ./gradlew modrinth curseforge --stacktrace
         env:
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
