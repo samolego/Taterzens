@@ -83,7 +83,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     // One of the big changes to 1.21 is a requirement for at least Java 21, using 22 as it's current at time of dev.
-    it.options.release = 22
+    it.options.release = 21
 }
 
 java {
@@ -92,8 +92,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_22
-    targetCompatibility = JavaVersion.VERSION_22
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
