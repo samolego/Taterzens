@@ -83,7 +83,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     // One of the big changes to 1.21 is a requirement for at least Java 21, using 22 as it's current at time of dev.
-    it.options.release = 22
+    it.options.release = 21
 }
 
 java {
@@ -92,8 +92,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_22
-    targetCompatibility = JavaVersion.VERSION_22
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
@@ -135,7 +135,7 @@ curseforge {
         addGameVersion "Fabric"
         addGameVersion "Quilt"
 
-        mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")) {
+        mainArtifact(file("${project.layout.buildDirectory}/libs/${base.archivesName}-${version}-fabric.jar")) {
             displayName = "[${project.minecraft_version}] Taterzens ${version}"
         }
 
@@ -157,7 +157,7 @@ modrinth {
     changelog = ENV.CHANGELOG ?: "A changelog can be found at https://github.com/samolego/Taterzens/releases/tag/${version}"
     versionName = "[${project.minecraft_version}] Taterzens ${version} [Fabric]"
 
-    uploadFile = file("${project.buildDir}/libs/${archivesBaseName}-${version}-fabric.jar")
+    uploadFile = file("${project.layout.buildDirectory}/libs/${base.archivesName}-${version}-fabric.jar")
 
     gameVersions = ["${project.minecraft_version}"]
     loaders = ['fabric', 'quilt']

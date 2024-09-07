@@ -26,7 +26,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 23
+          java-version: 21
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
