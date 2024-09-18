@@ -1,6 +1,7 @@
 package org.samo_lego.taterzens.fabric.gui;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -34,11 +35,9 @@ public class MessagesEditGUI extends ListItemsGUI {
     private ItemStack getItem(Pair<Component, Integer> pair) {
         Component message = pair.getFirst();
         ItemStack itemStack = new ItemStack(getFromName(message.getString()));
-        
-        // TODO: Fix the itemStack implementation to meet 1.21 standard
-        
-        //itemStack.setTag(customData.copy());
-        //itemStack.setHoverName(message);
+
+        itemStack.applyComponents(customData);
+        itemStack.set(DataComponents.CUSTOM_NAME, message);
 
         return itemStack;
     }
@@ -68,10 +67,7 @@ public class MessagesEditGUI extends ListItemsGUI {
         index = this.getActualPageIndex(index);
         if(index < this.messages.size()) {
             Pair<Component, Integer> removed = this.messages.remove(index);
-
-            // TODO: Fix the itemStack implementation to meet 1.21 standard
-            
-            //itemStack.setHoverName(this.getItem(removed).getHoverName());
+            itemStack.set(DataComponents.CUSTOM_NAME, this.getItem(removed).getHoverName());
         }
 
         return itemStack;
