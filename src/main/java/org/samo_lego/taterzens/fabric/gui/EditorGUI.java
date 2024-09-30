@@ -11,14 +11,20 @@ import eu.pb4.sgui.api.gui.AnvilInputGui;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.AdventureModePredicate;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.*;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.common.Taterzens;
 
@@ -37,10 +43,6 @@ public class EditorGUI {
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
 
-    // TODO: Fix the itemStack implementation to match 1.21 throughout.  Otherwise we'll disable the GUI.
-
-    /*
-	
     @SuppressWarnings("unchecked")
     public static SimpleGui createCommandGui(ServerPlayer player, @Nullable SimpleGui previousScreen, CommandNode<CommandSourceStack> parentNode, List<String> currentCommandPath, boolean givenInput) {
         // If node is not an argument, we skip to first child node that is an argument or has more than 1 child node
@@ -80,7 +82,7 @@ public class EditorGUI {
             // Pre-written  text
             MutableComponent argTitle = Component.literal(parentNode.getName()).withStyle(ChatFormatting.YELLOW);
             ItemStack nameStack = new ItemStack(Items.LIGHT_GRAY_STAINED_GLASS_PANE);  // invisible (kinda)
-            nameStack.setHoverName(getComandName(argTitle.getString()));
+            nameStack.set(DataComponents.CUSTOM_NAME, getComandName(argTitle.getString()));
 
             // Buttons
             constructedGui.setSlot(2, confirmButton);
@@ -89,19 +91,19 @@ public class EditorGUI {
             // Default input value
             String[] examples = parentNode.getExamples().toArray(new String[0]);
             if (examples.length > 0) {
-                nameStack.setHoverName(Component.literal(examples[0]));
+                nameStack.set(DataComponents.CUSTOM_NAME, Component.literal(examples[0]));
             }
 
             for (int i = 1; i < examples.length; ++i) {
                 ItemStack exampleStack = new ItemStack(Items.PAPER);
                 String example = examples[i];
-                exampleStack.setHoverName(Component.literal(example));
+                exampleStack.set(DataComponents.CUSTOM_NAME, Component.literal(example));
 
                 // 2 being the last slot index in anvil inventory
                 constructedGui.setSlot(i * 2 + 1, new GuiElement(exampleStack, (index, type, action) -> {
                     String input = ((AnvilInputGui) constructedGui).getInput();
                     ((AnvilInputGui) constructedGui).setDefaultInputValue(exampleStack.getHoverName().getString());
-                    exampleStack.setHoverName(Component.literal(input));
+                    exampleStack.set(DataComponents.CUSTOM_NAME, Component.literal(input));
                 }));
             }
         } else {
@@ -110,7 +112,7 @@ public class EditorGUI {
 
             // Close screen button
             ItemStack close = new ItemStack(Items.STRUCTURE_VOID);
-            close.setHoverName(Component.translatable("spectatorMenu.close"));
+            close.set(DataComponents.CUSTOM_NAME, Component.translatable("spectatorMenu.close"));
             close.enchant(null, 0);
 
             GuiElement closeScreenButton = new GuiElement(close, (i, clickType, slotActionType) -> player.closeContainer());
@@ -131,7 +133,7 @@ public class EditorGUI {
 
                 // Set stack "icon"
                 ItemStack stack = itemCommandMap.getOrDefault(nodeName, new ItemStack(ListItemsGUI.getFromName(nodeName))).copy();
-                stack.setHoverName(getComandName(nodeName));
+                stack.set(DataComponents.CUSTOM_NAME, getComandName(nodeName));
 
                 // Recursively adding the command nodes
                 constructedGui.setSlot(i.getAndAdd(addedSpace), new GuiElement(stack, (index, clickType, slotActionType) -> {
@@ -143,7 +145,7 @@ public class EditorGUI {
 
         // Back button
         ItemStack back = new ItemStack(Items.MAGENTA_GLAZED_TERRACOTTA);
-        back.setHoverName(Component.translatable("gui.back"));
+        back.set(DataComponents.CUSTOM_NAME, Component.translatable("gui.back"));
         back.enchant(null, 0);
 
         GuiElement backScreenButton = new GuiElement(back, (i, clickType, slotActionType) -> {
@@ -166,16 +168,13 @@ public class EditorGUI {
 
         return constructedGui;
     }
-    */
-	
+
     /**
      * Gets prettier name for command node if available.
      *
      * @param defaultText default name
      * @return "translated" name if available, default name otherwise
      */
-
-    /*
     private static Component getComandName(String defaultText) {
         // Try to search for the command translation in the language file
         String text = defaultText;
@@ -210,15 +209,12 @@ public class EditorGUI {
         }
         gui.close();
     }
-    */
 
     /**
      * Executes the command
      * @param player player to execute command as.
      * @param commandTree command tree to execute.
      */
-
-    /*
     private static void execute(ServerPlayer player, List<String> commandTree) {
         try {
             // Execute
@@ -238,166 +234,172 @@ public class EditorGUI {
         }
     }
 
-
-
     static {
-        final CompoundTag customData = new CompoundTag();
-        customData.putInt("CustomModelData", config.guiItemModelData);
-        customData.putInt("HideFlags", 127);
+        //final CompoundTag customData = new CompoundTag();
+        final DataComponentPatch customData = DataComponentPatch.builder()
+            .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(config.guiItemModelData))
+            // HideFlags has been split up into the individual components for each piece of info it could hide
+            // we only set DataCompoenets.ATTRIBUTE_MODIFIERS since (at least with the current items in the gui)
+            // that looks identical
+            .set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY.withTooltip(false))
+            .build();
 
-        YES_BUTTON.setHoverName(Component.translatable("gui.done"));
-        NO_BUTTON.setHoverName(Component.translatable("gui.cancel"));
+        YES_BUTTON.set(DataComponents.CUSTOM_NAME, Component.translatable("gui.done"));
+        NO_BUTTON.set(DataComponents.CUSTOM_NAME, Component.translatable("gui.cancel"));
 
         ItemStack create = new ItemStack(Items.PLAYER_HEAD);
-        create.setTag(customData.copy());
+        create.applyComponents(customData);
         itemCommandMap.put("create", create);
 
         ItemStack select = new ItemStack(Items.SPECTRAL_ARROW);
-        select.setTag(customData.copy());
+        select.applyComponents(customData);
         itemCommandMap.put("select", select);
 
         ItemStack deselect = new ItemStack(Items.ARROW);
-        deselect.setTag(customData.copy());
+        deselect.applyComponents(customData);
         itemCommandMap.put("deselect", deselect);
 
         ItemStack list = new ItemStack(Items.PAPER);
-        list.setTag(customData.copy());
+        list.applyComponents(customData);
         itemCommandMap.put("list", list);
 
         ItemStack remove = new ItemStack(Items.BARRIER);
-        remove.setTag(customData.copy());
+        remove.applyComponents(customData);
         itemCommandMap.put("remove", remove);
 
         // Edit
         ItemStack edit = new ItemStack(Items.TRIDENT);
-        edit.setTag(customData.copy());
+        edit.applyComponents(customData);
         itemCommandMap.put("edit", edit);
 
         ItemStack behaviour = new ItemStack(Items.CREEPER_HEAD);
-        behaviour.setTag(customData.copy());
+        behaviour.applyComponents(customData);
         itemCommandMap.put("behaviour", behaviour);
 
         ItemStack commands = new ItemStack(Items.COMMAND_BLOCK);
-        commands.setTag(customData.copy());
+        commands.applyComponents(customData);
         itemCommandMap.put("commands", commands);
 
         ItemStack equipment = new ItemStack(Items.IRON_CHESTPLATE);
-        equipment.setTag(customData.copy());
+        equipment.applyComponents(customData);
         itemCommandMap.put("equipment", equipment);
 
         ItemStack messages = new ItemStack(Items.WRITABLE_BOOK);
-        messages.setTag(customData.copy());
+        messages.applyComponents(customData);;
         itemCommandMap.put("messages", messages);
 
         ItemStack movement = new ItemStack(Items.MINECART);
-        movement.setTag(customData.copy());
+        movement.applyComponents(customData);
         itemCommandMap.put("movement", movement);
 
         ItemStack look = new ItemStack(Items.ENDER_EYE);
-        look.setTag(customData.copy());
+        look.applyComponents(customData);
         itemCommandMap.put("look", look);
 
         ItemStack name = new ItemStack(Items.NAME_TAG);
-        name.setTag(customData.copy());
+        name.applyComponents(customData);
         itemCommandMap.put("name", name);
 
         ItemStack path = new ItemStack(Items.POWERED_RAIL);
-        path.setTag(customData.copy());
+        path.applyComponents(customData);
         itemCommandMap.put("path", path);
 
 
         ItemStack pose = new ItemStack(Items.ARMOR_STAND);
-        pose.setTag(customData.copy());
+        pose.applyComponents(customData);
         itemCommandMap.put("pose", pose);
 
         ItemStack mount = new ItemStack(Items.SADDLE);
-        mount.setTag(customData.copy());
+        mount.applyComponents(customData);
         itemCommandMap.put("mount", mount);
 
         ItemStack professions = new ItemStack(Items.DIAMOND_PICKAXE);
-        professions.setTag(customData.copy());
+        professions.applyComponents(customData);
         itemCommandMap.put("professions", professions);
 
         ItemStack skin = new ItemStack(Items.PLAYER_HEAD);
-        skin.setTag(customData.copy());
+        skin.applyComponents(customData);
         itemCommandMap.put("skin", skin);
 
         ItemStack tags = new ItemStack(Items.GLOW_ITEM_FRAME);
-        tags.setTag(customData.copy());
+        tags.applyComponents(customData);
         itemCommandMap.put("tags", tags);
 
         ItemStack type = new ItemStack(Items.SHEEP_SPAWN_EGG);
-        type.setTag(customData.copy());
+        type.applyComponents(customData);
         itemCommandMap.put("type", type);
 
         // Messages
         ItemStack messageId = new ItemStack(Items.KNOWLEDGE_BOOK);
-        messageId.setTag(customData.copy());
+        messageId.applyComponents(customData);
         itemCommandMap.put("message id", messageId);
 
 
         ItemStack messageSwap = new ItemStack(Items.WEEPING_VINES);
-        messageSwap.setTag(customData.copy());
+        messageSwap.applyComponents(customData);
         itemCommandMap.put("swap", messageSwap);
 
         ItemStack clear = new ItemStack(Items.LAVA_BUCKET);
-        clear.setTag(customData.copy());
+        clear.applyComponents(customData);
         itemCommandMap.put("clear", clear);
 
 
         // Presets
         ItemStack preset = new ItemStack(Items.CREEPER_HEAD);
-        preset.setTag(customData.copy());
+        preset.applyComponents(customData);
         itemCommandMap.put("preset", preset);
 
         ItemStack save = new ItemStack(Items.CAULDRON);
-        save.setTag(customData.copy());
+        save.applyComponents(customData);
         itemCommandMap.put("save", save);
 
         ItemStack load = new ItemStack(Items.GLOW_SQUID_SPAWN_EGG);
-        load.setTag(customData.copy());
+        load.applyComponents(customData);
         itemCommandMap.put("load", load);
 
 
         ItemStack tp = new ItemStack(Items.ENDER_PEARL);
-        tp.setTag(customData.copy());
+        tp.applyComponents(customData);
         itemCommandMap.put("tp", tp);
 
         ItemStack entity = new ItemStack(Items.ZOMBIE_HEAD);
-        entity.setTag(customData.copy());
+        entity.applyComponents(customData);
         itemCommandMap.put("entity", entity);
 
         ItemStack location = new ItemStack(Items.TRIPWIRE_HOOK);
-        location.setTag(customData.copy());
+        location.applyComponents(customData);
         itemCommandMap.put("location", location);
 
 
         ItemStack action = new ItemStack(Items.CHAIN_COMMAND_BLOCK);
-        action.setTag(customData.copy());
+        action.applyComponents(customData);
         itemCommandMap.put("action", action);
 
         ItemStack goTo = new ItemStack(Items.MINECART);
-        goTo.setTag(customData.copy());
+        goTo.applyComponents(customData);
         itemCommandMap.put("goto", goTo);
 
         ItemStack interact = new ItemStack(Items.REDSTONE_TORCH);
-        interact.setTag(customData.copy());
+        interact.applyComponents(customData);
         itemCommandMap.put("interact", interact);
 
         // Types
         ItemStack player = new ItemStack(Items.PLAYER_HEAD);
+        player.applyComponents(customData);
 		UUID uid = UUID.randomUUID(); // a fake UUID just to be able to generate GameProfile for Texture use.
         GameProfile texturesProfile = new GameProfile(uid, "taterzen");
         PropertyMap properties = texturesProfile.getProperties();
-        properties.put("textures", new Property("ewogICJ0aW1lc3RhbXAiIDogMTYwNjIyODAxMzY0NCwKICAicHJvZmlsZUlkIiA6ICJiMGQ0YjI4YmMxZDc0ODg5YWYwZTg2NjFjZWU5NmFhYiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaW5lU2tpbl9vcmciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTczNTE0YTIzMjQ1ZjE1ZGJhZDVmYjRlNjIyMTYzMDIwODY0Y2NlNGMxNWQ1NmRlM2FkYjkwZmE1YTcxMzdmZCIKICAgIH0KICB9Cn0=", "T4Mifh5Yr/+jjAe6y+Ai7d1BPIWQGXc6vwtDL9GgxvQFYtxeD2VuSMNniLoSkP5koBDyHE9ZLgzE2GGAbBSGFgdEKBK7stUPEaUhCET6NKQGli369my3t4Z/4fTkFd9lJmMjP84xIo33E69umQLRZN6MfxmAFXdAl0fkjBdpVi3zLsTdgyu01PhlF9/P4TMXJmNjeiUDt6IjdHgWN1UVFYfAMr9UnCvBNQ/Z4MzxXEm8lGrhq0u7piZqJZ4hb15vHVfixXwtJQkJSBxyzry2W9ZZ2l4xReYX4LbBxU2mRVY5ylRbbolpDuMjXJ6vcg+hRQ9c5HhKkYLm/GOloYEHF/LA5FjGD0QGPW/+uzPfFc9b9swdTUXrJS18/d0dYUDvnHWacDuSoQDfb9eszvs4p6JW04Kd/fPAjLrHm36itVgmrkGa4+fA0Sd/3qo3JaRN6rkbzvppc9s7T2jrhz2+h+hSiiXdRv7v1vMhHVFaOayzBmckL+aKcq7HEsDg1MMauoA/OzkWekuk4FqbgZz49nylOcCHVfd7X1SO7D1BicTgdvGGTOVZtYCyfMKCxcxXFgcqQe88BcLujYWsWafO+VPer9RykXAStb80L020KA0FsQ3zOIC0SBgGlTH5E2Z66AyBEcevYqfIUu1G6Gq4uWINrMae4ZKAABOhtoWH+1Y="));
-        player.setTag(customData.copy());
-        CompoundTag skinTag = new CompoundTag();
-        NbtUtils.writeGameProfile(skinTag, texturesProfile);
-        player.setTag(skinTag);
+        properties.put(
+            "textures",
+            new Property(
+                "ewogICJ0aW1lc3RhbXAiIDogMTYwNjIyODAxMzY0NCwKICAicHJvZmlsZUlkIiA6ICJiMGQ0YjI4YmMxZDc0ODg5YWYwZTg2NjFjZWU5NmFhYiIsCiAgInByb2ZpbGVOYW1lIiA6ICJNaW5lU2tpbl9vcmciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTczNTE0YTIzMjQ1ZjE1ZGJhZDVmYjRlNjIyMTYzMDIwODY0Y2NlNGMxNWQ1NmRlM2FkYjkwZmE1YTcxMzdmZCIKICAgIH0KICB9Cn0=",
+                "T4Mifh5Yr/+jjAe6y+Ai7d1BPIWQGXc6vwtDL9GgxvQFYtxeD2VuSMNniLoSkP5koBDyHE9ZLgzE2GGAbBSGFgdEKBK7stUPEaUhCET6NKQGli369my3t4Z/4fTkFd9lJmMjP84xIo33E69umQLRZN6MfxmAFXdAl0fkjBdpVi3zLsTdgyu01PhlF9/P4TMXJmNjeiUDt6IjdHgWN1UVFYfAMr9UnCvBNQ/Z4MzxXEm8lGrhq0u7piZqJZ4hb15vHVfixXwtJQkJSBxyzry2W9ZZ2l4xReYX4LbBxU2mRVY5ylRbbolpDuMjXJ6vcg+hRQ9c5HhKkYLm/GOloYEHF/LA5FjGD0QGPW/+uzPfFc9b9swdTUXrJS18/d0dYUDvnHWacDuSoQDfb9eszvs4p6JW04Kd/fPAjLrHm36itVgmrkGa4+fA0Sd/3qo3JaRN6rkbzvppc9s7T2jrhz2+h+hSiiXdRv7v1vMhHVFaOayzBmckL+aKcq7HEsDg1MMauoA/OzkWekuk4FqbgZz49nylOcCHVfd7X1SO7D1BicTgdvGGTOVZtYCyfMKCxcxXFgcqQe88BcLujYWsWafO+VPer9RykXAStb80L020KA0FsQ3zOIC0SBgGlTH5E2Z66AyBEcevYqfIUu1G6Gq4uWINrMae4ZKAABOhtoWH+1Y="
+            )
+        );
+        player.set(DataComponents.PROFILE, new ResolvableProfile(texturesProfile));
 
         itemCommandMap.put("minecraft:player", player);
         itemCommandMap.put("player", player);
         itemCommandMap.put("reset", player);
     }
-    */
 }
