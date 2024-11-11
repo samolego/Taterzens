@@ -1,5 +1,6 @@
 package org.samo_lego.taterzens.common.mixin.player;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -24,17 +25,17 @@ public abstract class PlayerMixin_PeacefulDamage extends LivingEntity {
         super(entityType, level);
     }
 
-    @Inject(method = "hurt",
+    @Inject(method = "hurtServer",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;removeEntitiesOnShoulder()V",
                     shift = At.Shift.AFTER),
             cancellable = true
     )
-    private void enableTaterzenPeacefulDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void enableTaterzenPeacefulDamage(ServerLevel serverLevel, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity attacker = source.getEntity();
         if (attacker instanceof TaterzenNPC && this.self.level().getDifficulty() == Difficulty.PEACEFUL) {
             // Vanilla cancels damage if the world is in peaceful mode
-            cir.setReturnValue(amount == 0.0f || super.hurt(source, amount));
+            cir.setReturnValue(amount == 0.0f || super.hurtServer(serverLevel, source, amount));
         }
     }
 

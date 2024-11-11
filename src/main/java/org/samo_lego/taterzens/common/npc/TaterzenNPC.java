@@ -57,7 +57,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.api.TaterzensAPI;
 import org.samo_lego.taterzens.common.api.professions.TaterzenProfession;
@@ -65,11 +64,11 @@ import org.samo_lego.taterzens.common.interfaces.ITaterzenEditor;
 import org.samo_lego.taterzens.common.interfaces.ITaterzenPlayer;
 import org.samo_lego.taterzens.common.mixin.accessors.AChunkMap;
 import org.samo_lego.taterzens.common.mixin.accessors.AEntityTrackerEntry;
-import org.samo_lego.taterzens.common.npc.NPCData;
 import org.samo_lego.taterzens.common.npc.ai.goal.*;
 import org.samo_lego.taterzens.common.npc.commands.AbstractTaterzenCommand;
 import org.samo_lego.taterzens.common.npc.commands.CommandGroups;
 import org.samo_lego.taterzens.common.util.TextUtil;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.io.File;
 import java.util.*;
@@ -77,12 +76,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static net.minecraft.world.InteractionHand.MAIN_HAND;
+import static org.apache.logging.log4j.LogManager.getLogger;
 import static org.samo_lego.taterzens.common.Taterzens.*;
 import static org.samo_lego.taterzens.common.mixin.accessors.APlayer.getPLAYER_MODE_CUSTOMISATION;
 import static org.samo_lego.taterzens.common.util.TextUtil.errorText;
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
-
-import static org.apache.logging.log4j.LogManager.getLogger;
 
 /**
  * The NPC itself.
@@ -111,14 +109,14 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     /**
      * Target selectors.
      */
-    public final NearestAttackableTargetGoal<LivingEntity> followTargetGoal = new NearestAttackableTargetGoal<>(this, LivingEntity.class, 100, false, true, target -> !this.isAlliedTo(target));
-    public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100, false, true, target -> !this.isAlliedTo(target));
+    public final NearestAttackableTargetGoal<LivingEntity> followTargetGoal = new NearestAttackableTargetGoal<>(this, LivingEntity.class, 100, false, true, (target, level) -> !this.isAlliedTo(target));
+    public final NearestAttackableTargetGoal<Monster> followMonstersGoal = new NearestAttackableTargetGoal<>(this, Monster.class, 100, false, true, (target, level) -> !this.isAlliedTo(target));
 
     /**
      * Tracking movement
      */
-    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, target -> !(target instanceof ServerPlayer) && target.isAlive());
-    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, ServerPlayer.class, target -> !((ServerPlayer) target).hasDisconnected() && target.isAlive());
+    public final TrackEntityGoal trackLivingGoal = new TrackEntityGoal(this, LivingEntity.class, (target, level) -> !(target instanceof ServerPlayer) && target.isAlive());
+    public final TrackEntityGoal trackPlayersGoal = new TrackEntityGoal(this, ServerPlayer.class, (target, level) -> !((ServerPlayer) target).hasDisconnected() && target.isAlive());
     public final TrackUuidGoal trackUuidGoal = new TrackUuidGoal(this, entity -> entity.getUUID().equals(this.npcData.follow.targetUuid) && entity.isAlive());
 
 
@@ -215,12 +213,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         	npcData.entityList.put("BEE", EntityType.BEE);
         	npcData.entityList.put("BLAZE", EntityType.BLAZE);
         	npcData.entityList.put("BLOCK_DISPLAY", EntityType.BLOCK_DISPLAY);
-        	npcData.entityList.put("BOAT", EntityType.BOAT);
+        	npcData.entityList.put("BOAT", EntityType.OAK_BOAT); // TODO: add all boats
         	npcData.entityList.put("BREEZE", EntityType.BREEZE);
         	npcData.entityList.put("CAMEL", EntityType.CAMEL);
         	npcData.entityList.put("CAT", EntityType.CAT);
         	npcData.entityList.put("CAVE_SPIDER", EntityType.CAVE_SPIDER);
-        	npcData.entityList.put("CHEST_BOAT", EntityType.CHEST_BOAT);
+        	npcData.entityList.put("CHEST_BOAT", EntityType.OAK_CHEST_BOAT); // TODO: add all chest boats
         	npcData.entityList.put("CHEST_MINECART", EntityType.CHEST_MINECART);
         	npcData.entityList.put("CHICKEN", EntityType.CHICKEN);
         	npcData.entityList.put("COD", EntityType.COD);
@@ -480,7 +478,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         this.commandGroups.remove(index);
     }
 
-    @Override
+    //@Override
     protected int getPermissionLevel() {
         return this.npcData.permissionLevel;
     }
@@ -596,16 +594,15 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         professionLoop:
         for (TaterzenProfession profession : this.professions.values()) {
             InteractionResult result = profession.tickMovement();
-            switch (result) {
-                case CONSUME: // Stop processing others, but continue with base Taterzen movement tick
-                    break professionLoop;
-                case FAIL: // Stop whole movement tick
-                    return;
-                case SUCCESS: // Continue with super, but skip Taterzen's movement tick
-                    super.aiStep();
-                    return;
-                default: // Continue with other professions
-                    break;
+            if (result == InteractionResult.CONSUME) // Stop processing others, but continue with base Taterzen movement tick
+                break professionLoop;
+            else if (result == InteractionResult.FAIL) // Stop whole movement tick
+                return;
+            else if (result == InteractionResult.SUCCESS || result == InteractionResult.SUCCESS_SERVER) { // Continue with super, but skip Taterzen's movement tick
+                super.aiStep();
+                return;
+            } else { // Continue with other professions
+                break;
             }
         }
 
@@ -640,8 +637,8 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 List<ItemEntity> list = this.level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(1.0D, 0.0D, 1.0D));
 
                 for (ItemEntity itemEntity : list) {
-                    if (!itemEntity.isRemoved() && !itemEntity.getItem().isEmpty() && !itemEntity.hasPickUpDelay() && this.wantsToPickUp(itemEntity.getItem())) {
-                        this.pickUpItem(itemEntity);
+                    if (!itemEntity.isRemoved() && !itemEntity.getItem().isEmpty() && !itemEntity.hasPickUpDelay() && !this.level().isClientSide() && this.wantsToPickUp((ServerLevel) this.level(), itemEntity.getItem())) {
+                        this.pickUpItem((ServerLevel) this.level(), itemEntity);
                     }
                 }
             }
@@ -1234,12 +1231,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         } else if (
                 player.getItemInHand(hand).getItem().equals(Items.POTATO) &&
                         player.isShiftKeyDown() &&
-                        Taterzens.getInstance().getPlatform().checkPermission(player.createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
+                        Taterzens.getInstance().getPlatform().checkPermission(((ServerPlayer) player).createCommandSourceStack(), "taterzens.npc.select", config.perms.npcCommandPermissionLevel)
         ) {
             // Select this taterzen
             ((ITaterzenEditor) player).selectNpc(this);
 
-            player.sendSystemMessage(successText("taterzens.command.select", this.getName().getString()));
+            ((ServerPlayer) player).sendSystemMessage(successText("taterzens.command.select", this.getName().getString()));
 
             return InteractionResult.PASS;
         } else if (((ITaterzenEditor) player).getSelectedNpc().isPresent() && ((ITaterzenEditor) player).getSelectedNpc().get() == this) {
@@ -1257,7 +1254,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
                 this.commandGroups.execute((ServerPlayer) player);
             } else {
                 // Inform player about the cooldown
-                player.sendSystemMessage(
+                ((ServerPlayer) player).sendSystemMessage(
                         errorText(this.npcData.commandCooldownMessage,
                                 String.valueOf(this.npcData.minCommandInteractionTime - diff)));
             }
@@ -1436,7 +1433,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource damageSource) {
+    public boolean isInvulnerableTo(ServerLevel serverLevel, DamageSource damageSource) {
         return this.isRemoved() || this.isInvulnerable() && !damageSource.is(DamageTypes.GENERIC_KILL);
     }
 
@@ -1651,12 +1648,12 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     @Override
-    public boolean doHurtTarget(Entity target) {
+    public boolean doHurtTarget(ServerLevel serverLevel, Entity target) {
         for (TaterzenProfession profession : this.professions.values()) {
             if (profession.cancelMeleeAttack(target))
                 return false;
         }
-        return super.doHurtTarget(target);
+        return super.doHurtTarget(serverLevel, target);
     }
 
     @Override
@@ -1667,7 +1664,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.ambientSounds.size());
         ResourceLocation sound = ResourceLocation.parse(this.npcData.ambientSounds.get(rnd));
 
-        return BuiltInRegistries.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.getValue(sound);
     }
 
     public ArrayList<String> getAmbientSoundData() {
@@ -1686,7 +1683,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.hurtSounds.size());
         ResourceLocation sound = ResourceLocation.parse(this.npcData.hurtSounds.get(rnd));
 
-        return BuiltInRegistries.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.getValue(sound);
     }
 
     public ArrayList<String> getHurtSoundData() {
@@ -1705,7 +1702,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         int rnd = this.random.nextInt(this.npcData.deathSounds.size());
         ResourceLocation sound = ResourceLocation.parse(this.npcData.deathSounds.get(rnd));
 
-        return BuiltInRegistries.SOUND_EVENT.get(sound);
+        return BuiltInRegistries.SOUND_EVENT.getValue(sound);
     }
 
     public ArrayList<String> getDeathSoundData() {
@@ -1813,7 +1810,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
      * @param item item to pick up.
      */
     @Override
-    protected void pickUpItem(ItemEntity item) {
+    protected void pickUpItem(ServerLevel level, ItemEntity item) {
         // Profession event
         ItemStack stack = item.getItem();
         for (TaterzenProfession profession : this.professions.values()) {
@@ -2083,7 +2080,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayer player) {
+    public EntityType<?> getPolymerEntityType(PacketContext context) {
         // All that other work for such a pretty little line of code
         return npcData.entityList.get(npcData.playerEntity.get("Entity"));
     }
@@ -2119,7 +2116,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void onBeforeSpawnPacket(ServerPlayer player, Consumer<Packet<?>> packetConsumer) {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
-        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.uuid, this.gameProfile, false, 0, GameType.SURVIVAL, null, null));
+        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.uuid, this.gameProfile, false, 0, GameType.SURVIVAL, null, 0, null));
         packetConsumer.accept(packet);
     }
 }

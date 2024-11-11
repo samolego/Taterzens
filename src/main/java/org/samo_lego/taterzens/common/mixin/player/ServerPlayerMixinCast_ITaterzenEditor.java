@@ -5,18 +5,18 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
+import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.interfaces.ITaterzenEditor;
+import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.samo_lego.taterzens.common.Taterzens;
-import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -53,7 +53,8 @@ public class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
             if (this.editorMode == EditorMode.PATH) {
                 ArrayList<BlockPos> pathTargets = editor.getSelectedNpc().get().getPathTargets();
                 DustParticleOptions effect = new DustParticleOptions(
-                        new Vector3f(
+                        ARGB.colorFromFloat(
+                                1f,
                                 config.path.color.red / 255.0F,
                                 config.path.color.green / 255.0F,
                                 config.path.color.blue / 255.0F

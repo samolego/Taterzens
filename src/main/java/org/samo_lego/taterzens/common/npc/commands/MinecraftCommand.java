@@ -1,6 +1,7 @@
 package org.samo_lego.taterzens.common.npc.commands;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 
@@ -20,7 +21,7 @@ public class MinecraftCommand extends AbstractTaterzenCommand {
     @Override
     public void execute(TaterzenNPC npc, Player player) {
         npc.getServer().getCommands().performPrefixedCommand(
-                npc.createCommandSourceStack(), command.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
+                npc.createCommandSourceStackForNameResolution((ServerLevel) npc.level()), command.replaceAll(CLICKER_PLACEHOLDER, player.getGameProfile().getName()));
     }
 
     @Override
