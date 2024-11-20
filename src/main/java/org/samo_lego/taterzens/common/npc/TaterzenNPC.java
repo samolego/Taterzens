@@ -14,6 +14,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
@@ -747,6 +748,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
         AEntityTrackerEntry trackerEntry = ((AChunkMap) storage).getEntityMap().get(this.getId());
         if (trackerEntry != null) {
             trackerEntry.getSeenBy().forEach(tracking -> {
+                tracking.getPlayer().connection.send(new ClientboundPlayerInfoRemovePacket(List.of(this.getUUID())));
                 trackerEntry.getPlayer().removePairing(tracking.getPlayer());
                 trackerEntry.getPlayer().addPairing(tracking.getPlayer());
             });
