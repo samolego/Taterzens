@@ -2118,7 +2118,7 @@ public class TaterzenNPC extends PathfinderMob implements CrossbowAttackMob, Ran
     @Override
     public void onBeforeSpawnPacket(ServerPlayer player, Consumer<Packet<?>> packetConsumer) {
         var packet = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, ClientboundPlayerInfoUpdatePacket.Action.UPDATE_LISTED));
-        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.uuid, this.gameProfile, false, 0, GameType.SURVIVAL, null, 0, null));
+        packet.entries().add(new ClientboundPlayerInfoUpdatePacket.Entry(this.uuid, this.gameProfile, false, 0, GameType.SURVIVAL, null, false, 0, null));
         packetConsumer.accept(packet);
     }
 }

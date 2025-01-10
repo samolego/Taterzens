@@ -74,7 +74,7 @@ public class ServerPlayerMixinCast_ITaterzenEditor implements ITaterzenEditor {
                         double x = pos.getX() - j / distance * deltaX;
                         double y = pos.getY() - j / distance * deltaY;
                         double z = pos.getZ() - j / distance * deltaZ;
-                        ClientboundLevelParticlesPacket packet = new ClientboundLevelParticlesPacket(effect, true, x + 0.5D, y + 1.5D, z + 0.5D, 0.1F, 0.1F, 0.1F, 1.0F, 1);
+                        ClientboundLevelParticlesPacket packet = new ClientboundLevelParticlesPacket(effect, true, true, x + 0.5D, y + 1.5D, z + 0.5D, 0.1F, 0.1F, 0.1F, 1.0F, 1);
                         this.self.connection.send(packet);
                     }
                 }

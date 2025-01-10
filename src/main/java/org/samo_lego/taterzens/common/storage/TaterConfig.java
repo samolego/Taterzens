@@ -78,11 +78,11 @@ public class TaterConfig implements IBrigadierConfigurator {
     public Permissions perms = new Permissions();
     public Bungee bungee = new Bungee();
 
-    @SerializedName("// Custom model data number that items in GUI should use.")
-    public final String _comment_guiItemModelData = "";
-    @BrigadierDescription(defaultOption = "257")
-    @SerializedName("gui_item_model_data")
-    public int guiItemModelData = 257;
+    //@SerializedName("// Custom model data number that items in GUI should use.")
+    //public final String _comment_guiItemModelData = "";
+    //@BrigadierDescription(defaultOption = "257")
+    //@SerializedName("gui_item_model_data")
+    //public int guiItemModelData = 257;
 
     @SerializedName("// Nodes which prefer execution instead of going in submenus in `/npc` gui. (Swaps the right and left click function to these nodes)")
     public final String _comment_prefersExecution = "";

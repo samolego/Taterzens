@@ -13,31 +13,28 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Unit;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.AdventureModePredicate;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.*;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.Nullable;
 import org.samo_lego.taterzens.common.Taterzens;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.UUID;
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.samo_lego.taterzens.common.Taterzens.config;
 
 public class EditorGUI {
+    public static final String MODEL_DATA_ID = "taterzens_gui_item";
 
     private static final ItemStack YES_BUTTON = new ItemStack(Items.GREEN_STAINED_GLASS_PANE);
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
@@ -237,7 +234,7 @@ public class EditorGUI {
     static {
         //final CompoundTag customData = new CompoundTag();
         final DataComponentPatch customData = DataComponentPatch.builder()
-            .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(config.guiItemModelData))
+            .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(MODEL_DATA_ID), List.of()))
             // HideFlags has been split up into the individual components for each piece of info it could hide
             // we only set DataCompoenets.ATTRIBUTE_MODIFIERS since (at least with the current items in the gui)
             // that looks identical

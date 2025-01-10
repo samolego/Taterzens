@@ -19,6 +19,7 @@ repositories {
         url 'https://masa.dy.fi/maven'
     }
     maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.parchmentmc.org' }
 }
 
 loom {
@@ -39,6 +40,7 @@ dependencies {
     mappings loom.layered {
         //mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
         it.officialMojangMappings()
+        it.parchment("org.parchmentmc.data:parchment-${project.parchment_version}:${project.parchment_release}@zip")
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
