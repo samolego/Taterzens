@@ -60,8 +60,8 @@ public class EquipmentCommand {
                                 joinText("taterzens.command.equipment.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
                                         .withStyle(ChatFormatting.BOLD)
                                         .withStyle(style -> style
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit equipment"))
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
+                                                .withClickEvent(new ClickEvent.RunCommand("/npc edit equipment"))
+                                                .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
                                         ),
                         false
                 );

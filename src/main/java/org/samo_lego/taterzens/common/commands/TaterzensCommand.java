@@ -17,6 +17,8 @@ import org.samo_lego.taterzens.common.util.LanguageUtil;
 import xyz.nucleoid.server.translations.api.language.ServerLanguage;
 import xyz.nucleoid.server.translations.impl.ServerTranslations;
 
+import java.net.URI;
+
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -92,7 +94,7 @@ public class TaterzensCommand {
             source.sendFailure(
                     errorText("taterzens.command.language.404", language, url)
                     .withStyle(style -> style
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
                     )
             );
         }
@@ -105,8 +107,8 @@ public class TaterzensCommand {
                         successText("taterzens.command.wiki", DOCS_URL)
                                 .withStyle(ChatFormatting.GREEN)
                                 .withStyle(style -> style
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, DOCS_URL))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_docs")))
+                                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(DOCS_URL)))
+                                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.see_docs")))
                                 ),
                 false
         );

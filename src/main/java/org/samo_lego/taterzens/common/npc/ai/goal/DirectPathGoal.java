@@ -21,7 +21,7 @@ public class DirectPathGoal extends MoveTowardsRestrictionGoal {
 
     @Override
     public boolean canUse() {
-        return !this.mob.isWithinRestriction();
+        return !this.mob.isWithinHome();
     }
 
     /**
@@ -30,9 +30,9 @@ public class DirectPathGoal extends MoveTowardsRestrictionGoal {
     @Override
     public void start() {
         this.mob.getNavigation().moveTo(
-                this.mob.getRestrictCenter().getX(),
-                this.mob.getRestrictCenter().getY(),
-                this.mob.getRestrictCenter().getZ(),
+                this.mob.getHomePosition().getX(),
+                this.mob.getHomePosition().getY(),
+                this.mob.getHomePosition().getZ(),
                 this.speed
         );
     }

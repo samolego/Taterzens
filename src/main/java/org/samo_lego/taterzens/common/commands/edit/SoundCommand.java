@@ -13,8 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.samo_lego.taterzens.common.commands.NpcCommand;
 import org.samo_lego.taterzens.common.Taterzens;
+import org.samo_lego.taterzens.common.commands.NpcCommand;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,19 +50,19 @@ public class SoundCommand {
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzen.npc.edit.sounds.add", config.perms.npcCommandPermissionLevel))
                     .then(literal("ambient")
                         .then(argument("ambientSound", ResourceLocationArgument.id())
-                            .suggests(SuggestionProviders.AVAILABLE_SOUNDS)
+                            .suggests(SuggestionProviders.cast(SuggestionProviders.AVAILABLE_SOUNDS))
                             .executes(SoundCommand::addAmbientSound)
                         )
                     )
                     .then(literal("hurt")
                         .then(argument("hurtSound", ResourceLocationArgument.id())
-                            .suggests(SuggestionProviders.AVAILABLE_SOUNDS)
+                            .suggests(SuggestionProviders.cast(SuggestionProviders.AVAILABLE_SOUNDS))
                             .executes(SoundCommand::addHurtSound)
                         )
                     )
                     .then(literal("death")
                         .then(argument("deathSound", ResourceLocationArgument.id())
-                            .suggests(SuggestionProviders.AVAILABLE_SOUNDS)
+                            .suggests(SuggestionProviders.cast(SuggestionProviders.AVAILABLE_SOUNDS))
                             .executes(SoundCommand::addDeathSound)
                         )
                     )

@@ -17,10 +17,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.commands.NpcCommand;
 import org.samo_lego.taterzens.common.npc.commands.BungeeCommand;
 import org.samo_lego.taterzens.common.npc.commands.MinecraftCommand;
-import org.samo_lego.taterzens.common.Taterzens;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
@@ -185,8 +185,8 @@ public class CommandsCommand {
                                                     .withStyle(ChatFormatting.RED)
                                                     .withStyle(ChatFormatting.BOLD)
                                                     .withStyle(style -> style
-                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
-                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + (groupIndex + 1) + " removeCommand " + finalJ))
+                                                            .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", finalJ)))
+                                                            .withClickEvent(new ClickEvent.SuggestCommand("/npc edit commands group id " + (groupIndex + 1) + " removeCommand " + finalJ))
                                                     )
                                     )
                     );
@@ -275,8 +275,8 @@ public class CommandsCommand {
                             .withStyle(ChatFormatting.BOLD)
                             .withStyle(ChatFormatting.RED)
                             .withStyle(style -> style
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finali)))
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + finali + " delete"))));
+                                    .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", finali)))
+                                    .withClickEvent(new ClickEvent.SuggestCommand("/npc edit commands group id " + finali + " delete"))));
 
                     for (int j = 0; j < cmdGrp.size(); j++) {
                         var cmd = cmdGrp.get(j);
@@ -293,8 +293,8 @@ public class CommandsCommand {
                                                         .withStyle(ChatFormatting.RED)
                                                         .withStyle(ChatFormatting.BOLD)
                                                         .withStyle(style -> style
-                                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", finalJ)))
-                                                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit commands group id " + finali + " removeCommand " + finalJ))
+                                                                .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", finalJ)))
+                                                                .withClickEvent(new ClickEvent.SuggestCommand("/npc edit commands group id " + finali + " removeCommand " + finalJ))
                                                         )
                                         )
                         );

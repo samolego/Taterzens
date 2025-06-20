@@ -17,6 +17,7 @@ import org.samo_lego.taterzens.common.commands.NpcCommand;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,7 +63,7 @@ public class SkinCommand {
                     source.sendSuccess(() -> translate("advert.fabrictailor.skin_command")
                                     .withStyle(ChatFormatting.GOLD)
                                     .withStyle(style ->
-                                            style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/skin set"))
+                                            style.withClickEvent(new ClickEvent.SuggestCommand("/skin set"))
                                     ),
                             false
                     );
@@ -71,8 +72,8 @@ public class SkinCommand {
                                     .withStyle(ChatFormatting.ITALIC)
                                     .withStyle(ChatFormatting.GOLD)
                                     .withStyle(style -> style
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/FabricTailor"))
-                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "FabricTailor")))
+                                            .withClickEvent(new ClickEvent.OpenUrl(URI.create("https://modrinth.com/mod/FabricTailor")))
+                                            .withHoverEvent(new HoverEvent.ShowText(translate("advert.tooltip.install", "FabricTailor")))
                                     ),
                             false
                     );

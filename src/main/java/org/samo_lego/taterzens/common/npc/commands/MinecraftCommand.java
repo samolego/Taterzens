@@ -37,6 +37,6 @@ public class MinecraftCommand extends AbstractTaterzenCommand {
 
     @Override
     public void fromTag(CompoundTag cmdTag) {
-        this.command = cmdTag.getString("Command");
+        this.command = cmdTag.getString("Command").orElseThrow();
     }
 }

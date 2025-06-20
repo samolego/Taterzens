@@ -10,13 +10,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
-import org.samo_lego.taterzens.common.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.common.Taterzens;
+import org.samo_lego.taterzens.common.api.professions.TaterzenProfession;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 
 import java.io.*;
@@ -90,8 +92,9 @@ public class TaterzensAPI {
      * @param preset file to save taterzen to.
      */
     public static void saveTaterzenToPreset(TaterzenNPC taterzen, File preset) {
-        CompoundTag saveTag = new CompoundTag();
-        taterzen.saveWithoutId(saveTag);
+        var saveData = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, taterzen.registryAccess());
+        taterzen.saveWithoutId(saveData);
+        CompoundTag saveTag = saveData.buildResult();
 
         // Weird as it is, those cannot be read back :(
         saveTag.remove("ArmorDropChances");
@@ -134,7 +137,7 @@ public class TaterzensAPI {
     public static TaterzenNPC createTaterzen(ServerLevel world, String displayName, Vec3 pos, float[] rotations) {
         TaterzenNPC taterzen = new TaterzenNPC(world);
 
-        taterzen.moveTo(pos.x(), pos.y(), pos.z(), rotations[1], rotations[2]);
+        taterzen.absSnapTo(pos.x(), pos.y(), pos.z(), rotations[1], rotations[2]);
         taterzen.setYHeadRot(rotations[0]);
         taterzen.setCustomName(Component.literal(displayName));
         //todo SkullBlockEntity.updateGameprofile(taterzen.getGameProfile(), taterzen::applySkin);
@@ -151,7 +154,7 @@ public class TaterzensAPI {
      * @return TaterzenNPC
      */
     public static TaterzenNPC createTaterzen(ServerPlayer owner, String displayName) {
-        return createTaterzen(owner.serverLevel(), displayName, owner.position(), new float[]{owner.yHeadRot, owner.getYRot(), owner.getXRot()});
+        return createTaterzen(owner.level(), displayName, owner.position(), new float[]{owner.yHeadRot, owner.getYRot(), owner.getXRot()});
     }
 
     /**

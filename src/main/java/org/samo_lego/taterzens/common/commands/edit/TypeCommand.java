@@ -21,6 +21,7 @@ import org.samo_lego.taterzens.common.npc.NPCData;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES;
+import static net.minecraft.commands.synchronization.SuggestionProviders.cast;
 import static org.apache.logging.log4j.LogManager.getLogger;
 import static org.samo_lego.taterzens.common.Taterzens.config;
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
@@ -35,7 +36,7 @@ public class TypeCommand {
         LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity type", ResourceArgument.resource(commandBuildContext, Registries.ENTITY_TYPE))
-                        .suggests(SUMMONABLE_ENTITIES)
+                        .suggests(cast(SUMMONABLE_ENTITIES))
                         .executes(TypeCommand::changeType)
                         .then(argument("nbt", CompoundTagArgument.compoundTag())
                                 .executes(TypeCommand::changeType)
@@ -66,8 +67,8 @@ public class TypeCommand {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                            .withHoverEvent(new HoverEvent.ShowText(translate("advert.tooltip.install", "DisguiseLib")))
+                            .withClickEvent(new ClickEvent.OpenUrl("https://modrinth.com/mod/disguiselib"))
                     )
             );
             return -1;
@@ -119,8 +120,8 @@ public class TypeCommand {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                            .withHoverEvent(new HoverEvent.ShowText(translate("advert.tooltip.install", "DisguiseLib")))
+                            .withClickEvent(new ClickEvent.OpenUrl("https://modrinth.com/mod/disguiselib"))
                     )
             );
             return -1;

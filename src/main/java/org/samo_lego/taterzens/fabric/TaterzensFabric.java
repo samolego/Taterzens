@@ -5,6 +5,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
@@ -21,6 +23,10 @@ public class TaterzensFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        if (FabricLoader.getInstance().isDevelopmentEnvironment() && System.getProperty("runningInIDE", "false").equalsIgnoreCase("true")) {
+            SharedConstants.IS_RUNNING_IN_IDE = true;
+        }
+
         // Common initialization
         new Taterzens(new FabricPlatform());
 

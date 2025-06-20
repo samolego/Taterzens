@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
 
     id 'com.matthewprenger.cursegradle' version '1.4.0'
@@ -39,8 +39,8 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered {
         //mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
-        it.officialMojangMappings()
-        it.parchment("org.parchmentmc.data:parchment-${project.parchment_version}:${project.parchment_release}@zip")
+        officialMojangMappings()
+        parchment(file(project.layout.buildDirectory.file("parchment-1.21.6-pre1-BLEEDING-20250609.171144-1.zip")))
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
@@ -58,7 +58,7 @@ dependencies {
     //modImplementation(include('com.github.NucleoidMC:DisguiseLib:90bf223196'))
 
     // Permission API
-    modApi(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
+    modApi(include('me.lucko:fabric-permissions-api:0.4.0'))
 
     // Server translations
     modApi(include("xyz.nucleoid:server-translations-api:${project.translations_api}"))
@@ -67,7 +67,9 @@ dependencies {
     modApi(include("eu.pb4:sgui:${project.sgui_version}"))
 
     // C2B
-    modApi(include("com.github.samolego:Config2Brigadier:${project.c2b_version}"))
+    modApi(include("com.github.samolego:Config2Brigadier:${project.c2b_version}")) {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
     // Polymer
     modApi(include("eu.pb4:polymer-core:${project.polymer_version}"))

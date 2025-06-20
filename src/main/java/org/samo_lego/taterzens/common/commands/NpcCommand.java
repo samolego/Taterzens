@@ -114,8 +114,8 @@ public class NpcCommand {
         return translate("taterzens.error.select")
                 .withStyle(ChatFormatting.RED)
                 .withStyle(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.command.list")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
+                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.command.list")))
+                        .withClickEvent(new ClickEvent.SuggestCommand("/npc list"))
                 );
     }
 
@@ -181,14 +181,14 @@ public class NpcCommand {
                                     .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
                                     .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
                                     .withStyle(style -> style
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid " + taterzenNPC.getUUID()))
-                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
+                                            .withClickEvent(new ClickEvent.SuggestCommand("/npc select uuid " + taterzenNPC.getUUID()))
+                                            .withHoverEvent(new HoverEvent.ShowText(translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
                     .append(
                             Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
                                     .withStyle(ChatFormatting.GRAY)
                                     .withStyle(style -> style
-                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getStringUUID()))
+                                            .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.see_uuid")))
+                                            .withClickEvent(new ClickEvent.SuggestCommand(taterzenNPC.getStringUUID()))
                                     )
                     );
             ++i;

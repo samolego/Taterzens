@@ -38,7 +38,7 @@ public class PathCommand {
         Entity entity = source.getEntityOrException();
 
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
-            Level world = entity.getCommandSenderWorld();
+            Level world = context.getSource().getLevel();
             if(entity instanceof ServerPlayer player)
                 taterzen.getPathTargets().forEach(blockPos -> player.connection.send(
                         new ClientboundBlockUpdatePacket(blockPos, world.getBlockState(blockPos))
@@ -68,8 +68,8 @@ public class PathCommand {
                                 joinText("taterzens.command.path_editor.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
                                         .withStyle(ChatFormatting.BOLD)
                                         .withStyle(style -> style
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit path"))
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
+                                                .withClickEvent(new ClickEvent.RunCommand("/npc edit path"))
+                                                .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
                                         ),
                         false
                 );

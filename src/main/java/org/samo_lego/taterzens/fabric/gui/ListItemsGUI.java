@@ -22,11 +22,11 @@ import java.util.List;
 
 public abstract class ListItemsGUI extends SimpleGui implements Container {
     protected static final DataComponentPatch customData = DataComponentPatch.builder()
-        .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(EditorGUI.MODEL_DATA_ID), List.of()))
+        .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(config.guiItemModelData)))
         // HideFlags has been split up into the individual components for each piece of info it could hide
         // we only set DataCompoenets.ATTRIBUTE_MODIFIERS since (at least with the current items in the gui)
         // that looks identical
-        .set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY.withTooltip(false))
+        .set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY)
         .build();
     private static final int REGISTRY_ITEMS_SIZE = Taterzens.getInstance().getPlatform().getItemRegistrySize();
     private int currentPage = 0;

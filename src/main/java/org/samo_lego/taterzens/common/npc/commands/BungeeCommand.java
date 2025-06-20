@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
@@ -94,9 +93,9 @@ public class BungeeCommand extends AbstractTaterzenCommand {
 
     @Override
     public void fromTag(CompoundTag cmdTag) {
-        this.proxyMessage = BungeeMessage.valueOf(cmdTag.getString("Proxy"));
-        this.playername = cmdTag.getString("Player");
-        this.argument = cmdTag.getString("Argument");
+        this.proxyMessage = BungeeMessage.valueOf(cmdTag.getString("Proxy").orElseThrow());
+        this.playername = cmdTag.getString("Player").orElseThrow();
+        this.argument = cmdTag.getString("Argument").orElseThrow();
     }
 
     @Override

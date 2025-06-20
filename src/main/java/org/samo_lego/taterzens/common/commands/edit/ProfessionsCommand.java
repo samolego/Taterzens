@@ -15,9 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.commands.NpcCommand;
 import org.samo_lego.taterzens.common.interfaces.ITaterzenEditor;
-import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 
 import java.util.*;
@@ -80,8 +80,8 @@ public class ProfessionsCommand {
                                                 .withStyle(ChatFormatting.RED)
                                                 .withStyle(ChatFormatting.BOLD)
                                                 .withStyle(style -> style
-                                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", ResourceLocation.getPath())))
-                                                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit professions remove " + ResourceLocation))
+                                                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", ResourceLocation.getPath())))
+                                                        .withClickEvent(new ClickEvent.SuggestCommand("/npc edit professions remove " + ResourceLocation))
                                                 )
                                 )
                                 .append(Component.literal(")").withStyle(ChatFormatting.RESET))

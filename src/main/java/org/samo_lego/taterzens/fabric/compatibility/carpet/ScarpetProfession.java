@@ -3,9 +3,7 @@ package org.samo_lego.taterzens.fabric.compatibility.carpet;
 import carpet.script.value.StringValue;
 import carpet.script.value.Value;
 import carpet.script.value.ValueConversions;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +12,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.samo_lego.taterzens.common.api.professions.AbstractProfession;
 import org.samo_lego.taterzens.common.npc.NPCData;
@@ -105,23 +105,19 @@ public class ScarpetProfession extends AbstractProfession {
     }
 
     @Override
-    public void readNbt(CompoundTag tag) {
+    public void readNbt(ValueInput tag) {
         READ_NBT_EVENT.triggerCustomEvent(this.npc, this.getTraits(), tag);
 
-        ListTag scarpetTraits = (ListTag) tag.get("ScarpetTraits");
-        if (scarpetTraits != null) {
-            scarpetTraits.forEach(profession -> this.addTrait(profession.getAsString()));
-        }
+        tag.listOrEmpty("ScarpetTraits", Codec.STRING).forEach(this::addTrait);
     }
 
     @Override
-    public void saveNbt(CompoundTag tag) {
+    public void saveNbt(ValueOutput tag) {
         SAVE_NBT_EVENT.triggerCustomEvent(this.npc, this.getTraits(), tag);
 
         if (!this.SCARPET_TRAITS.isEmpty()) {
-            ListTag scarpetTraits = new ListTag();
-            this.SCARPET_TRAITS.forEach(prof -> scarpetTraits.add(StringTag.valueOf(prof.getPrettyString())));
-            tag.put("ScarpetTraits", scarpetTraits);
+            var scarpetTraits = tag.list("ScarpetTraits", Codec.STRING);
+            this.SCARPET_TRAITS.forEach(prof -> scarpetTraits.add(prof.getPrettyString()));
         }
     }
 
