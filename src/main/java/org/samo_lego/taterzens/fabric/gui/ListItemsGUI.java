@@ -20,9 +20,11 @@ import org.samo_lego.taterzens.common.Taterzens;
 
 import java.util.List;
 
+import static org.samo_lego.taterzens.common.Taterzens.config;
+
 public abstract class ListItemsGUI extends SimpleGui implements Container {
     protected static final DataComponentPatch customData = DataComponentPatch.builder()
-        .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(config.guiItemModelData)))
+        .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(EditorGUI.MODEL_DATA_ID), List.of(config.guiItemModelData)))
         // HideFlags has been split up into the individual components for each piece of info it could hide
         // we only set DataCompoenets.ATTRIBUTE_MODIFIERS since (at least with the current items in the gui)
         // that looks identical

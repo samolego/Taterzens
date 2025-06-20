@@ -34,6 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.samo_lego.taterzens.common.Taterzens.config;
 
 public class EditorGUI {
+    public static final String MODEL_DATA_ID = "taterzens_gui_item";
+
     private static final ItemStack YES_BUTTON = new ItemStack(Items.GREEN_STAINED_GLASS_PANE);
     private static final ItemStack NO_BUTTON = new ItemStack(Items.RED_STAINED_GLASS_PANE);
     private static final HashMap<String, ItemStack> itemCommandMap = new HashMap<>();
@@ -232,7 +234,7 @@ public class EditorGUI {
     static {
         //final CompoundTag customData = new CompoundTag();
         final DataComponentPatch customData = DataComponentPatch.builder()
-            .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(), List.of(config.guiItemModelData)))
+            .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of(), List.of(), List.of(MODEL_DATA_ID), List.of(config.guiItemModelData)))
             // HideFlags has been split up into the individual components for each piece of info it could hide
             // we only set DataCompoenets.ATTRIBUTE_MODIFIERS since (at least with the current items in the gui)
             // that looks identical
