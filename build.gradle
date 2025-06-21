@@ -40,7 +40,7 @@ dependencies {
     mappings loom.layered {
         //mappings("net.fabricmc:yarn:$project.yarn_mappings:v2")
         officialMojangMappings()
-        parchment(file(project.layout.buildDirectory.file("parchment-1.21.6-pre1-BLEEDING-20250609.171144-1.zip")))
+        //parchment(file(project.layout.buildDirectory.file("parchment-1.21.6-pre1-BLEEDING-20250609.171144-1.zip")))
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
