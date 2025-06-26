@@ -8,6 +8,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.samo_lego.taterzens.common.npc.NPCData;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
@@ -105,14 +107,14 @@ public interface TaterzenProfession {
      * Called on parsing Taterzen data from {@link CompoundTag}.
      * @param tag tag to load profession data from.
      */
-    default void readNbt(CompoundTag tag) {
+    default void readNbt(ValueInput tag) {
     }
 
     /**
      * Called on saving Taterzen data to {@link CompoundTag}.
      * @param tag tag to save profession data to.
      */
-    default void saveNbt(CompoundTag tag) {
+    default void saveNbt(ValueOutput tag) {
     }
 
     /**

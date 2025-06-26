@@ -7,8 +7,8 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.MessageArgument;
 import net.minecraft.world.entity.Entity;
-import org.samo_lego.taterzens.common.commands.NpcCommand;
 import org.samo_lego.taterzens.common.Taterzens;
+import org.samo_lego.taterzens.common.commands.NpcCommand;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -42,7 +42,7 @@ public class CooldownCommand {
         String msg = MessageArgument.getMessage(context, "new cooldown message").getString();
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             taterzen.setCooldownMessage(msg);
-            entity.sendSystemMessage(
+            context.getSource().sendSystemMessage(
                     successText("taterzens.command.commands.cooldown.edit_message", msg, taterzen.getName().getString()));
         });
 
@@ -53,7 +53,7 @@ public class CooldownCommand {
         long cooldown = LongArgumentType.getLong(context, "cooldown");
         return NpcCommand.selectedTaterzenExecutor(entity, taterzen -> {
             taterzen.setMinCommandInteractionTime(cooldown);
-            entity.sendSystemMessage(
+            context.getSource().sendSystemMessage(
                     successText("taterzens.command.commands.cooldown.set", String.valueOf(cooldown), taterzen.getName().getString()));
         });
     }

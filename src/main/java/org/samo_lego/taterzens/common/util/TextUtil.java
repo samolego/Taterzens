@@ -1,19 +1,16 @@
 package org.samo_lego.taterzens.common.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 import java.util.Arrays;
 
-import static org.samo_lego.taterzens.common.compatibility.ModDiscovery.SERVER_TRANSLATIONS_LOADED;
 import static org.samo_lego.taterzens.common.Taterzens.lang;
 
 public class TextUtil {
@@ -40,8 +37,7 @@ public class TextUtil {
      * @return NbtElement generated from text.
      */
     public static Tag toNbtElement(Component text) {
-        JsonElement json = JsonParser.parseString(Component.Serializer.toJson(text, null));
-        return JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, json);
+        return ComponentSerialization.CODEC.encodeStart(NbtOps.INSTANCE, text).getOrThrow();
     }
 
     /**
@@ -50,8 +46,7 @@ public class TextUtil {
      * @return mutable text object..
      */
     public static MutableComponent fromNbtElement(Tag textNbtElement) {
-        JsonElement json = NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, textNbtElement);
-        return Component.Serializer.fromJson(json, null);
+        return ComponentSerialization.CODEC.decode(NbtOps.INSTANCE, textNbtElement).getOrThrow().getFirst().copy();
     }
 
     /**

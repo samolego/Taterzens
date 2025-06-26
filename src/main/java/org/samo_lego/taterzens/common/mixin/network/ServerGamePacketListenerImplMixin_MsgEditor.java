@@ -1,9 +1,12 @@
 package org.samo_lego.taterzens.common.mixin.network;
 
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -56,7 +59,7 @@ public class ServerGamePacketListenerImplMixin_MsgEditor {
                 if ((msg.startsWith("{") && msg.endsWith("}") || (msg.startsWith("[") && msg.endsWith("]")))) {
                     // NBT tellraw message structure, try parse it
                     try {
-                        text = Component.Serializer.fromJson(msg, null);
+                        text = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, JsonParser.parseString(msg)).getOrThrow().getFirst();
                     } catch (JsonParseException ignored) {
                         player.displayClientMessage(translate("taterzens.error.invalid.text").withStyle(ChatFormatting.RED), false);
                         ci.cancel();

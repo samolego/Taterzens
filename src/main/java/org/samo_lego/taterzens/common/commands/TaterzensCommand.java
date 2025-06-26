@@ -12,9 +12,12 @@ import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
-import org.samo_lego.config2brigadier.util.TranslatedText;
 import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.util.LanguageUtil;
+import xyz.nucleoid.server.translations.api.language.ServerLanguage;
+import xyz.nucleoid.server.translations.impl.ServerTranslations;
+
+import java.net.URI;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static net.minecraft.commands.Commands.argument;
@@ -73,7 +76,7 @@ public class TaterzensCommand {
         String language = StringArgumentType.getString(context, "language");
 
         // Set language for config editing system
-        TranslatedText.setLang(language);
+        ServerTranslations.INSTANCE.setSystemLanguage(ServerLanguage.getLanguage(language).definition());
 
         if(LANG_LIST.contains(language)) {
             config.language = language;
@@ -91,7 +94,7 @@ public class TaterzensCommand {
             source.sendFailure(
                     errorText("taterzens.command.language.404", language, url)
                     .withStyle(style -> style
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
                     )
             );
         }
@@ -104,8 +107,8 @@ public class TaterzensCommand {
                         successText("taterzens.command.wiki", DOCS_URL)
                                 .withStyle(ChatFormatting.GREEN)
                                 .withStyle(style -> style
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, DOCS_URL))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_docs")))
+                                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(DOCS_URL)))
+                                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.see_docs")))
                                 ),
                 false
         );

@@ -84,8 +84,8 @@ public class ScarpetTraitCommand {
                                                     .withStyle(ChatFormatting.RED)
                                                     .withStyle(ChatFormatting.BOLD)
                                                     .withStyle(style -> style
-                                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", id)))
-                                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/trait scarpet remove " + id))
+                                                            .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", id)))
+                                                            .withClickEvent(new ClickEvent.SuggestCommand("/trait scarpet remove " + id))
                                                     )
                                     )
                                     .append(Component.literal(")").withStyle(ChatFormatting.RESET))

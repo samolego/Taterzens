@@ -1,9 +1,9 @@
 package org.samo_lego.taterzens.common.storage;
 
 import com.google.gson.annotations.SerializedName;
-import org.samo_lego.config2brigadier.IBrigadierConfigurator;
-import org.samo_lego.config2brigadier.annotation.BrigadierDescription;
-import org.samo_lego.config2brigadier.annotation.BrigadierExcluded;
+import org.samo_lego.config2brigadier.common.IBrigadierConfigurator;
+import org.samo_lego.config2brigadier.common.annotation.BrigadierDescription;
+import org.samo_lego.config2brigadier.common.annotation.BrigadierExcluded;
 import org.samo_lego.taterzens.common.Taterzens;
 import org.samo_lego.taterzens.common.npc.TaterzenNPC;
 

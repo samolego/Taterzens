@@ -54,8 +54,8 @@ public class BehaviourCommand {
                                 .withStyle(ChatFormatting.GOLD)
                                 .withStyle(ChatFormatting.ITALIC)
                                 .withStyle(style -> style
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/data merge entity " + taterzen.getStringUUID() + " {Invulnerable:0b}"))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.disable_invulnerability")))
+                                        .withClickEvent(new ClickEvent.SuggestCommand("/data merge entity " + taterzen.getStringUUID() + " {Invulnerable:0b}"))
+                                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.disable_invulnerability")))
                                 ),
                         false
                 );

@@ -17,6 +17,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -113,8 +114,8 @@ public class NpcCommand {
         return translate("taterzens.error.select")
                 .withStyle(ChatFormatting.RED)
                 .withStyle(style -> style
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.command.list")))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc list"))
+                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.command.list")))
+                        .withClickEvent(new ClickEvent.SuggestCommand("/npc list"))
                 );
     }
 
@@ -139,7 +140,13 @@ public class NpcCommand {
             return 1;
         }
 
-        entity.sendSystemMessage(noSelectedTaterzenError());
+        //entity.sendSystemMessage(noSelectedTaterzenError()); // TODO: fix
+        // CrunchMunch: workaround the above being missing
+        for (Player player : entity.level().players()) {
+            if (player.hasPermissions(2)) {
+                player.displayClientMessage(noSelectedTaterzenError(), false);
+            }
+        }
         return 0;
     }
 
@@ -174,14 +181,14 @@ public class NpcCommand {
                                     .withStyle(sel ? ChatFormatting.BOLD : ChatFormatting.RESET)
                                     .withStyle(sel ? ChatFormatting.GREEN : (i % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD))
                                     .withStyle(style -> style
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc select uuid " + taterzenNPC.getUUID()))
-                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
+                                            .withClickEvent(new ClickEvent.SuggestCommand("/npc select uuid " + taterzenNPC.getUUID()))
+                                            .withHoverEvent(new HoverEvent.ShowText(translate(sel ? "taterzens.tooltip.current_selection" : "taterzens.tooltip.new_selection", name)))))
                     .append(
                             Component.literal(" (" + (console ? taterzenNPC.getStringUUID() : "uuid") + ")")
                                     .withStyle(ChatFormatting.GRAY)
                                     .withStyle(style -> style
-                                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.see_uuid")))
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, taterzenNPC.getStringUUID()))
+                                            .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.see_uuid")))
+                                            .withClickEvent(new ClickEvent.SuggestCommand(taterzenNPC.getStringUUID()))
                                     )
                     );
             ++i;
@@ -330,7 +337,7 @@ public class NpcCommand {
         CommandSourceStack source = context.getSource();
         ServerPlayer player = source.getPlayerOrException();
         return selectedTaterzenExecutor(player, taterzen -> {
-            taterzen.kill();
+            taterzen.kill(source.getLevel());
             source.sendSuccess(() ->
                             successText("taterzens.command.remove", taterzen.getName().getString()),
                     false

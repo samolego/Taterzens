@@ -10,24 +10,22 @@ import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import org.samo_lego.taterzens.common.commands.NpcCommand;
 import org.samo_lego.taterzens.common.Taterzens;
+import org.samo_lego.taterzens.common.commands.NpcCommand;
+import org.samo_lego.taterzens.common.npc.NPCData;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.synchronization.SuggestionProviders.SUMMONABLE_ENTITIES;
+import static net.minecraft.commands.synchronization.SuggestionProviders.cast;
+import static org.apache.logging.log4j.LogManager.getLogger;
 import static org.samo_lego.taterzens.common.Taterzens.config;
-import static org.samo_lego.taterzens.common.compatibility.ModDiscovery.DISGUISELIB_LOADED;
 import static org.samo_lego.taterzens.common.util.TextUtil.successText;
 import static org.samo_lego.taterzens.common.util.TextUtil.translate;
-
-import org.samo_lego.taterzens.common.npc.NPCData;
-import static org.apache.logging.log4j.LogManager.getLogger;
 
 
 public class TypeCommand {
@@ -38,7 +36,7 @@ public class TypeCommand {
         LiteralCommandNode<CommandSourceStack> typeNode = literal("type")
                 .requires(src -> Taterzens.getInstance().getPlatform().checkPermission(src, "taterzens.npc.edit.entity_type", config.perms.npcCommandPermissionLevel))
                 .then(argument("entity type", ResourceArgument.resource(commandBuildContext, Registries.ENTITY_TYPE))
-                        .suggests(SUMMONABLE_ENTITIES)
+                        .suggests(cast(SUMMONABLE_ENTITIES))
                         .executes(TypeCommand::changeType)
                         .then(argument("nbt", CompoundTagArgument.compoundTag())
                                 .executes(TypeCommand::changeType)
@@ -69,8 +67,8 @@ public class TypeCommand {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                            .withHoverEvent(new HoverEvent.ShowText(translate("advert.tooltip.install", "DisguiseLib")))
+                            .withClickEvent(new ClickEvent.OpenUrl("https://modrinth.com/mod/disguiselib"))
                     )
             );
             return -1;
@@ -86,7 +84,7 @@ public class TypeCommand {
             }
             nbt.putString("id", disguise.toString());
 
-            EntityType.loadEntityRecursive(nbt, source.getLevel(), (entityx) -> {
+            EntityType.loadEntityRecursive(nbt, source.getLevel(), EntitySpawnReason.COMMAND, (entityx) -> {
                 // We can do some manipulation based on the detail returned
                 // taterzen.modEntity() is a short all-caps descriptor of the current TYPE.
                 var removeSub = "entity.minecraft.";
@@ -122,8 +120,8 @@ public class TypeCommand {
             source.sendFailure(translate("advert.disguiselib.required")
                     .withStyle(ChatFormatting.RED)
                     .withStyle(style -> style
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("advert.tooltip.install", "DisguiseLib")))
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://modrinth.com/mod/disguiselib"))
+                            .withHoverEvent(new HoverEvent.ShowText(translate("advert.tooltip.install", "DisguiseLib")))
+                            .withClickEvent(new ClickEvent.OpenUrl("https://modrinth.com/mod/disguiselib"))
                     )
             );
             return -1;

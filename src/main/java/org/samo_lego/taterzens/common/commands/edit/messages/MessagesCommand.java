@@ -206,8 +206,8 @@ public class MessagesCommand {
                                 .withStyle(index % 2 == 0 ? ChatFormatting.YELLOW : ChatFormatting.GOLD)
                                 .append(pair.getFirst())
                                 .withStyle(style -> style
-                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages " + index))
-                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.edit", index))
+                                        .withClickEvent(new ClickEvent.RunCommand("/npc edit messages " + index))
+                                        .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.edit", index))
                                         ))
                 )
                         .append("   ")
@@ -216,8 +216,8 @@ public class MessagesCommand {
                                         .withStyle(ChatFormatting.RED)
                                         .withStyle(ChatFormatting.BOLD)
                                         .withStyle(style -> style
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.delete", index)))
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/npc edit messages " + index + " delete"))
+                                                .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.delete", index)))
+                                                .withClickEvent(new ClickEvent.SuggestCommand("/npc edit messages " + index + " delete"))
                                         )
                         );
                 i.incrementAndGet();
@@ -253,8 +253,8 @@ public class MessagesCommand {
                                 joinText("taterzens.command.message.editor.enter", ChatFormatting.LIGHT_PURPLE, ChatFormatting.AQUA, taterzen.getName().getString())
                                         .withStyle(ChatFormatting.BOLD)
                                         .withStyle(style -> style
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/npc edit messages"))
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
+                                                .withClickEvent(new ClickEvent.RunCommand("/npc edit messages"))
+                                                .withHoverEvent(new HoverEvent.ShowText(translate("taterzens.tooltip.exit").withStyle(ChatFormatting.RED)))
                                         ),
                         false
                 );

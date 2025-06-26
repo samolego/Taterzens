@@ -55,7 +55,7 @@ public class PresetCommand {
             if(taterzenNPC != null) {
                 Vec3 pos = source.getPosition();
                 Vec2 rotation = source.getRotation();
-                taterzenNPC.moveTo(pos.x(), pos.y(), pos.z(), rotation.x, rotation.y);
+                taterzenNPC.absSnapTo(pos.x(), pos.y(), pos.z(), rotation.x, rotation.y);
                 source.getLevel().addFreshEntity(taterzenNPC);
 
                 ((ITaterzenEditor) source.getPlayerOrException()).selectNpc(taterzenNPC);
